@@ -1,17 +1,15 @@
 import * as React from 'react';
+import { Container, Header, Content, Text } from 'native-base';
 
 export const PrettyError = (props: any) => (
-  <div>
-    <h2>Something went wrong!</h2>
-    <pre>
-      {props.error.message}
-    </pre>
-
-    <h3>Stack trace:</h3>
-    <pre>
-      {props.error.stack}
-    </pre>
-  </div>
+  <Container>
+    <Header />
+    <Content>
+      <Text>Something went wrong!</Text>
+      <Text>{props.error.message}</Text>
+      <Text>{props.error.stack}</Text>
+    </Content>
+  </Container>
 );
 
 export default PrettyError;
