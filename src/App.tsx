@@ -3,6 +3,9 @@ import { Container, Header, Left, Right, Body, Title, Content, Button, Text } fr
 import { Constants, Font, Calendar, Permissions } from 'expo';
 
 import * as EteSync from './api/EteSync';
+import * as C from './constants';
+
+import LoginForm from './components/LoginForm';
 
 import ErrorBoundary from  './ErrorBoundary';
 
@@ -35,16 +38,15 @@ class App extends React.Component {
         <Header>
           <Left />
           <Body>
-            <Title>Header</Title>
+            <Title>{C.appName}</Title>
           </Body>
           <Right />
         </Header>
         <Content>
           <ErrorBoundary>
-            <Text>Hello Expo tom!</Text>
-            <Button onPress={this.onPress}>
-              <Text>Click</Text>
-            </Button>
+            <LoginForm
+              onSubmit={this.onPress}
+            />
           </ErrorBoundary>
         </Content>
       </Container>
