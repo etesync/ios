@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Text, View } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import { Button, HelperText, TextInput } from 'react-native-paper';
 
 interface FormErrors {
   errorEmail?: string;
@@ -94,14 +94,21 @@ class LoginForm extends React.PureComponent {
     let advancedSettings = null;
     if (this.state.showAdvanced) {
       advancedSettings = (
-        <TextInput
-          keyboardType="url"
-          textContentType="URL"
-          // error={!!this.state.errors.errorServer}
-          // helperText={this.state.errors.errorServer}
-          value={this.state.server}
-          onChangeText={this.handleInputChange('server')}
-        />
+        <>
+          <TextInput
+            keyboardType="url"
+            textContentType="URL"
+            error={!!this.state.errors.errorServer}
+            value={this.state.server}
+            onChangeText={this.handleInputChange('server')}
+          />
+          <HelperText
+            type="error"
+            visible={!!this.state.errors.errorServer}
+          >
+            {this.state.errors.errorServer}
+          </HelperText>
+        </>
       );
     }
 
@@ -115,32 +122,51 @@ class LoginForm extends React.PureComponent {
             autoCorrect={false}
             autoFocus
             returnKeyType="next"
-            // error={!!this.state.errors.errorEmail}
-            // helperText={this.state.errors.errorEmail}
+            error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange('username')}
             label="Username"
             value={this.state.username}
           />
+          <HelperText
+            type="error"
+            visible={!!this.state.errors.errorEmail}
+          >
+            {this.state.errors.errorEmail}
+          </HelperText>
+
           <TextInput
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="next"
-            // error={!!this.state.errors.errorPassword}
-            // helperText={this.state.errors.errorPassword}
+            error={!!this.state.errors.errorPassword}
             label="Password"
             value={this.state.password}
             onChangeText={this.handleInputChange('password')}
           />
+          <HelperText
+            type="error"
+            visible={!!this.state.errors.errorPassword}
+          >
+            {this.state.errors.errorPassword}
+          </HelperText>
+
           <TextInput
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
-            // error={!!this.state.errors.errorEncryptionPassword}
+            error={!!this.state.errors.errorEncryptionPassword}
             // helperText={this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
             value={this.state.encryptionPassword}
             onChangeText={this.handleInputChange('encryptionPassword')}
           />
+          <HelperText
+            type="error"
+            visible={!!this.state.errors.errorEncryptionPassword}
+          >
+            {this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
+          </HelperText>
+
           {advancedSettings}
 
           <Button
