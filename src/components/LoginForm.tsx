@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Text, View } from 'react-native';
-import { Button, HelperText, TextInput } from 'react-native-paper';
+import { Switch, Button, HelperText, TextInput, TouchableRipple } from 'react-native-paper';
 
 import ExternalLink from '../widgets/ExternalLink';
 
@@ -173,6 +173,21 @@ class LoginForm extends React.PureComponent {
           >
             {this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
           </HelperText>
+
+          <TouchableRipple
+            onPress={() =>
+              this.setState((state: any) => ({
+                valueNormal: !state.showAdvanced,
+              }))
+              }
+          >
+            <View>
+              <Text>Advanced settings</Text>
+              <View pointerEvents="none">
+                <Switch value={this.state.showAdvanced} />
+              </View>
+            </View>
+          </TouchableRipple>
 
           {advancedSettings}
 
