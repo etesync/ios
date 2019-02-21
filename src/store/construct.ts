@@ -1,4 +1,5 @@
-import * as localforage from 'localforage';
+import { AsyncStorage } from 'react-native'
+
 import { combineReducers } from 'redux';
 import { createMigrate, persistReducer, createTransform } from 'redux-persist';
 import session from 'redux-persist/lib/storage/session';
@@ -26,12 +27,12 @@ export interface StoreState {
 
 const settingsPersistConfig = {
   key: 'settings',
-  storage: localforage,
+  storage: AsyncStorage,
 };
 
 const credentialsPersistConfig = {
   key: 'credentials',
-  storage: localforage,
+  storage: AsyncStorage,
   whitelist: ['value'],
 };
 
@@ -145,7 +146,7 @@ const cacheMigrations = {
 const cachePersistConfig = {
   key: 'cache',
   version: 1,
-  storage: localforage,
+  storage: AsyncStorage,
   transforms: [createTransform(cacheSerialize, cacheDeserialize)],
   migrate: createMigrate(cacheMigrations, { debug: false}),
 };
