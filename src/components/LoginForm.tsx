@@ -1,9 +1,7 @@
 import * as React from 'react';
 
-import { Button, Text, Form, Item, Label } from 'native-base';
-import Input from '../widgets/Input';
-
-import * as C from '../constants';
+import { Text, View } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
 
 interface FormErrors {
   errorEmail?: string;
@@ -94,78 +92,63 @@ class LoginForm extends React.PureComponent {
     let advancedSettings = null;
     if (this.state.showAdvanced) {
       advancedSettings = (
-        <Item stackedLabel>
-          <Label>Server</Label>
-          <Input
-            keyboardType="url"
-            textContentType="URL"
-            // error={!!this.state.errors.errorServer}
-            // helperText={this.state.errors.errorServer}
-            name="server"
-            value={this.state.server}
-            onNamedChange={this.handleInputChange}
-          />
-            </Item>
-            );
+        <TextInput
+          keyboardType="url"
+          textContentType="URL"
+          // error={!!this.state.errors.errorServer}
+          // helperText={this.state.errors.errorServer}
+          value={this.state.server}
+          onChangeText={(text) => this.handleInputChange('server', text)}
+        />
+      );
     }
 
     return (
       <>
         {(this.props.error) && (<Text>Error! {this.props.error.message}</Text>)}
-        <Form>
-          <Item stackedLabel>
-            <Label>Username</Label>
-            <Input
-              keyboardType={this.state.showAdvanced ? 'default' : "email-address" }
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoFocus
-              returnKeyType="next"
-              // error={!!this.state.errors.errorEmail}
-              // helperText={this.state.errors.errorEmail}
-              name="username"
-              label="Username"
-              value={this.state.username}
-              onNamedChange={this.handleInputChange}
-            />
-          </Item>
-          <Item stackedLabel>
-            <Label>Password</Label>
-            <Input
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="next"
-              // error={!!this.state.errors.errorPassword}
-              // helperText={this.state.errors.errorPassword}
-              label="Password"
-              name="password"
-              value={this.state.password}
-              onNamedChange={this.handleInputChange}
-            />
-          </Item>
-          <Item stackedLabel>
-            <Label>Encryption Password</Label>
-            <Input
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              // error={!!this.state.errors.errorEncryptionPassword}
-              // helperText={this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
-              name="encryptionPassword"
-              value={this.state.encryptionPassword}
-              onNamedChange={this.handleInputChange}
-            />
-          </Item>
+        <View>
+          <TextInput
+            keyboardType={this.state.showAdvanced ? 'default' : "email-address" }
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoFocus
+            returnKeyType="next"
+            // error={!!this.state.errors.errorEmail}
+            // helperText={this.state.errors.errorEmail}
+            onChangeText={(text) => this.handleInputChange('username', text)}
+            label="Username"
+            value={this.state.username}
+          />
+          <TextInput
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="next"
+            // error={!!this.state.errors.errorPassword}
+            // helperText={this.state.errors.errorPassword}
+            label="Password"
+            value={this.state.password}
+            onChangeText={(text) => this.handleInputChange('password', text)}
+          />
+          <TextInput
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            // error={!!this.state.errors.errorEncryptionPassword}
+            // helperText={this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
+            onChangeText={(text) => this.handleInputChange('encryptionPassword', text)}
+            value={this.state.encryptionPassword}
+          />
           {advancedSettings}
 
           <Button
+            mode="contained"
             color="secondary"
             disabled={this.props.loading}
           >
             <Text>{this.props.loading ? 'Loading…' : 'Log In'}</Text>
           </Button>
-        </Form>
+        </View>
       </>
     );
   }

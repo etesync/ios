@@ -1,6 +1,9 @@
 import * as React from 'react';
-import { Container, Header, Left, Right, Body, Title, Content, Button, Text } from 'native-base';
-import { Constants, Font, Calendar, Permissions } from 'expo';
+import { Text } from 'react-native';
+import { Appbar, DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { Constants, Font, Permissions } from 'expo';
+
+import Container from './widgets/Container';
 
 import * as EteSync from './api/EteSync';
 import * as C from './constants';
@@ -8,6 +11,17 @@ import * as C from './constants';
 import LoginForm from './components/LoginForm';
 
 import ErrorBoundary from  './ErrorBoundary';
+
+
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: 'tomato',
+    accent: 'yellow',
+  },
+};
+
 
 class App extends React.Component {
   state = {
@@ -34,22 +48,22 @@ class App extends React.Component {
     }
 
     return (
-      <Container style={{ paddingTop: Constants.statusBarHeight }}>
-        <Header>
-          <Left />
-          <Body>
-            <Title>{C.appName}</Title>
-          </Body>
-          <Right />
-        </Header>
-        <Content>
+      <PaperProvider theme={theme}>
+        <Container style={{ paddingTop: Constants.statusBarHeight }}>
+          <Appbar.Header>
+            <Appbar.BackAction
+            />
+            <Appbar.Content
+              title={C.appName}
+            />
+          </Appbar.Header>
           <ErrorBoundary>
             <LoginForm
               onSubmit={this.onPress}
             />
           </ErrorBoundary>
-        </Content>
-      </Container>
+        </Container>
+      </PaperProvider>
     );
   }
 
