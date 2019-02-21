@@ -42,10 +42,12 @@ class LoginForm extends React.PureComponent {
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
-  handleInputChange(name: string, value: string) {
-    this.setState({
-      [name]: value
-    });
+  handleInputChange(name: string) {
+    return (value: string) => {
+      this.setState({
+        [name]: value
+      });
+    };
   }
 
   generateEncryption(e: any) {
@@ -98,7 +100,7 @@ class LoginForm extends React.PureComponent {
           // error={!!this.state.errors.errorServer}
           // helperText={this.state.errors.errorServer}
           value={this.state.server}
-          onChangeText={(text) => this.handleInputChange('server', text)}
+          onChangeText={this.handleInputChange('server')}
         />
       );
     }
@@ -115,7 +117,7 @@ class LoginForm extends React.PureComponent {
             returnKeyType="next"
             // error={!!this.state.errors.errorEmail}
             // helperText={this.state.errors.errorEmail}
-            onChangeText={(text) => this.handleInputChange('username', text)}
+            onChangeText={this.handleInputChange('username')}
             label="Username"
             value={this.state.username}
           />
@@ -128,7 +130,7 @@ class LoginForm extends React.PureComponent {
             // helperText={this.state.errors.errorPassword}
             label="Password"
             value={this.state.password}
-            onChangeText={(text) => this.handleInputChange('password', text)}
+            onChangeText={this.handleInputChange('password')}
           />
           <TextInput
             secureTextEntry
@@ -136,8 +138,8 @@ class LoginForm extends React.PureComponent {
             autoCorrect={false}
             // error={!!this.state.errors.errorEncryptionPassword}
             // helperText={this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
-            onChangeText={(text) => this.handleInputChange('encryptionPassword', text)}
             value={this.state.encryptionPassword}
+            onChangeText={this.handleInputChange('encryptionPassword')}
           />
           {advancedSettings}
 
