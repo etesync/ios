@@ -3,6 +3,10 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { Button, HelperText, TextInput } from 'react-native-paper';
 
+import ExternalLink from '../widgets/ExternalLink';
+
+import * as C from '../constants';
+
 interface FormErrors {
   errorEmail?: string;
   errorPassword?: string;
@@ -150,6 +154,9 @@ class LoginForm extends React.PureComponent {
           >
             {this.state.errors.errorPassword}
           </HelperText>
+          <ExternalLink href={C.forgotPassword}>
+            <Text>Forget password?</Text>
+          </ExternalLink>
 
           <TextInput
             secureTextEntry
