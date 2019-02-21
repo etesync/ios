@@ -180,6 +180,7 @@ class LoginForm extends React.PureComponent {
             mode="contained"
             color="secondary"
             disabled={this.props.loading}
+            onPress={this.generateEncryption}
           >
             <Text>{this.props.loading ? 'Loading…' : 'Log In'}</Text>
           </Button>
