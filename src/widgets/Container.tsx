@@ -7,7 +7,7 @@ class Container extends React.Component<ViewProps> {
     super(props);
   }
 
-  render() {
+  public render() {
     const { children, style } = this.props;
 
     return (

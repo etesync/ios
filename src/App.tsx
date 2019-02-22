@@ -10,7 +10,7 @@ import * as C from './constants';
 
 import LoginForm from './components/LoginForm';
 
-import ErrorBoundary from  './ErrorBoundary';
+import ErrorBoundary from './ErrorBoundary';
 
 
 const theme = {
@@ -24,8 +24,8 @@ const theme = {
 
 
 class App extends React.Component {
-  state = {
-    fontLoaded: false
+  public state = {
+    fontLoaded: false,
   };
 
   constructor(props: any) {
@@ -33,18 +33,18 @@ class App extends React.Component {
     this.onPress = this.onPress.bind(this);
   }
 
-  async componentWillMount() {
+  public async componentWillMount() {
     await Font.loadAsync({
-      'Roboto': require('native-base/Fonts/Roboto.ttf'),
-      'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
     });
 
     this.setState({ fontLoaded: true });
   }
 
-  render() {
+  public render() {
     if (!this.state.fontLoaded) {
-      return <Text>Loading</Text>
+      return <Text>Loading</Text>;
     }
 
     return (
@@ -67,7 +67,7 @@ class App extends React.Component {
     );
   }
 
-  onPress() {
+  public onPress() {
     Permissions.askAsync(Permissions.CALENDAR);
 
     const server = 'http://lenovo:8000';

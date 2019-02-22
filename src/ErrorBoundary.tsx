@@ -3,7 +3,7 @@ import * as React from 'react';
 import PrettyError from './PrettyError';
 
 class ErrorBoundary extends React.Component {
-  state: {
+  public state: {
     error?: Error;
   };
 
@@ -12,11 +12,11 @@ class ErrorBoundary extends React.Component {
     this.state = { };
   }
 
-  componentDidCatch(error: Error) {
+  public componentDidCatch(error: Error) {
     this.setState({ error });
   }
 
-  render() {
+  public render() {
     const { error } = this.state;
     if (error) {
       return (

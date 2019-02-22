@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native'
+import { AsyncStorage } from 'react-native';
 
 import { combineReducers } from 'redux';
 import { createMigrate, persistReducer, createTransform } from 'redux-persist';
@@ -78,7 +78,7 @@ const entriesDeserialize = (state: EteSync.EntryJson[]): FetchType<EntriesData> 
   }
 
   return new EntriesFetchRecord({value: List(state.map((x: any) => {
-    let ret = new EteSync.Entry();
+    const ret = new EteSync.Entry();
     ret.deserialize(x);
     return ret;
   }))});
@@ -97,14 +97,14 @@ const userInfoDeserialize = (state: EteSync.UserInfoJson) => {
     return null;
   }
 
-  let ret = new EteSync.UserInfo(state.owner!, state.version);
+  const ret = new EteSync.UserInfo(state.owner!, state.version);
   ret.deserialize(state);
   return ret;
 };
 
 const cacheSerialize = (state: any, key: string) => {
   if (key === 'entries') {
-    let ret = {};
+    const ret = {};
     state.forEach((value: FetchType<EntriesData>, mapKey: string) => {
       ret[mapKey] = entriesSerialize(value);
     });
@@ -120,7 +120,7 @@ const cacheSerialize = (state: any, key: string) => {
 
 const cacheDeserialize = (state: any, key: string) => {
   if (key === 'entries') {
-    let ret = {};
+    const ret = {};
     Object.keys(state).forEach((mapKey) => {
       ret[mapKey] = entriesDeserialize(state[mapKey]);
     });
@@ -138,7 +138,7 @@ const cacheMigrations = {
   0: (state: any) => {
     return {
       ...state,
-      journals: undefined
+      journals: undefined,
     };
   },
 };

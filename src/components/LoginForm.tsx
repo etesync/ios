@@ -15,7 +15,7 @@ interface FormErrors {
 }
 
 class LoginForm extends React.PureComponent {
-  state: {
+  public state: {
     showAdvanced: boolean;
     errors: FormErrors;
 
@@ -25,7 +25,7 @@ class LoginForm extends React.PureComponent {
     encryptionPassword: string;
   };
 
-  props: {
+  public props: {
     onSubmit: (username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) => void;
     loading?: boolean;
     error?: Error;
@@ -46,15 +46,15 @@ class LoginForm extends React.PureComponent {
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
-  handleInputChange(name: string) {
+  public handleInputChange(name: string) {
     return (value: string) => {
       this.setState({
-        [name]: value
+        [name]: value,
       });
     };
   }
 
-  generateEncryption(e: any) {
+  public generateEncryption(e: any) {
     e.preventDefault();
     const server = this.state.showAdvanced ? this.state.server : undefined;
 
@@ -62,7 +62,7 @@ class LoginForm extends React.PureComponent {
     const password = this.state.password;
     const encryptionPassword = this.state.encryptionPassword;
 
-    let errors: FormErrors = {};
+    const errors: FormErrors = {};
     const fieldRequired = 'This field is required!';
     if (!username) {
       errors.errorEmail = fieldRequired;
@@ -81,7 +81,7 @@ class LoginForm extends React.PureComponent {
     }
 
     if (Object.keys(errors).length) {
-      this.setState({errors: errors});
+      this.setState({errors});
       return;
     } else {
       this.setState({errors: {}});
@@ -90,11 +90,11 @@ class LoginForm extends React.PureComponent {
     this.props.onSubmit(username, password, encryptionPassword, server);
   }
 
-  toggleAdvancedSettings() {
+  public toggleAdvancedSettings() {
     this.setState({showAdvanced: !this.state.showAdvanced});
   }
 
-  render() {
+  public render() {
     let advancedSettings = null;
     if (this.state.showAdvanced) {
       advancedSettings = (
@@ -121,10 +121,10 @@ class LoginForm extends React.PureComponent {
         {(this.props.error) && (<Text>Error! {this.props.error.message}</Text>)}
         <View>
           <TextInput
-            keyboardType={this.state.showAdvanced ? 'default' : "email-address" }
+            keyboardType={this.state.showAdvanced ? 'default' : 'email-address'}
             autoCapitalize="none"
             autoCorrect={false}
-            autoFocus
+            autoFocus={true}
             returnKeyType="next"
             error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange('username')}
@@ -139,7 +139,7 @@ class LoginForm extends React.PureComponent {
           </HelperText>
 
           <TextInput
-            secureTextEntry
+            secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="next"
@@ -159,7 +159,7 @@ class LoginForm extends React.PureComponent {
           </ExternalLink>
 
           <TextInput
-            secureTextEntry
+            secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
             error={!!this.state.errors.errorEncryptionPassword}

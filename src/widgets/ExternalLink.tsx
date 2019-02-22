@@ -7,7 +7,7 @@ type PropsType = {
 } & ViewProps;
 
 class ExternalLink extends React.PureComponent<PropsType> {
-  render() {
+  public render() {
     const { href, children, ...props } = this.props;
     return (
       <Button {...props} onPress={() => Linking.openURL(href)}>
