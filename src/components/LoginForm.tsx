@@ -124,7 +124,7 @@ class LoginForm extends React.PureComponent {
             keyboardType={this.state.showAdvanced ? 'default' : 'email-address'}
             autoCapitalize="none"
             autoCorrect={false}
-            autoFocus={true}
+            autoFocus
             returnKeyType="next"
             error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange('username')}
@@ -139,7 +139,7 @@ class LoginForm extends React.PureComponent {
           </HelperText>
 
           <TextInput
-            secureTextEntry={true}
+            secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="next"
@@ -159,7 +159,7 @@ class LoginForm extends React.PureComponent {
           </ExternalLink>
 
           <TextInput
-            secureTextEntry={true}
+            secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
             error={!!this.state.errors.errorEncryptionPassword}
