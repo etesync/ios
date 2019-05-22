@@ -1,0 +1,24 @@
+import * as React from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/es/integration/react';
+import App from './App';
+
+import { store, persistor } from './store';
+
+class Index extends React.Component {
+  constructor(props: any) {
+    super(props);
+  }
+
+  public render() {
+    return (
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
+          <App />
+        </PersistGate>
+      </Provider>
+    );
+  }
+}
+
+export default Index;
