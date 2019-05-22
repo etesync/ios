@@ -1,5 +1,5 @@
 import * as sjcl from 'sjcl';
-import NodeRSA from 'node-rsa';
+import * as crypto from 'crypto';
 
 import * as Constants from './Constants';
 import { byte, base64 } from './Helpers';
@@ -136,27 +136,43 @@ function bufferToArray(buffer: Buffer) {
 export class AsymmetricCryptoManager {
 
   public static generateKeyPair() {
-    const keyPair = new NodeRSA();
-    keyPair.generateKeyPair(3072, 65537);
-    const pubkey = keyPair.exportKey('pkcs8-public-der') as Buffer;
-    const privkey = keyPair.exportKey('pkcs8-private-der') as Buffer;
+    const keyPair = crypto.generateKeyPairSync('rsa' as any, {
+      modulusLength: 3072,
+      publicExponent: 65537,
+      publicKeyEncoding: {
+        type: 'pkcs1',
+        format: 'der',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'der',
+        cipher: 'ase-256-cbc',
+        passphrase: null,
+      },
+    });
     return new AsymmetricKeyPair(
-      bufferToArray(pubkey), bufferToArray(privkey));
+      bufferToArray(keyPair.publicKey), bufferToArray(keyPair.privateKey));
   }
-  public keyPair: NodeRSA;
+  private privateKey: crypto.KeyObject;
 
   constructor(keyPair: AsymmetricKeyPair) {
-    this.keyPair = new NodeRSA();
-    this.keyPair.importKey(Buffer.from(keyPair.privateKey), 'pkcs8-der');
+    this.privateKey = crypto.createPrivateKey({
+      key: Buffer.from(keyPair.privateKey),
+      type: 'pkcs8',
+      format: 'der',
+    });
   }
 
   public encryptBytes(publicKey: byte[], content: byte[]): byte[] {
-    const key = new NodeRSA();
-    key.importKey(Buffer.from(publicKey), 'pkcs8-public-der');
-    return bufferToArray(key.encrypt(Buffer.from(content), 'buffer'));
+    const key = crypto.createPublicKey({
+      key: Buffer.from(publicKey),
+      type: 'pkcs1',
+      format: 'der',
+    });
+    return bufferToArray(crypto.publicEncrypt(key, Buffer.from(content)));
   }
 
   public decryptBytes(content: byte[]): byte[] {
-    return bufferToArray(this.keyPair.decrypt(Buffer.from(content), 'buffer'));
+    return bufferToArray(crypto.privateDecrypt(this.privateKey, Buffer.from(content)));
   }
 }
