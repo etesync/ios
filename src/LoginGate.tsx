@@ -3,8 +3,7 @@ import * as React from 'react';
 import { Headline, Paragraph, Text } from 'react-native-paper';
 
 import Container from './widgets/Container';
-// import SyncGate from './SyncGate';
-const SyncGate = (props: any) => <Text>SyncGate</Text>;
+import SyncGate from './SyncGate';
 import LoginForm from './components/LoginForm';
 // import EncryptionLoginForm from './components/EncryptionLoginForm';
 const EncryptionLoginForm = (props: any) => <Text>EncryptionLoginForm</Text>;

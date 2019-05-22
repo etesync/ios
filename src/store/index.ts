@@ -17,7 +17,7 @@ const middleware = [
 ];
 
 if (process.env.NODE_ENV === 'development') {
-  middleware.push(createLogger());
+  // middleware.push(createLogger());
 }
 
 export const store = createStore(
