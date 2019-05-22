@@ -103,6 +103,7 @@ class LoginForm extends React.PureComponent {
             keyboardType="url"
             textContentType="URL"
             error={!!this.state.errors.errorServer}
+            label="Custom Server"
             value={this.state.server}
             onChangeText={this.handleInputChange('server')}
           />
@@ -163,13 +164,13 @@ class LoginForm extends React.PureComponent {
             autoCapitalize="none"
             autoCorrect={false}
             error={!!this.state.errors.errorEncryptionPassword}
-            // helperText={this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
+            label="Encryption Password"
             value={this.state.encryptionPassword}
             onChangeText={this.handleInputChange('encryptionPassword')}
           />
           <HelperText
             type="error"
-            visible={!!this.state.errors.errorEncryptionPassword}
+            // visible={!!this.state.errors.errorEncryptionPassword}
           >
             {this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
           </HelperText>
@@ -177,7 +178,7 @@ class LoginForm extends React.PureComponent {
           <TouchableRipple
             onPress={() =>
               this.setState((state: any) => ({
-                valueNormal: !state.showAdvanced,
+                showAdvanced: !state.showAdvanced,
               }))
               }
           >
@@ -193,7 +194,6 @@ class LoginForm extends React.PureComponent {
 
           <Button
             mode="contained"
-            color="secondary"
             disabled={this.props.loading}
             onPress={this.generateEncryption}
           >

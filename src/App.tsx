@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Text } from 'react-native';
 import { Appbar, DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Constants, Font, Permissions } from 'expo';
+import { Font, Permissions } from 'expo';
 
 import Container from './widgets/Container';
 
@@ -50,7 +50,7 @@ class App extends React.Component {
 
     return (
       <PaperProvider theme={theme}>
-        <Container style={{ paddingTop: Constants.statusBarHeight }}>
+        <Container>
           <Appbar.Header>
             <Appbar.BackAction
             />
