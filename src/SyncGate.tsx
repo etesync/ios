@@ -140,10 +140,6 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
           });
         });
       });
-
-      this.setState({
-        journalMap: await syncInfoSelector(this.props),
-      });
     };
 
     const sync = async () => {
@@ -165,6 +161,16 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
     } else {
       const fetching = store.dispatch(fetchUserInfo(this.props.etesync, me)) as any;
       fetching.then(sync);
+    }
+  }
+
+  public async componentDidUpdate(prevProps: PropsTypeInner) {
+    const journals = this.props.journals.value;
+
+    if ((journals !== null) && (prevProps.journals !== this.props.journals)) {
+      this.setState({
+        journalMap: await syncInfoSelector(this.props),
+      });
     }
   }
 
