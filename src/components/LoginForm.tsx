@@ -103,6 +103,8 @@ class LoginForm extends React.PureComponent {
           <TextInput
             keyboardType="url"
             textContentType="URL"
+            autoCapitalize="none"
+            autoCorrect={false}
             error={!!this.state.errors.errorServer}
             label="Custom Server"
             value={this.state.server}
