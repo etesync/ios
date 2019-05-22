@@ -821,6 +821,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/webcrypto@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/webcrypto/-/webcrypto-0.0.28.tgz#b06160390cd000fb201f62eb02ac341ebf7e60fe"
+  integrity sha512-jzAoSUvqA+183nJO/Sc73CREQJsv+p77WJdn532GqA3YXQzlwRwHhClVa7U4O8iB2sJSR7G3v6f1mJFNkwA9YQ==
+
 "@types/websql@^0.0.27":
   version "0.0.27"
   resolved "https://registry.yarnpkg.com/@types/websql/-/websql-0.0.27.tgz#621a666a7f02018e7cbb4abab956a25736c27d71"
@@ -2109,7 +2114,7 @@ cross-spawn@^6.0.5:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-"crypto@npm:isomorphic-webcrypto":
+"crypto@npm:isomorphic-webcrypto", "webcrypto@npm:isomorphic-webcrypto":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/isomorphic-webcrypto/-/isomorphic-webcrypto-1.6.1.tgz#56ebfedea5515d9a4628a3dd59fed73a0dcad58f"
   integrity sha512-ji9vrOdGIQaBguhOg6JZXL+TL8VIEIja/dtcvJ6HtVBX9WygJF6XXjp8+bkZA4EHW3s1mqbG4DIGHBy2FFmOfA==

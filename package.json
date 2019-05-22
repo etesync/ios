@@ -28,7 +28,8 @@
     "redux-thunk": "^2.3.0",
     "sjcl": "git+https://github.com/etesync/sjcl",
     "urijs": "^1.19.1",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "webcrypto": "npm:isomorphic-webcrypto"
   },
   "devDependencies": {
     "@types/expo": "^32.0.2",
@@ -42,6 +43,7 @@
     "@types/sjcl": "^1.0.28",
     "@types/urijs": "^1.15.38",
     "@types/uuid": "^3.4.4",
+    "@types/webcrypto": "^0.0.28",
     "babel-preset-expo": "^5.0.0",
     "tslint": "^5.12.1",
     "tslint-react": "^3.6.0",
