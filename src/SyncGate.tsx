@@ -39,6 +39,10 @@ type PropsTypeInner = PropsType & {
   fetchCount: number;
 };
 
+interface StateType {
+  journalMap: Map<string, SyncInfoJournal>;
+}
+
 const syncInfoSelector = createSelector(
   (props: PropsTypeInner) => props.etesync,
   (props: PropsTypeInner) => props.journals.value!,
@@ -59,7 +63,8 @@ const syncInfoSelector = createSelector(
     }
 
     return journals.reduce(
-      (ret, journal) => {
+      async (promiseRet, journal) => {
+        const ret = await promiseRet;
         const journalEntries = entries.get(journal.uid);
         let prevUid: string | null = null;
 
@@ -69,11 +74,9 @@ const syncInfoSelector = createSelector(
 
         let cryptoManager: EteSync.CryptoManager;
         if (journal.key) {
-          if (!asymmetricCryptoManager) {
-            const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
-            asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
-          }
-          const derivedJournalKey = asymmetricCryptoManager.decryptBytes(journal.key);
+          const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
+          asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
+          const derivedJournalKey = await asymmetricCryptoManager.decryptBytes(keyPair.privateKey, journal.key);
           cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
         } else {
           cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
@@ -95,21 +98,27 @@ const syncInfoSelector = createSelector(
           journalEntries: journalEntries.value,
         });
       },
-      Map<string, SyncInfoJournal>()
+      Promise.resolve(Map<string, SyncInfoJournal>())
     );
   }
 );
 
-class SyncGate extends React.PureComponent<PropsTypeInner> {
+class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
   constructor(props: PropsTypeInner) {
     super(props);
+
+    this.state = {
+      journalMap: Map<string, SyncInfoJournal>(),
+    };
   }
 
   public componentDidMount() {
     const me = this.props.etesync.credentials.email;
-    const syncAll = () => {
+    const syncAll = async () => {
       store.dispatch<any>(fetchAll(this.props.etesync, this.props.entries)).then((haveJournals: boolean) => {
         if (haveJournals) {
+          this.setState({
+          });
           return;
         }
 
@@ -131,14 +140,18 @@ class SyncGate extends React.PureComponent<PropsTypeInner> {
           });
         });
       });
+
+      this.setState({
+        journalMap: await syncInfoSelector(this.props),
+      });
     };
 
-    const sync = () => {
+    const sync = async () => {
       if (this.props.userInfo.value) {
         syncAll();
       } else {
         const userInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
-        const keyPair = EteSync.AsymmetricCryptoManager.generateKeyPair();
+        const keyPair = await EteSync.AsymmetricCryptoManager.generateKeyPair();
         const cryptoManager = new EteSync.CryptoManager(this.props.etesync.encryptionKey, 'userInfo');
 
         userInfo.setKeyPair(cryptoManager, keyPair);
@@ -158,6 +171,7 @@ class SyncGate extends React.PureComponent<PropsTypeInner> {
   public render() {
     const entryArrays = this.props.entries;
     const journals = this.props.journals.value;
+    const { journalMap } = this.state;
 
     if (this.props.userInfo.error) {
       return <PrettyError error={this.props.userInfo.error} />;
@@ -189,9 +203,6 @@ class SyncGate extends React.PureComponent<PropsTypeInner> {
 
     // FIXME: Shouldn't be here
     moment.locale(this.props.settings.locale);
-
-
-    const journalMap = syncInfoSelector(this.props);
 
     return (
       <Journals
