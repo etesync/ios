@@ -61,6 +61,8 @@ const syncInfoSelector = createSelector(
         throw error;
       }
     }
+    const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
+    asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
 
     return journals.reduce(
       async (promiseRet, journal) => {
@@ -74,8 +76,6 @@ const syncInfoSelector = createSelector(
 
         let cryptoManager: EteSync.CryptoManager;
         if (journal.key) {
-          const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
-          asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
           const derivedJournalKey = await asymmetricCryptoManager.decryptBytes(keyPair.privateKey, journal.key);
           cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
         } else {
