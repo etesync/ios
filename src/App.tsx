@@ -6,8 +6,9 @@ import { Font, Permissions } from 'expo';
 
 import Container from './widgets/Container';
 
-import * as EteSync from './api/EteSync';
 import * as C from './constants';
+import { store } from './store';
+import { login, deriveKey } from './store/actions';
 
 import LoginForm from './components/LoginForm';
 
@@ -70,30 +71,16 @@ class App extends React.Component {
     );
   }
 
-  public onPress() {
-    Permissions.askAsync(Permissions.CALENDAR);
+  public onEncryptionFormSubmit(encryptionPassword: string) {
+    return [deriveKey, encryptionPassword];
+    // store.dispatch(deriveKey(this.props.credentials.value!.credentials.email, encryptionPassword));
+  }
 
-    const server = 'http://lenovo:8000';
-    const authenticator = new EteSync.Authenticator(server);
+  public onPress(username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) {
+    Permissions.askAsync(Permissions.CALENDAR, Permissions.CONTACTS);
 
-    const username = 'me@etesync.com';
-    const password = 'qqqqqqqq';
-
-    authenticator.getAuthToken(username, password).then(
-      (authToken) => {
-        const creds = new EteSync.Credentials(username, authToken);
-
-        const context = {
-          serviceApiUrl: server,
-          credentials: creds,
-        };
-
-        console.log(context);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+    serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
+    store.dispatch<any>(login(username, password, encryptionPassword, serviceApiUrl));
   }
 }
 
