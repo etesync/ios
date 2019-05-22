@@ -14,7 +14,7 @@ import * as actions from './store/actions';
 
 import { login, deriveKey } from './store/actions';
 
-import LoginForm from './components/LoginForm';
+import LoginGate from './LoginGate';
 
 import ErrorBoundary from './ErrorBoundary';
 
@@ -70,8 +70,8 @@ class App extends React.Component<PropsType> {
           </Appbar.Header>
           <ErrorBoundary>
             <KeyboardAwareScrollView enableOnAndroid>
-              <LoginForm
-                onSubmit={this.onPress}
+              <LoginGate
+                credentials={this.props.credentials}
               />
             </KeyboardAwareScrollView>
           </ErrorBoundary>
