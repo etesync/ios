@@ -1,9 +1,10 @@
 import * as React from 'react';
 
 import { Text, View } from 'react-native';
-import { Switch, Button, HelperText, TextInput, TouchableRipple } from 'react-native-paper';
+import { Switch, Button, HelperText, Paragraph, TextInput, TouchableRipple } from 'react-native-paper';
 
 import ExternalLink from '../widgets/ExternalLink';
+import Row from '../widgets/Row';
 
 import * as C from '../constants';
 
@@ -182,12 +183,12 @@ class LoginForm extends React.PureComponent {
               }))
               }
           >
-            <View>
-              <Text>Advanced settings</Text>
+            <Row style={{paddingVertical: 8, justifyContent: 'space-between'}}>
+              <Paragraph>Advanced settings</Paragraph>
               <View pointerEvents="none">
                 <Switch value={this.state.showAdvanced} />
               </View>
-            </View>
+            </Row>
           </TouchableRipple>
 
           {advancedSettings}
