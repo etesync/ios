@@ -19,6 +19,7 @@
     "node-rsa": "^1.0.3",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-keyboard-aware-scroll-view": "^0.8.0",
     "react-native-paper": "^2.11.1",
     "react-redux": "^6.0.0",
     "redux": "^4.0.1",

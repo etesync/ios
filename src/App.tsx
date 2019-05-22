@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Text } from 'react-native';
 import { Appbar, DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Constants, Font, Permissions } from 'expo';
 
 import Container from './widgets/Container';
@@ -58,9 +59,11 @@ class App extends React.Component {
             />
           </Appbar.Header>
           <ErrorBoundary>
-            <LoginForm
-              onSubmit={this.onPress}
-            />
+            <KeyboardAwareScrollView enableOnAndroid>
+              <LoginForm
+                onSubmit={this.onPress}
+              />
+            </KeyboardAwareScrollView>
           </ErrorBoundary>
         </Container>
       </PaperProvider>
