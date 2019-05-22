@@ -2,7 +2,6 @@ import { AsyncStorage } from 'react-native';
 
 import { combineReducers } from 'redux';
 import { createMigrate, persistReducer, createTransform } from 'redux-persist';
-import session from 'redux-persist/lib/storage/session';
 
 import { List, Map as ImmutableMap } from 'immutable';
 
@@ -38,7 +37,7 @@ const credentialsPersistConfig = {
 
 const encryptionKeyPersistConfig = {
   key: 'encryptionKey',
-  storage: session,
+  storage: AsyncStorage,
 };
 
 const journalsSerialize = (state: JournalsData) => {
