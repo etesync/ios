@@ -223,7 +223,6 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
         etesync={this.props.etesync}
         userInfo={this.props.userInfo.value!}
         syncInfo={journalMap}
-        journals={journals}
       />
     );
   }

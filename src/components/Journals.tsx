@@ -8,13 +8,12 @@ import Container from '../widgets/Container';
 
 import * as EteSync from '../api/EteSync';
 
-import { JournalsData, UserInfoData, CredentialsData } from '../store';
+import { UserInfoData, CredentialsData } from '../store';
 import { SyncInfo } from '../SyncGate';
 
 class Journals extends React.PureComponent {
   public props: {
     etesync: CredentialsData;
-    journals: JournalsData;
     userInfo: UserInfoData;
     syncInfo: SyncInfo;
   };
