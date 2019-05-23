@@ -39,7 +39,7 @@ class Journals extends React.PureComponent {
         ret[info.type].push(
           <List.Item
             key={journal.uid}
-            onClick={() => this.journalClicked(journal.uid)}
+            onPress={() => this.journalClicked(journal.uid)}
             title={`${info.displayName} (${journal.uid.slice(0, 5)})`}
           />
         );
