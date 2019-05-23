@@ -9,12 +9,14 @@ import Container from '../widgets/Container';
 import * as EteSync from '../api/EteSync';
 
 import { JournalsData, UserInfoData, CredentialsData } from '../store';
+import { SyncInfo } from '../SyncGate';
 
 class Journals extends React.PureComponent {
   public props: {
     etesync: CredentialsData;
     journals: JournalsData;
     userInfo: UserInfoData;
+    syncInfo: SyncInfo;
   };
 
   constructor(props: any) {
@@ -24,17 +26,11 @@ class Journals extends React.PureComponent {
 
   public render() {
     const derived = this.props.etesync.encryptionKey;
-    let asymmetricCryptoManager: EteSync.AsymmetricCryptoManager;
-    const journalMap = this.props.journals.reduce(
-      (ret, journal) => {
+    const journalMap = this.props.syncInfo.reduce(
+      (ret, syncInfoJournal) => {
+        const { journal, derivedJournalKey } = syncInfoJournal;
         let cryptoManager: EteSync.CryptoManager;
         if (journal.key) {
-          if (!asymmetricCryptoManager) {
-            const userInfo = this.props.userInfo;
-            const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
-            asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
-          }
-          const derivedJournalKey = asymmetricCryptoManager.decryptBytes(journal.key);
           cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
         } else {
           cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
@@ -63,17 +59,14 @@ class Journals extends React.PureComponent {
         </AppBarOverride>
         <ScrollView style={{ flex: 1 }}>
           <List.Section>
-            <List.Subheader>Address Books</List.Subheader>
             {journalMap.ADDRESS_BOOK}
           </List.Section>
 
           <List.Section>
-            <List.Subheader>Calendars</List.Subheader>
             {journalMap.CALENDAR}
           </List.Section>
 
           <List.Section>
-            <List.Subheader>Tasks</List.Subheader>
             {journalMap.TASKS}
           </List.Section>
         </ScrollView>

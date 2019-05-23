@@ -14,12 +14,14 @@ import Journals from './components/Journals';
 
 import * as EteSync from './api/EteSync';
 import { CURRENT_VERSION } from './api/Constants';
+import { byte } from './api/Helpers';
 
 import { store, SettingsType, JournalsType, EntriesType, StoreState, CredentialsData, UserInfoType } from './store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from './store/actions';
 
 export interface SyncInfoJournal {
   journal: EteSync.Journal;
+  derivedJournalKey?: byte[];
   journalEntries: List<EteSync.Entry>;
   collection: EteSync.CollectionInfo;
   entries: List<EteSync.SyncEntry>;
@@ -71,12 +73,13 @@ const syncInfoSelector = createSelector(
         let prevUid: string | null = null;
 
         if (!journalEntries || !journalEntries.value) {
-          return ret;
+          return Promise.resolve(ret);
         }
 
         let cryptoManager: EteSync.CryptoManager;
+        let derivedJournalKey: byte[];
         if (journal.key) {
-          const derivedJournalKey = await asymmetricCryptoManager.decryptBytes(keyPair.privateKey, journal.key);
+          derivedJournalKey = await asymmetricCryptoManager.decryptBytes(keyPair.privateKey, journal.key);
           cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
         } else {
           cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
@@ -91,12 +94,13 @@ const syncInfoSelector = createSelector(
           return syncEntry;
         });
 
-        return ret.set(journal.uid, {
+        return Promise.resolve(ret.set(journal.uid, {
           entries: syncEntries,
           collection: collectionInfo,
           journal,
+          derivedJournalKey,
           journalEntries: journalEntries.value,
-        });
+        }));
       },
       Promise.resolve(Map<string, SyncInfoJournal>())
     );
@@ -108,16 +112,17 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
     super(props);
 
     this.state = {
-      journalMap: Map<string, SyncInfoJournal>(),
+      journalMap: null as Map<string, SyncInfoJournal>,
     };
   }
 
   public componentDidMount() {
     const me = this.props.etesync.credentials.email;
     const syncAll = async () => {
-      store.dispatch<any>(fetchAll(this.props.etesync, this.props.entries)).then((haveJournals: boolean) => {
+      store.dispatch<any>(fetchAll(this.props.etesync, this.props.entries)).then(async (haveJournals: boolean) => {
         if (haveJournals) {
           this.setState({
+            journalMap: await syncInfoSelector(this.props),
           });
           return;
         }
@@ -167,7 +172,10 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
   public async componentDidUpdate(prevProps: PropsTypeInner) {
     const journals = this.props.journals.value;
 
-    if ((journals !== null) && (prevProps.journals !== this.props.journals)) {
+    if ((journals !== null)
+      && ((prevProps.journals !== this.props.journals)
+        || (prevProps.entries !== this.props.entries))) {
+
       this.setState({
         journalMap: await syncInfoSelector(this.props),
       });
@@ -200,7 +208,7 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
       }
     }
 
-    if ((this.props.userInfo.value === null) || (journals === null) ||
+    if ((this.props.userInfo.value === null) || (journals === null) || (journalMap === null) ||
       ((this.props.fetchCount > 0) &&
         ((entryArrays.size === 0) || !entryArrays.every((x: any) => (x.value !== null))))
       ) {
