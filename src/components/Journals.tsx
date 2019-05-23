@@ -58,14 +58,17 @@ class Journals extends React.PureComponent {
         </AppBarOverride>
         <ScrollView style={{ flex: 1 }}>
           <List.Section>
+            <List.Subheader>Address Books</List.Subheader>
             {journalMap.ADDRESS_BOOK}
           </List.Section>
 
           <List.Section>
+            <List.Subheader>Calendars</List.Subheader>
             {journalMap.CALENDAR}
           </List.Section>
 
           <List.Section>
+            <List.Subheader>Tasks</List.Subheader>
             {journalMap.TASKS}
           </List.Section>
         </ScrollView>
