@@ -14,6 +14,7 @@
     "crypto": "npm:isomorphic-webcrypto",
     "expo": "^32.0.0",
     "ical.js": "^1.3.0",
+    "idb-keyval": "^3.2.0",
     "immutable": "^4.0.0-rc.12",
     "native-base": "^2.12.1",
     "react": "16.5.0",
