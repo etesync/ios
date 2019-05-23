@@ -175,11 +175,13 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
 
     if ((this.props.journals.value !== null) && (this.props.fetchCount === 0)
       && ((prevProps.journals !== this.props.journals)
-        || ((prevProps.entries !== this.props.entries)
-          && ((entryArrays.size > 0) && entryArrays.every((x: any) => (x.value !== null)))))) {
-      this.setState({
-        journalMap: await syncInfoSelector(this.props),
-      });
+        || ((prevProps.entries !== this.props.entries)))) {
+
+      if ((entryArrays.size > 0) && entryArrays.every((x: any) => (x.value !== null))) {
+        this.setState({
+          journalMap: await syncInfoSelector(this.props),
+        });
+      }
     }
   }
 
