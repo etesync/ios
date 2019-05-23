@@ -170,12 +170,12 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
   }
 
   public async componentDidUpdate(prevProps: PropsTypeInner) {
-    const journals = this.props.journals.value;
+    const entryArrays = this.props.entries;
 
-    if ((journals !== null)
+    if ((this.props.journals.value !== null) && (this.props.fetchCount === 0)
       && ((prevProps.journals !== this.props.journals)
-        || (prevProps.entries !== this.props.entries))) {
-
+        || ((prevProps.entries !== this.props.entries)
+          && ((entryArrays.size > 0) && entryArrays.every((x: any) => (x.value !== null)))))) {
       this.setState({
         journalMap: await syncInfoSelector(this.props),
       });
@@ -183,7 +183,6 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
   }
 
   public render() {
-    const entryArrays = this.props.entries;
     const journals = this.props.journals.value;
     const { journalMap } = this.state;
 
@@ -208,10 +207,7 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
       }
     }
 
-    if ((this.props.userInfo.value === null) || (journals === null) || (journalMap === null) ||
-      ((this.props.fetchCount > 0) &&
-        ((entryArrays.size === 0) || !entryArrays.every((x: any) => (x.value !== null))))
-      ) {
+    if ((this.props.userInfo.value === null) || (journals === null) || (journalMap === null) || (journalMap.size === 0)) {
       return (<LoadingIndicator />);
     }
 
