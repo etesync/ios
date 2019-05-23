@@ -134,21 +134,22 @@ function bufferToArray(buffer: Buffer) {
 }
 
 export class AsymmetricCryptoManager {
-
   public static async generateKeyPair() {
     const keyPair = await crypto.subtle.generateKey(
-      {
-        name: 'RSA-OAEP',
-        modulusLength: 3071,
-        publicExponent: 65537,
-        hash: {name: 'SHA-256'},
-      },
-      false,
+      AsymmetricCryptoManager.keyConfig,
+      true,
       ['encrypt', 'decrypt']
     );
     return new AsymmetricKeyPair(
       bufferToArray(keyPair.publicKey), bufferToArray(keyPair.privateKey));
   }
+
+  private static keyConfig = {
+    name: 'RSA-OAEP',
+    modulusLength: 3072,
+    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),  // 65537
+    hash: {name: 'SHA-1'},
+  };
 
   constructor(keyPair: AsymmetricKeyPair) {
     // empty on purpose
@@ -157,11 +158,8 @@ export class AsymmetricCryptoManager {
   public async encryptBytes(publicKey: byte[], content: byte[]): Promise<byte[]> {
     const key = await crypto.subtle.importKey(
       'spki',
-      Buffer.from(publicKey),
-      {
-        name: 'RSA-OAEP',
-        hash: {name: 'SHA-256'},
-      },
+      Uint8Array.from(publicKey).buffer,
+      AsymmetricCryptoManager.keyConfig,
       false,
       ['encrypt']
     );
@@ -178,11 +176,8 @@ export class AsymmetricCryptoManager {
   public async decryptBytes(privateKey: byte[], content: byte[]): Promise<byte[]> {
     const key = await crypto.subtle.importKey(
       'pkcs8',
-      Buffer.from(privateKey),
-      {
-        name: 'RSA-OAEP',
-        hash: {name: 'SHA-256'},
-      },
+      Uint8Array.from(privateKey).buffer,
+      AsymmetricCryptoManager.keyConfig,
       false,
       ['decrypt']
     );
