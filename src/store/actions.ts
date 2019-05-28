@@ -1,9 +1,9 @@
-import { createAction, createActions } from 'redux-actions';
+import { Action, createAction, createActions } from 'redux-actions';
 
 import * as EteSync from '../api/EteSync';
 import { UserInfo } from '../api/EteSync';
 
-import { CredentialsData, EntriesType, JournalsData, SettingsType } from './';
+import { CredentialsData, EntriesType, SettingsType } from './';
 
 export const { fetchCredentials, logout } = createActions({
   FETCH_CREDENTIALS: (username: string, password: string, server: string) => {
@@ -35,6 +35,13 @@ export const { deriveKey } = createActions({
     return EteSync.deriveKey(username, encryptionPassword);
   },
 });
+
+export const resetKey = createAction(
+  'RESET_KEY',
+  () => {
+    return null;
+  }
+);
 
 export const login = (username: string, password: string, encryptionPassword: string, server: string) => {
   return (dispatch: any) => {
@@ -96,7 +103,7 @@ export const deleteJournal = createAction(
   }
 );
 
-export const { fetchEntries, createEntries } = createActions({
+export const { fetchEntries, addEntries } = createActions({
   FETCH_ENTRIES: [
     (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
       const creds = etesync.credentials;
@@ -109,7 +116,7 @@ export const { fetchEntries, createEntries } = createActions({
       return { journal: journalUid, prevUid };
     },
   ],
-  CREATE_ENTRIES: [
+  ADD_ENTRIES: [
     (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
       const creds = etesync.credentials;
       const apiBase = etesync.serviceApiUrl;
@@ -147,23 +154,30 @@ export const createUserInfo = createAction(
   }
 );
 
+export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesType, journal: EteSync.Journal) {
+  return (dispatch: any) => {
+    let prevUid: string | null = null;
+    const entries = currentEntries.get(journal.uid);
+    if (entries && entries.value) {
+      const last = entries.value.last() as EteSync.Entry;
+      prevUid = (last) ? last.uid : null;
+    }
+
+    return dispatch(fetchEntries(etesync, journal.uid, prevUid));
+  };
+}
+
+
 export function fetchAll(etesync: CredentialsData, currentEntries: EntriesType) {
   return (dispatch: any) => {
-    return dispatch(fetchListJournal(etesync)).then((journalsAction: any) => {
-      const journals: JournalsData = journalsAction.payload;
-      if (!journals || journals.isEmpty) {
+    return dispatch(fetchListJournal(etesync)).then((journalsAction: Action<EteSync.Journal[]>) => {
+      const journals = journalsAction.payload;
+      if (!journals || (journals.length === 0)) {
         return false;
       }
 
-      journals.forEach((journal, uid) => {
-        let prevUid: string | null = null;
-        const entries = currentEntries.get(journal.uid);
-        if (entries && entries.value) {
-          const last = entries.value.last() as EteSync.Entry;
-          prevUid = (last) ? last.uid : null;
-        }
-
-        dispatch(fetchEntries(etesync, journal.uid, prevUid));
+      journals.forEach((journal) => {
+        dispatch(fetchJournalEntries(etesync, currentEntries, journal));
       });
 
       return true;

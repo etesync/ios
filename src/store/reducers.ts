@@ -84,6 +84,9 @@ export const encryptionKeyReducer = handleActions(
     [actions.deriveKey.toString()]: (state: {key: string | null}, action: any) => (
       {key: action.payload}
     ),
+    [actions.resetKey.toString()]: (state: {key: string | null}, action: any) => (
+      {key: null}
+    ),
     [actions.logout.toString()]: (state: {key: string | null}, action: any) => {
       return {out: true, key: null};
     },
@@ -173,9 +176,9 @@ const deleteMapModelReducer = <T extends Record<any>>(state: T, action: any) => 
       return state;
     }
 
-    const id = payload as number;
+    const uid = payload.uid;
     let value = state.get('value', null)!;
-    value = value.delete(id);
+    value = value.delete(uid);
     return state.set('value', value);
   }
 };
@@ -193,13 +196,23 @@ const mapReducerActionsMapCreator = <T extends Record<any>, V extends BaseModel>
   };
 };
 
-export const entries = handleAction(
-  combineActions(actions.fetchEntries, actions.createEntries),
-  (state: EntriesTypeImmutable, action: any) => {
-    const prevState = state.get(action.meta.journal);
-    const extend = action.meta.prevUid != null;
-    return state.set(action.meta.journal,
-                     fetchTypeIdentityReducer(prevState, action, extend));
+function fetchCreateEntriesReducer(state: EntriesTypeImmutable, action: any) {
+  const prevState = state.get(action.meta.journal);
+  const extend = action.meta.prevUid != null;
+  return state.set(action.meta.journal,
+                   fetchTypeIdentityReducer(prevState, action, extend));
+}
+
+export const entries = handleActions(
+  {
+    [actions.fetchEntries.toString()]: fetchCreateEntriesReducer,
+    [actions.addEntries.toString()]: fetchCreateEntriesReducer,
+    [actions.addJournal.toString()]: (state: EntriesTypeImmutable, action: any) => {
+      const journal = action.meta.item.uid;
+      const prevState = state.get(journal);
+      return state.set(journal,
+        fetchTypeIdentityReducer(prevState, { payload: [] }, false));
+    },
   },
   ImmutableMap({})
 );
