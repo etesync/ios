@@ -86,7 +86,9 @@ class BaseItem<T extends BaseItemJson> {
 
   public deserialize(json: T) {
     this._json = Object.assign({}, json);
-    this._encrypted = sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(json.content));
+    if (json.content) {
+      this._encrypted = sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(json.content));
+    }
     this._content = undefined;
   }
 
@@ -528,6 +530,23 @@ export class JournalMembersManager extends BaseManager {
         reject(error);
       });
     });
+  }
+
+  public create(journalMember: JournalMemberJson): Promise<{}> {
+    const extra = {
+      method: 'post',
+      body: JSON.stringify(journalMember),
+    };
+
+    return this.newCall([], extra);
+  }
+
+  public delete(journalMember: JournalMemberJson): Promise<{}> {
+    const extra = {
+      method: 'delete',
+    };
+
+    return this.newCall([journalMember.user, ''], extra);
   }
 }
 
