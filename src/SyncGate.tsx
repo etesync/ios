@@ -19,6 +19,9 @@ import { byte } from './api/Helpers';
 import { store, SettingsType, JournalsType, EntriesType, StoreState, CredentialsData, UserInfoType } from './store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from './store/actions';
 
+
+import SyncTempComponent from './sync/SyncTestComponent';
+
 export interface SyncInfoJournal {
   journal: EteSync.Journal;
   derivedJournalKey?: byte[];
@@ -218,11 +221,17 @@ class SyncGate extends React.PureComponent<PropsTypeInner, StateType> {
     moment.locale(this.props.settings.locale);
 
     return (
-      <Journals
-        etesync={this.props.etesync}
-        userInfo={this.props.userInfo.value!}
-        syncInfo={journalMap}
-      />
+      <>
+        <SyncTempComponent
+          etesync={this.props.etesync}
+          syncInfo={journalMap}
+        />
+        <Journals
+          etesync={this.props.etesync}
+          userInfo={this.props.userInfo.value!}
+          syncInfo={journalMap}
+        />
+      </>
     );
   }
 }
