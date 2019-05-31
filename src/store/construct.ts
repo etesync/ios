@@ -19,8 +19,8 @@ export interface StoreState {
   settings: SettingsType;
   encryptionKey: {key: string};
   sync: {
-    stateJournal: SyncStateJournalData;
-    stateEnttry: SyncStateEntryData;
+    stateJournals: SyncStateJournalData;
+    stateEntries: SyncStateEntryData;
   };
   cache: {
     journals: JournalsType;
@@ -156,7 +156,7 @@ const cachePersistConfig = {
 };
 
 const syncSerialize = (state: any, key: string) => {
-  if ((key === 'stateJournal') || (key === 'stateEntry')) {
+  if ((key === 'stateJournals') || (key === 'stateEntries')) {
     return state.toJS();
   }
 
@@ -164,7 +164,7 @@ const syncSerialize = (state: any, key: string) => {
 };
 
 const syncDeserialize = (state: any, key: string) => {
-  if ((key === 'stateJournal') || (key === 'stateEntry')) {
+  if ((key === 'stateJournals') || (key === 'stateEntries')) {
     return ImmutableMap(state);
   }
 
@@ -183,8 +183,8 @@ const reducers = combineReducers({
   credentials: persistReducer(credentialsPersistConfig, credentials),
   encryptionKey: persistReducer(encryptionKeyPersistConfig, encryptionKeyReducer),
   sync: persistReducer(syncPersistConfig, combineReducers({
-    stateJournal: syncStateJournalReducer,
-    stateEntry: syncStateEntryReducer,
+    stateJournals: syncStateJournalReducer,
+    stateEntries: syncStateEntryReducer,
   })),
   cache: persistReducer(cachePersistConfig, combineReducers({
     entries,
