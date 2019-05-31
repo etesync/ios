@@ -38,12 +38,12 @@ export class SyncManager {
 
       const collection = syncJournal.collection;
       const uid = collection.uid;
-      let syncStateJournal = syncStateJournals.get(uid);
-      const lastEntry: EteSync.SyncEntry = syncJournal.entries.last();
 
+      let syncStateJournal = syncStateJournals.get(uid);
+      let localId: string;
       if (uid in existingJournals) {
         // FIXME: only modify if changed!
-        const localId = existingJournals[uid].localId;
+        localId = existingJournals[uid].localId;
         await Calendar.updateCalendarAsync(localId, {
           sourceId: localSource.id,
           title: collection.displayName,
@@ -52,7 +52,7 @@ export class SyncManager {
 
         delete existingJournals[uid];
       } else {
-        const localId = await Calendar.createCalendarAsync({
+        localId = await Calendar.createCalendarAsync({
           sourceId: localSource.id,
           entityType: Calendar.EntityTypes.EVENT,
           title: collection.displayName,
@@ -67,8 +67,41 @@ export class SyncManager {
         store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
       }
 
-      if (lastEntry.uid !== syncStateJournal.lastSyncUid) {
+      const entries = syncJournal.entries;
+      const lastEntry: EteSync.SyncEntry = entries.last();
+      if (lastEntry && (lastEntry.uid !== syncStateJournal.lastSyncUid)) {
         console.log('Apply changes from entries');
+        const lastSyncUid = syncStateJournal.lastSyncUid;
+
+        let firstEntry: number;
+        if (lastSyncUid === null) {
+          firstEntry = 0;
+        } else {
+          const lastEntryPos = entries.findIndex((entry) => {
+            return entry.uid === lastSyncUid;
+          });
+
+          if (lastEntryPos === -1) {
+            throw Error('Could not find last sync entry!');
+          }
+          firstEntry = lastEntryPos + 1;
+        }
+
+        // FIXME: optimise by first compressing redundant changes here and only then applynig to iOS
+        for (let i = firstEntry ; i < entries.size ; i++) {
+          const syncEntry: EteSync.SyncEntry = entries.get(i);
+          switch (syncEntry.action) {
+            case EteSync.SyncEntryAction.Add:
+              break;
+            case EteSync.SyncEntryAction.Change:
+              break;
+            case EteSync.SyncEntryAction.Delete:
+              break;
+          }
+        }
+        // FIXME: probably do in chunks
+        syncStateJournal.lastSyncUid = lastEntry.uid;
+        // store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
       }
 
       // FIXME: Push local
