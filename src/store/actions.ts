@@ -3,7 +3,7 @@ import { Action, createAction, createActions } from 'redux-actions';
 import * as EteSync from '../api/EteSync';
 import { UserInfo } from '../api/EteSync';
 
-import { CredentialsData, EntriesType, SettingsType } from './';
+import { CredentialsData, EntriesType, SettingsType, SyncStateJournal, SyncStateEntry } from './';
 
 export const { fetchCredentials, logout } = createActions({
   FETCH_CREDENTIALS: (username: string, password: string, server: string) => {
@@ -151,6 +151,34 @@ export const createUserInfo = createAction(
   },
   (etesync: CredentialsData, userInfo: UserInfo) => {
     return { userInfo };
+  }
+);
+
+export const setSyncStateJournal = createAction(
+  'SET_SYNC_STATE_JOURNAL',
+  (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
+    return syncStateJournal;
+  }
+);
+
+export const unsetSyncStateJournal = createAction(
+  'UNSET_SYNC_STATE_JOURNAL',
+  (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
+    return syncStateJournal;
+  }
+);
+
+export const setSyncStateEntry = createAction(
+  'SET_SYNC_STATE_ENTRY',
+  (etesync: CredentialsData, syncStateEntry: SyncStateEntry) => {
+    return syncStateEntry;
+  }
+);
+
+export const unsetSyncStateEntry = createAction(
+  'UNSET_SYNC_STATE_ENTRY',
+  (etesync: CredentialsData, syncStateEntry: SyncStateEntry) => {
+    return syncStateEntry;
   }
 );
 

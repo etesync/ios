@@ -52,6 +52,19 @@ export const UserInfoFetchRecord = fetchTypeRecord<UserInfoData>();
 export type UserInfoType = FetchType<UserInfoData>;
 export type UserInfoTypeImmutable = Record<UserInfoType>;
 
+
+export interface SyncStateJournal extends BaseModel {
+  localId: string; // The id of the local collection (e.g. Calendar or Address Book)
+  lastSyncUid: string | null; // The last entry processed (different from the last entry saved)
+}
+export type SyncStateJournalData = ImmutableMap<string, SyncStateJournal>;
+
+export interface SyncStateEntry extends BaseModel {
+  localId: string; // The id of the local entry
+}
+export type SyncStateEntryData = ImmutableMap<string, SyncStateEntry>;
+
+
 function fetchTypeIdentityReducer(
   state: Record<FetchType<any>> = fetchTypeRecord<any>()(), action: any, extend: boolean = false) {
   if (action.error) {
@@ -247,6 +260,34 @@ export const userInfo = handleAction(
     }
   },
   new UserInfoFetchRecord()
+);
+
+export const syncStateJournalReducer = handleActions(
+  {
+    [actions.setSyncStateJournal.toString()]: (state: SyncStateJournalData, action: Action<SyncStateJournal>) => {
+      const syncStateJournal = action.payload;
+      return state.set(syncStateJournal.uid, syncStateJournal);
+    },
+    [actions.unsetSyncStateJournal.toString()]: (state: SyncStateJournalData, action: Action<SyncStateJournal>) => {
+      const syncStateJournal = action.payload;
+      return state.remove(syncStateJournal.uid);
+    },
+  },
+  ImmutableMap({})
+);
+
+export const syncStateEntryReducer = handleActions(
+  {
+    [actions.setSyncStateEntry.toString()]: (state: SyncStateEntryData, action: Action<SyncStateEntry>) => {
+      const syncStateEntry = action.payload;
+      return state.set(syncStateEntry.uid, syncStateEntry);
+    },
+    [actions.unsetSyncStateEntry.toString()]: (state: SyncStateEntryData, action: Action<SyncStateEntry>) => {
+      const syncStateEntry = action.payload;
+      return state.remove(syncStateEntry.uid);
+    },
+  },
+  ImmutableMap({})
 );
 
 const fetchActions = [

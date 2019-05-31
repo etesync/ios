@@ -10,7 +10,7 @@ import * as EteSync from '../api/EteSync';
 import {
   JournalsData, FetchType, EntriesData, EntriesFetchRecord, UserInfoData, JournalsFetchRecord, UserInfoFetchRecord,
   CredentialsTypeRemote, JournalsType, EntriesType, UserInfoType, SettingsType,
-  fetchCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer,
+  fetchCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer,
 } from './reducers';
 
 export interface StoreState {
@@ -18,6 +18,10 @@ export interface StoreState {
   credentials: CredentialsTypeRemote;
   settings: SettingsType;
   encryptionKey: {key: string};
+  sync: {
+    stateJournal: SyncStateJournalData;
+    stateEnttry: SyncStateEntryData;
+  };
   cache: {
     journals: JournalsType;
     entries: EntriesType;
@@ -151,11 +155,37 @@ const cachePersistConfig = {
   migrate: createMigrate(cacheMigrations, { debug: false}),
 };
 
+const syncSerialize = (state: any, key: string) => {
+  if ((key === 'stateJournal') || (key === 'stateEntry')) {
+    return state.toJS();
+  }
+
+  return state;
+};
+
+const syncDeserialize = (state: any, key: string) => {
+  if ((key === 'stateJournal') || (key === 'stateEntry')) {
+    return ImmutableMap(state);
+  }
+
+  return state;
+};
+
+const syncPersistConfig = {
+  key: 'sync',
+  storage: AsyncStorage,
+  transforms: [createTransform(syncSerialize, syncDeserialize)],
+};
+
 const reducers = combineReducers({
   fetchCount,
   settings: persistReducer(settingsPersistConfig, settingsReducer),
   credentials: persistReducer(credentialsPersistConfig, credentials),
   encryptionKey: persistReducer(encryptionKeyPersistConfig, encryptionKeyReducer),
+  sync: persistReducer(syncPersistConfig, combineReducers({
+    stateJournal: syncStateJournalReducer,
+    stateEntry: syncStateEntryReducer,
+  })),
   cache: persistReducer(cachePersistConfig, combineReducers({
     entries,
     journals,
