@@ -5,6 +5,8 @@ import { SyncInfo } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal } from '../store/actions';
 
+import { colorIntToHtml } from '../helpers';
+
 /*
  * This class should probably mirror exactly what's done in Android. So it should
  * fetch / push / etc in the same manner.
@@ -47,7 +49,7 @@ export class SyncManager {
         await Calendar.updateCalendarAsync(localId, {
           sourceId: localSource.id,
           title: collection.displayName,
-          color: 'red', // FIXME collection.color,
+          color: colorIntToHtml(collection.color),
         });
 
         delete existingJournals[uid];
@@ -56,7 +58,7 @@ export class SyncManager {
           sourceId: localSource.id,
           entityType: Calendar.EntityTypes.EVENT,
           title: collection.displayName,
-          color: 'red', // FIXME collection.color,
+          color: colorIntToHtml(collection.color),
         });
 
         syncStateJournal = {
