@@ -4,6 +4,7 @@
     "lib": ["es2015", "esnext.asynciterable"],
     "jsx": "react-native",
     "strict": true,
+    "downlevelIteration": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
