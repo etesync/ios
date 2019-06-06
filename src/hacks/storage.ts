@@ -17,7 +17,7 @@ function initialize(timeout) {
         getItem: idb.get,
         setItem: idb.set,
         getAllKeys: idb.keys,
-        remove: idb.delete,
+        removeItem: idb.delete,
       });
     } catch (error) {
       throw new Error('The idb-keyval package is missing.');
@@ -27,7 +27,7 @@ function initialize(timeout) {
       getItem: AsyncStorage.getItem,
       setItem: AsyncStorage.setItem,
       getAllKeys: AsyncStorage.getAllKeys,
-      remove: (key) => AsyncStorage.setItem(key, null),
+      removeItem: (key) => AsyncStorage.setItem(key, null),
     });
   }
 
