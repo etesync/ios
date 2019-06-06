@@ -68,9 +68,15 @@ export function eventNativeToVobject(event: NativeEvent) {
   return ret;
 }
 
+function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper: (fieldType: string, value: string) => T) {
+  return contact.comp.getAllProperties(fieldName).map((prop) => {
+    return mapper(prop.toJSON()[1].type, prop.getFirstValue());
+  }).filter((field) => field);
+}
+
 export function contactVobjectToNative(contact: ContactType) {
-  const phoneNumbers: Contacts.PhoneNumber[] = contact.comp.getAllProperties('tel').map((prop) => {
-    const phoneNumber = parsePhoneNumberFromString(prop.getFirstValue());
+  const phoneNumbers: Contacts.PhoneNumber[] = contactFieldToNative<Contacts.PhoneNumber>(contact, 'tel', (fieldType: string, value: string) => {
+    const phoneNumber = parsePhoneNumberFromString(value);
     if (phoneNumber && phoneNumber.isValid()) {
       return {
         id: phoneNumber.formatInternational(),
@@ -78,12 +84,21 @@ export function contactVobjectToNative(contact: ContactType) {
         digits: phoneNumber.formatNational(),
         countryCode: '+' + phoneNumber.countryCallingCode,
         isPrimary: false,
-        label: prop.toJSON()[1].type,
+        label: fieldType,
       };
     } else {
       return undefined;
     }
-  }).filter((phone) => phone);
+  });
+
+  const emails: Contacts.Email[] = contactFieldToNative<Contacts.Email>(contact, 'email', (fieldType: string, value: string) => {
+    return {
+      email: value,
+      id: value,
+      isPrimary: false,
+      label: fieldType,
+    };
+  });
 
   const ret: NativeContact = {
     id: '',
@@ -91,6 +106,7 @@ export function contactVobjectToNative(contact: ContactType) {
     name: contact.fn,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
     phoneNumbers,
+    emails,
   };
 
   return ret;
