@@ -1,11 +1,14 @@
 import * as EteSync from '../api/EteSync';
+import * as ICAL from 'ical.js';
 import { Calendar } from 'expo';
 
 import { SyncInfo } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal } from '../store/actions';
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 
+import { eventVobjectToNative } from './helpers';
 import { colorIntToHtml } from '../helpers';
+import { EventType } from '../pim-types';
 
 /*
  * This class should probably mirror exactly what's done in Android. So it should
@@ -26,34 +29,57 @@ export class SyncManager {
     //
   }
 
-  public async sync(etesync: CredentialsData, syncInfo: SyncInfo, syncStateJournals: SyncStateJournalData, syncStateEntries: SyncStateEntryData) {
+  public async sync(etesync: CredentialsData, syncInfo: SyncInfo, _syncStateJournals: SyncStateJournalData, _syncStateEntries: SyncStateEntryData) {
     // FIXME: Sholud alert beforehand if local is not enable and only iCloud is and let people know, and if that the case, use iCloud if there's no local.
     // See notes for more info
     const localSource = (await Calendar.getSourcesAsync()).find((source) => (source.type === (Calendar as any).SourceType.LOCAL));
+    const syncStateJournals = _syncStateJournals.toJS();
+    const syncStateEntries = _syncStateEntries.toJS();
 
-    const existingJournals = syncStateJournals.toJS();
-    syncInfo.forEach(async (syncJournal) => {
+    if (false) { // Reset
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      for (const calendar of calendars) {
+        if (calendar.source.id === localSource.id) {
+          console.log(`Deleting ${calendar.title}`);
+          await Calendar.deleteCalendarAsync(calendar.id);
+        }
+      }
+
+      Object.values(syncStateJournals).forEach((journal) => {
+        store.dispatch(unsetSyncStateJournal(etesync, journal));
+        delete syncStateJournals[journal.uid];
+      });
+
+      Object.values(syncStateEntries).forEach((entry) => {
+        store.dispatch(unsetSyncStateEntry(etesync, entry));
+        delete syncStateEntries[entry.uid];
+      });
+    }
+
+    for (const syncJournal of syncInfo.values()) {
       if (syncJournal.collection.type !== 'CALENDAR') {
         // FIXME: We only do Calendars atm
-        return;
+        continue;
       }
 
       const collection = syncJournal.collection;
       const uid = collection.uid;
 
-      let syncStateJournal = syncStateJournals.get(uid);
+      let syncStateJournal = syncStateJournals[uid];
       let localId: string;
-      if (uid in existingJournals) {
+      if (uid in syncStateJournals) {
         // FIXME: only modify if changed!
-        localId = existingJournals[uid].localId;
+        console.log(`Updating ${uid}`);
+        localId = syncStateJournals[uid].localId;
         await Calendar.updateCalendarAsync(localId, {
           sourceId: localSource.id,
           title: collection.displayName,
           color: colorIntToHtml(collection.color),
         });
 
-        delete existingJournals[uid];
+        delete syncStateJournals[uid];
       } else {
+        console.log(`Creating ${uid}`);
         localId = await Calendar.createCalendarAsync({
           sourceId: localSource.id,
           entityType: Calendar.EntityTypes.EVENT,
@@ -92,27 +118,55 @@ export class SyncManager {
         // FIXME: optimise by first compressing redundant changes here and only then applynig to iOS
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i);
+          const event = EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
+          const nativeEvent = eventVobjectToNative(event);
+          let syncStateEntry = syncStateEntries[event.uid];
           switch (syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
-              break;
             case EteSync.SyncEntryAction.Change:
+              let existingEvent: Calendar.Event;
+              try {
+                existingEvent = await Calendar.getEventAsync(syncStateEntry.localId);
+              } catch (e) {
+                // Skip
+              }
+              if (syncStateEntry && existingEvent) {
+                await Calendar.updateEventAsync(syncStateEntry.localId, nativeEvent);
+              } else {
+                const localEntryId = await Calendar.createEventAsync(localId, nativeEvent);
+                syncStateEntry = {
+                  uid: nativeEvent.uid,
+                  localId: localEntryId,
+                };
+              }
+              syncStateEntries[syncStateEntry.uid] = syncStateEntry;
+              store.dispatch(setSyncStateEntry(etesync, syncStateEntry));
               break;
             case EteSync.SyncEntryAction.Delete:
+              if (syncStateEntry) {
+                // FIXME: Shouldn't have this if, it should just work
+                await Calendar.deleteEventAsync(syncStateEntry.localId);
+                delete syncStateEntries[syncStateEntry.localId];
+                store.dispatch(unsetSyncStateEntry(etesync, syncStateEntry));
+              }
               break;
           }
         }
         // FIXME: probably do in chunks
         syncStateJournal.lastSyncUid = lastEntry.uid;
-        // store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
+        store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
       }
 
       // FIXME: Push local
-    });
+    }
 
     // Remove deleted calendars
-    Object.values(existingJournals).forEach(async (oldJournal) => {
+    for (const oldJournal of Object.values(syncStateJournals)) {
+      console.log(`Deleting ${oldJournal.uid}`);
       await Calendar.deleteCalendarAsync(oldJournal.localId);
       store.dispatch(unsetSyncStateJournal(etesync, oldJournal));
-    });
+    }
+
+    console.log('Finished');
   }
 }

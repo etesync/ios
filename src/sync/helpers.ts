@@ -9,13 +9,22 @@ export interface NativeEvent extends Calendar.Event {
 
 export function eventVobjectToNative(event: EventType) {
   const allDay = event.startDate.isDate;
+  let endDate = event.endDate.clone();
+
+  if (allDay) {
+    endDate.adjust(-1, 0, 0, 0);
+    // FIXME: why is it even needed?
+    if (event.startDate.compare(endDate) > 0) {
+      endDate = event.startDate.clone();
+    }
+  }
 
   const ret: NativeEvent = {
     uid: event.uid,
     title: event.title || '',
     allDay,
     startDate: event.startDate.toJSDate(),
-    endDate: event.endDate.toJSDate(),
+    endDate: endDate.toJSDate(),
     location: event.location || '',
     notes: event.description || '',
   };
