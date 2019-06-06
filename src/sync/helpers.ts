@@ -100,10 +100,13 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
+  const nickname = contact.comp.getFirstPropertyValue('nickname') || undefined;
+
   const ret: NativeContact = {
     id: '',
     uid: contact.uid,
     name: contact.fn,
+    nickname,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
     phoneNumbers,
     emails,
