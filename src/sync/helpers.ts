@@ -1,5 +1,6 @@
 import { Calendar, Contacts } from 'expo';
 import * as ICAL from 'ical.js';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { ContactType, EventType } from '../pim-types';
 
@@ -68,11 +69,28 @@ export function eventNativeToVobject(event: NativeEvent) {
 }
 
 export function contactVobjectToNative(contact: ContactType) {
+  const phoneNumbers: Contacts.PhoneNumber[] = contact.comp.getAllProperties('tel').map((prop) => {
+    const phoneNumber = parsePhoneNumberFromString(prop.getFirstValue());
+    if (phoneNumber && phoneNumber.isValid()) {
+      return {
+        id: phoneNumber.formatInternational(),
+        number: phoneNumber.formatInternational(),
+        digits: phoneNumber.formatNational(),
+        countryCode: '+' + phoneNumber.countryCallingCode,
+        isPrimary: false,
+        label: prop.toJSON()[1].type,
+      };
+    } else {
+      return undefined;
+    }
+  }).filter((phone) => phone);
+
   const ret: NativeContact = {
     id: '',
     uid: contact.uid,
     name: contact.fn,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
+    phoneNumbers,
   };
 
   return ret;
