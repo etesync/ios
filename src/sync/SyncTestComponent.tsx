@@ -7,7 +7,7 @@ import { SyncInfo } from '../SyncGate';
 
 import { StoreState, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 
-import { SyncManager } from '.';
+import { SyncManagerContacts as SyncManager } from '.';
 
 interface PropsType {
   etesync: CredentialsData;

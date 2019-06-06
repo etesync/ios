@@ -1,10 +1,14 @@
-import { Calendar } from 'expo';
+import { Calendar, Contacts } from 'expo';
 import * as ICAL from 'ical.js';
 
-import { EventType } from '../pim-types';
+import { ContactType, EventType } from '../pim-types';
 
 export interface NativeEvent extends Calendar.Event {
   uid: string; // This is the EteSync UUID for the event
+}
+
+export interface NativeContact extends Contacts.Contact {
+  uid: string; // This is the EteSync UUID for the contact
 }
 
 export function eventVobjectToNative(event: EventType) {
@@ -59,6 +63,17 @@ export function eventNativeToVobject(event: NativeEvent) {
   ret.endDate = endDate;
   ret.location = this.state.location;
   ret.description = this.state.description;
+
+  return ret;
+}
+
+export function contactVobjectToNative(contact: ContactType) {
+  const ret: NativeContact = {
+    id: '',
+    uid: contact.uid,
+    name: contact.fn,
+    contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
+  };
 
   return ret;
 }
