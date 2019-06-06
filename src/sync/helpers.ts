@@ -112,5 +112,15 @@ export function contactVobjectToNative(contact: ContactType) {
     emails,
   };
 
+  const nField = contact.comp.getFirstProperty('n');
+  if (nField) {
+    const nFieldParts = nField.getValues()[0];
+    ret.lastName = nFieldParts[0];
+    ret.firstName = nFieldParts[1];
+    ret.middleName = nFieldParts[2];
+    ret.namePrefix = nFieldParts[3];
+    ret.nameSuffix = nFieldParts[4];
+  }
+
   return ret;
 }
