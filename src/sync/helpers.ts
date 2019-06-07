@@ -116,6 +116,11 @@ export function contactVobjectToNative(contact: ContactType) {
     return value;
   });
 
+  const titles: string[] = contactFieldToNative<string>(contact, 'note', (fieldType: string, value: string) => {
+    return value;
+  });
+  const jobTitle = titles.length > 0 ? titles[0] : undefined;
+
   const nickname = contact.comp.getFirstPropertyValue('nickname') || undefined;
 
   const ret: NativeContact = {
@@ -123,6 +128,7 @@ export function contactVobjectToNative(contact: ContactType) {
     uid: contact.uid,
     name: contact.fn,
     nickname,
+    jobTitle,
     note: notes.length > 0 ? notes.join('\n') : undefined,
     birthday: birthdays.length > 0 ? birthdays[0] : undefined,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
@@ -138,6 +144,13 @@ export function contactVobjectToNative(contact: ContactType) {
     ret.middleName = nFieldParts[2];
     ret.namePrefix = nFieldParts[3];
     ret.nameSuffix = nFieldParts[4];
+  }
+
+  const orgField = contact.comp.getFirstProperty('org');
+  if (orgField) {
+    const orgFieldParts = orgField.getValues()[0];
+    ret.company = orgFieldParts[0];
+    ret.department = `${orgFieldParts[1]} ${orgFieldParts[2]}`;
   }
 
   return ret;
