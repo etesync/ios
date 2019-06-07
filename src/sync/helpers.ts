@@ -68,7 +68,7 @@ export function eventNativeToVobject(event: NativeEvent) {
   return ret;
 }
 
-function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper: (fieldType: string, value: string) => T) {
+function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper: (fieldType: string, value: any) => T) {
   return contact.comp.getAllProperties(fieldName).map((prop) => {
     return mapper(prop.toJSON()[1].type, prop.getFirstValue());
   }).filter((field) => field);
@@ -100,6 +100,18 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
+  const birthdays: Contacts.ContactDate[] = contactFieldToNative<Contacts.ContactDate>(contact, 'bday', (fieldType: string, value: ICAL.Time) => {
+    const date = value.toJSDate();
+    return {
+      id: 'bday',
+      day: date.getDate(),
+      month: date.getMonth(),
+      year: date.getFullYear(),
+      format: Contacts.CalendarFormats.Gregorian,
+      label: 'Birthday',
+    };
+  });
+
   const nickname = contact.comp.getFirstPropertyValue('nickname') || undefined;
 
   const ret: NativeContact = {
@@ -107,6 +119,7 @@ export function contactVobjectToNative(contact: ContactType) {
     uid: contact.uid,
     name: contact.fn,
     nickname,
+    birthday: birthdays.length > 0 ? birthdays[0] : undefined,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
     phoneNumbers,
     emails,
