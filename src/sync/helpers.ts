@@ -112,6 +112,10 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
+  const notes: string[] = contactFieldToNative<string>(contact, 'note', (fieldType: string, value: string) => {
+    return value;
+  });
+
   const nickname = contact.comp.getFirstPropertyValue('nickname') || undefined;
 
   const ret: NativeContact = {
@@ -119,6 +123,7 @@ export function contactVobjectToNative(contact: ContactType) {
     uid: contact.uid,
     name: contact.fn,
     nickname,
+    note: notes.length > 0 ? notes.join('\n') : undefined,
     birthday: birthdays.length > 0 ? birthdays[0] : undefined,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
     phoneNumbers,
