@@ -192,6 +192,7 @@ export class SyncManagerContacts {
 
       Object.values(syncStateJournals).forEach((journal) => {
         store.dispatch(unsetSyncStateJournal(etesync, journal));
+        Contacts.removeGroupAsync(journal.localId);
         delete syncStateJournals[journal.uid];
       });
 
@@ -216,12 +217,12 @@ export class SyncManagerContacts {
         // FIXME: only modify if changed!
         console.log(`Updating ${uid}`);
         localId = syncStateJournals[uid].localId;
-        // FIXME: Update the group
+        await Contacts.updateGroupNameAsync(collection.displayName, localId);
 
         delete syncStateJournals[uid];
       } else {
         console.log(`Creating ${uid}`);
-        // FIXME: Create the group
+        localId = await Contacts.createGroupAsync(collection.displayName);
 
         syncStateJournal = {
           localId,
@@ -278,7 +279,7 @@ export class SyncManagerContacts {
                   localId: localEntryId,
                 };
 
-                // FIXME: Add to the correct group
+                await Contacts.addExistingContactToGroupAsync(localEntryId, localId);
               }
               syncStateEntries[syncStateEntry.uid] = syncStateEntry;
               store.dispatch(setSyncStateEntry(etesync, syncStateEntry));
@@ -304,7 +305,7 @@ export class SyncManagerContacts {
     // Remove deleted contacts
     for (const oldJournal of Object.values(syncStateJournals)) {
       console.log(`Deleting ${oldJournal.uid}`);
-      // FIXME: delete the group
+      await Contacts.removeGroupAsync(oldJournal.localId);
       store.dispatch(unsetSyncStateJournal(etesync, oldJournal));
     }
 
