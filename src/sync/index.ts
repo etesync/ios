@@ -190,11 +190,16 @@ export class SyncManagerContacts {
         await Contacts.removeContactAsync(contact.id);
       }
 
-      Object.values(syncStateJournals).forEach((journal) => {
+      await Promise.all(Object.values(syncStateJournals).map(async (journal) => {
         store.dispatch(unsetSyncStateJournal(etesync, journal));
-        Contacts.removeGroupAsync(journal.localId);
+        try {
+          await Contacts.getGroupsAsync({ groupId: journal.localId });
+          await Contacts.removeGroupAsync(journal.localId);
+        } catch (e) {
+          console.log(e);
+        }
         delete syncStateJournals[journal.uid];
-      });
+      }));
 
       Object.values(syncStateEntries).forEach((entry) => {
         store.dispatch(unsetSyncStateEntry(etesync, entry));
