@@ -1,5 +1,6 @@
 import { Calendar, Contacts } from 'expo';
 import * as ICAL from 'ical.js';
+import * as sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { ContactType, EventType } from '../pim-types';
@@ -10,6 +11,15 @@ export interface NativeEvent extends Calendar.Event {
 
 export interface NativeContact extends Contacts.Contact {
   uid: string; // This is the EteSync UUID for the contact
+}
+
+export function entryNativeHashCalc(entry: {uid: string}) {
+  const sha = new sjcl.hash.sha256();
+  Object.keys(entry).sort().forEach((key) => {
+    sha.update(key);
+    sha.update(entry[key]);
+  });
+  return sjcl.codec.hex.fromBits(sha.finalize());
 }
 
 export function eventVobjectToNative(event: EventType) {
