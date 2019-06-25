@@ -7,7 +7,7 @@ import { SyncInfo } from '../SyncGate';
 
 import { StoreState, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 
-import { SyncManagerContacts as SyncManager } from '.';
+import { SyncManagerCalendar as SyncManager } from '.';
 
 interface PropsType {
   etesync: CredentialsData;
@@ -26,11 +26,12 @@ class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
 
   public async componentDidMount() {
     const { etesync, syncInfo, syncStateJournals, syncStateEntries } = this.props;
-    const syncManager = new SyncManager();
+    const syncManager = new SyncManager(etesync);
     console.log('Asking for permissions');
-    Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS).then(() => {
+    Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(async () => {
       console.log('Syncing');
-      syncManager.sync(etesync, syncInfo, syncStateJournals, syncStateEntries);
+      await syncManager.init();
+      await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     });
   }
 
