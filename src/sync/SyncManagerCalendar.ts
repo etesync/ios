@@ -6,7 +6,7 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateEntryData } from '../store';
 import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
 
-import { eventVobjectToNative } from './helpers';
+import { eventVobjectToNative, entryNativeHashCalc } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { EventType } from '../pim-types';
 
@@ -23,7 +23,42 @@ export class SyncManagerCalendar extends SyncManager {
   }
 
   protected async syncPush(syncInfo: SyncInfo) {
-    //
+    const syncStateJournals = this.syncStateJournals;
+    const syncStateEntriesReverse = this.syncStateEntries.mapEntries((_entry) => {
+      const entry = _entry[1];
+      return [entry.localId, entry];
+    }).asMutable();
+    const now = new Date();
+    const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() - 5));
+    const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + 5));
+
+    for (const syncJournal of syncInfo.values()) {
+      if (syncJournal.collection.type !== this.collectionType) {
+        continue;
+      }
+
+      const collection = syncJournal.collection;
+      const uid = collection.uid;
+
+      const syncStateJournal = syncStateJournals.get(uid);
+      const localId = syncStateJournal.localId;
+      const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
+      existingEvents.forEach((_event) => {
+        const syncStateEntry = syncStateEntriesReverse.get(_event.id);
+        syncStateEntriesReverse.delete(_event.id);
+
+        if (syncStateEntry === undefined) {
+          // New
+        } else {
+          const event = { ..._event, uid: syncStateEntry.uid };
+          const currentHash = entryNativeHashCalc(event);
+          if (currentHash !== syncStateEntry.lastHash) {
+            // Changed
+            console.log(`Event changed: ${currentHash} vs ${syncStateEntry.lastHash}`);
+          }
+        }
+      });
+    }
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateEntryData) {
@@ -46,8 +81,13 @@ export class SyncManagerCalendar extends SyncManager {
           syncStateEntry = {
             uid: nativeEvent.uid,
             localId: localEntryId,
+            lastHash: '',
           };
         }
+
+        const createdEvent = { ...await Calendar.getEventAsync(syncStateEntry.localId), uid: nativeEvent.uid };
+        syncStateEntry.lastHash = entryNativeHashCalc(createdEvent);
+
         break;
       case EteSync.SyncEntryAction.Delete:
         if (syncStateEntry) {

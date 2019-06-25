@@ -61,6 +61,7 @@ export type SyncStateJournalData = ImmutableMap<string, SyncStateJournal>;
 
 export interface SyncStateEntry extends BaseModel {
   localId: string; // The id of the local entry
+  lastHash: string; // The hash of the entry as it was when last processed
 }
 export type SyncStateEntryData = ImmutableMap<string, SyncStateEntry>;
 

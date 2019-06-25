@@ -6,7 +6,7 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateEntryData } from '../store';
 import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
 
-import { contactVobjectToNative } from './helpers';
+import { contactVobjectToNative, entryNativeHashCalc } from './helpers';
 import { ContactType } from '../pim-types';
 
 import { SyncManager } from './SyncManager';
@@ -41,10 +41,15 @@ export class SyncManagerAddressBook extends SyncManager {
           syncStateEntry = {
             uid: nativeContact.uid,
             localId: localEntryId,
+            lastHash: '',
           };
 
           await Contacts.addExistingContactToGroupAsync(localEntryId, containerLocalId);
         }
+
+        const createdContact = { ...await Contacts.getContactsAsync({ id: syncStateEntry.localId })[0], uid: nativeContact.uid };
+        syncStateEntry.lastHash = entryNativeHashCalc(createdContact);
+
         break;
       case EteSync.SyncEntryAction.Delete:
         if (syncStateEntry) {
