@@ -157,28 +157,28 @@ export const createUserInfo = createAction(
 export const setSyncStateJournal = createAction(
   'SET_SYNC_STATE_JOURNAL',
   (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
-    return syncStateJournal;
+    return { ...syncStateJournal };
   }
 );
 
 export const unsetSyncStateJournal = createAction(
   'UNSET_SYNC_STATE_JOURNAL',
   (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
-    return syncStateJournal;
+    return { ...syncStateJournal };
   }
 );
 
 export const setSyncStateEntry = createAction(
   'SET_SYNC_STATE_ENTRY',
   (etesync: CredentialsData, syncStateEntry: SyncStateEntry) => {
-    return syncStateEntry;
+    return { ...syncStateEntry };
   }
 );
 
 export const unsetSyncStateEntry = createAction(
   'UNSET_SYNC_STATE_ENTRY',
   (etesync: CredentialsData, syncStateEntry: SyncStateEntry) => {
-    return syncStateEntry;
+    return { ...syncStateEntry };
   }
 );
 
