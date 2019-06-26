@@ -19,12 +19,14 @@ import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyn
 // XXX should probably be a singleton, or at least one per user - though maybe should be handled externally
 export abstract class SyncManager {
   protected etesync;
+  protected userInfo;
   protected collectionType: string;
   protected syncStateJournals;
   protected syncStateEntries;
 
-  constructor(etesync: CredentialsData) {
+  constructor(etesync: CredentialsData, userInfo: EteSync.UserInfo) {
     this.etesync = etesync;
+    this.userInfo = userInfo;
   }
 
   public async init() {

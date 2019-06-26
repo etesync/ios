@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as EteSync from '../api/EteSync';
 import { connect } from 'react-redux';
 import { Permissions } from 'expo';
 import { Text } from 'react-native-paper';
@@ -11,6 +12,7 @@ import { SyncManagerCalendar as SyncManager } from '.';
 
 interface PropsType {
   etesync: CredentialsData;
+  userInfo: EteSync.UserInfo;
   syncInfo: SyncInfo;
 }
 
@@ -25,8 +27,8 @@ class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
   }
 
   public async componentDidMount() {
-    const { etesync, syncInfo, syncStateJournals, syncStateEntries } = this.props;
-    const syncManager = new SyncManager(etesync);
+    const { etesync, syncInfo, userInfo, syncStateJournals, syncStateEntries } = this.props;
+    const syncManager = new SyncManager(etesync, userInfo);
     console.log('Asking for permissions');
     Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(async () => {
       await syncManager.init();

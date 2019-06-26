@@ -6,9 +6,10 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateEntryData } from '../store';
 import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
 
-import { eventVobjectToNative, entryNativeHashCalc } from './helpers';
+import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { EventType } from '../pim-types';
+import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
 import { SyncManager } from './SyncManager';
 
@@ -40,24 +41,57 @@ export class SyncManagerCalendar extends SyncManager {
       const collection = syncJournal.collection;
       const uid = collection.uid;
 
+      const syncEntries: EteSync.SyncEntry[] = [];
+
       const syncStateJournal = syncStateJournals.get(uid);
       const localId = syncStateJournal.localId;
       const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
       existingEvents.forEach((_event) => {
         const syncStateEntry = syncStateEntriesReverse.get(_event.id);
-        syncStateEntriesReverse.delete(_event.id);
 
         if (syncStateEntry === undefined) {
           // New
+          const event = { ..._event, uid: _event.id };
+          const vobjectEvent = eventNativeToVobject(event);
+          const syncEntry = new EteSync.SyncEntry();
+          syncEntry.action = EteSync.SyncEntryAction.Add;
+          syncEntry.content = vobjectEvent.toIcal();
+          syncEntries.push(syncEntry);
         } else {
           const event = { ..._event, uid: syncStateEntry.uid };
           const currentHash = entryNativeHashCalc(event);
           if (currentHash !== syncStateEntry.lastHash) {
             // Changed
-            console.log(`Event changed: ${currentHash} vs ${syncStateEntry.lastHash}`);
+            const vobjectEvent = eventNativeToVobject(event);
+            const syncEntry = new EteSync.SyncEntry();
+            syncEntry.action = EteSync.SyncEntryAction.Change;
+            syncEntry.content = vobjectEvent.toIcal();
+            syncEntries.push(syncEntry);
           }
+
+          syncStateEntriesReverse.delete(_event.id);
         }
       });
+
+      syncStateEntriesReverse.forEach((entry) => {
+        // Deleted
+        // FIXME: probably verify the event is deleted by trying to fetch it because it could just be outside of our range
+      });
+
+      if (syncEntries.length > 0) {
+        let prevUid: string | null = null;
+        const last = syncJournal.journalEntries.last() as EteSync.Entry;
+        if (last) {
+          prevUid = last.uid;
+        }
+        const journalEntries = syncEntries.map((syncEntry) => {
+          const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, syncEntry);
+          prevUid = ret.uid;
+          return ret;
+        });
+
+        console.log(journalEntries.map((ent) => (ent.uid)));
+      }
     }
   }
 

@@ -68,12 +68,12 @@ export function eventNativeToVobject(event: NativeEvent) {
   }
 
   const ret = new EventType();
-  ret.uid = this.state.uid;
-  ret.summary = this.state.title;
+  ret.uid = event.uid;
+  ret.summary = event.title;
   ret.startDate = startDate;
   ret.endDate = endDate;
-  ret.location = this.state.location;
-  ret.description = this.state.description;
+  ret.location = event.location;
+  ret.description = event.notes;
 
   return ret;
 }
