@@ -46,6 +46,7 @@ export class SyncManagerCalendar extends SyncManager {
       const syncStateJournal = syncStateJournals.get(uid);
       const localId = syncStateJournal.localId;
       const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
+      console.log(`${collection.displayName} ${existingEvents.length}`);
       existingEvents.forEach((_event) => {
         const syncStateEntry = syncStateEntriesReverse.get(_event.id);
 
@@ -54,6 +55,7 @@ export class SyncManagerCalendar extends SyncManager {
           const event = { ..._event, uid: _event.id };
           const vobjectEvent = eventNativeToVobject(event);
           const syncEntry = new EteSync.SyncEntry();
+          console.log(`New entry ${event.uid}`);
           syncEntry.action = EteSync.SyncEntryAction.Add;
           syncEntry.content = vobjectEvent.toIcal();
           syncEntries.push(syncEntry);
@@ -62,6 +64,7 @@ export class SyncManagerCalendar extends SyncManager {
           const currentHash = entryNativeHashCalc(event);
           if (currentHash !== syncStateEntry.lastHash) {
             // Changed
+            console.log(`Changed entry ${event.uid}`);
             const vobjectEvent = eventNativeToVobject(event);
             const syncEntry = new EteSync.SyncEntry();
             syncEntry.action = EteSync.SyncEntryAction.Change;

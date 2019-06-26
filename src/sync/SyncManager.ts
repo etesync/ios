@@ -125,7 +125,7 @@ export abstract class SyncManager {
       const entries = syncJournal.entries;
       const lastEntry: EteSync.SyncEntry = entries.last();
       if (lastEntry && (lastEntry.uid !== syncStateJournal.lastSyncUid)) {
-        console.log('Apply changes from entries');
+        console.log(`Applying changes. Current uid: ${lastEntry.uid}, last one: ${syncStateJournal.lastSyncUid}`);
         const lastSyncUid = syncStateJournal.lastSyncUid;
 
         let firstEntry: number;
