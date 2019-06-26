@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as EteSync from '../api/EteSync';
+import * as sjcl from 'sjcl';
 import { connect } from 'react-redux';
 import { Permissions } from 'expo';
 import { Text } from 'react-native-paper';
@@ -20,6 +21,9 @@ type PropsTypeInner = PropsType & {
   syncStateJournals: SyncStateJournalData;
   syncStateEntries: SyncStateEntryData;
 };
+
+// FIXME XXX FIXME: This is just a hack until we get real randomness going.
+sjcl.random.addEntropy(100, 2048, 'mouse');
 
 class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
   constructor(props: PropsTypeInner) {
