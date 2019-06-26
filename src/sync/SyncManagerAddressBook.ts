@@ -2,6 +2,8 @@ import * as EteSync from '../api/EteSync';
 import * as ICAL from 'ical.js';
 import { Contacts } from 'expo';
 
+import { logger } from '../logging';
+
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateEntryData } from '../store';
 import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
@@ -85,7 +87,7 @@ export class SyncManagerAddressBook extends SyncManager {
 
     const contacts = (await Contacts.getContactsAsync()).data;
     for (const contact of contacts) {
-      console.log(`Deleting ${contact.id}`);
+      logger.info(`Deleting ${contact.id}`);
       await Contacts.removeContactAsync(contact.id);
     }
 
@@ -95,7 +97,7 @@ export class SyncManagerAddressBook extends SyncManager {
         await Contacts.getGroupsAsync({ groupId: journal.localId });
         await Contacts.removeGroupAsync(journal.localId);
       } catch (e) {
-        console.log(e);
+        logger.warn(e);
       }
       syncStateJournals.delete(journal.uid);
     }));

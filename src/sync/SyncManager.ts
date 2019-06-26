@@ -1,5 +1,7 @@
 import * as EteSync from '../api/EteSync';
 
+import { logger } from '../logging';
+
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
@@ -40,14 +42,14 @@ export abstract class SyncManager {
     if (__DEV__) {
       // await this.debugReset(syncInfo);
     }
-    console.log('Starting Sync');
-    console.log('Syncing journal list');
+    logger.info('Starting Sync');
+    logger.info('Syncing journal list');
     await this.syncJournalList(syncInfo);
-    console.log('Pulling changes');
+    logger.info('Pulling changes');
     await this.syncPull(syncInfo);
-    console.log('Pushing changes');
+    logger.info('Pushing changes');
     await this.syncPush(syncInfo);
-    console.log('Finished Sync');
+    logger.info('Finished Sync');
   }
 
   protected async syncJournalList(syncInfo: SyncInfo) {
@@ -67,12 +69,12 @@ export abstract class SyncManager {
       let localId: string;
       if (syncStateJournals.has(uid)) {
         // FIXME: only modify if changed!
-        console.log(`Updating ${uid}`);
+        logger.info(`Updating ${uid}`);
         localId = syncStateJournals.get(uid).localId;
         await this.updateJournal(localId, syncJournal);
         syncStateJournals.delete(uid);
       } else {
-        console.log(`Creating ${uid}`);
+        logger.info(`Creating ${uid}`);
         localId = await this.createJournal(syncJournal);
 
         syncStateJournal = {
@@ -88,7 +90,7 @@ export abstract class SyncManager {
 
     // Remove deleted calendars
     await Promise.all(syncStateJournals.map(async (oldJournal) => {
-      console.log(`Deleting ${oldJournal.uid}`);
+      logger.info(`Deleting ${oldJournal.uid}`);
       await this.deleteJournal(oldJournal.localId);
       syncStateJournals.delete(oldJournal.uid);
       store.dispatch(unsetSyncStateJournal(etesync, oldJournal));
@@ -125,7 +127,7 @@ export abstract class SyncManager {
       const entries = syncJournal.entries;
       const lastEntry: EteSync.SyncEntry = entries.last();
       if (lastEntry && (lastEntry.uid !== syncStateJournal.lastSyncUid)) {
-        console.log(`Applying changes. Current uid: ${lastEntry.uid}, last one: ${syncStateJournal.lastSyncUid}`);
+        logger.info(`Applying changes. Current uid: ${lastEntry.uid}, last one: ${syncStateJournal.lastSyncUid}`);
         const lastSyncUid = syncStateJournal.lastSyncUid;
 
         let firstEntry: number;

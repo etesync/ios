@@ -2,6 +2,8 @@ import * as EteSync from '../api/EteSync';
 import * as ICAL from 'ical.js';
 import { Calendar } from 'expo';
 
+import { logger } from '../logging';
+
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateEntryData } from '../store';
 import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
@@ -55,7 +57,7 @@ export class SyncManagerCalendar extends SyncManager {
           const event = { ..._event, uid: _event.id };
           const vobjectEvent = eventNativeToVobject(event);
           const syncEntry = new EteSync.SyncEntry();
-          console.log(`New entry ${event.uid}`);
+          logger.info(`New entry ${event.uid}`);
           syncEntry.action = EteSync.SyncEntryAction.Add;
           syncEntry.content = vobjectEvent.toIcal();
           syncEntries.push(syncEntry);
@@ -64,7 +66,7 @@ export class SyncManagerCalendar extends SyncManager {
           const currentHash = entryNativeHashCalc(event);
           if (currentHash !== syncStateEntry.lastHash) {
             // Changed
-            console.log(`Changed entry ${event.uid}`);
+            logger.info(`Changed entry ${event.uid}`);
             const vobjectEvent = eventNativeToVobject(event);
             const syncEntry = new EteSync.SyncEntry();
             syncEntry.action = EteSync.SyncEntryAction.Change;
@@ -173,7 +175,7 @@ export class SyncManagerCalendar extends SyncManager {
     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
     for (const calendar of calendars) {
       if (calendar.source.id === localSource.id) {
-        console.log(`Deleting ${calendar.title}`);
+        logger.info(`Deleting ${calendar.title}`);
         await Calendar.deleteCalendarAsync(calendar.id);
       }
     }
