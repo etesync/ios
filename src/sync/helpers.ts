@@ -69,11 +69,11 @@ export function eventNativeToVobject(event: NativeEvent) {
 
   const ret = new EventType();
   ret.uid = event.uid;
-  ret.summary = event.title;
+  ret.summary = event.title || '';
   ret.startDate = startDate;
   ret.endDate = endDate;
-  ret.location = event.location;
-  ret.description = event.notes;
+  ret.location = event.location || '';
+  ret.description = event.notes || '';
 
   return ret;
 }
