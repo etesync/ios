@@ -35,7 +35,9 @@ export abstract class SyncManager {
     this.syncStateJournals = syncStateJournals;
     this.syncStateEntries = syncStateEntries;
 
-    // await this.debugReset(syncInfo);
+    if (__DEV__) {
+      // await this.debugReset(syncInfo);
+    }
     await this.syncJournalList(syncInfo);
     await this.syncPull(syncInfo);
     await this.syncPush(syncInfo);
