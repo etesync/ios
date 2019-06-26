@@ -29,7 +29,6 @@ class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
     const syncManager = new SyncManager(etesync);
     console.log('Asking for permissions');
     Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(async () => {
-      console.log('Syncing');
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     });

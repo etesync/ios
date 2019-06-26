@@ -38,9 +38,14 @@ export abstract class SyncManager {
     if (__DEV__) {
       // await this.debugReset(syncInfo);
     }
+    console.log('Starting Sync');
+    console.log('Syncing journal list');
     await this.syncJournalList(syncInfo);
+    console.log('Pulling changes');
     await this.syncPull(syncInfo);
+    console.log('Pushing changes');
     await this.syncPush(syncInfo);
+    console.log('Finished Sync');
   }
 
   protected async syncJournalList(syncInfo: SyncInfo) {
@@ -159,7 +164,6 @@ export abstract class SyncManager {
       }
     }
 
-    console.log('Finished');
     this.syncStateEntries = syncStateEntries.asImmutable();
   }
 
