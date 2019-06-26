@@ -23,7 +23,7 @@ type PropsTypeInner = PropsType & {
 };
 
 // FIXME XXX FIXME: This is just a hack until we get real randomness going.
-sjcl.random.addEntropy(100, 2048, 'mouse');
+sjcl.random.setDefaultParanoia(0, 'Setting paranoia=0 will ruin your security; use it only for testing');
 
 class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
   constructor(props: PropsTypeInner) {
