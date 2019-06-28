@@ -1,5 +1,4 @@
-import StorageHack from '../hacks/storage';
-const AsyncStorage = StorageHack as any;
+import { AsyncStorage } from 'react-native';
 
 import { combineReducers } from 'redux';
 import { createMigrate, persistReducer, createTransform } from 'redux-persist';
