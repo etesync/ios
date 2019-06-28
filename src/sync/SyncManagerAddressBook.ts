@@ -5,7 +5,7 @@ import { Contacts } from 'expo';
 import { logger } from '../logging';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, SyncStateEntryData } from '../store';
+import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
 
 import { contactVobjectToNative, entryNativeHashCalc } from './helpers';
@@ -20,7 +20,7 @@ export class SyncManagerAddressBook extends SyncManager {
     //
   }
 
-  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateEntryData) {
+  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const contact = new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
     const nativeContact = contactVobjectToNative(contact);
     let syncStateEntry = syncStateEntries.get(contact.uid);

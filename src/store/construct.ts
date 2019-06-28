@@ -163,8 +163,12 @@ const syncSerialize = (state: any, key: string) => {
 };
 
 const syncDeserialize = (state: any, key: string) => {
-  if ((key === 'stateJournals') || (key === 'stateEntries')) {
+  if (key === 'stateJournals') {
     return ImmutableMap(state);
+  } else if (key === 'stateEntries') {
+    return ImmutableMap(state).map((syncStateEntry: any) => {
+      return ImmutableMap(syncStateEntry);
+    });
   }
 
   return state;

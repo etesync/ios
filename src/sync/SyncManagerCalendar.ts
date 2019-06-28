@@ -5,8 +5,8 @@ import { Calendar } from 'expo';
 import { logger } from '../logging';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, SyncStateEntryData } from '../store';
-import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
+import { store, SyncStateJournalEntryData } from '../store';
+import { unsetSyncStateJournal } from '../store/actions';
 
 import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc } from './helpers';
 import { colorIntToHtml } from '../helpers';
@@ -27,10 +27,6 @@ export class SyncManagerCalendar extends SyncManager {
 
   protected async syncPush(syncInfo: SyncInfo) {
     const syncStateJournals = this.syncStateJournals;
-    const syncStateEntriesReverse = this.syncStateEntries.mapEntries((_entry) => {
-      const entry = _entry[1];
-      return [entry.localId, entry];
-    }).asMutable();
     const now = new Date();
     const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() - 1));
     const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + 3));
@@ -42,6 +38,10 @@ export class SyncManagerCalendar extends SyncManager {
 
       const collection = syncJournal.collection;
       const uid = collection.uid;
+      const syncStateEntriesReverse = this.syncStateEntries.get(uid).mapEntries((_entry) => {
+        const entry = _entry[1];
+        return [entry.localId, entry];
+      }).asMutable();
 
       const syncEntries: EteSync.SyncEntry[] = [];
 
@@ -100,7 +100,7 @@ export class SyncManagerCalendar extends SyncManager {
     }
   }
 
-  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateEntryData) {
+  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const event = EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
     const nativeEvent = eventVobjectToNative(event);
     let syncStateEntry = syncStateEntries.get(event.uid);
@@ -183,12 +183,10 @@ export class SyncManagerCalendar extends SyncManager {
     syncStateJournals.forEach((journal) => {
       store.dispatch(unsetSyncStateJournal(etesync, journal));
       syncStateJournals.delete(journal.uid);
-      return true;
-    });
 
-    syncStateEntries.forEach((entry) => {
-      store.dispatch(unsetSyncStateEntry(etesync, entry));
-      syncStateEntries.delete(entry.uid);
+      // Deletion from the store happens automatically
+      syncStateEntries.delete(journal.uid);
+
       return true;
     });
 

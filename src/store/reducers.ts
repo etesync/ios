@@ -63,7 +63,8 @@ export interface SyncStateEntry extends BaseModel {
   localId: string; // The id of the local entry
   lastHash: string; // The hash of the entry as it was when last processed
 }
-export type SyncStateEntryData = ImmutableMap<string, SyncStateEntry>;
+export type SyncStateJournalEntryData = ImmutableMap<string, SyncStateEntry>;
+export type SyncStateEntryData = ImmutableMap<string, SyncStateJournalEntryData>;
 
 
 function fetchTypeIdentityReducer(
@@ -281,11 +282,18 @@ export const syncStateEntryReducer = handleActions(
   {
     [actions.setSyncStateEntry.toString()]: (state: SyncStateEntryData, action: Action<SyncStateEntry>) => {
       const syncStateEntry = action.payload;
-      return state.set(syncStateEntry.uid, syncStateEntry);
+      const journalUid = (action as any).meta as string;
+      return state.setIn([journalUid, syncStateEntry.uid], syncStateEntry);
     },
     [actions.unsetSyncStateEntry.toString()]: (state: SyncStateEntryData, action: Action<SyncStateEntry>) => {
       const syncStateEntry = action.payload;
-      return state.remove(syncStateEntry.uid);
+      const journalUid = (action as any).meta as string;
+      return state.deleteIn([journalUid, syncStateEntry.uid]);
+    },
+    [actions.unsetSyncStateJournal.toString()]: (state: SyncStateEntryData, _action: Action<any>) => {
+      const action: Action<SyncStateJournal> = _action; // Required because for some reason the typing fails if not the case.
+      const syncStateJournal = action.payload;
+      return state.remove(syncStateJournal.uid);
     },
   },
   ImmutableMap({})

@@ -1,9 +1,10 @@
 import * as EteSync from '../api/EteSync';
+import { Map as ImmutableMap } from 'immutable';
 
 import { logger } from '../logging';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal } from '../store';
+import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 
 /*
@@ -111,7 +112,7 @@ export abstract class SyncManager {
     // See notes for more info
     const etesync = this.etesync;
     const syncStateJournals = this.syncStateJournals;
-    const syncStateEntries = this.syncStateEntries.asMutable();
+    const syncStateEntriesAll = this.syncStateEntries.asMutable();
 
     for (const syncJournal of syncInfo.values()) {
       if (syncJournal.collection.type !== this.collectionType) {
@@ -120,6 +121,7 @@ export abstract class SyncManager {
 
       const collection = syncJournal.collection;
       const uid = collection.uid;
+      const journalSyncEntries = (syncStateEntriesAll.get(uid) || ImmutableMap({})).asMutable();
 
       const syncStateJournal = syncStateJournals.get(uid);
       const localId = syncStateJournals.get(uid).localId;
@@ -147,17 +149,17 @@ export abstract class SyncManager {
         // FIXME: optimise by first compressing redundant changes here and only then applynig to iOS
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i);
-          const syncStateEntry = await this.processSyncEntry(localId, syncEntry, syncStateEntries);
+          const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
           switch (syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
             case EteSync.SyncEntryAction.Change:
-              syncStateEntries.set(syncStateEntry.uid, syncStateEntry);
-              store.dispatch(setSyncStateEntry(etesync, syncStateEntry));
+              journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+              store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
               break;
             case EteSync.SyncEntryAction.Delete:
               if (syncStateEntry) {
-                syncStateEntries.delete(syncStateEntry.localId);
-                store.dispatch(unsetSyncStateEntry(etesync, syncStateEntry));
+                journalSyncEntries.delete(syncStateEntry.localId);
+                store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
               }
               break;
           }
@@ -165,10 +167,12 @@ export abstract class SyncManager {
         // FIXME: probably do in chunks
         syncStateJournal.lastSyncUid = lastEntry.uid;
         store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
+
+        syncStateEntriesAll.set(uid, journalSyncEntries.asImmutable());
       }
     }
 
-    this.syncStateEntries = syncStateEntries.asImmutable();
+    this.syncStateEntries = syncStateEntriesAll.asImmutable();
   }
 
   protected abstract async createJournal(syncJournal: SyncInfoJournal): Promise<string>;
@@ -176,7 +180,7 @@ export abstract class SyncManager {
   protected abstract async deleteJournal(containerLocalId: string);
   protected abstract async syncPush(syncInfo: SyncInfo);
 
-  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateEntryData);
+  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData);
 
   protected abstract async debugReset(syncInfo: SyncInfo);
 }
