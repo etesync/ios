@@ -33,7 +33,7 @@ export class SyncManagerCalendar extends SyncManager {
     }).asMutable();
     const now = new Date();
     const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() - 1));
-    const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + 1));
+    const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + 3));
 
     for (const syncJournal of syncInfo.values()) {
       if (syncJournal.collection.type !== this.collectionType) {
