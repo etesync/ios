@@ -41,6 +41,8 @@ export class SyncManagerCalendar extends SyncManager {
 
       const collection = syncJournal.collection;
       const uid = collection.uid;
+      logger.info(`Pushing ${uid}`);
+
       const syncStateEntriesReverse = this.syncStateEntries.get(uid).mapEntries((_entry) => {
         const entry = _entry[1];
         return [entry.localId, entry];

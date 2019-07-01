@@ -121,6 +121,8 @@ export abstract class SyncManager {
 
       const collection = syncJournal.collection;
       const uid = collection.uid;
+      logger.info(`Pulling ${uid}`);
+
       const journalSyncEntries = (syncStateEntriesAll.get(uid) || ImmutableMap({})).asMutable();
 
       const syncStateJournal = syncStateJournals.get(uid);
