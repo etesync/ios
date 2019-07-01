@@ -32,8 +32,7 @@ export class SyncManagerCalendar extends SyncManager {
   protected async syncPush(syncInfo: SyncInfo) {
     const syncStateJournals = this.syncStateJournals;
     const now = new Date();
-    const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() - 1));
-    const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + 3));
+    const dateYearRange = 4; // Maximum year range supported on iOS
 
     for (const syncJournal of syncInfo.values()) {
       if (syncJournal.collection.type !== this.collectionType) {
@@ -51,36 +50,41 @@ export class SyncManagerCalendar extends SyncManager {
 
       const syncStateJournal = syncStateJournals.get(uid);
       const localId = syncStateJournal.localId;
-      const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
-      console.log(`${collection.displayName} ${existingEvents.length}`);
-      existingEvents.forEach((_event) => {
-        const syncStateEntry = syncStateEntriesReverse.get(_event.id);
+      for (let i = -2 ; i <= 1 ; i++) {
+        const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
+        const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
 
-        if (syncStateEntry === undefined) {
-          // New
-          const event = { ..._event, uid: _event.id };
-          const vobjectEvent = eventNativeToVobject(event);
-          const syncEntry = new EteSync.SyncEntry();
-          logger.info(`New entry ${event.uid}`);
-          syncEntry.action = EteSync.SyncEntryAction.Add;
-          syncEntry.content = vobjectEvent.toIcal();
-          syncEntries.push(syncEntry);
-        } else {
-          const event = { ..._event, uid: syncStateEntry.uid };
-          const currentHash = entryNativeHashCalc(event);
-          if (currentHash !== syncStateEntry.lastHash) {
-            // Changed
-            logger.info(`Changed entry ${event.uid}`);
+        const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
+
+        existingEvents.forEach((_event) => {
+          const syncStateEntry = syncStateEntriesReverse.get(_event.id);
+
+          if (syncStateEntry === undefined) {
+            // New
+            const event = { ..._event, uid: _event.id };
             const vobjectEvent = eventNativeToVobject(event);
             const syncEntry = new EteSync.SyncEntry();
-            syncEntry.action = EteSync.SyncEntryAction.Change;
+            logger.info(`New entry ${event.uid}`);
+            syncEntry.action = EteSync.SyncEntryAction.Add;
             syncEntry.content = vobjectEvent.toIcal();
             syncEntries.push(syncEntry);
-          }
+          } else {
+            const event = { ..._event, uid: syncStateEntry.uid };
+            const currentHash = entryNativeHashCalc(event);
+            if (currentHash !== syncStateEntry.lastHash) {
+              // Changed
+              logger.info(`Changed entry ${event.uid}`);
+              const vobjectEvent = eventNativeToVobject(event);
+              const syncEntry = new EteSync.SyncEntry();
+              syncEntry.action = EteSync.SyncEntryAction.Change;
+              syncEntry.content = vobjectEvent.toIcal();
+              syncEntries.push(syncEntry);
+            }
 
-          syncStateEntriesReverse.delete(_event.id);
-        }
-      });
+            syncStateEntriesReverse.delete(_event.id);
+          }
+        });
+      }
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
