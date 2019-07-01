@@ -160,7 +160,7 @@ export abstract class SyncManager {
               break;
             case EteSync.SyncEntryAction.Delete:
               if (syncStateEntry) {
-                journalSyncEntries.delete(syncStateEntry.localId);
+                journalSyncEntries.delete(syncStateEntry.uid);
                 store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
               }
               break;
