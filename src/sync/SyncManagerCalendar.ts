@@ -8,7 +8,7 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc } from './helpers';
+import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { EventType } from '../pim-types';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
@@ -16,6 +16,10 @@ import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 import { SyncManager } from './SyncManager';
 
 const ACCOUNT_NAME = 'etesync';
+
+function entryNativeHashCalc(entry: {uid: string}) {
+  return _entryNativeHashCalc(entry, ['lastModifiedDate']);
+}
 
 export class SyncManagerCalendar extends SyncManager {
   protected collectionType = 'CALENDAR';
