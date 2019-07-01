@@ -82,10 +82,25 @@ export class SyncManagerCalendar extends SyncManager {
         }
       });
 
-      syncStateEntriesReverse.forEach((entry) => {
+      for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
-        // FIXME: probably verify the event is deleted by trying to fetch it because it could just be outside of our range
-      });
+        let existingEvent: Calendar.Event;
+        try {
+          existingEvent = await Calendar.getEventAsync(syncStateEntry.localId);
+        } catch (e) {
+          // Skip
+        }
+
+        if (!existingEvent) {
+          // If the event still exists it means it's not deleted.
+          logger.info(`Deleted entry ${syncStateEntry.uid}`);
+          const syncEntry = new EteSync.SyncEntry();
+          syncEntry.action = EteSync.SyncEntryAction.Change;
+          // FIXME: need to search and get the last time it was in the journal and use that content.
+          syncEntry.content = ''; // vobjectEvent.toIcal();
+          syncEntries.push(syncEntry);
+        }
+      }
 
       if (syncEntries.length > 0) {
         let prevUid: string | null = null;
