@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as EteSync from '../api/EteSync';
 import * as sjcl from 'sjcl';
 import { connect } from 'react-redux';
-import { Permissions } from 'expo';
+import * as Permissions from 'expo-permissions';
 import { Text } from 'react-native-paper';
 
 import { SyncInfo } from '../SyncGate';

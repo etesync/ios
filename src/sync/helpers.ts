@@ -1,4 +1,5 @@
-import { Calendar, Contacts } from 'expo';
+import * as Calendar from 'expo-calendar';
+import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';
 import * as sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
@@ -16,7 +17,7 @@ export interface NativeContact extends Contacts.Contact {
 export function entryNativeHashCalc(entry: {uid: string}, ignoreKeys: string[] = []) {
   const sha = new sjcl.hash.sha256();
   Object.keys(entry).sort().forEach((key) => {
-    if (ignoreKeys.includes(key)) {
+    if (!entry[key] || ignoreKeys.includes(key)) {
       return;
     }
     sha.update(key);
@@ -113,7 +114,7 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
-  const birthdays: Contacts.ContactDate[] = contactFieldToNative<Contacts.ContactDate>(contact, 'bday', (fieldType: string, value: ICAL.Time) => {
+  const birthdays: Contacts.Date[] = contactFieldToNative<Contacts.Date>(contact, 'bday', (fieldType: string, value: ICAL.Time) => {
     const date = value.toJSDate();
     return {
       id: 'bday',

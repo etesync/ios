@@ -4,7 +4,8 @@ import { Appbar, DefaultTheme, Provider as PaperProvider } from 'react-native-pa
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Font, Permissions } from 'expo';
+import * as Font from 'expo-font';
+import * as Permissions from 'expo-permissions';
 
 import Container from './widgets/Container';
 
@@ -46,8 +47,8 @@ class App extends React.Component<PropsType> {
 
   public async componentWillMount() {
     await Font.loadAsync({
-      Roboto: require('native-base/Fonts/Roboto.ttf'),
-      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+      Roboto: require('../node_modules/native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('../node_modules/native-base/Fonts/Roboto_medium.ttf'),
     });
 
     this.setState({ fontLoaded: true });

@@ -1,6 +1,6 @@
 import * as EteSync from '../api/EteSync';
 import * as ICAL from 'ical.js';
-import { Calendar } from 'expo';
+import * as Calendar from 'expo-calendar';
 
 import { logger } from '../logging';
 
@@ -202,7 +202,7 @@ export class SyncManagerCalendar extends SyncManager {
     const syncStateJournals = this.syncStateJournals.asMutable();
     const syncStateEntries = this.syncStateEntries.asMutable();
 
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    const calendars = (await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT)) as any as Calendar.Calendar[]; // XXX: Workaround typing bug
     for (const calendar of calendars) {
       if (calendar.source.id === localSource.id) {
         logger.info(`Deleting ${calendar.title}`);

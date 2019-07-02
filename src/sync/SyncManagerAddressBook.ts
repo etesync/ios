@@ -1,6 +1,6 @@
 import * as EteSync from '../api/EteSync';
 import * as ICAL from 'ical.js';
-import { Contacts } from 'expo';
+import * as Contacts from 'expo-contacts';
 
 import { logger } from '../logging';
 
@@ -15,6 +15,11 @@ import { SyncManager } from './SyncManager';
 
 export class SyncManagerAddressBook extends SyncManager {
   protected collectionType = 'ADDRESS_BOOK';
+  private containerId: string;
+
+  public async init() {
+    this.containerId = await Contacts.getDefaultContainerIdAsync();
+  }
 
   protected async syncPush(syncInfo: SyncInfo) {
     //
@@ -39,7 +44,7 @@ export class SyncManagerAddressBook extends SyncManager {
           nativeContact.id = syncStateEntry.localId;
           await Contacts.updateContactAsync(nativeContact);
         } else {
-          const localEntryId = await Contacts.addContactAsync(nativeContact);
+          const localEntryId = await Contacts.addContactAsync(nativeContact, this.containerId);
           syncStateEntry = {
             uid: nativeContact.uid,
             localId: localEntryId,
