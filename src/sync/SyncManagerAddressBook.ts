@@ -6,7 +6,7 @@ import { logger } from '../logging';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
-import { unsetSyncStateJournal, unsetSyncStateEntry } from '../store/actions';
+import { unsetSyncStateJournal } from '../store/actions';
 
 import { contactVobjectToNative, entryNativeHashCalc } from './helpers';
 import { ContactType } from '../pim-types';
@@ -105,15 +105,12 @@ export class SyncManagerAddressBook extends SyncManager {
         logger.warn(e);
       }
       syncStateJournals.delete(journal.uid);
-    }));
 
-    syncStateEntries.forEach((entry) => {
-      store.dispatch(unsetSyncStateEntry(etesync, entry));
-      syncStateEntries.delete(entry.uid);
-    });
+      // Deletion from the store happens automatically
+      syncStateEntries.delete(journal.uid);
+    }));
 
     this.syncStateJournals = syncStateJournals.asImmutable();
     this.syncStateEntries = syncStateEntries.asImmutable();
   }
 }
-
