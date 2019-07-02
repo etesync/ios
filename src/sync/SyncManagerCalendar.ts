@@ -101,10 +101,15 @@ export class SyncManagerCalendar extends SyncManager {
           // If the event still exists it means it's not deleted.
           logger.info(`Deleted entry ${syncStateEntry.uid}`);
           const syncEntry = new EteSync.SyncEntry();
-          syncEntry.action = EteSync.SyncEntryAction.Change;
-          // FIXME: need to search and get the last time it was in the journal and use that content.
-          syncEntry.content = ''; // vobjectEvent.toIcal();
-          syncEntries.push(syncEntry);
+          syncEntry.action = EteSync.SyncEntryAction.Delete;
+          for (const entry of syncJournal.entries.reverse()) {
+            const event = EventType.fromVCalendar(new ICAL.Component(ICAL.parse(entry.content)));
+            if (event.uid === syncStateEntry.uid) {
+              syncEntry.content = event.toIcal();
+              syncEntries.push(syncEntry);
+              break;
+            }
+          }
         }
       }
 
