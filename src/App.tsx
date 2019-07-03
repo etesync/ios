@@ -7,6 +7,8 @@ import * as Font from 'expo-font';
 import { createAppContainer, createDrawerNavigator } from 'react-navigation';
 import RootNavigator from './RootNavigator';
 
+import { useScreens } from 'react-native-screens';
+useScreens();
 
 const theme = {
   ...DefaultTheme,
