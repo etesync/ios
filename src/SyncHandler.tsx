@@ -110,14 +110,22 @@ export function useSyncInfo() {
   const etesync = useCredentials().value;
 
   const selectorParams = useSelector(syncInfoUseSelector);
-  React.useEffect(() => {
-    // FIXME: Hack to make this async. Shouldn't need the timer.
-    setTimeout(() => {
-      syncInfoSelector({ etesync, ...selectorParams }).then((newSyncInfo) => {
-        setSyncInfo(newSyncInfo);
-      });
-    }, 10);
-  });
+  const entries = selectorParams.entries;
+
+  if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x.value !== null))) {
+    React.useEffect(() => {
+      // FIXME: Hack to make this async. Shouldn't need the timer.
+      const timeout = setTimeout(() => {
+        syncInfoSelector({ etesync, ...selectorParams }).then((newSyncInfo) => {
+          setSyncInfo(newSyncInfo);
+        });
+      }, 10);
+
+      return function cleanup() {
+        clearTimeout(timeout);
+      };
+    });
+  }
 
   return syncInfo;
 }
