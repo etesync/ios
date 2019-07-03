@@ -4,6 +4,7 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
+    "check-types": "tsc",
     "eject": "expo eject"
   },
   "dependencies": {
