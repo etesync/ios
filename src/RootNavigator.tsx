@@ -3,7 +3,7 @@ import { Appbar } from 'react-native-paper';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import { NavigationScreenProp } from 'react-navigation';
+import { createStackNavigator, NavigationScreenProp } from 'react-navigation';
 
 import Container from './widgets/Container';
 
@@ -22,16 +22,8 @@ type PropsTypeInner = PropsType & {
 
 class RootNavigator extends React.Component<PropsTypeInner> {
   public render() {
-    const { navigation } = this.props;
-
     return (
       <Container>
-        <Appbar.Header>
-          <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
-          <Appbar.Content
-            title={C.appName}
-          />
-        </Appbar.Header>
         <KeyboardAwareScrollView enableOnAndroid>
           <LoginGate
             credentials={this.props.credentials}
@@ -69,6 +61,22 @@ const mapStateToProps = (state: store.StoreState, props: PropsTypeInner) => {
   };
 };
 
-export default connect(
+const ConnectedRoot = connect(
   mapStateToProps
 )(RootNavigator);
+
+export default createStackNavigator(
+  {
+    home: ConnectedRoot,
+  },
+  {
+    defaultNavigationOptions: ({ navigation }) => ({
+      header: (
+        <Appbar.Header>
+          <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+          <Appbar.Content title={C.appName} />
+        </Appbar.Header>
+      ),
+    }),
+  }
+);
