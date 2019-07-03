@@ -5,7 +5,7 @@ import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import * as Font from 'expo-font';
 
 import { createAppContainer, createDrawerNavigator } from 'react-navigation';
-import RootNavigator from './RootNavigator';
+import RootNavigator from './login/LoginNavigator';
 
 import ErrorBoundary from './ErrorBoundary';
 
