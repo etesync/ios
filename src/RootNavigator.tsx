@@ -4,6 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as Permissions from 'expo-permissions';
+import { NavigationScreenProp } from 'react-navigation';
 
 import Container from './widgets/Container';
 
@@ -18,23 +19,28 @@ import LoginGate from './LoginGate';
 import ErrorBoundary from './ErrorBoundary';
 
 interface PropsType {
+  navigation: NavigationScreenProp<void>;
+}
+
+type PropsTypeInner = PropsType & {
   credentials: store.CredentialsType;
   entries: store.EntriesType;
   fetchCount: number;
-}
+};
 
-class RootNavigator extends React.Component<PropsType> {
-  constructor(props: PropsType) {
+class RootNavigator extends React.Component<PropsTypeInner> {
+  constructor(props: PropsTypeInner) {
     super(props);
     this.onPress = this.onPress.bind(this);
   }
 
   public render() {
+    const { navigation } = this.props;
+
     return (
       <Container>
         <Appbar.Header>
-          <Appbar.BackAction
-          />
+          <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
           <Appbar.Content
             title={C.appName}
           />
@@ -88,7 +94,7 @@ const credentialsSelector = createSelector(
   }
 );
 
-const mapStateToProps = (state: store.StoreState) => {
+const mapStateToProps = (state: store.StoreState, props: PropsTypeInner) => {
   return {
     credentials: credentialsSelector(state),
     entries: state.cache.entries,

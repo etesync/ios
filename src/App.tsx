@@ -4,6 +4,7 @@ import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
 import * as Font from 'expo-font';
 
+import { createAppContainer, createDrawerNavigator } from 'react-navigation';
 import RootNavigator from './RootNavigator';
 
 
@@ -15,6 +16,16 @@ const theme = {
     accent: '#00B0FF', // lightBlue.A400
   },
 };
+
+const AppNavigator = createAppContainer(createDrawerNavigator(
+  { home: RootNavigator },
+  {
+    contentComponent: () => {
+      return <Text>Drawer</Text>;
+    },
+    drawerPosition: 'left',
+  }
+));
 
 class App extends React.Component {
   public state = {
@@ -37,7 +48,7 @@ class App extends React.Component {
 
     return (
       <PaperProvider theme={theme}>
-        <RootNavigator />
+        <AppNavigator />
       </PaperProvider>
     );
   }
