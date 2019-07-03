@@ -24,8 +24,8 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: 'tomato',
-    accent: 'yellow',
+    primary: '#FFC107', // amber
+    accent: '#00B0FF', // lightBlue.A400
   },
 };
 
