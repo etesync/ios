@@ -7,6 +7,8 @@ import * as Font from 'expo-font';
 import { createAppContainer, createDrawerNavigator } from 'react-navigation';
 import RootNavigator from './RootNavigator';
 
+import ErrorBoundary from './ErrorBoundary';
+
 import { useScreens } from 'react-native-screens';
 useScreens();
 
@@ -50,7 +52,9 @@ class App extends React.Component {
 
     return (
       <PaperProvider theme={theme}>
-        <AppNavigator />
+        <ErrorBoundary>
+          <AppNavigator />
+        </ErrorBoundary>
       </PaperProvider>
     );
   }

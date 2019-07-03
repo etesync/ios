@@ -16,8 +16,6 @@ import { login, deriveKey } from './store/actions';
 
 import LoginGate from './LoginGate';
 
-import ErrorBoundary from './ErrorBoundary';
-
 interface PropsType {
   navigation: NavigationScreenProp<void>;
 }
@@ -45,13 +43,11 @@ class RootNavigator extends React.Component<PropsTypeInner> {
             title={C.appName}
           />
         </Appbar.Header>
-        <ErrorBoundary>
-          <KeyboardAwareScrollView enableOnAndroid>
-            <LoginGate
-              credentials={this.props.credentials}
-            />
-          </KeyboardAwareScrollView>
-        </ErrorBoundary>
+        <KeyboardAwareScrollView enableOnAndroid>
+          <LoginGate
+            credentials={this.props.credentials}
+          />
+        </KeyboardAwareScrollView>
       </Container>
     );
   }
