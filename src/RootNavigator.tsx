@@ -6,19 +6,14 @@ import { createStackNavigator, NavigationScreenProp } from 'react-navigation';
 import * as C from './constants';
 import SyncGate from './SyncGate';
 
-import { useCredentials } from './login';
-
 interface PropsType {
   navigation: NavigationScreenProp<void>;
 }
 
 const RootScreen = React.memo(function _RootScreen(props: PropsType) {
-  const credentials = useCredentials();
   return (
     <KeyboardAwareScrollView enableOnAndroid>
-      <SyncGate
-        etesync={credentials.value}
-      />
+      <SyncGate />
     </KeyboardAwareScrollView>
   );
 });
