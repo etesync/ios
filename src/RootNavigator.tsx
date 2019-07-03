@@ -5,8 +5,6 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { createStackNavigator, NavigationScreenProp } from 'react-navigation';
 
-import Container from './widgets/Container';
-
 import * as C from './constants';
 import * as store from './store';
 
@@ -23,13 +21,11 @@ type PropsTypeInner = PropsType & {
 class RootNavigator extends React.Component<PropsTypeInner> {
   public render() {
     return (
-      <Container>
-        <KeyboardAwareScrollView enableOnAndroid>
-          <LoginGate
-            credentials={this.props.credentials}
-          />
-        </KeyboardAwareScrollView>
-      </Container>
+      <KeyboardAwareScrollView enableOnAndroid>
+        <LoginGate
+          credentials={this.props.credentials}
+        />
+      </KeyboardAwareScrollView>
     );
   }
 }
