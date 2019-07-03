@@ -14,7 +14,8 @@ export interface NativeContact extends Contacts.Contact {
   uid: string; // This is the EteSync UUID for the contact
 }
 
-export function entryNativeHashCalc(entry: {uid: string}, ignoreKeys: string[] = []) {
+export function entryNativeHashCalc(_entry: {uid: string}, ignoreKeys: string[] = []) {
+  const entry = _entry as any;
   const sha = new sjcl.hash.sha256();
   Object.keys(entry).sort().forEach((key) => {
     if (!entry[key] || ignoreKeys.includes(key)) {

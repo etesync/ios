@@ -54,7 +54,7 @@ export class SyncManagerAddressBook extends SyncManager {
           await Contacts.addExistingContactToGroupAsync(localEntryId, containerLocalId);
         }
 
-        const createdContact = { ...await Contacts.getContactsAsync({ id: syncStateEntry.localId })[0], uid: nativeContact.uid };
+        const createdContact = { ...(await Contacts.getContactsAsync({ id: syncStateEntry.localId })).data[0], uid: nativeContact.uid };
         syncStateEntry.lastHash = entryNativeHashCalc(createdContact);
 
         break;

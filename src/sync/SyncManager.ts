@@ -4,7 +4,7 @@ import { Map as ImmutableMap } from 'immutable';
 import { logger } from '../logging';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData } from '../store';
+import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 
 /*
@@ -178,12 +178,12 @@ export abstract class SyncManager {
   }
 
   protected abstract async createJournal(syncJournal: SyncInfoJournal): Promise<string>;
-  protected abstract async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal);
-  protected abstract async deleteJournal(containerLocalId: string);
-  protected abstract async syncPush(syncInfo: SyncInfo);
+  protected abstract async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal): Promise<void>;
+  protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
+  protected abstract async syncPush(syncInfo: SyncInfo): Promise<void>;
 
-  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData);
+  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 
-  protected abstract async debugReset(syncInfo: SyncInfo);
+  protected abstract async debugReset(syncInfo: SyncInfo): Promise<void>;
 }
 

@@ -23,7 +23,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
 
 export class SyncManagerCalendar extends SyncManager {
   protected collectionType = 'CALENDAR';
-  private localSource;
+  private localSource: any;
 
   public async init() {
     this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name === ACCOUNT_NAME));
@@ -185,7 +185,7 @@ export class SyncManagerCalendar extends SyncManager {
     const localSource = this.localSource;
     const collection = syncJournal.collection;
 
-    return Calendar.updateCalendarAsync(containerLocalId, {
+    Calendar.updateCalendarAsync(containerLocalId, {
       sourceId: localSource.id,
       title: collection.displayName,
       color: colorIntToHtml(collection.color),
