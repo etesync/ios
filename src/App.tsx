@@ -8,6 +8,7 @@ import { createAppContainer, createDrawerNavigator } from 'react-navigation';
 import RootNavigator from './login/LoginNavigator';
 
 import ErrorBoundary from './ErrorBoundary';
+import Drawer from './Drawer';
 
 import { useScreens } from 'react-native-screens';
 useScreens();
@@ -24,9 +25,7 @@ const theme = {
 const AppNavigator = createAppContainer(createDrawerNavigator(
   { home: RootNavigator },
   {
-    contentComponent: () => {
-      return <Text>Drawer</Text>;
-    },
+    contentComponent: Drawer,
     drawerPosition: 'left',
   }
 ));
