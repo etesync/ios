@@ -3,10 +3,6 @@ import { ScrollView } from 'react-native';
 import { List } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 
-// import AppBarOverride from '../widgets/AppBarOverride';
-const AppBarOverride = (props: any) => <></>;
-import Container from '../widgets/Container';
-
 import * as EteSync from '../api/EteSync';
 
 import { useSyncInfo } from '../SyncHandler';
@@ -57,26 +53,21 @@ export default function JournalListScreen() {
   );
 
   return (
-    <Container>
-      <AppBarOverride title="Journals">
-        <></>
-      </AppBarOverride>
-      <ScrollView style={{ flex: 1 }}>
-        <List.Section>
-          <List.Subheader>Address Books</List.Subheader>
-          {journalMap.ADDRESS_BOOK}
-        </List.Section>
+    <ScrollView style={{ flex: 1 }}>
+      <List.Section>
+        <List.Subheader>Address Books</List.Subheader>
+        {journalMap.ADDRESS_BOOK}
+      </List.Section>
 
-        <List.Section>
-          <List.Subheader>Calendars</List.Subheader>
-          {journalMap.CALENDAR}
-        </List.Section>
+      <List.Section>
+        <List.Subheader>Calendars</List.Subheader>
+        {journalMap.CALENDAR}
+      </List.Section>
 
-        <List.Section>
-          <List.Subheader>Tasks</List.Subheader>
-          {journalMap.TASKS}
-        </List.Section>
-      </ScrollView>
-    </Container>
+      <List.Section>
+        <List.Subheader>Tasks</List.Subheader>
+        {journalMap.TASKS}
+      </List.Section>
+    </ScrollView>
   );
 }
