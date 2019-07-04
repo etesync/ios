@@ -66,6 +66,14 @@ export interface SyncStateEntry extends BaseModel {
 export type SyncStateJournalEntryData = ImmutableMap<string, SyncStateEntry>;
 export type SyncStateEntryData = ImmutableMap<string, SyncStateJournalEntryData>;
 
+const shallowCompare = (obj1: {[key: string]: any}, obj2: {[key: string]: any}) => {
+  return (
+    Object.keys(obj1).length === Object.keys(obj2).length &&
+    Object.keys(obj1).every((key) =>
+      obj2.hasOwnProperty(key) && obj1[key] === obj2[key]
+    )
+  );
+};
 
 function fetchTypeIdentityReducer(
   state: Record<FetchType<any>> = fetchTypeRecord<any>()(), action: any, extend: boolean = false) {
@@ -258,7 +266,11 @@ export const userInfo = handleAction(
 
       payload = (action.meta === undefined) ? payload : action.meta.userInfo;
 
-      return state.set('value', payload);
+      if (!shallowCompare(state.get('value').serialize(), payload.serialize())) {
+        return state.set('value', payload);
+      }
+
+      return state;
     }
   },
   new UserInfoFetchRecord()
