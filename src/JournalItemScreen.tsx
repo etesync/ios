@@ -2,6 +2,9 @@ import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { Text } from 'react-native-paper';
+import { ScrollView } from 'react-native';
+
+import Container from './widgets/Container';
 
 import { useSyncInfo } from './SyncHandler';
 
@@ -25,7 +28,11 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
   });
 
   return (
-    <Text>{entry.content}</Text>
+    <ScrollView style={{ flex: 1 }}>
+      <Container>
+        <Text>{entry.content}</Text>
+      </Container>
+    </ScrollView>
   );
 };
 

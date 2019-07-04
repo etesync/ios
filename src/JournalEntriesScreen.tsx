@@ -11,6 +11,8 @@ import * as ICAL from 'ical.js';
 
 import { StoreState } from './store';
 import LoadingIndicator from './widgets/LoadingIndicator';
+import Container from './widgets/Container';
+import Separator from './widgets/Separator';
 
 import { TaskType, EventType, ContactType } from './pim-types';
 
@@ -83,8 +85,11 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
 
   return (
     <>
-      <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
-      <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
+      <Container>
+        <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
+        <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
+      </Container>
+      <Separator />
       <ScrollView style={{ flex: 1 }}>
         <List.Section>
           {changeEntries}

@@ -11,7 +11,7 @@ class Container extends React.Component<ViewProps> {
     const { children, style } = this.props;
 
     return (
-      <View style={{ flex: 1, padding: 15, ...(style as any) }}>
+      <View style={{ padding: 15, ...(style as any) }}>
         {children}
       </View>
     );
