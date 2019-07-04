@@ -1,21 +1,31 @@
 import * as React from 'react';
-import { Text } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { createStackNavigator } from 'react-navigation';
 
 import * as C from './constants';
 import HomeScreen from './HomeScreen';
+// import JournalScreen from './JournalScreen';
 
 const RootNavigator = createStackNavigator(
   {
-    home: HomeScreen,
-    Journal: () => <Text>Hello</Text>,
+    home: {
+      screen: HomeScreen,
+      navigationOptions: (params: any) => ({
+        header: (
+          <Appbar.Header>
+            <Appbar.Action icon="menu" onPress={() => params.navigation.openDrawer()} />
+            <Appbar.Content title={C.appName} />
+          </Appbar.Header>
+        ),
+      }),
+    },
+    Journal: React.Fragment,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
       header: (
         <Appbar.Header>
-          <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title={C.appName} />
         </Appbar.Header>
       ),
