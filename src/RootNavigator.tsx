@@ -3,6 +3,7 @@ import { createStackNavigator, HeaderProps } from 'react-navigation';
 
 import HomeScreen from './HomeScreen';
 import JournalScreen from './JournalEntriesScreen';
+import JournalItemScreen from './JournalItemScreen';
 import AppHeader from './AppHeader';
 
 import * as C from './constants';
@@ -18,6 +19,7 @@ const RootNavigator = createStackNavigator(
       }),
     },
     Journal: JournalScreen,
+    JournalItem: JournalItemScreen,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
