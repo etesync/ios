@@ -211,11 +211,12 @@ const mapReducerActionsMapCreator = <T extends Record<any>, V extends BaseModel>
   const addEditReducer = (state: T, action: any) => addEditMapModelReducer<T, V>(state, action);
   const deleteReducer = (state: T, action: any) => deleteMapModelReducer<T>(state, action);
 
+  const _actions: {[key: string]: string} = actions as any;
   return {
-    [actions['fetchList' + actionName].toString() as string]: setsReducer,
-    [actions['add' + actionName].toString() as string]: addEditReducer,
-    [actions['update' + actionName].toString() as string]: addEditReducer,
-    [actions['delete' + actionName].toString() as string]: deleteReducer,
+    [_actions['fetchList' + actionName].toString()]: setsReducer,
+    [_actions['add' + actionName].toString()]: addEditReducer,
+    [_actions['update' + actionName].toString()]: addEditReducer,
+    [_actions['delete' + actionName].toString()]: deleteReducer,
   };
 };
 
@@ -320,7 +321,7 @@ for (const func in actions) {
     func.startsWith('update') ||
     func.startsWith('delete')) {
 
-    fetchActions.push(actions[func]);
+    fetchActions.push((actions as any)[func.toString()]);
   }
 }
 
@@ -346,7 +347,7 @@ export interface SettingsType {
 
 export const settingsReducer = handleActions(
   {
-    [actions.setSettings.toString()]: (state: {key: string | null}, action: any) => (
+    [actions.setSettings.toString()]: (state: {[key: string]: string | null}, action: any) => (
       {...action.payload}
     ),
   },
