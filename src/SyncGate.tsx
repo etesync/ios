@@ -8,8 +8,6 @@ import PrettyError from './PrettyError';
 
 import { StoreState } from './store';
 
-import { fetchAllJournals } from './sync/SyncManager';
-import { useCredentials } from './login';
 import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
 
@@ -24,18 +22,8 @@ const mapStateToStoreProps = (state: StoreState) => {
 };
 
 export function useSyncGate() {
-  const [calledSync, setCalledSync] = React.useState(false);
   const syncInfo = useSyncInfo();
-  const etesync = useCredentials().value;
   const { userInfo, journals, entries } = useSelector(mapStateToStoreProps);
-
-  React.useEffect(() => {
-    if (calledSync) {
-      return;
-    }
-    setCalledSync(true);
-    fetchAllJournals(etesync, entries);
-  });
 
 
   if (userInfo.error) {
