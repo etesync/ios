@@ -2,8 +2,8 @@ import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { Text, ScrollView } from 'react-native';
-import { List } from 'react-native-paper';
+import { ScrollView } from 'react-native';
+import { Title, Text, List } from 'react-native-paper';
 
 import { useSyncInfo } from './SyncHandler';
 
@@ -39,7 +39,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
 
   const journalUid = navigation.getParam('journalUid');
   const syncInfoJournal = syncInfo.get(journalUid);
-  const { entries } = syncInfoJournal;
+  const { collection, entries } = syncInfoJournal;
   const itemCount = syncStateEntries.has(journalUid) ?
       syncStateEntries.get(journalUid).count() :
       -1;
@@ -82,6 +82,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
 
   return (
     <>
+      <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
       <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
       <ScrollView style={{ flex: 1 }}>
         <List.Section>
