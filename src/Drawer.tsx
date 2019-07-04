@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView, View, Image, Linking } from 'react-native';
+import { ScrollView, Image, Linking } from 'react-native';
 import { List, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
 import Separator from './widgets/Separator';
+import Container from './widgets/Container';
 
 import * as C from './constants';
 
@@ -50,13 +51,13 @@ function Drawer() {
   return (
     <>
       <SafeAreaView style={{ backgroundColor: '#424242' }}>
-        <View style={{ padding: 15 }}>
+        <Container style={{ flex: 0 }}>
           <Image
             style={{ width: 48, height: 48, marginBottom: 15 }}
             source={require('./images/icon.png')}
           />
           <Text style={{ color: 'white' }}>{C.appName}</Text>
-        </View>
+        </Container>
       </SafeAreaView>
       <ScrollView style={{ flex: 1}}>
         <>
