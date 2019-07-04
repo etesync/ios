@@ -9,15 +9,15 @@ const RootNavigator = createStackNavigator(
   {
     home: {
       screen: HomeScreen,
-      navigationOptions: () => ({
-        header: (<AppHeader home />),
+      navigationOptions: (props: any) => ({
+        header: (<AppHeader navigation={props.navigation} home />),
       }),
     },
     Journal: JournalScreen,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
-      header: (<AppHeader />),
+      header: (<AppHeader navigation={navigation} />),
     }),
   }
 );
