@@ -4,7 +4,7 @@ import { createStackNavigator } from 'react-navigation';
 
 import * as C from './constants';
 import HomeScreen from './HomeScreen';
-// import JournalScreen from './JournalScreen';
+import JournalScreen from './JournalEntriesScreen';
 
 const RootNavigator = createStackNavigator(
   {
@@ -19,7 +19,7 @@ const RootNavigator = createStackNavigator(
         ),
       }),
     },
-    Journal: React.Fragment,
+    Journal: JournalScreen,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
