@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { Text, ScrollView } from 'react-native';
@@ -27,7 +28,7 @@ const listIcons = {
   [EteSync.SyncEntryAction.Delete]: (props: any) => (<List.Icon {...props} color="#F20C0C" icon="delete" />),
 };
 
-function JournalEntries() {
+const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const syncInfo = useSyncInfo();
   const navigation = useNavigation();
   const { syncStateEntries } = useSelector(mapStateToStoreProps);
@@ -89,6 +90,10 @@ function JournalEntries() {
       </ScrollView>
     </>
   );
-}
+};
+
+JournalEntries.navigationOptions = {
+  title: 'Change Journal',
+};
 
 export default JournalEntries;
