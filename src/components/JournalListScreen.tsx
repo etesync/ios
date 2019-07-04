@@ -13,7 +13,7 @@ import { useSyncInfo } from '../SyncHandler';
 import { useCredentials } from '../login';
 
 
-export default function Journals() {
+export default function JournalListScreen() {
   const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
   const derived = etesync.encryptionKey;

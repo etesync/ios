@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import * as moment from 'moment';
 import 'moment/locale/en-gb';
 
-import Journals from './components/Journals';
+import JournalListScreen from './components/JournalListScreen';
 
 import { StoreState } from './store';
 
@@ -45,11 +45,7 @@ const HomeScreen = React.memo(function _HomeScreen() {
         userInfo={userInfo.value!}
         syncInfo={syncInfo}
       />
-      <Journals
-        etesync={etesync}
-        userInfo={userInfo.value!}
-        syncInfo={syncInfo}
-      />
+      <JournalListScreen />
     </>
   );
 });
