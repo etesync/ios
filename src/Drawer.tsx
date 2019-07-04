@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigation } from './navigation/Hooks';
-import { View, Image, Linking } from 'react-native';
+import { ScrollView, View, Image, Linking } from 'react-native';
 import { List, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
@@ -58,27 +58,29 @@ function Drawer() {
           <Text style={{ color: 'white' }}>{C.appName}</Text>
         </View>
       </SafeAreaView>
-      <>
-          { menuItems.map((menuItem) => (
-              <List.Item
-                key={menuItem.title}
-                title={menuItem.title}
-                onPress={() => navigation.navigate(menuItem.path)}
-                left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
-              />
-          )) }
-      </>
-      <Separator />
-      <List.Section title="External links">
-          { externalMenuItems.map((menuItem) => (
-              <List.Item
-                key={menuItem.title}
-                title={menuItem.title}
-                onPress={() => Linking.openURL(menuItem.link)}
-                left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
-              />
-          )) }
-      </List.Section>
+      <ScrollView style={{ flex: 1}}>
+        <>
+            { menuItems.map((menuItem) => (
+                <List.Item
+                  key={menuItem.title}
+                  title={menuItem.title}
+                  onPress={() => navigation.navigate(menuItem.path)}
+                  left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
+                />
+            )) }
+        </>
+        <Separator />
+        <List.Section title="External links">
+            { externalMenuItems.map((menuItem) => (
+                <List.Item
+                  key={menuItem.title}
+                  title={menuItem.title}
+                  onPress={() => Linking.openURL(menuItem.link)}
+                  left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
+                />
+            )) }
+        </List.Section>
+      </ScrollView>
     </>
   );
 }
