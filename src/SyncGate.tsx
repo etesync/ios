@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { Action } from 'redux-actions';
 
 import * as moment from 'moment';
 import 'moment/locale/en-gb';
@@ -9,12 +8,9 @@ import LoadingIndicator from './widgets/LoadingIndicator';
 import PrettyError from './PrettyError';
 import Journals from './components/Journals';
 
-import * as EteSync from './api/EteSync';
-import { CURRENT_VERSION } from './api/Constants';
+import { StoreState } from './store';
 
-import { store, StoreState, CredentialsData, UserInfoType, EntriesType } from './store';
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from './store/actions';
-
+import { fetchAllJournals } from './sync/SyncManager';
 import { useCredentials } from './login';
 import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
@@ -31,56 +27,6 @@ const mapStateToStoreProps = (state: StoreState) => {
   };
 };
 
-function syncAllJournals(etesync: CredentialsData, userInfo: UserInfoType, entries: EntriesType) {
-  const me = etesync.credentials.email;
-  const syncAll = async () => {
-    store.dispatch<any>(fetchAll(etesync, entries)).then(async (haveJournals: boolean) => {
-      if (haveJournals) {
-        return;
-      }
-
-      ['ADDRESS_BOOK', 'CALENDAR', 'TASKS'].forEach((collectionType) => {
-        const collection = new EteSync.CollectionInfo();
-        collection.uid = EteSync.genUid();
-        collection.type = collectionType;
-        collection.displayName = 'Default';
-
-        const journal = new EteSync.Journal();
-        const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, collection.uid);
-        journal.setInfo(cryptoManager, collection);
-        store.dispatch<any>(addJournal(etesync, journal)).then(
-          (journalAction: Action<EteSync.Journal>) => {
-            // FIXME: Limit based on error code to only do it for associates.
-            if (!journalAction.error) {
-              store.dispatch(fetchEntries(etesync, collection.uid));
-            }
-          });
-      });
-    });
-  };
-
-  const sync = async () => {
-    if (userInfo.value) {
-      syncAll();
-    } else {
-      const newUserInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
-      const keyPair = await EteSync.AsymmetricCryptoManager.generateKeyPair();
-      const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, 'userInfo');
-
-      newUserInfo.setKeyPair(cryptoManager, keyPair);
-
-      store.dispatch<any>(createUserInfo(etesync, newUserInfo)).then(syncAll);
-    }
-  };
-
-  if (userInfo.value) {
-    syncAll();
-  } else {
-    const fetching = store.dispatch(fetchUserInfo(etesync, me)) as any;
-    fetching.then(sync);
-  }
-}
-
 const SyncGate = React.memo(function _SyncGate() {
   const [calledSync, setCalledSync] = React.useState(false);
   const syncInfo = useSyncInfo();
@@ -92,7 +38,7 @@ const SyncGate = React.memo(function _SyncGate() {
       return;
     }
     setCalledSync(true);
-    syncAllJournals(etesync, userInfo, entries);
+    fetchAllJournals(etesync, entries);
   });
 
 

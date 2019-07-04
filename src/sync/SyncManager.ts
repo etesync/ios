@@ -1,11 +1,54 @@
 import * as EteSync from '../api/EteSync';
 import { Map as ImmutableMap } from 'immutable';
+import { Action } from 'redux-actions';
 
 import { logger } from '../logging';
+import { CURRENT_VERSION } from '../api/Constants';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
+import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, EntriesType } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
+import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
+
+export async function fetchAllJournals(etesync: CredentialsData, entries: EntriesType) {
+  const me = etesync.credentials.email;
+
+  let userInfo = await store.dispatch<any>(fetchUserInfo(etesync, me));
+  if (!userInfo) {
+    const newUserInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
+    const keyPair = await EteSync.AsymmetricCryptoManager.generateKeyPair();
+    const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, 'userInfo');
+
+    newUserInfo.setKeyPair(cryptoManager, keyPair);
+
+    userInfo = await store.dispatch<any>(createUserInfo(etesync, newUserInfo));
+  }
+
+  store.dispatch<any>(fetchAll(etesync, entries as any)).then(async (haveJournals: boolean) => {
+    if (haveJournals) {
+      return;
+    }
+
+    ['ADDRESS_BOOK', 'CALENDAR', 'TASKS'].forEach((collectionType) => {
+      const collection = new EteSync.CollectionInfo();
+      collection.uid = EteSync.genUid();
+      collection.type = collectionType;
+      collection.displayName = 'Default';
+
+      const journal = new EteSync.Journal();
+      const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, collection.uid);
+      journal.setInfo(cryptoManager, collection);
+      store.dispatch<any>(addJournal(etesync, journal)).then(
+        (journalAction: Action<EteSync.Journal>) => {
+          // FIXME: Limit based on error code to only do it for associates.
+          if (!journalAction.error) {
+            store.dispatch(fetchEntries(etesync, collection.uid));
+          }
+        });
+    });
+  });
+}
+
 
 /*
  * This class should probably mirror exactly what's done in Android. So it should
