@@ -35,18 +35,21 @@ const HomeScreen = React.memo(function _HomeScreen() {
     return SyncGate;
   }
 
-  // FIXME: Shouldn't be here
-  moment.locale(settings.locale);
-
-  return (
-    <>
+  if (false) {
+    return (
       <SyncTempComponent
         etesync={etesync}
         userInfo={userInfo.value!}
         syncInfo={syncInfo}
       />
-      <JournalListScreen />
-    </>
+    );
+  }
+
+  // FIXME: Shouldn't be here
+  moment.locale(settings.locale);
+
+  return (
+    <JournalListScreen />
   );
 });
 
