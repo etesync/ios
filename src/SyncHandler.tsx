@@ -106,7 +106,7 @@ const syncInfoUseSelector = (state: StoreState) => {
 };
 
 export function useSyncInfo() {
-  const [syncInfo, setSyncInfo] = React.useState(null);
+  const [syncInfo, setSyncInfo] = React.useState(null as SyncInfo);
   const etesync = useCredentials().value;
 
   const selectorParams = useSelector(syncInfoUseSelector);
