@@ -49,7 +49,7 @@ class Journals extends React.PureComponent {
       { CALENDAR: [],
         ADDRESS_BOOK: [],
         TASKS: [],
-      });
+      } as { [key: string]: React.ReactNode[] });
 
     return (
       <Container>
