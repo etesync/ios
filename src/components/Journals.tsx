@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ScrollView } from 'react-native';
 import { List } from 'react-native-paper';
+import { useNavigation } from '../navigation/Hooks';
 
 // import AppBarOverride from '../widgets/AppBarOverride';
 const AppBarOverride = (props: any) => <></>;
@@ -16,6 +17,7 @@ export default function Journals() {
   const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
   const derived = etesync.encryptionKey;
+  const navigation = useNavigation();
 
   if (!syncInfo) {
     return <React.Fragment />;
@@ -34,7 +36,7 @@ export default function Journals() {
       const info = journal.getInfo(cryptoManager);
 
       function journalClicked() {
-        // navigation.navigate('Journal', { journalUid: journal.uid });
+        navigation.navigate('Journal', { journalUid: journal.uid });
       }
 
       ret[info.type] = ret[info.type] || [];
