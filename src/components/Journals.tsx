@@ -8,77 +8,73 @@ import Container from '../widgets/Container';
 
 import * as EteSync from '../api/EteSync';
 
-import { UserInfoData, CredentialsData } from '../store';
-import { SyncInfo } from '../SyncGate';
+import { useSyncInfo } from '../SyncHandler';
+import { useCredentials } from '../login';
 
-class Journals extends React.PureComponent {
-  public props: {
-    etesync: CredentialsData;
-    userInfo: UserInfoData;
-    syncInfo: SyncInfo;
-  };
 
-  constructor(props: any) {
-    super(props);
-    this.journalClicked = this.journalClicked.bind(this);
+export default function Journals() {
+  const syncInfo = useSyncInfo();
+  const etesync = useCredentials().value;
+  const derived = etesync.encryptionKey;
+
+  if (!syncInfo) {
+    return <React.Fragment />;
   }
 
-  public render() {
-    const derived = this.props.etesync.encryptionKey;
-    const journalMap = this.props.syncInfo.reduce(
-      (ret, syncInfoJournal) => {
-        const { journal, derivedJournalKey } = syncInfoJournal;
-        let cryptoManager: EteSync.CryptoManager;
-        if (journal.key) {
-          cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
-        } else {
-          cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
-        }
-        const info = journal.getInfo(cryptoManager);
-        ret[info.type] = ret[info.type] || [];
-        ret[info.type].push(
-          <List.Item
-            key={journal.uid}
-            onPress={() => this.journalClicked(journal.uid)}
-            title={`${info.displayName} (${journal.uid.slice(0, 5)})`}
-          />
-        );
+  const journalMap = syncInfo.reduce(
+    (ret, syncInfoJournal) => {
+      const { journal, derivedJournalKey } = syncInfoJournal;
+      let cryptoManager: EteSync.CryptoManager;
+      if (journal.key) {
+        cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
+      } else {
+        cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
+      }
 
-        return ret;
-      },
-      { CALENDAR: [],
-        ADDRESS_BOOK: [],
-        TASKS: [],
-      } as { [key: string]: React.ReactNode[] });
+      const info = journal.getInfo(cryptoManager);
 
-    return (
-      <Container>
-        <AppBarOverride title="Journals">
-          <></>
-        </AppBarOverride>
-        <ScrollView style={{ flex: 1 }}>
-          <List.Section>
-            <List.Subheader>Address Books</List.Subheader>
-            {journalMap.ADDRESS_BOOK}
-          </List.Section>
+      function journalClicked() {
+        // navigation.navigate('Journal', { journalUid: journal.uid });
+      }
 
-          <List.Section>
-            <List.Subheader>Calendars</List.Subheader>
-            {journalMap.CALENDAR}
-          </List.Section>
+      ret[info.type] = ret[info.type] || [];
+      ret[info.type].push(
+        <List.Item
+          key={journal.uid}
+          onPress={journalClicked}
+          title={`${info.displayName} (${journal.uid.slice(0, 5)})`}
+        />
+      );
 
-          <List.Section>
-            <List.Subheader>Tasks</List.Subheader>
-            {journalMap.TASKS}
-          </List.Section>
-        </ScrollView>
-      </Container>
-    );
-  }
+      return ret;
+    },
+    { CALENDAR: [],
+      ADDRESS_BOOK: [],
+      TASKS: [],
+    } as { [key: string]: React.ReactNode[] }
+  );
 
-  private journalClicked(journalUid: string) {
-    // this.props.history.push(routeResolver.getRoute('journals._id', { journalUid }));
-  }
+  return (
+    <Container>
+      <AppBarOverride title="Journals">
+        <></>
+      </AppBarOverride>
+      <ScrollView style={{ flex: 1 }}>
+        <List.Section>
+          <List.Subheader>Address Books</List.Subheader>
+          {journalMap.ADDRESS_BOOK}
+        </List.Section>
+
+        <List.Section>
+          <List.Subheader>Calendars</List.Subheader>
+          {journalMap.CALENDAR}
+        </List.Section>
+
+        <List.Section>
+          <List.Subheader>Tasks</List.Subheader>
+          {journalMap.TASKS}
+        </List.Section>
+      </ScrollView>
+    </Container>
+  );
 }
-
-export default Journals;
