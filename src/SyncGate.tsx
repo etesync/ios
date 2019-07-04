@@ -1,12 +1,10 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
-import * as moment from 'moment';
 import 'moment/locale/en-gb';
 
 import LoadingIndicator from './widgets/LoadingIndicator';
 import PrettyError from './PrettyError';
-import Journals from './components/Journals';
 
 import { StoreState } from './store';
 
@@ -14,8 +12,6 @@ import { fetchAllJournals } from './sync/SyncManager';
 import { useCredentials } from './login';
 import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
-
-import SyncTempComponent from './sync/SyncTestComponent';
 
 const mapStateToStoreProps = (state: StoreState) => {
   return {
@@ -27,11 +23,11 @@ const mapStateToStoreProps = (state: StoreState) => {
   };
 };
 
-const SyncGate = React.memo(function _SyncGate() {
+export function useSyncGate() {
   const [calledSync, setCalledSync] = React.useState(false);
   const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
-  const { settings, userInfo, journals, entries } = useSelector(mapStateToStoreProps);
+  const { userInfo, journals, entries } = useSelector(mapStateToStoreProps);
 
   React.useEffect(() => {
     if (calledSync) {
@@ -67,23 +63,5 @@ const SyncGate = React.memo(function _SyncGate() {
     return (<LoadingIndicator />);
   }
 
-  // FIXME: Shouldn't be here
-  moment.locale(settings.locale);
-
-  return (
-    <>
-      <SyncTempComponent
-        etesync={etesync}
-        userInfo={userInfo.value!}
-        syncInfo={syncInfo}
-      />
-      <Journals
-        etesync={etesync}
-        userInfo={userInfo.value!}
-        syncInfo={syncInfo}
-      />
-    </>
-  );
-});
-
-export default SyncGate;
+  return null;
+}
