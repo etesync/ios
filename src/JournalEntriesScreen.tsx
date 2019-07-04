@@ -1,17 +1,25 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView } from 'react-native';
+import { Text, ScrollView } from 'react-native';
 import { List } from 'react-native-paper';
 
 import { useSyncInfo } from './SyncHandler';
 
 import * as ICAL from 'ical.js';
 
+import { StoreState } from './store';
 import LoadingIndicator from './widgets/LoadingIndicator';
 
 import { TaskType, EventType, ContactType } from './pim-types';
 
 import * as EteSync from './api/EteSync';
+
+const mapStateToStoreProps = (state: StoreState) => {
+  return {
+    syncStateEntries: state.sync.stateEntries,
+  };
+};
 
 const listIcons = {
   [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="add" />),
@@ -22,13 +30,18 @@ const listIcons = {
 function JournalEntries() {
   const syncInfo = useSyncInfo();
   const navigation = useNavigation();
+  const { syncStateEntries } = useSelector(mapStateToStoreProps);
 
   if (!syncInfo) {
     return (<LoadingIndicator />);
   }
 
-  const syncInfoJournal = syncInfo.get(navigation.getParam('journalUid'));
+  const journalUid = navigation.getParam('journalUid');
+  const syncInfoJournal = syncInfo.get(journalUid);
   const { entries } = syncInfoJournal;
+  const itemCount = syncStateEntries.has(journalUid) ?
+      syncStateEntries.get(journalUid).count() :
+      -1;
 
   const changeEntries = entries.map((syncEntry, idx) => {
     const comp = new ICAL.Component(ICAL.parse(syncEntry.content));
@@ -67,11 +80,14 @@ function JournalEntries() {
   }).reverse();
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <List.Section>
-        {changeEntries}
-      </List.Section>
-    </ScrollView>
+    <>
+      <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
+      <ScrollView style={{ flex: 1 }}>
+        <List.Section>
+          {changeEntries}
+        </List.Section>
+      </ScrollView>
+    </>
   );
 }
 
