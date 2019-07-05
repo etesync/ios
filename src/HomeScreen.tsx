@@ -36,6 +36,10 @@ const HomeScreen = React.memo(function _HomeScreen() {
   }
 
   if (false) {
+    if (!syncInfo) {
+      return <React.Fragment />;
+    }
+
     return (
       <SyncTempComponent
         etesync={etesync}
