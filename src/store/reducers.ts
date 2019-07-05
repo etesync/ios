@@ -267,7 +267,8 @@ export const userInfo = handleAction(
 
       payload = (action.meta === undefined) ? payload : action.meta.userInfo;
 
-      if (!shallowCompare(state.get('value').serialize(), payload.serialize())) {
+      const current = state.get('value');
+      if (!current || !shallowCompare(current.serialize(), payload.serialize())) {
         return state.set('value', payload);
       }
 
