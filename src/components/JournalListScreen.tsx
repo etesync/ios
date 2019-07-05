@@ -67,22 +67,29 @@ export default function JournalListScreen() {
     } as { [key: string]: React.ReactNode[] }
   );
 
+  const cards = [
+    {
+      title: 'Address Books',
+      lookup: 'ADDRESS_BOOK',
+    },
+    {
+      title: 'Calendars',
+      lookup: 'CALENDAR',
+    },
+    {
+      title: 'Tasks',
+      lookup: 'TASKS',
+    },
+  ];
+
   return (
     <ScrollView style={{ flex: 1 }}>
-      <List.Section>
-        <List.Subheader>Address Books</List.Subheader>
-        {journalMap.ADDRESS_BOOK}
-      </List.Section>
-
-      <List.Section>
-        <List.Subheader>Calendars</List.Subheader>
-        {journalMap.CALENDAR}
-      </List.Section>
-
-      <List.Section>
-        <List.Subheader>Tasks</List.Subheader>
-        {journalMap.TASKS}
-      </List.Section>
+      {cards.map((card) => (
+        <List.Section key={card.lookup}>
+          <List.Subheader>{card.title}</List.Subheader>
+          {journalMap[card.lookup]}
+        </List.Section>
+      ))}
     </ScrollView>
   );
 }
