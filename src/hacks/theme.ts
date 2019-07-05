@@ -1,7 +1,14 @@
-import { DefaultTheme } from 'react-native-paper';
-let _theme = DefaultTheme;
+import { Theme as PaperTheme } from 'react-native-paper';
 
-export function setTheme(theme: any) {
+export type Theme = PaperTheme & {
+  colors: {
+    primaryBackground: string,
+  },
+};
+
+let _theme: Theme;
+
+export function setTheme(theme: Theme) {
   _theme = theme;
 }
 

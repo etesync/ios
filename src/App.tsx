@@ -20,6 +20,7 @@ const theme = {
   colors: {
     ...DefaultTheme.colors,
     primary: Colors.amber500,
+    primaryBackground: Colors.amber700,
     accent: Colors.lightBlueA400,
   },
 };
