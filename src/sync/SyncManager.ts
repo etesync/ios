@@ -7,6 +7,8 @@ import { SyncInfo } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
+// import { SyncManagerAddressBook } from './SyncManagerAddressBook';
+import { SyncManagerCalendar } from './SyncManagerCalendar';
 
 export class SyncManager {
   public static getManager(etesync: CredentialsData) {
@@ -65,6 +67,12 @@ export class SyncManager {
   }
 
   public async sync(syncInfo: SyncInfo, syncStateJournals: SyncStateJournalData, syncStateEntries: SyncStateEntryData) {
-    //
+    await this.fetchAllJournals();
+
+    // FIXME: also sync address book
+    for (const syncManager of [new SyncManagerCalendar(this.etesync)]) {
+      await syncManager.init();
+      await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
+    }
   }
 }
