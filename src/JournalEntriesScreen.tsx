@@ -3,7 +3,7 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { ScrollView } from 'react-native';
-import { Title, Text, List } from 'react-native-paper';
+import { Divider, Title, Text, List } from 'react-native-paper';
 
 import { useSyncInfo } from './SyncHandler';
 
@@ -12,7 +12,6 @@ import * as ICAL from 'ical.js';
 import { StoreState } from './store';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import Container from './widgets/Container';
-import Separator from './widgets/Separator';
 
 import { TaskType, EventType, ContactType } from './pim-types';
 
@@ -89,7 +88,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
         <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
         <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
       </Container>
-      <Separator />
+      <Divider />
       <ScrollView style={{ flex: 1 }}>
         <List.Section>
           {changeEntries}

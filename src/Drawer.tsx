@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { useNavigation } from './navigation/Hooks';
 import { ScrollView, Image, Linking } from 'react-native';
-import { List, Text } from 'react-native-paper';
+import { Divider, List, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
-import Separator from './widgets/Separator';
 import Container from './widgets/Container';
 
 import * as C from './constants';
@@ -70,7 +69,7 @@ function Drawer() {
               />
           )) }
         </>
-        <Separator />
+        <Divider />
         <List.Section title="External links">
           { externalMenuItems.map((menuItem) => (
               <List.Item
