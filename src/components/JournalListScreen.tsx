@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ScrollView } from 'react-native';
-import { List } from 'react-native-paper';
+import { Avatar, Card, List } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 
 import * as EteSync from '../api/EteSync';
@@ -71,24 +71,27 @@ export default function JournalListScreen() {
     {
       title: 'Address Books',
       lookup: 'ADDRESS_BOOK',
+      icon: 'group',
     },
     {
       title: 'Calendars',
       lookup: 'CALENDAR',
+      icon: 'today',
     },
     {
       title: 'Tasks',
       lookup: 'TASKS',
+      icon: 'list',
     },
   ];
 
   return (
     <ScrollView style={{ flex: 1 }}>
       {cards.map((card) => (
-        <List.Section key={card.lookup}>
-          <List.Subheader>{card.title}</List.Subheader>
+        <Card key={card.lookup} elevation={3} style={{ margin: 20 }}>
+          <Card.Title title={card.title} left={(props) => <Avatar.Icon {...props} icon={card.icon} />} />
           {journalMap[card.lookup]}
-        </List.Section>
+        </Card>
       ))}
     </ScrollView>
   );
