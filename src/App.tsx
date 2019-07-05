@@ -10,6 +10,8 @@ import RootNavigator from './login/LoginNavigator';
 import ErrorBoundary from './ErrorBoundary';
 import Drawer from './Drawer';
 
+import { setTheme } from './hacks/theme';
+
 import { useScreens } from 'react-native-screens';
 useScreens();
 
@@ -21,6 +23,8 @@ const theme = {
     accent: '#00B0FF', // lightBlue.A400
   },
 };
+
+setTheme(theme);
 
 const AppNavigator = createAppContainer(createDrawerNavigator(
   { home: RootNavigator },
