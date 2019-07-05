@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSwitchNavigator, createStackNavigator, HeaderProps, NavigationScreenProp } from 'react-navigation';
+import { createSwitchNavigator, createStackNavigator, NavigationScreenProp } from 'react-navigation';
 
 import LoginScreen from './LoginScreen';
 
@@ -17,9 +17,7 @@ const AuthStack = createStackNavigator(
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
-      header: (props: HeaderProps) => {
-        return (<AppHeader {...props} home />);
-      },
+      header: AppHeader,
       title: C.appName,
     }),
   }

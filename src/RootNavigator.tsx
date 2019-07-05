@@ -10,14 +10,7 @@ import * as C from './constants';
 
 const RootNavigator = createStackNavigator(
   {
-    home: {
-      screen: HomeScreen,
-      navigationOptions: () => ({
-        header: (props: HeaderProps) => {
-          return (<AppHeader {...props} home />);
-        },
-      }),
-    },
+    home: HomeScreen,
     Journal: JournalScreen,
     JournalItem: JournalItemScreen,
   },

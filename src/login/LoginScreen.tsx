@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigation } from '../navigation/Hooks';
 
 import { Headline, Paragraph, Text } from 'react-native-paper';
-import { NavigationScreenProp } from 'react-navigation';
+import { NavigationScreenComponent } from 'react-navigation';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -17,14 +18,10 @@ import * as C from '../constants';
 
 import { useCredentials } from './';
 
-interface PropsType {
-  navigation: NavigationScreenProp<void>;
-}
-
-const LoginScreen = React.memo(function _LoginScreen(props: PropsType) {
+const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen() {
   const credentials = useCredentials();
   const dispatch = useDispatch();
-  const { navigation } = props;
+  const navigation = useNavigation();
 
   function onFormSubmit(username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) {
     serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
@@ -76,5 +73,9 @@ const LoginScreen = React.memo(function _LoginScreen(props: PropsType) {
 
   return <React.Fragment />;
 });
+
+LoginScreen.navigationOptions = {
+  showMenuButton: true,
+};
 
 export default LoginScreen;

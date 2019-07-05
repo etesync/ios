@@ -7,9 +7,7 @@ import { StoreState } from './store';
 import { SyncManager } from './sync/SyncManager';
 import { useCredentials } from './login';
 
-interface PropsType extends HeaderProps {
-  home?: boolean;
-}
+type PropsType = HeaderProps;
 
 const mapStateToStoreProps = (state: StoreState) => {
   return {
@@ -21,8 +19,9 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
   const etesync = useCredentials().value;
   const { navigation } = props;
   const { fetchCount } = useSelector(mapStateToStoreProps);
+  const showMenuButton = getScreenOption(props.scene, 'showMenuButton');
 
-  const backAction = (props.home) ? (
+  const backAction = (showMenuButton) ? (
     <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
     ) : (
     <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -37,12 +36,17 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
     <Appbar.Header>
       {backAction}
       <Appbar.Content title={getHeaderTitleString(props.scene)} />
-      { props.home && etesync &&
+      { showMenuButton && etesync &&
         <Appbar.Action icon="refresh" disabled={fetchCount > 0} onPress={refresh} />
       }
     </Appbar.Header>
   );
 });
+
+function getScreenOption(scene: any, optionName: string) {
+  const options = scene.descriptor.options;
+  return options[optionName];
+}
 
 // From react-navigation
 function getHeaderTitleString(scene: any) {
