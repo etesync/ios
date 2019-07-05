@@ -4,7 +4,7 @@ import { HeaderProps } from 'react-navigation';
 import { useSelector } from 'react-redux';
 
 import { StoreState } from './store';
-import { fetchAllJournals } from './sync/SyncManager';
+import { SyncManager } from './sync/SyncManager';
 import { useCredentials } from './login';
 
 interface PropsType extends HeaderProps {
@@ -29,7 +29,8 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
   );
 
   function refresh() {
-    fetchAllJournals(etesync);
+    const syncManager = SyncManager.getManager(etesync);
+    syncManager.fetchAllJournals();
   }
 
   return (
