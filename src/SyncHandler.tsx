@@ -112,8 +112,8 @@ export function useSyncInfo() {
   const selectorParams = useSelector(syncInfoUseSelector);
   const entries = selectorParams.entries;
 
-  if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x.value !== null))) {
-    React.useEffect(() => {
+  React.useEffect(() => {
+    if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x.value !== null))) {
       // FIXME: Hack to make this async. Shouldn't need the timer.
       const timeout = setTimeout(() => {
         syncInfoSelector({ etesync, ...selectorParams }).then((newSyncInfo) => {
@@ -124,8 +124,10 @@ export function useSyncInfo() {
       return function cleanup() {
         clearTimeout(timeout);
       };
-    });
-  }
+    }
+
+    return undefined;
+  });
 
   return syncInfo;
 }
