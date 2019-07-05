@@ -11,20 +11,15 @@ import { StoreState } from './store';
 import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
 
-const mapStateToStoreProps = (state: StoreState) => {
-  return {
-    settings: state.settings,
-    journals: state.cache.journals,
-    entries: state.cache.entries,
-    userInfo: state.cache.userInfo,
-    fetchCount: state.fetchCount,
-  };
-};
-
 export function useSyncGate() {
   const syncInfo = useSyncInfo();
-  const { userInfo, journals, entries } = useSelector(mapStateToStoreProps);
-
+  const { userInfo, journals, entries } = useSelector(
+    (state: StoreState) => ({
+      journals: state.cache.journals,
+      entries: state.cache.entries,
+      userInfo: state.cache.userInfo,
+    })
+  );
 
   if (userInfo.error) {
     return <PrettyError error={userInfo.error} />;

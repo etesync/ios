@@ -19,19 +19,14 @@ export * from './SyncHandler'; // FIXME: Should be granular
 
 import SyncTempComponent from './sync/SyncTestComponent';
 
-const mapStateToStoreProps = (state: StoreState) => {
-  return {
-    settings: state.settings,
-    journals: state.cache.journals,
-    entries: state.cache.entries,
-    fetchCount: state.fetchCount,
-  };
-};
-
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
-  const { settings } = useSelector(mapStateToStoreProps);
+  const { settings } = useSelector(
+    (state: StoreState) => ({
+      settings: state.settings,
+    })
+  );
   const SyncGate = useSyncGate();
 
   if (SyncGate) {
@@ -58,16 +53,13 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   );
 });
 
-const refreshSelector = (state: StoreState) => {
-  return {
-    fetchCount: state.fetchCount,
-  };
-};
-
-
 function RefreshIcon() {
   const etesync = useCredentials().value;
-  const { fetchCount } = useSelector(refreshSelector);
+  const { fetchCount } = useSelector(
+    (state: StoreState) => ({
+      fetchCount: state.fetchCount,
+    })
+  );
 
   function refresh() {
     const syncManager = SyncManager.getManager(etesync);

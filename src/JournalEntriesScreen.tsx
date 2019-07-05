@@ -17,12 +17,6 @@ import { TaskType, EventType, ContactType } from './pim-types';
 
 import * as EteSync from './api/EteSync';
 
-const mapStateToStoreProps = (state: StoreState) => {
-  return {
-    syncStateEntries: state.sync.stateEntries,
-  };
-};
-
 const listIcons = {
   [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="add" />),
   [EteSync.SyncEntryAction.Change]: (props: any) => (<List.Icon {...props} color="#FEB115" icon="edit" />),
@@ -32,7 +26,11 @@ const listIcons = {
 const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const syncInfo = useSyncInfo();
   const navigation = useNavigation();
-  const { syncStateEntries } = useSelector(mapStateToStoreProps);
+  const { syncStateEntries } = useSelector(
+    (state: StoreState) => ({
+      syncStateEntries: state.sync.stateEntries,
+    })
+  );
 
   if (!syncInfo) {
     return (<LoadingIndicator />);

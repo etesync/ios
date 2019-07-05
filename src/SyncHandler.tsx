@@ -93,19 +93,17 @@ export const syncInfoSelector = createSelector(
   }
 );
 
-const syncInfoUseSelector = (state: StoreState) => {
-  return {
-    journals: state.cache.journals,
-    entries: state.cache.entries,
-    userInfo: state.cache.userInfo,
-  };
-};
-
 export function useSyncInfo() {
   const [syncInfo, setSyncInfo] = React.useState(null as SyncInfo);
   const etesync = useCredentials().value;
 
-  const selectorParams = useSelector(syncInfoUseSelector);
+  const selectorParams = useSelector(
+    (state: StoreState) => ({
+      journals: state.cache.journals,
+      entries: state.cache.entries,
+      userInfo: state.cache.userInfo,
+    })
+  );
   const entries = selectorParams.entries;
 
   React.useEffect(() => {
