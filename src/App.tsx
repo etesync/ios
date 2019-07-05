@@ -10,6 +10,7 @@ import RootNavigator from './login/LoginNavigator';
 import ErrorBoundary from './ErrorBoundary';
 import Drawer from './Drawer';
 
+import { getPersistenceFunctions } from './navigation/persistance';
 import { setTheme } from './hacks/theme';
 
 import { useScreens } from 'react-native-screens';
@@ -57,7 +58,7 @@ class App extends React.Component {
     return (
       <PaperProvider theme={theme}>
         <ErrorBoundary>
-          <AppNavigator />
+          <AppNavigator {...getPersistenceFunctions()} />
         </ErrorBoundary>
       </PaperProvider>
     );
