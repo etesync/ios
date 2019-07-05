@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { ScrollView } from 'react-native';
-import { Avatar, Card, List } from 'react-native-paper';
+import { Avatar, IconButton, Card, List } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
+import { useTheme } from '../hacks/theme';
 
 import * as EteSync from '../api/EteSync';
 
@@ -18,6 +19,7 @@ export default function JournalListScreen() {
   const etesync = useCredentials().value;
   const derived = etesync.encryptionKey;
   const navigation = useNavigation();
+  const theme = useTheme();
 
   if (!syncInfo) {
     return <React.Fragment />;
@@ -85,11 +87,29 @@ export default function JournalListScreen() {
     },
   ];
 
+  const shadowStyle = {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.20,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+  };
+
   return (
     <ScrollView style={{ flex: 1 }}>
       {cards.map((card) => (
-        <Card key={card.lookup} elevation={3} style={{ margin: 20 }}>
-          <Card.Title title={card.title} left={(props) => <Avatar.Icon {...props} icon={card.icon} />} />
+        <Card key={card.lookup} elevation={4} style={{ margin: 20 }}>
+          <Card.Title
+            title={card.title}
+            titleStyle={{ color: 'white' }}
+            style={{ ...shadowStyle, backgroundColor: theme.colors.primaryBackground}}
+            left={(props) => <Avatar.Icon color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon={card.icon} />}
+            right={(props) => <IconButton color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon="more-horiz" />}
+          />
           {journalMap[card.lookup]}
         </Card>
       ))}
