@@ -9,7 +9,7 @@ import { createSelector } from 'reselect';
 import * as EteSync from './api/EteSync';
 import { byte } from './api/Helpers';
 
-import { SettingsType, JournalsType, EntriesType, StoreState, CredentialsData, UserInfoType } from './store';
+import { JournalsType, EntriesType, StoreState, CredentialsData, UserInfoType } from './store';
 
 import { useCredentials } from './login';
 
@@ -25,11 +25,9 @@ export type SyncInfo = Map<string, SyncInfoJournal>;
 
 interface SyncInfoSelectorProps {
   etesync: CredentialsData;
-  settings: SettingsType;
   journals: JournalsType;
   entries: EntriesType;
   userInfo: UserInfoType;
-  fetchCount: number;
 }
 
 const syncInfoSelector = createSelector(
@@ -97,11 +95,9 @@ const syncInfoSelector = createSelector(
 
 const syncInfoUseSelector = (state: StoreState) => {
   return {
-    settings: state.settings,
     journals: state.cache.journals,
     entries: state.cache.entries,
     userInfo: state.cache.userInfo,
-    fetchCount: state.fetchCount,
   };
 };
 
