@@ -37,7 +37,7 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
     <Appbar.Header>
       {backAction}
       <Appbar.Content title={getHeaderTitleString(props.scene)} />
-      { props.home &&
+      { props.home && etesync &&
         <Appbar.Action icon="refresh" disabled={fetchCount > 0} onPress={refresh} />
       }
     </Appbar.Header>
