@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
 
 import { useSyncInfo } from './SyncHandler';
@@ -16,6 +16,9 @@ import Container from './widgets/Container';
 import { TaskType, EventType, ContactType } from './pim-types';
 
 import * as EteSync from './api/EteSync';
+import { colorIntToHtml } from './helpers';
+
+import ColorBox from './widgets/ColorBox';
 
 const listIcons = {
   [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="add" />),
@@ -80,11 +83,24 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
     );
   }).reverse();
 
+  let collectionColorBox: React.ReactNode;
+  switch (collection.type) {
+    case 'CALENDAR':
+    case 'TASKS':
+      collectionColorBox = (
+        <ColorBox  size={36} color={colorIntToHtml(collection.color)} />
+      );
+      break;
+  }
+
   return (
     <>
-      <Container>
-        <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
-        <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
+      <Container style={{ flexDirection: 'row' }}>
+        <View style={{ marginRight: 'auto' }}>
+          <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
+          <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
+        </View>
+        {collectionColorBox}
       </Container>
       <Divider />
       <ScrollView style={{ flex: 1 }}>
