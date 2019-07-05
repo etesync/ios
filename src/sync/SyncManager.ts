@@ -24,12 +24,9 @@ export async function fetchAllJournals(etesync: CredentialsData, entries: Entrie
     userInfo = await store.dispatch<any>(createUserInfo(etesync, newUserInfo));
   }
 
-  store.dispatch<any>(fetchAll(etesync, entries as any)).then(async (haveJournals: boolean) => {
-    if (haveJournals) {
-      return;
-    }
-
-    ['ADDRESS_BOOK', 'CALENDAR', 'TASKS'].forEach((collectionType) => {
+  const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries as any));
+  if (!haveJournals) {
+    for (const collectionType of ['ADDRESS_BOOK', 'CALENDAR', 'TASKS']) {
       const collection = new EteSync.CollectionInfo();
       collection.uid = EteSync.genUid();
       collection.type = collectionType;
@@ -38,15 +35,13 @@ export async function fetchAllJournals(etesync: CredentialsData, entries: Entrie
       const journal = new EteSync.Journal();
       const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, collection.uid);
       journal.setInfo(cryptoManager, collection);
-      store.dispatch<any>(addJournal(etesync, journal)).then(
-        (journalAction: Action<EteSync.Journal>) => {
-          // FIXME: Limit based on error code to only do it for associates.
-          if (!journalAction.error) {
-            store.dispatch(fetchEntries(etesync, collection.uid));
-          }
-        });
-    });
-  });
+      const journalAction: Action<EteSync.Journal> = await store.dispatch<any>(addJournal(etesync, journal));
+      // FIXME: Limit based on error code to only do it for associates.
+      if (!journalAction.error) {
+        await store.dispatch(fetchEntries(etesync, collection.uid));
+      }
+    }
+  }
 }
 
 
