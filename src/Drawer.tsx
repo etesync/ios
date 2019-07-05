@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useNavigation } from './navigation/Hooks';
 import { ScrollView, Image, Linking } from 'react-native';
-import { Divider, List, Text } from 'react-native-paper';
+import { Subheading, Divider, List, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
+import { useCredentials } from './login';
 import Container from './widgets/Container';
 
 import * as C from './constants';
@@ -46,6 +47,7 @@ const externalMenuItems = [
 
 function Drawer() {
   const navigation = useNavigation();
+  const etesync = useCredentials().value;
 
   return (
     <>
@@ -55,7 +57,10 @@ function Drawer() {
             style={{ width: 48, height: 48, marginBottom: 15 }}
             source={require('./images/icon.png')}
           />
-          <Text style={{ color: 'white' }}>{C.appName}</Text>
+          <Subheading style={{ color: 'white' }}>{C.appName}</Subheading>
+          { etesync &&
+            <Text style={{ color: 'white' }}>{etesync.credentials.email}</Text>
+          }
         </Container>
       </SafeAreaView>
       <ScrollView style={{ flex: 1}}>
