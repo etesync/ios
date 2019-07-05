@@ -30,7 +30,7 @@ interface SyncInfoSelectorProps {
   userInfo: UserInfoType;
 }
 
-const syncInfoSelector = createSelector(
+export const syncInfoSelector = createSelector(
   (props: SyncInfoSelectorProps) => props.etesync,
   (props: SyncInfoSelectorProps) => props.journals.value!,
   (props: SyncInfoSelectorProps) => props.entries,

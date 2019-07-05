@@ -3,8 +3,8 @@ import { Action } from 'redux-actions';
 
 import { CURRENT_VERSION } from '../api/Constants';
 
-import { SyncInfo } from '../SyncGate';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { syncInfoSelector } from '../SyncHandler';
+import { store, EntriesType, JournalsType, UserInfoType, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 // import { SyncManagerAddressBook } from './SyncManagerAddressBook';
@@ -62,8 +62,16 @@ export class SyncManager {
     }
   }
 
-  public async sync(syncInfo: SyncInfo, syncStateJournals: SyncStateJournalData, syncStateEntries: SyncStateEntryData) {
+  public async sync() {
     await this.fetchAllJournals();
+
+    const storeState = store.getState();
+    const entries = storeState.cache.entries as unknown as EntriesType;
+    const journals = storeState.cache.journals as unknown as JournalsType;
+    const userInfo = storeState.cache.userInfo as unknown as UserInfoType;
+    const syncStateJournals = storeState.sync.stateJournals;
+    const syncStateEntries = storeState.sync.stateEntries;
+    const syncInfo = await syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
     // FIXME: also sync address book
     for (const syncManager of [new SyncManagerCalendar(this.etesync)]) {
