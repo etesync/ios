@@ -13,7 +13,7 @@ import { colorIntToHtml } from '../helpers';
 import { EventType } from '../pim-types';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
-import { SyncManager } from './SyncManager';
+import { SyncManagerBase } from './SyncManagerBase';
 
 const ACCOUNT_NAME = 'etesync';
 
@@ -21,7 +21,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
   return _entryNativeHashCalc(entry, ['lastModifiedDate']);
 }
 
-export class SyncManagerCalendar extends SyncManager {
+export class SyncManagerCalendar extends SyncManagerBase {
   protected collectionType = 'CALENDAR';
   private localSource: any;
 

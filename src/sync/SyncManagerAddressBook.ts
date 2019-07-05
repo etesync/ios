@@ -11,9 +11,9 @@ import { unsetSyncStateJournal } from '../store/actions';
 import { contactVobjectToNative, entryNativeHashCalc } from './helpers';
 import { ContactType } from '../pim-types';
 
-import { SyncManager } from './SyncManager';
+import { SyncManagerBase } from './SyncManagerBase';
 
-export class SyncManagerAddressBook extends SyncManager {
+export class SyncManagerAddressBook extends SyncManagerBase {
   protected collectionType = 'ADDRESS_BOOK';
   private containerId: string;
 
