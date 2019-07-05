@@ -9,7 +9,7 @@ import { SyncInfo } from '../SyncGate';
 
 import { StoreState, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 
-import { SyncManagerCalendar as SyncManager } from '.';
+import { SyncManager } from '.';
 
 interface PropsType {
   etesync: CredentialsData;
@@ -32,10 +32,9 @@ class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
 
   public async componentDidMount() {
     const { etesync, syncInfo, syncStateJournals, syncStateEntries } = this.props;
-    const syncManager = new SyncManager(etesync);
+    const syncManager = SyncManager.getManager(etesync);
     console.log('Asking for permissions');
     Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(async () => {
-      await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     });
   }

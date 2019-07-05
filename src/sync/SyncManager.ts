@@ -26,10 +26,6 @@ export class SyncManager {
     this.etesync = etesync;
   }
 
-  public async init() {
-    //
-  }
-
   public async fetchAllJournals() {
     const entries = store.getState().cache.entries;
     const etesync = this.etesync;
