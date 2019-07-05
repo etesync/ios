@@ -8,6 +8,10 @@ import * as EteSync from '../api/EteSync';
 import { useSyncInfo } from '../SyncHandler';
 import { useCredentials } from '../login';
 
+import { colorIntToHtml } from '../helpers';
+
+import ColorBox from '../widgets/ColorBox';
+
 
 export default function JournalListScreen() {
   const syncInfo = useSyncInfo();
@@ -35,12 +39,23 @@ export default function JournalListScreen() {
         navigation.navigate('Journal', { journalUid: journal.uid });
       }
 
+      let rightIcon: any;
+      switch (info.type) {
+        case 'CALENDAR':
+        case 'TASKS':
+          rightIcon = (props: any) => (
+            <ColorBox {...props} size={36} color={colorIntToHtml(info.color)} />
+          );
+          break;
+      }
+
       ret[info.type] = ret[info.type] || [];
       ret[info.type].push(
         <List.Item
           key={journal.uid}
           onPress={journalClicked}
           title={`${info.displayName} (${journal.uid.slice(0, 5)})`}
+          right={rightIcon}
         />
       );
 
