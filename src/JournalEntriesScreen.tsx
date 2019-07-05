@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { View, ScrollView } from 'react-native';
+import { FlatList, View, ScrollView } from 'react-native';
 import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
 
 import { useSyncInfo } from './SyncHandler';
@@ -72,16 +72,28 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       uid = '';
     }
 
+    return ({
+        key: idx.toString(),
+        icon,
+        title: name,
+        description: uid,
+        uid: syncEntry.uid,
+    });
+  }).reverse();
+
+  function renderEntry(param: { item: {key: string, icon: (props: any) => React.ReactNode, title: string, description: string, uid: string } }) {
+    const { key, icon, title, description, uid } = param.item;
+
     return (
       <List.Item
-        key={idx}
+        key={key}
         left={icon}
-        title={name}
-        description={uid}
-        onPress={() => navigation.navigate('JournalItem', { journalUid, entryUid: syncEntry.uid })}
+        title={title}
+        description={description}
+        onPress={() => navigation.navigate('JournalItem', { journalUid, entryUid: uid })}
       />
     );
-  }).reverse();
+  }
 
   let collectionColorBox: React.ReactNode;
   switch (collection.type) {
@@ -104,9 +116,10 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       </Container>
       <Divider />
       <ScrollView style={{ flex: 1 }}>
-        <List.Section>
-          {changeEntries}
-        </List.Section>
+        <FlatList
+          data={changeEntries.toJS()}
+          renderItem={renderEntry}
+        />
       </ScrollView>
     </>
   );
