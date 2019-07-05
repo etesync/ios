@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Text } from 'react-native';
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider, Colors } from 'react-native-paper';
 
 import * as Font from 'expo-font';
 
@@ -19,8 +19,8 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#FFC107', // amber
-    accent: '#00B0FF', // lightBlue.A400
+    primary: Colors.amber500,
+    accent: Colors.lightBlueA400,
   },
 };
 
