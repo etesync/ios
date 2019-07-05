@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux';
 import { Headline, Paragraph, Text } from 'react-native-paper';
 import { NavigationScreenProp } from 'react-navigation';
 
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import Container from '../widgets/Container';
 import LoginForm from '../components/LoginForm';
 // import EncryptionLoginForm from './components/EncryptionLoginForm';
@@ -37,8 +39,9 @@ const LoginScreen = React.memo(function _LoginScreen(props: PropsType) {
     });
   }
 
+  let screenContent: React.ReactNode;
   if (credentials.value === null) {
-    return (
+    screenContent = (
       <Container>
         <Headline>Please Log In</Headline>
         <LoginForm
@@ -49,7 +52,7 @@ const LoginScreen = React.memo(function _LoginScreen(props: PropsType) {
       </Container>
     );
   } else if (credentials.value.encryptionKey === null) {
-    return (
+    screenContent = (
       <Container>
         <Headline>Encryption Password</Headline>
         <Paragraph>
@@ -60,6 +63,14 @@ const LoginScreen = React.memo(function _LoginScreen(props: PropsType) {
         onSubmit={onEncryptionFormSubmit}
       />
       </Container>
+    );
+  }
+
+  if (screenContent) {
+    return (
+      <KeyboardAwareScrollView>
+        {screenContent}
+      </KeyboardAwareScrollView>
     );
   }
 
