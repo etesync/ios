@@ -1,24 +1,11 @@
 import * as React from 'react';
 import { Appbar } from 'react-native-paper';
 import { HeaderProps } from 'react-navigation';
-import { useSelector } from 'react-redux';
-
-import { StoreState } from './store';
-import { SyncManager } from './sync/SyncManager';
-import { useCredentials } from './login';
 
 type PropsType = HeaderProps;
 
-const mapStateToStoreProps = (state: StoreState) => {
-  return {
-    fetchCount: state.fetchCount,
-  };
-};
-
 const AppHeader = React.memo(function _AppHeader(props: PropsType) {
-  const etesync = useCredentials().value;
   const { navigation } = props;
-  const { fetchCount } = useSelector(mapStateToStoreProps);
   const showMenuButton = getScreenOption(props.scene, 'showMenuButton');
 
   const backAction = (showMenuButton) ? (
@@ -27,18 +14,13 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
     <Appbar.BackAction onPress={() => navigation.goBack()} />
   );
 
-  function refresh() {
-    const syncManager = SyncManager.getManager(etesync);
-    syncManager.fetchAllJournals();
-  }
+  const rightAction = getScreenOption(props.scene, 'rightAction');
 
   return (
     <Appbar.Header>
       {backAction}
       <Appbar.Content title={getHeaderTitleString(props.scene)} />
-      { showMenuButton && etesync &&
-        <Appbar.Action icon="refresh" disabled={fetchCount > 0} onPress={refresh} />
-      }
+      {rightAction}
     </Appbar.Header>
   );
 });

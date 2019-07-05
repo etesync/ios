@@ -6,6 +6,8 @@ import { Appbar } from 'react-native-paper';
 import * as moment from 'moment';
 import 'moment/locale/en-gb';
 
+import { SyncManager } from './sync/SyncManager';
+
 import JournalListScreen from './components/JournalListScreen';
 
 import { StoreState } from './store';
@@ -56,9 +58,30 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   );
 });
 
+const refreshSelector = (state: StoreState) => {
+  return {
+    fetchCount: state.fetchCount,
+  };
+};
+
+
+function RefreshIcon() {
+  const etesync = useCredentials().value;
+  const { fetchCount } = useSelector(refreshSelector);
+
+  function refresh() {
+    const syncManager = SyncManager.getManager(etesync);
+    syncManager.fetchAllJournals();
+  }
+
+  return (
+    <Appbar.Action icon="refresh" disabled={!etesync || fetchCount > 0} onPress={refresh} />
+  );
+}
+
 HomeScreen.navigationOptions = ({ navigation }) => ({
   rightAction: (
-    <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+    <RefreshIcon />
   ),
   showMenuButton: true,
 });
