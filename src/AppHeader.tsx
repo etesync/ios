@@ -13,7 +13,6 @@ interface PropsType extends HeaderProps {
 
 const mapStateToStoreProps = (state: StoreState) => {
   return {
-    entries: state.cache.entries,
     fetchCount: state.fetchCount,
   };
 };
@@ -21,7 +20,7 @@ const mapStateToStoreProps = (state: StoreState) => {
 const AppHeader = React.memo(function _AppHeader(props: PropsType) {
   const etesync = useCredentials().value;
   const { navigation } = props;
-  const { fetchCount, entries } = useSelector(mapStateToStoreProps);
+  const { fetchCount } = useSelector(mapStateToStoreProps);
 
   const backAction = (props.home) ? (
     <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
@@ -30,7 +29,7 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
   );
 
   function refresh() {
-    fetchAllJournals(etesync, entries);
+    fetchAllJournals(etesync);
   }
 
   return (

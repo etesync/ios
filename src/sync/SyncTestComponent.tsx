@@ -31,8 +31,8 @@ class SyncTempComponent extends React.PureComponent<PropsTypeInner> {
   }
 
   public async componentDidMount() {
-    const { etesync, syncInfo, userInfo, syncStateJournals, syncStateEntries } = this.props;
-    const syncManager = new SyncManager(etesync, userInfo);
+    const { etesync, syncInfo, syncStateJournals, syncStateEntries } = this.props;
+    const syncManager = new SyncManager(etesync);
     console.log('Asking for permissions');
     Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(async () => {
       await syncManager.init();

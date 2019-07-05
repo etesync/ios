@@ -6,11 +6,13 @@ import { logger } from '../logging';
 import { CURRENT_VERSION } from '../api/Constants';
 
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, EntriesType } from '../store';
+import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
-export async function fetchAllJournals(etesync: CredentialsData, entries: EntriesType) {
+
+export async function fetchAllJournals(etesync: CredentialsData) {
+  const entries = store.getState().cache.entries;
   const me = etesync.credentials.email;
 
   let userInfo = await store.dispatch<any>(fetchUserInfo(etesync, me));
@@ -65,9 +67,8 @@ export abstract class SyncManager {
   protected syncStateJournals: SyncStateJournalData;
   protected syncStateEntries: SyncStateEntryData;
 
-  constructor(etesync: CredentialsData, userInfo: EteSync.UserInfo) {
+  constructor(etesync: CredentialsData) {
     this.etesync = etesync;
-    this.userInfo = userInfo;
   }
 
   public async init() {
