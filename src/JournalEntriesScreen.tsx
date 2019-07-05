@@ -3,7 +3,7 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { ScrollView } from 'react-native';
-import { Divider, Title, Text, List } from 'react-native-paper';
+import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
 
 import { useSyncInfo } from './SyncHandler';
 
@@ -98,8 +98,32 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   );
 };
 
+function RightAction() {
+  const [showMenu, setShowMenu] = React.useState(false);
+  const navigation = useNavigation();
+
+  const journalUid = navigation.getParam('journalUid');
+
+  return (
+    <Menu
+      visible={showMenu}
+      onDismiss={() => setShowMenu(false)}
+      anchor={(
+        <Appbar.Action icon="more-vert" onPress={() => setShowMenu(true)} />
+      )}
+    >
+      <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="edit" title="Edit" />
+      <Menu.Item onPress={() => navigation.navigate('JournalMembers', { journalUid })} icon="group" title="Members" />
+      <Menu.Item onPress={() => navigation.navigate('Import', { journalUid })} icon="import-export" title="Import" />
+    </Menu>
+  );
+}
+
 JournalEntries.navigationOptions = {
   title: 'Change Journal',
+  rightAction: (
+    <RightAction />
+  ),
 };
 
 export default JournalEntries;
