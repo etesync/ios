@@ -20,7 +20,6 @@ const mapStateToStoreProps = (state: StoreState) => {
     settings: state.settings,
     journals: state.cache.journals,
     entries: state.cache.entries,
-    userInfo: state.cache.userInfo,
     fetchCount: state.fetchCount,
   };
 };
@@ -28,7 +27,7 @@ const mapStateToStoreProps = (state: StoreState) => {
 const HomeScreen = React.memo(function _HomeScreen() {
   const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
-  const { settings, userInfo } = useSelector(mapStateToStoreProps);
+  const { settings } = useSelector(mapStateToStoreProps);
   const SyncGate = useSyncGate();
 
   if (SyncGate) {
@@ -43,8 +42,6 @@ const HomeScreen = React.memo(function _HomeScreen() {
     return (
       <SyncTempComponent
         etesync={etesync}
-        userInfo={userInfo.value!}
-        syncInfo={syncInfo}
       />
     );
   }
