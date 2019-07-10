@@ -47,6 +47,7 @@ export function eventVobjectToNative(event: EventType) {
     endDate: endDate.toJSDate(),
     location: event.location || '',
     notes: event.description || '',
+    timeZone: event.timezone || '',
   };
 
   return ret;
