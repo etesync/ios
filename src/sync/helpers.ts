@@ -27,6 +27,28 @@ export function entryNativeHashCalc(_entry: {uid: string}, ignoreKeys: string[] 
   return sjcl.codec.hex.fromBits(sha.finalize());
 }
 
+function eventAlarmVobjectToNative(alarm: ICAL.Component) {
+  const trigger = alarm.getFirstPropertyValue('trigger');
+
+  if (!('isNegative' in trigger)) {
+    // FIXME: we only handle relative alarms at the moment (should have isNegative)
+    return undefined;
+  }
+
+  const relativeOffset =
+    ((trigger.isNegative) ? -1 : 1) *
+    (
+      (((trigger.days * 24) + trigger.hours) * 60) +
+      trigger.minutes
+    );
+
+  const ret: Calendar.Alarm = {
+    relativeOffset,
+  };
+
+  return ret;
+}
+
 export function eventVobjectToNative(event: EventType) {
   const allDay = event.startDate.isDate;
   let endDate = event.endDate.clone();
@@ -47,6 +69,7 @@ export function eventVobjectToNative(event: EventType) {
     endDate: endDate.toJSDate(),
     location: event.location || '',
     notes: event.description || '',
+    alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
     timeZone: event.timezone || '',
   };
 
