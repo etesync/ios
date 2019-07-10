@@ -9,7 +9,7 @@ import {
   NavigationEventCallback,
   NavigationEventPayload,
   EventType,
-} from 'react-navigation-types-only';
+} from 'react-navigation';
 
 export function useNavigation<S>(): NavigationScreenProp<S & NavigationRoute> {
   return useContext(NavigationContext as any);
@@ -33,7 +33,7 @@ export function useNavigationEvents(handleEvt: NavigationEventCallback) {
   const navigation = useNavigation();
   useEffect(
     () => {
-      const subsA = navigation.addListener('action', handleEvt);
+      const subsA = navigation.addListener('action' as any, handleEvt);
       const subsWF = navigation.addListener('willFocus', handleEvt);
       const subsDF = navigation.addListener('didFocus', handleEvt);
       const subsWB = navigation.addListener('willBlur', handleEvt);
@@ -88,7 +88,9 @@ export function useFocusState() {
   const [focusState, setFocusState] = useState(getInitialFocusState(isFocused));
   function handleEvt(e: NavigationEventPayload) {
     const newState = focusStateOfEvent(e.type);
-    newState && setFocusState(newState);
+    if (newState) {
+        setFocusState(newState);
+    }
   }
   useNavigationEvents(handleEvt);
   return focusState;
