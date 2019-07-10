@@ -125,6 +125,42 @@ export function eventNativeToVobject(event: NativeEvent) {
   ret.endDate = endDate;
   ret.location = event.location || '';
   ret.description = event.notes || '';
+  if (event.alarms) {
+    event.alarms.forEach((_alarm) => {
+      // FIXME: hack around broken expo typing
+      const alarm = _alarm as unknown as Calendar.Alarm;
+      if (alarm.relativeOffset === undefined) {
+        // FIXME: we only support relative alarms at the moment
+        return;
+      }
+
+      const alarmComponent = new ICAL.Component(['valarm', [], []]);
+      alarmComponent.addPropertyWithValue('action', 'DISPLAY');
+      alarmComponent.addPropertyWithValue('description', ret.summary);
+      const trigger = ((alarm.relativeOffset < 0) ? '-' : '') + `PT${Math.abs(alarm.relativeOffset)}M`;
+      alarmComponent.addPropertyWithValue('trigger', trigger);
+
+      ret.component.addSubcomponent(alarmComponent);
+    });
+  }
+
+  if (event.recurrenceRule) {
+    const value = {
+      frequency: event.recurrenceRule.frequency.toUpperCase(),
+      interval: event.recurrenceRule.interval || 1,
+    } as any;
+
+    if (event.recurrenceRule.endDate) {
+      value.until = event.recurrenceRule.endDate;
+    }
+    if (event.recurrenceRule.occurrence) {
+      value.count = event.recurrenceRule.occurrence;
+    }
+
+    ret.component.addPropertyWithValue('rrule', value);
+  }
+
+  // FIXME: Support timezone!
 
   return ret;
 }
