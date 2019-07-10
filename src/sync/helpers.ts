@@ -49,6 +49,27 @@ function eventAlarmVobjectToNative(alarm: ICAL.Component) {
   return ret;
 }
 
+function eventRruleVobjectToNative(event: EventType) {
+  const rrule = event.component.getFirstPropertyValue('rrule');
+  if (!rrule) {
+    return undefined;
+  }
+
+  const frequency = (Calendar.Frequency as any)[rrule.freq];
+  if (!frequency) {
+    return undefined;
+  }
+
+  const ret: Calendar.RecurrenceRule = {
+    frequency,
+    interval: rrule.interval || undefined,
+    endDate: rrule.until || undefined,
+    occurrence: rrule.count || undefined,
+  };
+
+  return ret;
+}
+
 export function eventVobjectToNative(event: EventType) {
   const allDay = event.startDate.isDate;
   let endDate = event.endDate.clone();
@@ -70,6 +91,7 @@ export function eventVobjectToNative(event: EventType) {
     location: event.location || '',
     notes: event.description || '',
     alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
+    recurrenceRule: eventRruleVobjectToNative(event),
     timeZone: event.timezone || '',
   };
 
