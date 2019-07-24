@@ -6,6 +6,8 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { ContactType, EventType } from '../pim-types';
 
+import * as zones from '../data/zones.json';
+
 export interface NativeEvent extends Calendar.Event {
   uid: string; // This is the EteSync UUID for the event
 }
@@ -100,7 +102,7 @@ export function eventVobjectToNative(event: EventType) {
 
 
 function fromDate(date: Date, allDay: boolean) {
-  const ret = ICAL.Time.fromJSDate(date, false);
+  const ret = ICAL.Time.fromJSDate(date, true);
   if (!allDay) {
     return ret;
   } else {
@@ -160,7 +162,13 @@ export function eventNativeToVobject(event: NativeEvent) {
     ret.component.addPropertyWithValue('rrule', value);
   }
 
-  // FIXME: Support timezone!
+  if (event.timeZone) {
+    const timezone = timezoneLoadFromName(event.timeZone);
+    if (timezone) {
+      ret.startDate = ret.startDate.convertToZone(timezone);
+      ret.endDate = ret.endDate.convertToZone(timezone);
+    }
+  }
 
   return ret;
 }
@@ -251,4 +259,34 @@ export function contactVobjectToNative(contact: ContactType) {
   }
 
   return ret;
+}
+
+function timezoneLoadFromName(timezone: string) {
+  let zone = zones.zones[timezone];
+  if (!zone && zones.aliases[timezone]) {
+    zone = zones.zones[zones.aliases[timezone]];
+  }
+
+  if (!zone) {
+    return null;
+  }
+
+  if (ICAL.TimezoneService.has(timezone)) {
+    return ICAL.TimezoneService.get(timezone);
+  }
+
+  const component = new ICAL.Component('vtimezone');
+  zone.ics.forEach((zonePart: string) => {
+    component.addSubcomponent(new ICAL.Component(ICAL.parse(zonePart)));
+  });
+  component.addPropertyWithValue('tzid', timezone);
+
+  const retZone = new ICAL.Timezone({
+    component,
+    tzid: timezone,
+  });
+
+  ICAL.TimezoneService.register(timezone, retZone);
+
+  return retZone;
 }

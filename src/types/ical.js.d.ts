@@ -1,5 +1,10 @@
 declare module 'ical.js' {
   function parse(input: string): any[];
+
+  class helpers { // tslint:disable-line:class-name
+    static public updateTimezones(vcal: Component): Component;
+  }
+
   class Component {
     static public fromString(str: string): Component;
 
@@ -83,6 +88,7 @@ declare module 'ical.js' {
     public compare(aOther: Time): number;
 
     public clone(): Time;
+    public convertToZone(zone: Timezone): Time;
 
     public adjust(
       aExtraDays: number, aExtraHours: number, aExtraMinutes: number, aExtraSeconds: number, aTimeopt?: Time): void;
@@ -109,5 +115,22 @@ declare module 'ical.js' {
     static public convert_time(tt: Time, fromZone: Timezone, toZone: Timezone): Time;
 
     public tzid: string;
+    public component: Component;
+
+    constructor(data: Component | {
+      component: string | Component,
+      tzid?: string,
+      location?: string,
+      tznames?: string,
+      latitude?: number,
+      longitude?: number,
+    });
+  }
+
+  class TimezoneService {
+    static public get(tzid: string): Timezone | null;
+    static public has(tzid: string): boolean;
+    static public register(tzid: string, zone: Timezone | Component);
+    static public remove(tzid: string): Timezone | null;
   }
 }
