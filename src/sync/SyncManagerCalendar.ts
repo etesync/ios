@@ -61,6 +61,11 @@ export class SyncManagerCalendar extends SyncManagerBase {
         existingEvents.forEach((_event) => {
           const syncStateEntry = syncStateEntriesReverse.get(_event.id);
 
+          // FIXME: ignore recurring events at the moment as they seem to be broken with Expo
+          if (_event.recurrenceRule) {
+            return;
+          }
+
           if (syncStateEntry === undefined) {
             // New
             const event = { ..._event, uid: _event.id };
