@@ -4,6 +4,9 @@ import { ScrollView, Image, Linking } from 'react-native';
 import { Subheading, Divider, List, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
+import { useDispatch } from 'react-redux';
+import { logout } from './store/actions';
+
 import { useCredentials } from './login';
 import Container from './widgets/Container';
 
@@ -46,6 +49,7 @@ const externalMenuItems = [
 ];
 
 function Drawer() {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const etesync = useCredentials().value;
 
@@ -73,6 +77,13 @@ function Drawer() {
                 left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
               />
           )) }
+          { etesync &&
+              <List.Item
+                title="Logout"
+                onPress={() => dispatch(logout())}
+                left={(props) => <List.Icon {...props} icon="exit-to-app" />}
+              />
+          }
         </>
         <Divider />
         <List.Section title="External links">
