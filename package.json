@@ -4,6 +4,7 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
+    "test": "jest --watch",
     "check-types": "tsc",
     "eject": "expo eject"
   },
@@ -50,9 +51,14 @@
     "@types/uuid": "^3.4.4",
     "@types/webcrypto": "^0.0.28",
     "babel-preset-expo": "^5.0.0",
+    "jest-expo": "^34.0.0",
+    "react-test-renderer": "^16.8.6",
     "tslint": "^5.12.1",
     "tslint-react": "^3.6.0",
     "typescript": "^3.3.3"
+  },
+  "jest": {
+    "preset": "jest-expo"
   },
   "private": true
 }
