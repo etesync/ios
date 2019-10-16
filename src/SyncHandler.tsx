@@ -64,7 +64,6 @@ export const syncInfoSelector = createSelector(
         let cryptoManager: EteSync.CryptoManager;
         let derivedJournalKey: byte[];
         if (journal.key) {
-          return Promise.resolve(ret);  // FIXME: disabling shared journals/key changes for now for now
           derivedJournalKey = await asymmetricCryptoManager.decryptBytes(journal.key);
           cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
         } else {
