@@ -13,7 +13,7 @@
     "assert": "^1.4.1",
     "buffer": "^5.2.1",
     "constants": "^0.0.2",
-    "crypto": "npm:isomorphic-webcrypto",
+    "crypto": "git+https://github.com/etesync/expo-crypto",
     "expo": "^35.0.0",
     "expo-calendar": "~7.0.0",
     "expo-contacts": "~7.0.0",
