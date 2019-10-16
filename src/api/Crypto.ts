@@ -1,5 +1,5 @@
 import * as sjcl from 'sjcl';
-import crypto from 'webcrypto';
+import NodeRSA from 'node-rsa';
 
 import * as Constants from './Constants';
 import { byte, base64 } from './Helpers';
@@ -139,60 +139,29 @@ function bufferToArray(buffer: Buffer) {
 }
 
 export class AsymmetricCryptoManager {
-  public static async generateKeyPair() {
-    const keyPair = await crypto.subtle.generateKey(
-      AsymmetricCryptoManager.keyConfig,
-      true,
-      ['encrypt', 'decrypt']
-    );
-    return new AsymmetricKeyPair(
-      bufferToArray(keyPair.publicKey), bufferToArray(keyPair.privateKey));
-  }
 
-  private static keyConfig = {
-    name: 'RSA-OAEP',
-    modulusLength: 3072,
-    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),  // 65537
-    hash: {name: 'SHA-1'},
-  };
+  public static generateKeyPair() {
+    const keyPair = new NodeRSA();
+    keyPair.generateKeyPair(3072, 65537);
+    const pubkey = keyPair.exportKey('pkcs8-public-der') as Buffer;
+    const privkey = keyPair.exportKey('pkcs8-private-der') as Buffer;
+    return new AsymmetricKeyPair(
+      bufferToArray(pubkey), bufferToArray(privkey));
+  }
+  public keyPair: NodeRSA;
 
   constructor(keyPair: AsymmetricKeyPair) {
-    // empty on purpose
+    this.keyPair = new NodeRSA();
+    this.keyPair.importKey(Buffer.from(keyPair.privateKey), 'pkcs8-der');
   }
 
-  public async encryptBytes(publicKey: byte[], content: byte[]): Promise<byte[]> {
-    const key = await crypto.subtle.importKey(
-      'spki',
-      Uint8Array.from(publicKey).buffer,
-      AsymmetricCryptoManager.keyConfig,
-      false,
-      ['encrypt']
-    );
-    const encrypted = await crypto.subtle.encrypt(
-      {
-        name: 'RSA-OAEP',
-      },
-      key,
-      Buffer.from(content)
-    );
-    return bufferToArray(encrypted);
+  public encryptBytes(publicKey: byte[], content: byte[]): byte[] {
+    const key = new NodeRSA();
+    key.importKey(Buffer.from(publicKey), 'pkcs8-public-der');
+    return bufferToArray(key.encrypt(Buffer.from(content), 'buffer'));
   }
 
-  public async decryptBytes(privateKey: byte[], content: byte[]): Promise<byte[]> {
-    const key = await crypto.subtle.importKey(
-      'pkcs8',
-      Uint8Array.from(privateKey).buffer,
-      AsymmetricCryptoManager.keyConfig,
-      false,
-      ['decrypt']
-    );
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: 'RSA-OAEP',
-      },
-      key,
-      Buffer.from(content)
-    );
-    return bufferToArray(decrypted);
+  public decryptBytes(content: byte[]): byte[] {
+    return bufferToArray(this.keyPair.decrypt(Buffer.from(content), 'buffer'));
   }
 }
