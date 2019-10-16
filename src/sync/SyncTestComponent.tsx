@@ -3,6 +3,8 @@ import * as sjcl from 'sjcl';
 import * as Permissions from 'expo-permissions';
 import { Text } from 'react-native-paper';
 
+import * as Random from 'expo-random';
+
 import { CredentialsData } from '../store';
 
 import { SyncManager } from '.';
@@ -11,8 +13,14 @@ interface PropsType {
   etesync: CredentialsData;
 }
 
-// FIXME XXX FIXME: This is just a hack until we get real randomness going.
-sjcl.random.setDefaultParanoia(0, 'Setting paranoia=0 will ruin your security; use it only for testing');
+// XXX Set the entropy
+// FIXME: probably add it every few hours?
+(async () => {
+  const entropyBits = 1024;
+  const bytes = await Random.getRandomBytesAsync(entropyBits / 8);
+  const buf = new Uint32Array(new Uint8Array(bytes).buffer);
+  sjcl.random.addEntropy(buf as any, entropyBits, 'Random.getRandomBytesAsync');
+})();
 
 class SyncTempComponent extends React.PureComponent<PropsType> {
   public async componentDidMount() {
