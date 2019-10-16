@@ -17,6 +17,7 @@
     "expo": "^35.0.0",
     "expo-calendar": "~7.0.0",
     "expo-contacts": "~7.0.0",
+    "expo-random": "^7.0.0",
     "ical.js": "^1.3.0",
     "idb-keyval": "^3.2.0",
     "immutable": "^4.0.0-rc.12",
@@ -38,8 +39,7 @@
     "redux-thunk": "^2.3.0",
     "sjcl": "git+https://github.com/etesync/sjcl",
     "urijs": "^1.19.1",
-    "uuid": "^3.3.2",
-    "webcrypto": "npm:isomorphic-webcrypto"
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/jest": "^24.0.5",
