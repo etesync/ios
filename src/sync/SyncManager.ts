@@ -9,6 +9,7 @@ import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } fro
 
 import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
+import { SyncManagerTaskList } from './SyncManagerTaskList';
 
 import * as sjcl from 'sjcl';
 import * as Random from 'expo-random';
@@ -87,7 +88,7 @@ export class SyncManager {
     const syncInfo = await syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
     // FIXME: make the sync parallel.
-    const managers = [SyncManagerCalendar, SyncManagerAddressBook];
+    const managers = [SyncManagerCalendar, SyncManagerTaskList, SyncManagerAddressBook];
     managers.pop(); // FIXME: Removing the address book as it's not yet supported.
     for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync))) {
       await syncManager.init();

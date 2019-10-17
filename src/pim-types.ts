@@ -78,6 +78,10 @@ export class TaskType extends EventType {
 
   public color: string;
 
+  get uid() {
+    return this.component.getFirstPropertyValue('uid');
+  }
+
   constructor(comp: ICAL.Component | null) {
     super(comp ? comp : new ICAL.Component('vtodo'));
   }
@@ -105,6 +109,18 @@ export class TaskType extends EventType {
 
   get dueDate() {
     return this.component.getFirstPropertyValue('due');
+  }
+
+  set completionDate(date: ICAL.Time | undefined) {
+    if (date) {
+      this.component.updatePropertyWithValue('completed', date);
+    } else {
+      this.component.removeAllProperties('completed');
+    }
+  }
+
+  get completionDate() {
+    return this.component.getFirstPropertyValue('completed');
   }
 
   get endDate() {

@@ -4,11 +4,15 @@ import * as ICAL from 'ical.js';
 import * as sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-import { ContactType, EventType } from '../pim-types';
+import { ContactType, EventType, TaskType } from '../pim-types';
 
 import * as zones from '../data/zones.json';
 
 export interface NativeEvent extends Calendar.Event {
+  uid: string; // This is the EteSync UUID for the event
+}
+
+export interface NativeTask extends Calendar.Reminder {
   uid: string; // This is the EteSync UUID for the event
 }
 
@@ -99,6 +103,25 @@ export function eventVobjectToNative(event: EventType) {
 
   return ret;
 }
+
+export function taskVobjectToNative(task: TaskType) {
+  const ret: NativeTask = {
+    uid: task.uid,
+    title: task.title || '',
+    startDate: task.startDate && task.startDate.toJSDate() || undefined,
+    dueDate: task.dueDate && task.dueDate.toJSDate() || undefined,
+    completed: task.finished,
+    completionDate: task.completionDate && task.completionDate.toJSDate() || undefined,
+    location: task.location || '',
+    notes: task.description || '',
+    alarms: task.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
+    recurrenceRule: eventRruleVobjectToNative(task),
+    timeZone: task.timezone || '',
+  };
+
+  return ret;
+}
+
 
 
 function fromDate(date: Date, allDay: boolean) {
