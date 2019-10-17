@@ -148,7 +148,6 @@ export abstract class SyncManagerBase {
           firstEntry = lastEntryPos + 1;
         }
 
-        // FIXME: optimise by first compressing redundant changes here and only then applynig to iOS
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i);
           const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
