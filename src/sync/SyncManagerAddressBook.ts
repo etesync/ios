@@ -89,7 +89,7 @@ export class SyncManagerAddressBook extends SyncManagerBase {
   }
 
 
-  protected async debugReset(syncInfo: SyncInfo) {
+  protected async clearDeviceCollections(syncInfo: SyncInfo) {
     const etesync = this.etesync;
     const syncStateJournals = this.syncStateJournals.asMutable();
     const syncStateEntries = this.syncStateEntries.asMutable();

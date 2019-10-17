@@ -41,7 +41,7 @@ export abstract class SyncManagerBase {
     this.syncStateEntries = syncStateEntries;
 
     if (__DEV__) {
-      // await this.debugReset(syncInfo);
+      // await this.clearDeviceCollections(syncInfo);
     }
     logger.info('Starting Sync');
     logger.info('Syncing journal list');
@@ -185,5 +185,5 @@ export abstract class SyncManagerBase {
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 
-  protected abstract async debugReset(syncInfo: SyncInfo): Promise<void>;
+  protected abstract async clearDeviceCollections(syncInfo: SyncInfo): Promise<void>;
 }

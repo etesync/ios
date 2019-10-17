@@ -205,7 +205,7 @@ export class SyncManagerCalendar extends SyncManagerBase {
     return Calendar.deleteCalendarAsync(containerLocalId);
   }
 
-  protected async debugReset(syncInfo: SyncInfo) {
+  protected async clearDeviceCollections(syncInfo: SyncInfo) {
     const etesync = this.etesync;
     const localSource = this.localSource;
     const syncStateJournals = this.syncStateJournals.asMutable();
