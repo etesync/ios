@@ -23,7 +23,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
 
 export class SyncManagerCalendar extends SyncManagerBase {
   protected collectionType = 'CALENDAR';
-  private localSource: any;
+  private localSource: Calendar.Source;
 
   public async init() {
     this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name === ACCOUNT_NAME));
@@ -207,7 +207,7 @@ export class SyncManagerCalendar extends SyncManagerBase {
     const syncStateJournals = this.syncStateJournals.asMutable();
     const syncStateEntries = this.syncStateEntries.asMutable();
 
-    const calendars = (await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT)) as any as Calendar.Calendar[]; // XXX: Workaround typing bug
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
     for (const calendar of calendars) {
       if (calendar.source.id === localSource.id) {
         logger.info(`Deleting ${calendar.title}`);
