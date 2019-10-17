@@ -21,13 +21,76 @@ function entryNativeHashCalc(entry: {uid: string}) {
   return _entryNativeHashCalc(entry, ['lastModifiedDate']);
 }
 
-export class SyncManagerCalendar extends SyncManagerBase {
-  protected collectionType = 'CALENDAR';
-  private localSource: Calendar.Source;
+export abstract class SyncManagerCalendarBase extends SyncManagerBase {
+  protected abstract collectionType: string;
+  protected abstract entityType: string;
+
+  protected localSource: Calendar.Source;
 
   public async init() {
     this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name === ACCOUNT_NAME));
   }
+
+  protected async createJournal(syncJournal: SyncInfoJournal): Promise<string> {
+    const localSource = this.localSource;
+    const collection = syncJournal.collection;
+
+    return Calendar.createCalendarAsync({
+      sourceId: localSource.id,
+      entityType: this.entityType,
+      title: collection.displayName,
+      color: colorIntToHtml(collection.color),
+    });
+  }
+
+  protected async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal) {
+    const localSource = this.localSource;
+    const collection = syncJournal.collection;
+
+    Calendar.updateCalendarAsync(containerLocalId, {
+      sourceId: localSource.id,
+      title: collection.displayName,
+      color: colorIntToHtml(collection.color),
+    });
+  }
+
+  protected async deleteJournal(containerLocalId: string) {
+    return Calendar.deleteCalendarAsync(containerLocalId);
+  }
+
+  protected async clearDeviceCollections(syncInfo: SyncInfo) {
+    const etesync = this.etesync;
+    const localSource = this.localSource;
+    const syncStateJournals = this.syncStateJournals.asMutable();
+    const syncStateEntries = this.syncStateEntries.asMutable();
+
+    const calendars = await Calendar.getCalendarsAsync(this.entityType);
+    for (const calendar of calendars) {
+      if (calendar.source.id === localSource.id) {
+        logger.info(`Deleting ${calendar.title}`);
+        await Calendar.deleteCalendarAsync(calendar.id);
+      }
+    }
+
+    syncStateJournals.forEach((journal) => {
+      store.dispatch(unsetSyncStateJournal(etesync, journal));
+      syncStateJournals.delete(journal.uid);
+
+      // Deletion from the store happens automatically
+      syncStateEntries.delete(journal.uid);
+
+      return true;
+    });
+
+    this.syncStateJournals = syncStateJournals.asImmutable();
+    this.syncStateEntries = syncStateEntries.asImmutable();
+  }
+}
+
+
+export class SyncManagerCalendar extends SyncManagerCalendarBase {
+  protected collectionType = 'CALENDAR';
+  protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush(syncInfo: SyncInfo) {
     const syncStateJournals = this.syncStateJournals;
@@ -177,60 +240,4 @@ export class SyncManagerCalendar extends SyncManagerBase {
 
     return syncStateEntry;
   }
-
-  protected async createJournal(syncJournal: SyncInfoJournal): Promise<string> {
-    const localSource = this.localSource;
-    const collection = syncJournal.collection;
-
-    return Calendar.createCalendarAsync({
-      sourceId: localSource.id,
-      entityType: Calendar.EntityTypes.EVENT,
-      title: collection.displayName,
-      color: colorIntToHtml(collection.color),
-    });
-  }
-
-  protected async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal) {
-    const localSource = this.localSource;
-    const collection = syncJournal.collection;
-
-    Calendar.updateCalendarAsync(containerLocalId, {
-      sourceId: localSource.id,
-      title: collection.displayName,
-      color: colorIntToHtml(collection.color),
-    });
-  }
-
-  protected async deleteJournal(containerLocalId: string) {
-    return Calendar.deleteCalendarAsync(containerLocalId);
-  }
-
-  protected async clearDeviceCollections(syncInfo: SyncInfo) {
-    const etesync = this.etesync;
-    const localSource = this.localSource;
-    const syncStateJournals = this.syncStateJournals.asMutable();
-    const syncStateEntries = this.syncStateEntries.asMutable();
-
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    for (const calendar of calendars) {
-      if (calendar.source.id === localSource.id) {
-        logger.info(`Deleting ${calendar.title}`);
-        await Calendar.deleteCalendarAsync(calendar.id);
-      }
-    }
-
-    syncStateJournals.forEach((journal) => {
-      store.dispatch(unsetSyncStateJournal(etesync, journal));
-      syncStateJournals.delete(journal.uid);
-
-      // Deletion from the store happens automatically
-      syncStateEntries.delete(journal.uid);
-
-      return true;
-    });
-
-    this.syncStateJournals = syncStateJournals.asImmutable();
-    this.syncStateEntries = syncStateEntries.asImmutable();
-  }
 }
-
