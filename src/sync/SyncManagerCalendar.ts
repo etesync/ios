@@ -13,7 +13,7 @@ import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
-import { PimSyncEntry, SyncManagerBase } from './SyncManagerBase';
+import { SyncManagerBase } from './SyncManagerBase';
 
 const ACCOUNT_NAME = 'etesync';
 
@@ -139,11 +139,11 @@ export class SyncManagerCalendar extends SyncManagerBase {
     return EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
-  protected async processSyncEntry(containerLocalId: string, pimSyncEntry: PimSyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const event = pimSyncEntry.item as EventType;
+  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
+    const event = this.pimItemFromSyncEntry(syncEntry) as EventType;
     const nativeEvent = eventVobjectToNative(event);
     let syncStateEntry = syncStateEntries.get(event.uid);
-    switch (pimSyncEntry.syncEntry.action) {
+    switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
       case EteSync.SyncEntryAction.Change:
         let existingEvent: Calendar.Event;
