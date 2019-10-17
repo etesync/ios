@@ -63,7 +63,7 @@ function RefreshIcon() {
 
   function refresh() {
     const syncManager = SyncManager.getManager(etesync);
-    syncManager.fetchAllJournals();
+    syncManager.sync();
   }
 
   return (
