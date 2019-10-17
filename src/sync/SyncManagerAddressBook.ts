@@ -9,7 +9,7 @@ import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
 import { contactVobjectToNative, entryNativeHashCalc } from './helpers';
-import { ContactType } from '../pim-types';
+import { PimType, ContactType } from '../pim-types';
 
 import { SyncManagerBase } from './SyncManagerBase';
 
@@ -25,8 +25,12 @@ export class SyncManagerAddressBook extends SyncManagerBase {
     //
   }
 
+  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType {
+    return new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
+  }
+
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const contact = new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
+    const contact = this.pimItemFromSyncEntry(syncEntry) as ContactType;
     const nativeContact = contactVobjectToNative(contact);
     let syncStateEntry = syncStateEntries.get(contact.uid);
     switch (syncEntry.action) {
