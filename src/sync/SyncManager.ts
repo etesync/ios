@@ -10,6 +10,18 @@ import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } fro
 // import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
 
+import * as sjcl from 'sjcl';
+import * as Random from 'expo-random';
+
+async function prngAddEntropy() {
+  const entropyBits = 1024;
+  const bytes = await Random.getRandomBytesAsync(entropyBits / 8);
+  const buf = new Uint32Array(new Uint8Array(bytes).buffer);
+  sjcl.random.addEntropy(buf as any, entropyBits, 'Random.getRandomBytesAsync');
+}
+// we seed the entropy in the beginning + on every sync
+prngAddEntropy();
+
 export class SyncManager {
   public static getManager(etesync: CredentialsData) {
     // FIXME: Should make a singleton per etesync
@@ -63,6 +75,7 @@ export class SyncManager {
   }
 
   public async sync() {
+    prngAddEntropy();
     await this.fetchAllJournals();
 
     const storeState = store.getState();
