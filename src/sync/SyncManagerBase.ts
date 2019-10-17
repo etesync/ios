@@ -57,14 +57,16 @@ export abstract class SyncManagerBase {
     const etesync = this.etesync;
     const syncStateJournals = this.syncStateJournals.asMutable();
     const currentJournals = [] as SyncStateJournal[];
+    const notOurs = new Map<string, boolean>();
 
     for (const syncJournal of syncInfo.values()) {
-      if (syncJournal.collection.type !== this.collectionType) {
-        continue;
-      }
-
       const collection = syncJournal.collection;
       const uid = collection.uid;
+
+      if (syncJournal.collection.type !== this.collectionType) {
+        notOurs.set(uid, true);
+        continue;
+      }
 
       let syncStateJournal = syncStateJournals.get(uid);
       let localId: string;
@@ -91,10 +93,12 @@ export abstract class SyncManagerBase {
 
     // Remove deleted calendars
     await Promise.all(syncStateJournals.map(async (oldJournal) => {
-      logger.info(`Deleting ${oldJournal.uid}`);
-      await this.deleteJournal(oldJournal.localId);
-      syncStateJournals.delete(oldJournal.uid);
-      store.dispatch(unsetSyncStateJournal(etesync, oldJournal));
+      if (!notOurs.has(oldJournal.uid)) {
+        logger.info(`Deleting ${oldJournal.uid}`);
+        await this.deleteJournal(oldJournal.localId);
+        syncStateJournals.delete(oldJournal.uid);
+        store.dispatch(unsetSyncStateJournal(etesync, oldJournal));
+      }
       return true;
     }));
 
