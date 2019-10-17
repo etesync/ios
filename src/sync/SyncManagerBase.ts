@@ -8,6 +8,11 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 
+export interface PimSyncEntry {
+  syncEntry: EteSync.SyncEntry;
+  item: PimType;
+}
+
 /*
  * This class should probably mirror exactly what's done in Android. So it should
  * fetch / push / etc in the same manner.
@@ -148,11 +153,18 @@ export abstract class SyncManagerBase {
           firstEntry = lastEntryPos + 1;
         }
 
-        // FIXME: optimise by first compressing redundant changes here and only then applynig to iOS
+        const syncEntriesToProcess = new Map<string, PimSyncEntry>();
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i);
-          const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
-          switch (syncEntry.action) {
+          syncEntriesToProcess.set(syncEntry.uid, {
+            syncEntry,
+            item: this.pimItemFromSyncEntry(syncEntry),
+          });
+        }
+
+        for (const pimSyncEntry of syncEntriesToProcess.values()) {
+          const syncStateEntry = await this.processSyncEntry(localId, pimSyncEntry, journalSyncEntries);
+          switch (pimSyncEntry.syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
             case EteSync.SyncEntryAction.Change:
               journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
@@ -184,7 +196,7 @@ export abstract class SyncManagerBase {
 
   protected abstract pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType;
 
-  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
+  protected abstract async processSyncEntry(containerLocalId: string, pimSyncEntry: PimSyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 
   protected abstract async debugReset(syncInfo: SyncInfo): Promise<void>;
 }
