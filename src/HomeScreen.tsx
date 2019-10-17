@@ -55,6 +55,8 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   React.useMemo(() => {
     const syncManager = SyncManager.getManager(etesync);
     dispatch(performSync(syncManager.sync()));
+
+    moment.locale(settings.locale);
   }, [etesync]);
 
   if (!hasPermissions) {
@@ -77,9 +79,6 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
       />
     );
   }
-
-  // FIXME: Shouldn't be here
-  moment.locale(settings.locale);
 
   return (
     <JournalListScreen />
