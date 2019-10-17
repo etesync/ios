@@ -80,7 +80,10 @@ function Drawer() {
           { etesync &&
               <List.Item
                 title="Logout"
-                onPress={() => dispatch(logout())}
+                onPress={() => {
+                  navigation.navigate('Auth');
+                  dispatch(logout());
+                }}
                 left={(props) => <List.Icon {...props} icon="exit-to-app" />}
               />
           }
