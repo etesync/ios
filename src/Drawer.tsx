@@ -5,6 +5,7 @@ import { Subheading, Divider, List, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
 import { useDispatch } from 'react-redux';
+import { persistor } from './store';
 import { logout } from './store/actions';
 
 import { useCredentials } from './login';
@@ -83,6 +84,8 @@ function Drawer() {
                 onPress={() => {
                   navigation.navigate('Auth');
                   dispatch(logout());
+                  // FIXME: Hack to make sure data is cleaned.
+                  persistor.purge();
                 }}
                 left={(props) => <List.Icon {...props} icon="exit-to-app" />}
               />
