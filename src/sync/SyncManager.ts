@@ -88,6 +88,7 @@ export class SyncManager {
 
     // FIXME: make the sync parallel.
     const managers = [SyncManagerCalendar, SyncManagerAddressBook];
+    managers.pop(); // FIXME: Removing the address book as it's not yet supported.
     for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync))) {
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
