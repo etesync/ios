@@ -10,7 +10,7 @@ import { unsetSyncStateJournal } from '../store/actions';
 
 import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
 import { colorIntToHtml } from '../helpers';
-import { EventType } from '../pim-types';
+import { PimType, EventType } from '../pim-types';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
 import { SyncManagerBase } from './SyncManagerBase';
@@ -108,7 +108,7 @@ export class SyncManagerCalendar extends SyncManagerBase {
           const syncEntry = new EteSync.SyncEntry();
           syncEntry.action = EteSync.SyncEntryAction.Delete;
           for (const entry of syncJournal.entries.reverse()) {
-            const event = EventType.fromVCalendar(new ICAL.Component(ICAL.parse(entry.content)));
+            const event = this.pimItemFromSyncEntry(entry) as EventType;
             if (event.uid === syncStateEntry.uid) {
               syncEntry.content = event.toIcal();
               syncEntries.push(syncEntry);
@@ -135,8 +135,12 @@ export class SyncManagerCalendar extends SyncManagerBase {
     }
   }
 
+  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType {
+    return EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
+  }
+
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const event = EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
+    const event = this.pimItemFromSyncEntry(syncEntry) as EventType;
     const nativeEvent = eventVobjectToNative(event);
     let syncStateEntry = syncStateEntries.get(event.uid);
     switch (syncEntry.action) {

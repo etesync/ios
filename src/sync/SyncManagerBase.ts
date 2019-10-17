@@ -3,6 +3,7 @@ import { Map as ImmutableMap } from 'immutable';
 
 import { logger } from '../logging';
 
+import { PimType } from '../pim-types';
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
@@ -180,6 +181,8 @@ export abstract class SyncManagerBase {
   protected abstract async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(syncInfo: SyncInfo): Promise<void>;
+
+  protected abstract pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 
