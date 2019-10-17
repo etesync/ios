@@ -2751,7 +2751,7 @@ cross-spawn@^6.0.0, cross-spawn@^6.0.5:
 
 "crypto@git+https://github.com/etesync/expo-crypto":
   version "1.0.0"
-  resolved "git+https://github.com/etesync/expo-crypto#cc96cdfde0ab450503797c2e890362622c29d005"
+  resolved "git+https://github.com/etesync/expo-crypto#4c4974f84bc3e23602ddebee356fb59f13161db0"
   dependencies:
     buffer "^5.4.3"
     expo-random "^7.0.0"
