@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { Appbar } from 'react-native-paper';
 
+import * as Permissions from 'expo-permissions';
+
 import * as moment from 'moment';
 import 'moment/locale/en-gb';
 
@@ -17,7 +19,24 @@ import { useSyncGate } from './SyncGate';
 import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
 
+import { logger } from './logging';
+
 import SyncTempComponent from './sync/SyncTestComponent';
+
+function usePermissions(): boolean {
+  const [hasPermissions, setHasPermissions] = React.useState(false);
+  const [asked, setAsked] = React.useState(false);
+
+  if (!asked) {
+    setAsked(true);
+    Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(() => {
+      logger.info('Got permissions');
+      setHasPermissions(true);
+    });
+  }
+
+  return hasPermissions;
+}
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const syncInfo = useSyncInfo();
@@ -28,6 +47,12 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
     })
   );
   const SyncGate = useSyncGate();
+  const hasPermissions = usePermissions();
+
+  if (!hasPermissions) {
+    // FIXME: show an error message + a button to give permissions
+    return <React.Fragment />;
+  }
 
   if (SyncGate) {
     return SyncGate;

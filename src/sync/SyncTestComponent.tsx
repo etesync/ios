@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as Permissions from 'expo-permissions';
 import { Text } from 'react-native-paper';
 
 import { CredentialsData } from '../store';
@@ -14,10 +13,7 @@ class SyncTempComponent extends React.PureComponent<PropsType> {
   public async componentDidMount() {
     const { etesync } = this.props;
     const syncManager = SyncManager.getManager(etesync);
-    console.log('Asking for permissions');
-    Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(async () => {
-      await syncManager.sync();
-    });
+    await syncManager.sync();
   }
 
   public render() {
