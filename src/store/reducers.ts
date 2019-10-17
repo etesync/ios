@@ -314,6 +314,7 @@ export const syncStateEntryReducer = handleActions(
 );
 
 const fetchActions = [
+  actions.performSync,
 ] as Array<ActionFunctionAny<Action<any>>>;
 
 for (const func in actions) {

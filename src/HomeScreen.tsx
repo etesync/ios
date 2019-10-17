@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { Appbar, Text } from 'react-native-paper';
 
@@ -13,6 +13,7 @@ import { SyncManager } from './sync/SyncManager';
 import JournalListScreen from './components/JournalListScreen';
 
 import { StoreState } from './store';
+import { performSync } from './store/actions';
 
 import { useCredentials } from './login';
 import { useSyncGate } from './SyncGate';
@@ -81,6 +82,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 
 function RefreshIcon() {
   const etesync = useCredentials().value;
+  const dispatch = useDispatch();
   const { fetchCount } = useSelector(
     (state: StoreState) => ({
       fetchCount: state.fetchCount,
@@ -89,7 +91,7 @@ function RefreshIcon() {
 
   function refresh() {
     const syncManager = SyncManager.getManager(etesync);
-    syncManager.sync();
+    dispatch(performSync(syncManager.sync()));
   }
 
   return (

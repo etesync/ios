@@ -153,6 +153,13 @@ export const createUserInfo = createAction(
   }
 );
 
+export const performSync = createAction(
+  'PERFORM_SYNC',
+  (syncPromise: Promise<any>) => {
+    return syncPromise;
+  }
+);
+
 export const setSyncStateJournal = createAction(
   'SET_SYNC_STATE_JOURNAL',
   (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {

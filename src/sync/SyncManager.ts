@@ -93,5 +93,7 @@ export class SyncManager {
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     }
+
+    return true;
   }
 }
