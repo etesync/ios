@@ -14,7 +14,7 @@ interface PropsType {
 }
 
 // XXX Set the entropy
-// FIXME: probably add it every few hours?
+// FIXME: probably add it every few hours? Every sync actually.
 (async () => {
   const entropyBits = 1024;
   const bytes = await Random.getRandomBytesAsync(entropyBits / 8);
