@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
-import { Appbar } from 'react-native-paper';
+import { Appbar, Text } from 'react-native-paper';
 
 import * as Permissions from 'expo-permissions';
 
@@ -29,10 +29,11 @@ function usePermissions(): boolean {
 
   if (!asked) {
     setAsked(true);
-    Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS).then(() => {
-      logger.info('Got permissions');
-      setHasPermissions(true);
-    });
+    (async () => {
+      const { status } = await Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS);
+      logger.info(`Permissions status: ${status}`);
+      setHasPermissions(status === 'granted');
+    })();
   }
 
   return hasPermissions;
@@ -51,7 +52,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 
   if (!hasPermissions) {
     // FIXME: show an error message + a button to give permissions
-    return <React.Fragment />;
+    return <Text>Permissions denied. Please give the app permissions from the settings</Text>;
   }
 
   if (SyncGate) {
