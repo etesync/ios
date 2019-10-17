@@ -28,11 +28,11 @@ it('Symmetric encryption v2', () => {
   expect(expected).toBe(cryptoManager.hmac64(stringToByteArray('Some test data')));
 });
 
-it('Asymmetric encryption', async () => {
-  const keyPair = await AsymmetricCryptoManager.generateKeyPair();
+it('Asymmetric encryption', () => {
+  const keyPair = AsymmetricCryptoManager.generateKeyPair();
   const cryptoManager = new AsymmetricCryptoManager(keyPair);
 
   const clearText = [1, 2, 4, 5];
-  const cipher = await cryptoManager.encryptBytes(keyPair.publicKey, clearText);
-  expect(clearText).toEqual(await cryptoManager.decryptBytes(keyPair.privateKey, cipher));
+  const cipher = cryptoManager.encryptBytes(keyPair.publicKey, clearText);
+  expect(clearText).toEqual(cryptoManager.decryptBytes(cipher));
 });
