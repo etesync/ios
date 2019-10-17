@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Inc//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+
+    <key>PayloadUUID</key>
+    <string>83f2618b-c486-4c1b-8a6d-9c285d72cf98</string>
+
+    <key>PayloadType</key>
+    <string>Configuration</string>
+
+    <key>PayloadIdentifier</key>
+    <string>com.etesync.ios</string>
+
+    <key>PayloadDisplayName</key>
+    <string>EteSync Accounts</string>
+
+    <key>PayloadOrganization</key>
+    <string>EteSync</string>
+
+    <key>Label</key>
+    <string>Account configuration for the EteSync app</string>
+
+    <key>PayloadContent</key>
+    <array>
+    <dict>
+        <key>CardDAVAccountDescription</key>
+        <string>etesync</string>
+
+        <key>CardDAVHostName</key>
+        <string>127.0.0.1</string>
+
+        <key>CardDAVUsername</key>
+        <string>etesync</string>
+
+        <key>CardDAVPassword</key>
+        <string>etesync</string>
+
+        <key>PayloadDescription</key>
+        <string>Configures CardDAV account</string>
+
+        <key>PayloadIdentifier</key>
+        <string>com.etesync.ios.carddav</string>
+
+        <key>PayloadType</key>
+        <string>com.apple.carddav.account</string>
+
+        <key>PayloadUUID</key>
+        <string>83f2618b-c486-4c1b-8a6d-9c285d72cf96</string>
+
+       <key>PayloadVersion</key>
+       <integer>1</integer>
+    </dict>
+    <dict>
+        <key>CalDAVAccountDescription</key>
+        <string>etesync</string>
+
+        <key>CalDAVHostName</key>
+        <string>127.0.0.1</string>
+
+        <key>CalDAVUsername</key>
+        <string>etesync</string>
+
+        <key>CalDAVPassword</key>
+        <string>etesync</string>
+
+        <key>PayloadDescription</key>
+        <string>Configures CalDAV account</string>
+
+        <key>PayloadIdentifier</key>
+        <string>com.etesync.ios.caldav</string>
+
+        <key>PayloadType</key>
+        <string>com.apple.caldav.account</string>
+
+        <key>PayloadUUID</key>
+        <string>83f2618b-c486-4c1b-8a6d-9c285d72cf95</string>
+
+       <key>PayloadVersion</key>
+       <integer>1</integer>
+    </dict>
+    </array>
+</dict>
+</plist>
