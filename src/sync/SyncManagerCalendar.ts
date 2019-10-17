@@ -21,7 +21,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
   return _entryNativeHashCalc(entry, ['lastModifiedDate']);
 }
 
-export abstract class SyncManagerCalendarBase extends SyncManagerBase {
+export abstract class SyncManagerCalendarBase<T extends PimType> extends SyncManagerBase<T> {
   protected abstract collectionType: string;
   protected abstract entityType: string;
 
@@ -88,7 +88,7 @@ export abstract class SyncManagerCalendarBase extends SyncManagerBase {
 }
 
 
-export class SyncManagerCalendar extends SyncManagerCalendarBase {
+export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType> {
   protected collectionType = 'CALENDAR';
   protected entityType = Calendar.EntityTypes.EVENT;
 
@@ -171,7 +171,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase {
           const syncEntry = new EteSync.SyncEntry();
           syncEntry.action = EteSync.SyncEntryAction.Delete;
           for (const entry of syncJournal.entries.reverse()) {
-            const event = this.pimItemFromSyncEntry(entry) as EventType;
+            const event = this.pimItemFromSyncEntry(entry);
             if (event.uid === syncStateEntry.uid) {
               syncEntry.content = event.toIcal();
               syncEntries.push(syncEntry);
@@ -198,12 +198,12 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase {
     }
   }
 
-  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType {
+  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry) {
     return EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const event = this.pimItemFromSyncEntry(syncEntry) as EventType;
+    const event = this.pimItemFromSyncEntry(syncEntry);
     const nativeEvent = eventVobjectToNative(event);
     let syncStateEntry = syncStateEntries.get(event.uid);
     switch (syncEntry.action) {

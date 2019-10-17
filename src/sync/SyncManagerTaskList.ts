@@ -6,7 +6,7 @@ import { SyncInfo } from '../SyncGate';
 import { SyncStateJournalEntryData } from '../store';
 
 import { taskVobjectToNative, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
-import { PimType, TaskType } from '../pim-types';
+import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
 
@@ -14,7 +14,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
   return _entryNativeHashCalc(entry, ['lastModifiedDate']);
 }
 
-export class SyncManagerTaskList extends SyncManagerCalendarBase {
+export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType> {
   protected collectionType = 'TASKS';
   protected entityType = Calendar.EntityTypes.REMINDER;
 
@@ -22,12 +22,12 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase {
     // FIXME: implement
   }
 
-  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType {
+  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry) {
     return TaskType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const task = this.pimItemFromSyncEntry(syncEntry) as TaskType;
+    const task = this.pimItemFromSyncEntry(syncEntry);
     const nativeReminder = taskVobjectToNative(task);
     let syncStateEntry = syncStateEntries.get(task.uid);
     switch (syncEntry.action) {

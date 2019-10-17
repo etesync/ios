@@ -21,7 +21,7 @@ import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyn
  * Need to map between local calendar IDs and EteSync journal UIDs - probably there also keep the lastSyncUid.
  */
 // XXX should probably be a singleton, or at least one per user - though maybe should be handled externally
-export abstract class SyncManagerBase {
+export abstract class SyncManagerBase<T extends PimType> {
   protected etesync: CredentialsData;
   protected userInfo: EteSync.UserInfo;
   protected collectionType: string;
@@ -185,7 +185,7 @@ export abstract class SyncManagerBase {
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(syncInfo: SyncInfo): Promise<void>;
 
-  protected abstract pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): PimType;
+  protected abstract pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): T;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 
