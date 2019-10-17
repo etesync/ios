@@ -41,6 +41,7 @@ function usePermissions(): boolean {
 }
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
+  const dispatch = useDispatch();
   const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
   const { settings } = useSelector(
@@ -50,6 +51,11 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   );
   const SyncGate = useSyncGate();
   const hasPermissions = usePermissions();
+
+  React.useMemo(() => {
+    const syncManager = SyncManager.getManager(etesync);
+    dispatch(performSync(syncManager.sync()));
+  }, [etesync]);
 
   if (!hasPermissions) {
     // FIXME: show an error message + a button to give permissions
