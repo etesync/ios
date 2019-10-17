@@ -7,7 +7,7 @@ import { syncInfoSelector } from '../SyncHandler';
 import { store, EntriesType, JournalsType, UserInfoType, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
-// import { SyncManagerAddressBook } from './SyncManagerAddressBook';
+import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
 
 import * as sjcl from 'sjcl';
@@ -86,8 +86,9 @@ export class SyncManager {
     const syncStateEntries = storeState.sync.stateEntries;
     const syncInfo = await syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
-    // FIXME: also sync address book
-    for (const syncManager of [new SyncManagerCalendar(this.etesync)]) {
+    // FIXME: make the sync parallel.
+    const managers = [SyncManagerCalendar, SyncManagerAddressBook];
+    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync))) {
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     }
