@@ -25,7 +25,7 @@ The app is work-in-progress and incomplete. Here's a short list of things that a
 3. Many buttons are just stubs and don't actually work.
 4. Only calendars are currently synced to the device, the rest are just visible in the change log.
 5. Everything is read-only at the moment. As in, you are able to edit/add calendar events but it won't actually sync the changes!
-6. Sync is only trigger when you open the app and when you manually click the sync button. Not automatically in the background.
+6. Sync is only triggered when you open the app and when you manually click the sync button. It doesn't yet sync automatically in the background.
 7. Some parts have not been designed yet.
 
 # Setup
