@@ -84,6 +84,10 @@ declare module 'ical.js' {
     public timezone: string;
     public zone: Timezone;
 
+    public year: number;
+    public month: number;
+    public day: number;
+
     constructor(data?: TimeJsonData);
     public compare(aOther: Time): number;
 

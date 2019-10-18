@@ -36,7 +36,16 @@ function timeVobjectToNative(time: ICAL.Time) {
     return undefined;
   }
 
-  return time.toJSDate();
+  if (time.isDate) {
+
+    const ret = new Date(0);
+    ret.setUTCFullYear(time.year);
+    ret.setUTCMonth(time.month - 1);
+    ret.setUTCDate(time.day);
+    return ret;
+  } else {
+    return time.toJSDate();
+  }
 }
 
 function eventAlarmVobjectToNative(alarm: ICAL.Component) {
