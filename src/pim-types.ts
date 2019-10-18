@@ -1,9 +1,40 @@
 import * as ICAL from 'ical.js';
+import * as zones from './data/zones.json';
 
 export interface PimType {
   uid: string;
   toIcal(): string;
   clone(): PimType;
+}
+
+export function timezoneLoadFromName(timezone: string) {
+  let zone = zones.zones[timezone];
+  if (!zone && zones.aliases[timezone]) {
+    zone = zones.zones[zones.aliases[timezone]];
+  }
+
+  if (!zone) {
+    return null;
+  }
+
+  if (ICAL.TimezoneService.has(timezone)) {
+    return ICAL.TimezoneService.get(timezone);
+  }
+
+  const component = new ICAL.Component('vtimezone');
+  zone.ics.forEach((zonePart: string) => {
+    component.addSubcomponent(new ICAL.Component(ICAL.parse(zonePart)));
+  });
+  component.addPropertyWithValue('tzid', timezone);
+
+  const retZone = new ICAL.Timezone({
+    component,
+    tzid: timezone,
+  });
+
+  ICAL.TimezoneService.register(timezone, retZone);
+
+  return retZone;
 }
 
 export class EventType extends ICAL.Event implements PimType {
@@ -12,7 +43,10 @@ export class EventType extends ICAL.Event implements PimType {
   }
 
   public static fromVCalendar(comp: ICAL.Component) {
-    return new EventType(comp.getFirstSubcomponent('vevent'));
+    const event = new EventType(comp.getFirstSubcomponent('vevent'));
+    // FIXME: we need to clone it so it loads the correct timezone and applies it
+    timezoneLoadFromName(event.timezone);
+    return event.clone();
   }
 
   public color: string;
@@ -73,7 +107,10 @@ export enum TaskStatusType {
 
 export class TaskType extends EventType {
   public static fromVCalendar(comp: ICAL.Component) {
-    return new TaskType(comp.getFirstSubcomponent('vtodo'));
+    const task = new TaskType(comp.getFirstSubcomponent('vtodo'));
+    // FIXME: we need to clone it so it loads the correct timezone and applies it
+    timezoneLoadFromName(task.timezone);
+    return task.clone();
   }
 
   public color: string;

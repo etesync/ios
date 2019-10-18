@@ -96,6 +96,7 @@ declare module 'ical.js' {
     public addDuration(aDuration: Duration): void;
     public subtractDateTz(aDate: Time): Duration;
 
+    public toUnixTime(): number;
     public toJSDate(): Date;
     public toJSON(): TimeJsonData;
   }
@@ -111,6 +112,7 @@ declare module 'ical.js' {
   }
 
   class Timezone {
+    static public utcTimezone: Timezone;
     static public localTimezone: Timezone;
     static public convert_time(tt: Time, fromZone: Timezone, toZone: Timezone): Time;
 

@@ -4,9 +4,7 @@ import * as ICAL from 'ical.js';
 import * as sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-import { ContactType, EventType, TaskType } from '../pim-types';
-
-import * as zones from '../data/zones.json';
+import { ContactType, EventType, TaskType, timezoneLoadFromName } from '../pim-types';
 
 export interface NativeEvent extends Calendar.Event {
   uid: string; // This is the EteSync UUID for the event
@@ -31,6 +29,14 @@ export function entryNativeHashCalc(_entry: {uid: string}, ignoreKeys: string[] 
     sha.update(entry[key]);
   });
   return sjcl.codec.hex.fromBits(sha.finalize());
+}
+
+function timeVobjectToNative(time: ICAL.Time) {
+  if (!time) {
+    return undefined;
+  }
+
+  return time.toJSDate();
 }
 
 function eventAlarmVobjectToNative(alarm: ICAL.Component) {
@@ -92,8 +98,8 @@ export function eventVobjectToNative(event: EventType) {
     uid: event.uid,
     title: event.title || '',
     allDay,
-    startDate: event.startDate.toJSDate(),
-    endDate: endDate.toJSDate(),
+    startDate: timeVobjectToNative(event.startDate),
+    endDate: timeVobjectToNative(endDate),
     location: event.location || '',
     notes: event.description || '',
     alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
@@ -108,10 +114,10 @@ export function taskVobjectToNative(task: TaskType) {
   const ret: NativeTask = {
     uid: task.uid,
     title: task.title || '',
-    startDate: task.startDate && task.startDate.toJSDate() || undefined,
-    dueDate: task.dueDate && task.dueDate.toJSDate() || undefined,
+    startDate: timeVobjectToNative(task.startDate),
+    dueDate: timeVobjectToNative(task.dueDate),
     completed: task.finished,
-    completionDate: task.completionDate && task.completionDate.toJSDate() || undefined,
+    completionDate: timeVobjectToNative(task.completionDate),
     location: task.location || '',
     notes: task.description || '',
     alarms: task.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
@@ -282,34 +288,4 @@ export function contactVobjectToNative(contact: ContactType) {
   }
 
   return ret;
-}
-
-function timezoneLoadFromName(timezone: string) {
-  let zone = zones.zones[timezone];
-  if (!zone && zones.aliases[timezone]) {
-    zone = zones.zones[zones.aliases[timezone]];
-  }
-
-  if (!zone) {
-    return null;
-  }
-
-  if (ICAL.TimezoneService.has(timezone)) {
-    return ICAL.TimezoneService.get(timezone);
-  }
-
-  const component = new ICAL.Component('vtimezone');
-  zone.ics.forEach((zonePart: string) => {
-    component.addSubcomponent(new ICAL.Component(ICAL.parse(zonePart)));
-  });
-  component.addPropertyWithValue('tzid', timezone);
-
-  const retZone = new ICAL.Timezone({
-    component,
-    tzid: timezone,
-  });
-
-  ICAL.TimezoneService.register(timezone, retZone);
-
-  return retZone;
 }
