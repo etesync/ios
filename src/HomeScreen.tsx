@@ -55,9 +55,11 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   React.useMemo(() => {
     const syncManager = SyncManager.getManager(etesync);
     dispatch(performSync(syncManager.sync()));
-
-    moment.locale(settings.locale);
   }, [etesync]);
+
+  React.useMemo(() => {
+    moment.locale(settings.locale);
+  }, [settings.locale]);
 
   if (!hasPermissions) {
     // FIXME: show an error message + a button to give permissions
