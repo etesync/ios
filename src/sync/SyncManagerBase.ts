@@ -28,8 +28,9 @@ export abstract class SyncManagerBase<T extends PimType> {
   protected syncStateJournals: SyncStateJournalData;
   protected syncStateEntries: SyncStateEntryData;
 
-  constructor(etesync: CredentialsData) {
+  constructor(etesync: CredentialsData, userInfo: EteSync.UserInfo) {
     this.etesync = etesync;
+    this.userInfo = userInfo;
   }
 
   public async init() {
