@@ -34,7 +34,7 @@ The app is not yet on the app store so can't be installed directly, but we can u
 
 Setup insturctions:
 1. Install the [Expo Client](https://apps.apple.com/us/app/expo-client/id982107779) app on your iPhone.
-2. Add CalDAV and CarDAV accounts to your iPhone as explained in [this video](https://stosb.com/~tom/ios_add_accounts.mp4).
+2. Add CalDAV and CarDAV accounts to your iPhone as explained in [this video](https://stosb.com/~tom/ios_add_accounts.mp4). The account description most be exactly `etesync` otherwise sync won't work.
 3. Click on the link in [this page](https://stosb.com/~tom/expo.html) on your iPhone to launch the EteSync app in expo.
 
 After doing the above you can now just launch the EteSync app directly from the Projects tab of the expo app. That's it!
