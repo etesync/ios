@@ -9,7 +9,7 @@ import * as EteSync from '../api/EteSync';
 import {
   JournalsData, FetchType, EntriesData, EntriesFetchRecord, UserInfoData, JournalsFetchRecord, UserInfoFetchRecord,
   CredentialsTypeRemote, JournalsType, EntriesType, UserInfoType, SettingsType,
-  fetchCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer,
+  fetchCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer,
 } from './reducers';
 
 export interface StoreState {
@@ -25,6 +25,9 @@ export interface StoreState {
     journals: JournalsType;
     entries: EntriesType;
     userInfo: UserInfoType;
+
+    syncInfoCollection: SyncInfoCollectionData,
+    syncInfoItem: SyncInfoItemData,
   };
 }
 
@@ -116,6 +119,8 @@ const cacheSerialize = (state: any, key: string) => {
     return journalsSerialize(state.value);
   } else if (key === 'userInfo') {
     return userInfoSerialize(state);
+  } else if ((key === 'syncInfoCollection') || (key === 'syncInfoItem')) {
+    return state.toJS();
   }
 
   return state;
@@ -132,6 +137,12 @@ const cacheDeserialize = (state: any, key: string) => {
     return new JournalsFetchRecord({value: journalsDeserialize(state)});
   } else if (key === 'userInfo') {
     return new UserInfoFetchRecord({value: userInfoDeserialize(state)});
+  } else if (key === 'syncInfoCollection') {
+    return ImmutableMap(state);
+  } else if (key === 'syncInfoItem') {
+    return ImmutableMap(state).map((syncStateEntry: any) => {
+      return ImmutableMap(syncStateEntry);
+    });
   }
 
   return state;
@@ -193,6 +204,9 @@ const reducers = combineReducers({
     entries,
     journals,
     userInfo,
+
+    syncInfoCollection: syncInfoCollectionReducer,
+    syncInfoItem: syncInfoItemReducer,
   })),
 });
 

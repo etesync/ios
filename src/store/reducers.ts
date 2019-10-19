@@ -66,6 +66,12 @@ export interface SyncStateEntry extends BaseModel {
 export type SyncStateJournalEntryData = ImmutableMap<string, SyncStateEntry>;
 export type SyncStateEntryData = ImmutableMap<string, SyncStateJournalEntryData>;
 
+
+export type SyncInfoItem = EteSync.SyncEntry & BaseModel;
+export type SyncInfoItemData = ImmutableMap<string, ImmutableMap<string, SyncInfoItem>>;
+export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo>;
+
+
 const shallowCompare = (obj1: {[key: string]: any}, obj2: {[key: string]: any}) => {
   return (
     Object.keys(obj1).length === Object.keys(obj2).length &&
@@ -278,13 +284,57 @@ export const userInfo = handleAction(
   new UserInfoFetchRecord()
 );
 
+function simpleMapReducer<TypeData extends ImmutableMap<string, TypeItem>, TypeItem extends BaseModel>(suffix: string) {
+  const _actions: {[key: string]: string} = actions as any;
+  return {
+    [_actions['set' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+      const syncStateJournal = action.payload;
+      const current = state.get(syncStateJournal.uid);
+      if (!current || !shallowCompare(current, syncStateJournal)) {
+        return state.set(syncStateJournal.uid, syncStateJournal);
+      }
+
+      return state;
+    },
+    [_actions['unset' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+      const syncStateJournal = action.payload;
+      return state.remove(syncStateJournal.uid);
+    },
+  };
+}
+
+function simpleMapMapReducer<TypeData extends ImmutableMap<string, ImmutableMap<string, TypeItem>>, TypeItem extends BaseModel>(suffix: string) {
+  const _actions: {[key: string]: string} = actions as any;
+  return {
+    [_actions['set' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+      const syncStateEntry = action.payload;
+      const mainKey = (action as any).meta as string;
+      if (!state.has(mainKey)) {
+        state.set(mainKey, ImmutableMap({}));
+      }
+      return state.setIn([mainKey, syncStateEntry.uid], syncStateEntry);
+    },
+    [_actions['unset' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+      const syncStateEntry = action.payload;
+      const mainKey = (action as any).meta as string;
+      return state.deleteIn([mainKey, syncStateEntry.uid]);
+    },
+  };
+}
+
+
 export const syncStateJournalReducer = handleActions(
   {
-    [actions.setSyncStateJournal.toString()]: (state: SyncStateJournalData, action: Action<SyncStateJournal>) => {
-      const syncStateJournal = action.payload;
-      return state.set(syncStateJournal.uid, syncStateJournal);
-    },
-    [actions.unsetSyncStateJournal.toString()]: (state: SyncStateJournalData, action: Action<SyncStateJournal>) => {
+    ...simpleMapReducer<SyncStateJournalData, SyncStateJournal>('SyncStateJournal'),
+  },
+  ImmutableMap({})
+);
+
+export const syncStateEntryReducer = handleActions(
+  {
+    ...simpleMapMapReducer<SyncStateEntryData, SyncStateEntry>('SyncStateEntry'),
+    [actions.unsetSyncStateJournal.toString()]: (state: SyncStateEntryData, _action: Action<any>) => {
+      const action: Action<SyncStateJournal> = _action; // Required because for some reason the typing fails if not the case.
       const syncStateJournal = action.payload;
       return state.remove(syncStateJournal.uid);
     },
@@ -292,20 +342,19 @@ export const syncStateJournalReducer = handleActions(
   ImmutableMap({})
 );
 
-export const syncStateEntryReducer = handleActions(
+
+export const syncInfoCollectionReducer = handleActions(
   {
-    [actions.setSyncStateEntry.toString()]: (state: SyncStateEntryData, action: Action<SyncStateEntry>) => {
-      const syncStateEntry = action.payload;
-      const journalUid = (action as any).meta as string;
-      return state.setIn([journalUid, syncStateEntry.uid], syncStateEntry);
-    },
-    [actions.unsetSyncStateEntry.toString()]: (state: SyncStateEntryData, action: Action<SyncStateEntry>) => {
-      const syncStateEntry = action.payload;
-      const journalUid = (action as any).meta as string;
-      return state.deleteIn([journalUid, syncStateEntry.uid]);
-    },
-    [actions.unsetSyncStateJournal.toString()]: (state: SyncStateEntryData, _action: Action<any>) => {
-      const action: Action<SyncStateJournal> = _action; // Required because for some reason the typing fails if not the case.
+    ...simpleMapReducer<SyncInfoCollectionData, EteSync.CollectionInfo>('SyncInfoCollection'),
+  },
+  ImmutableMap({})
+);
+
+export const syncInfoItemReducer = handleActions(
+  {
+    ...simpleMapMapReducer<SyncInfoItemData, SyncInfoItem>('SyncInfoItem'),
+    [actions.unsetSyncInfoCollection.toString()]: (state: SyncInfoItemData, _action: Action<any>) => {
+      const action: Action<EteSync.CollectionInfo> = _action; // Required because for some reason the typing fails if not the case.
       const syncStateJournal = action.payload;
       return state.remove(syncStateJournal.uid);
     },

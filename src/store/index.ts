@@ -25,6 +25,10 @@ if (__DEV__) {
     actions.unsetSyncStateJournal.toString(),
     actions.setSyncStateEntry.toString(),
     actions.unsetSyncStateEntry.toString(),
+    actions.setSyncInfoCollection.toString(),
+    actions.unsetSyncInfoCollection.toString(),
+    actions.setSyncInfoItem.toString(),
+    actions.unsetSyncInfoItem.toString(),
   ];
 
   const predicate = (_: any, action: { type: string }) => {

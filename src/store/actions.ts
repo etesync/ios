@@ -3,7 +3,7 @@ import { Action, createAction, createActions } from 'redux-actions';
 import * as EteSync from '../api/EteSync';
 import { UserInfo } from '../api/EteSync';
 
-import { CredentialsData, EntriesType, SettingsType, SyncStateJournal, SyncStateEntry } from './';
+import { CredentialsData, EntriesType, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 
 export const { fetchCredentials, logout } = createActions({
   FETCH_CREDENTIALS: (username: string, password: string, server: string) => {
@@ -193,6 +193,43 @@ export const unsetSyncStateEntry = createAction(
     return journalUid;
   }
 );
+
+
+export const setSyncInfoCollection = createAction(
+  'SET_SYNC_INFO_COLLECTION',
+  (etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
+    return { ...syncInfoCollection };
+  }
+);
+
+export const unsetSyncInfoCollection = createAction(
+  'UNSET_SYNC_INFO_COLLECTION',
+  (etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
+    return { ...syncInfoCollection };
+  }
+);
+
+
+export const setSyncInfoItem = createAction(
+  'SET_SYNC_INFO_ITEM',
+  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+    return { ...syncInfoItem };
+  },
+  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+    return journalUid;
+  }
+);
+
+export const unsetSyncInfoItem = createAction(
+  'UNSET_SYNC_INFO_ITEM',
+  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+    return { ...syncInfoItem };
+  },
+  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+    return journalUid;
+  }
+);
+
 
 export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesType, journal: EteSync.Journal) {
   return (dispatch: any) => {
