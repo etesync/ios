@@ -44,7 +44,7 @@ Now you can just open the app and log in! Wait, it takes time. As long as the bu
 
 # Thanks
 
-<p>Etesync iOS is made possible with financial support from <a
+<p>EteSync iOS is made possible with financial support from <a
 href="https://nlnet.nl/">NLnet Foundation</a>, courtesy of <a
 href="https://nlnet.nl/discovery">NGI0 Discovery<a/> and the <a
 href="https://ec.europa.eu">European Commission</a> <a
