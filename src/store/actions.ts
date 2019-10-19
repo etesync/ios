@@ -248,20 +248,15 @@ export function fetchJournalEntries(etesync: CredentialsData, currentEntries: En
 export function fetchAll(etesync: CredentialsData, currentEntries: EntriesType) {
   return (dispatch: any) => {
     return new Promise<boolean>((resolve, reject) => {
-      dispatch(fetchListJournal(etesync)).then(async (journalsAction: Action<EteSync.Journal[]>) => {
+      dispatch(fetchListJournal(etesync)).then((journalsAction: Action<EteSync.Journal[]>) => {
         const journals = journalsAction.payload;
         if (!journals || (journals.length === 0)) {
           resolve(false);
         }
 
-        try {
-          await Promise.all(journals.map((journal) => {
-            dispatch(fetchJournalEntries(etesync, currentEntries, journal));
-          }));
-          resolve(true);
-        } catch (e) {
-          reject(e);
-        }
+        Promise.all(journals.map((journal) => {
+          dispatch(fetchJournalEntries(etesync, currentEntries, journal));
+        })).then(() => resolve(true)).catch(reject);
       }).catch(reject);
     });
   };
