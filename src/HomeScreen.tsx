@@ -17,12 +17,10 @@ import { performSync } from './store/actions';
 
 import { useCredentials } from './login';
 import { useSyncGate } from './SyncGate';
-import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
 
 import { logger } from './logging';
 
-import SyncTempComponent from './sync/SyncTestComponent';
 
 function usePermissions(): boolean {
   const [hasPermissions, setHasPermissions] = React.useState(false);
@@ -42,7 +40,6 @@ function usePermissions(): boolean {
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const dispatch = useDispatch();
-  const syncInfo = useSyncInfo();
   const etesync = useCredentials().value;
   const { settings } = useSelector(
     (state: StoreState) => ({
@@ -68,18 +65,6 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 
   if (SyncGate) {
     return SyncGate;
-  }
-
-  if (false) {
-    if (!syncInfo) {
-      return <React.Fragment />;
-    }
-
-    return (
-      <SyncTempComponent
-        etesync={etesync}
-      />
-    );
   }
 
   return (
