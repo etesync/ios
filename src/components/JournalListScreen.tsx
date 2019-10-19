@@ -16,7 +16,7 @@ import ColorBox from '../widgets/ColorBox';
 
 export default function JournalListScreen() {
   const syncInfo = useSyncInfo();
-  const etesync = useCredentials().value;
+  const etesync = useCredentials();
   const derived = etesync.encryptionKey;
   const navigation = useNavigation();
   const theme = useTheme();

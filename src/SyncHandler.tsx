@@ -9,7 +9,7 @@ import { createSelector } from 'reselect';
 import * as EteSync from './api/EteSync';
 import { byte } from './api/Helpers';
 
-import { store, JournalsType, EntriesType, StoreState, CredentialsData, UserInfoType } from './store';
+import { store, JournalsData, EntriesData, StoreState, CredentialsData, UserInfoData } from './store';
 import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from './store/actions';
 
 import { useCredentials } from './login';
@@ -26,16 +26,16 @@ export type SyncInfo = Map<string, SyncInfoJournal>;
 
 interface SyncInfoSelectorProps {
   etesync: CredentialsData;
-  journals: JournalsType;
-  entries: EntriesType;
-  userInfo: UserInfoType;
+  journals: JournalsData;
+  entries: EntriesData;
+  userInfo: UserInfoData;
 }
 
 export const syncInfoSelector = createSelector(
   (props: SyncInfoSelectorProps) => props.etesync,
-  (props: SyncInfoSelectorProps) => props.journals.value!,
+  (props: SyncInfoSelectorProps) => props.journals,
   (props: SyncInfoSelectorProps) => props.entries,
-  (props: SyncInfoSelectorProps) => props.userInfo.value!,
+  (props: SyncInfoSelectorProps) => props.userInfo,
   (etesync, journals, entries, userInfo) => {
     const syncInfoCollection = store.getState().cache.syncInfoCollection;
     const syncInfoItem = store.getState().cache.syncInfoItem;
@@ -57,7 +57,7 @@ export const syncInfoSelector = createSelector(
       const journalEntries = entries.get(journal.uid);
       let prevUid: string | null = null;
 
-      if (!journalEntries || !journalEntries.value) {
+      if (!journalEntries) {
         return;
       }
 
@@ -77,7 +77,7 @@ export const syncInfoSelector = createSelector(
       const collectionInfo = journal.getInfo(cryptoManager);
       store.dispatch(setSyncInfoCollection(etesync, collectionInfo));
 
-      const syncEntries = journalEntries.value.map((entry: EteSync.Entry) => {
+      const syncEntries = journalEntries.map((entry: EteSync.Entry) => {
         const cacheEntry = syncInfoItem.getIn([journal.uid, entry.uid]);
         if (cacheEntry) {
           return cacheEntry;
@@ -94,7 +94,7 @@ export const syncInfoSelector = createSelector(
         collection: collectionInfo,
         journal,
         derivedJournalKey,
-        journalEntries: journalEntries.value,
+        journalEntries,
       });
     });
 
@@ -109,7 +109,7 @@ export const syncInfoSelector = createSelector(
 );
 
 export function useSyncInfo() {
-  const etesync = useCredentials().value;
+  const etesync = useCredentials();
 
   const { journals, entries, userInfo } = useSelector(
     (state: StoreState) => ({
@@ -120,7 +120,7 @@ export function useSyncInfo() {
   );
 
   return React.useMemo(() => {
-    if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x.value !== null))) {
+    if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x !== null))) {
       return syncInfoSelector({ etesync, journals, entries, userInfo });
     } else {
       return null;

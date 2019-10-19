@@ -4,27 +4,21 @@ import { createSelector } from 'reselect';
 import * as store from '../store';
 
 const credentialsSelector = createSelector(
-  (state: store.StoreState) => state.credentials.value,
-  (state: store.StoreState) => state.credentials.error,
-  (state: store.StoreState) => state.credentials.fetching,
+  (state: store.StoreState) => state.credentials,
   (state: store.StoreState) => state.encryptionKey.key,
-  (value, error, fetching, encryptionKey) => {
-    if (value === null) {
-      return {value, error, fetching};
+  (credentials, encryptionKey) => {
+    if (!credentials.credentials) {
+      return null;
     }
 
-    return {
-      error,
-      fetching,
-      value: {
-        ...value,
-        encryptionKey,
-      },
-    } as store.CredentialsType;
+    const ret: store.CredentialsData = {
+      ...credentials,
+      encryptionKey,
+    };
+    return ret;
   }
 );
 
 export function useCredentials() {
-  // FIXME: why is the cast needed?
-  return useSelector(credentialsSelector) as store.CredentialsType;
+  return useSelector(credentialsSelector);
 }

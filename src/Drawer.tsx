@@ -52,7 +52,7 @@ const externalMenuItems = [
 function Drawer() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const etesync = useCredentials().value;
+  const etesync = useCredentials();
 
   return (
     <>

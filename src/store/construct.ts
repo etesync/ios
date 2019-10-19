@@ -7,14 +7,14 @@ import { List, Map as ImmutableMap } from 'immutable';
 
 import * as EteSync from '../api/EteSync';
 import {
-  JournalsData, FetchType, EntriesData, EntriesFetchRecord, UserInfoData, JournalsFetchRecord, UserInfoFetchRecord,
-  CredentialsTypeRemote, JournalsType, EntriesType, UserInfoType, SettingsType,
+  JournalsData, EntriesData, UserInfoData,
+  CredentialsDataRemote, SettingsType,
   fetchCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer,
 } from './reducers';
 
 export interface StoreState {
   fetchCount: number;
-  credentials: CredentialsTypeRemote;
+  credentials: CredentialsDataRemote;
   settings: SettingsType;
   encryptionKey: {key: string};
   sync: {
@@ -22,9 +22,9 @@ export interface StoreState {
     stateEntries: SyncStateEntryData;
   };
   cache: {
-    journals: JournalsType;
-    entries: EntriesType;
-    userInfo: UserInfoType;
+    journals: JournalsData;
+    entries: EntriesData;
+    userInfo: UserInfoData;
 
     syncInfoCollection: SyncInfoCollectionData,
     syncInfoItem: SyncInfoItemData,
@@ -39,7 +39,6 @@ const settingsPersistConfig = {
 const credentialsPersistConfig = {
   key: 'credentials',
   storage: AsyncStorage,
-  whitelist: ['value'],
 };
 
 const encryptionKeyPersistConfig = {
@@ -55,47 +54,47 @@ const journalsSerialize = (state: JournalsData) => {
   return state.map((x, uid) => x.serialize()).toJS();
 };
 
-const journalsDeserialize = (state: {}) => {
+const journalsDeserialize = (state: []) => {
   if (state === null) {
     return null;
   }
 
-  const newState = new Map<string, EteSync.Journal>();
+  const newState = ImmutableMap<string, EteSync.Journal>().asMutable();
   Object.keys(state).forEach((uid) => {
     const x = state[uid];
     const ret = new EteSync.Journal(x.version);
     ret.deserialize(x);
     newState.set(uid, ret);
   });
-  return ImmutableMap(newState);
+  return newState.asImmutable();
 };
 
-const entriesSerialize = (state: FetchType<EntriesData>) => {
-  if ((state === null) || (state.value == null)) {
+const entriesSerialize = (state: List<EteSync.Entry>) => {
+  if (state === null) {
     return null;
   }
 
-  return state.value.map((x) => x.serialize()).toJS();
+  return state.map((x) => x.serialize()).toJS();
 };
 
-const entriesDeserialize = (state: EteSync.EntryJson[]): FetchType<EntriesData> => {
+const entriesDeserialize = (state: EteSync.EntryJson[]): List<EteSync.Entry> => {
   if (state === null) {
-    return new EntriesFetchRecord({value: null});
+    return null;
   }
 
-  return new EntriesFetchRecord({value: List(state.map((x: any) => {
+  return List(state.map((x: any) => {
     const ret = new EteSync.Entry();
     ret.deserialize(x);
     return ret;
-  }))});
+  }));
 };
 
-const userInfoSerialize = (state: FetchType<UserInfoData>) => {
-  if ((state === null) || (state.value == null)) {
+const userInfoSerialize = (state: UserInfoData) => {
+  if (state === null) {
     return null;
   }
 
-  return state.value.serialize();
+  return state.serialize();
 };
 
 const userInfoDeserialize = (state: EteSync.UserInfoJson) => {
@@ -111,12 +110,12 @@ const userInfoDeserialize = (state: EteSync.UserInfoJson) => {
 const cacheSerialize = (state: any, key: string) => {
   if (key === 'entries') {
     const ret = {};
-    state.forEach((value: FetchType<EntriesData>, mapKey: string) => {
+    state.forEach((value: List<EteSync.Entry>, mapKey: string) => {
       ret[mapKey] = entriesSerialize(value);
     });
     return ret;
   } else if (key === 'journals') {
-    return journalsSerialize(state.value);
+    return journalsSerialize(state);
   } else if (key === 'userInfo') {
     return userInfoSerialize(state);
   } else if ((key === 'syncInfoCollection') || (key === 'syncInfoItem')) {
@@ -134,9 +133,9 @@ const cacheDeserialize = (state: any, key: string) => {
     });
     return ImmutableMap(ret);
   } else if (key === 'journals') {
-    return new JournalsFetchRecord({value: journalsDeserialize(state)});
+    return journalsDeserialize(state);
   } else if (key === 'userInfo') {
-    return new UserInfoFetchRecord({value: userInfoDeserialize(state)});
+    return userInfoDeserialize(state);
   } else if (key === 'syncInfoCollection') {
     return ImmutableMap(state);
   } else if (key === 'syncInfoItem') {

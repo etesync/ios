@@ -4,7 +4,7 @@ import { Action } from 'redux-actions';
 import { CURRENT_VERSION } from '../api/Constants';
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, EntriesType, JournalsType, UserInfoType, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { SyncManagerAddressBook } from './SyncManagerAddressBook';
@@ -80,9 +80,9 @@ export class SyncManager {
     await this.fetchAllJournals();
 
     const storeState = store.getState();
-    const entries = storeState.cache.entries as unknown as EntriesType;
-    const journals = storeState.cache.journals as unknown as JournalsType;
-    const userInfo = storeState.cache.userInfo as unknown as UserInfoType;
+    const entries = storeState.cache.entries;
+    const journals = storeState.cache.journals;
+    const userInfo = storeState.cache.userInfo;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
     const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
@@ -90,7 +90,7 @@ export class SyncManager {
     // FIXME: make the sync parallel.
     const managers = [SyncManagerCalendar, SyncManagerTaskList, SyncManagerAddressBook];
     managers.pop(); // FIXME: Removing the address book as it's not yet supported.
-    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo.value))) {
+    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     }

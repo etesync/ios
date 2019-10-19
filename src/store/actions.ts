@@ -3,7 +3,7 @@ import { Action, createAction, createActions } from 'redux-actions';
 import * as EteSync from '../api/EteSync';
 import { UserInfo } from '../api/EteSync';
 
-import { CredentialsData, EntriesType, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
+import { CredentialsData, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 
 export const { fetchCredentials, logout } = createActions({
   FETCH_CREDENTIALS: (username: string, password: string, server: string) => {
@@ -231,12 +231,12 @@ export const unsetSyncInfoItem = createAction(
 );
 
 
-export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesType, journal: EteSync.Journal) {
+export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesData, journal: EteSync.Journal) {
   return (dispatch: any) => {
     let prevUid: string | null = null;
     const entries = currentEntries.get(journal.uid);
-    if (entries && entries.value) {
-      const last = entries.value.last() as EteSync.Entry;
+    if (entries && entries) {
+      const last = entries.last() as EteSync.Entry;
       prevUid = (last) ? last.uid : null;
     }
 
@@ -245,7 +245,7 @@ export function fetchJournalEntries(etesync: CredentialsData, currentEntries: En
 }
 
 
-export function fetchAll(etesync: CredentialsData, currentEntries: EntriesType) {
+export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) {
   return (dispatch: any) => {
     return new Promise<boolean>((resolve, reject) => {
       dispatch(fetchListJournal(etesync)).then((journalsAction: Action<EteSync.Journal[]>) => {

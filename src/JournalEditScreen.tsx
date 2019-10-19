@@ -25,7 +25,7 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
   const [_description, setDescription] = React.useState(null as string);
   const syncInfo = useSyncInfo();
   const navigation = useNavigation();
-  const etesync = useCredentials().value;
+  const etesync = useCredentials();
   const loading = false;
 
   if (!syncInfo) {

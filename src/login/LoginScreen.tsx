@@ -17,43 +17,50 @@ import { login, deriveKey } from '../store/actions';
 import * as C from '../constants';
 
 import { useCredentials } from './';
+import { store } from '../store';
 
 const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen() {
   const credentials = useCredentials();
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const [loginError, setLoginError] = React.useState(undefined as Error);
+  const [loading, setLoading] = React.useState(false);
 
   function onFormSubmit(username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) {
     serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
+    setLoading(true);
     dispatch<any>(login(username, password, encryptionPassword, serviceApiUrl)).then(() => {
+      setLoading(false);
       navigation.navigate('App');
+    }).catch((e: any) => {
+      setLoginError(e);
     });
   }
 
   function onEncryptionFormSubmit(encryptionPassword: string) {
-    dispatch<any>(deriveKey(credentials.value!.credentials.email, encryptionPassword)).then(() => {
+    dispatch<any>(deriveKey(credentials.credentials.email, encryptionPassword)).then(() => {
       navigation.navigate('App');
     });
   }
 
   let screenContent: React.ReactNode;
-  if (credentials.value === null) {
+  if (credentials === null) {
     screenContent = (
       <Container>
         <Headline>Please Log In</Headline>
         <LoginForm
           onSubmit={onFormSubmit}
-          error={credentials.error}
-          loading={credentials.fetching}
+          error={loginError}
+          loading={loading}
         />
       </Container>
     );
-  } else if (credentials.value.encryptionKey === null) {
+  } else if (credentials.encryptionKey === null) {
     screenContent = (
       <Container>
         <Headline>Encryption Password</Headline>
         <Paragraph>
-          You are logged in as <Text style={{fontWeight: 'bold'}}>{credentials.value.credentials.email}</Text>.
+          You are logged in as <Text style={{fontWeight: 'bold'}}>{credentials.credentials.email}</Text>.
           Please enter your encryption password to continue, or log out from the side menu.
         </Paragraph>
       <EncryptionLoginForm

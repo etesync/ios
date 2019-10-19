@@ -40,7 +40,7 @@ function usePermissions(): boolean {
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const dispatch = useDispatch();
-  const etesync = useCredentials().value;
+  const etesync = useCredentials();
   const { settings } = useSelector(
     (state: StoreState) => ({
       settings: state.settings,
@@ -73,7 +73,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 });
 
 function RefreshIcon() {
-  const etesync = useCredentials().value;
+  const etesync = useCredentials();
   const dispatch = useDispatch();
   const { fetchCount } = useSelector(
     (state: StoreState) => ({
