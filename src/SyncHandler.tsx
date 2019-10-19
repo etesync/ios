@@ -48,23 +48,24 @@ export const syncInfoSelector = createSelector(
         throw error;
       }
     }
-    const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
-    asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
 
     return journals.reduce(
-      async (promiseRet, journal) => {
-        const ret = await promiseRet;
+      (ret, journal) => {
         const journalEntries = entries.get(journal.uid);
         let prevUid: string | null = null;
 
         if (!journalEntries || !journalEntries.value) {
-          return Promise.resolve(ret);
+          return ret;
         }
 
         let cryptoManager: EteSync.CryptoManager;
         let derivedJournalKey: byte[];
         if (journal.key) {
-          derivedJournalKey = await asymmetricCryptoManager.decryptBytes(journal.key);
+          if (!asymmetricCryptoManager) {
+            const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
+            asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
+          }
+          derivedJournalKey = asymmetricCryptoManager.decryptBytes(journal.key);
           cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
         } else {
           cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
@@ -79,48 +80,35 @@ export const syncInfoSelector = createSelector(
           return syncEntry;
         });
 
-        return Promise.resolve(ret.set(journal.uid, {
+        return ret.set(journal.uid, {
           entries: syncEntries,
           collection: collectionInfo,
           journal,
           derivedJournalKey,
           journalEntries: journalEntries.value,
-        }));
+        });
       },
-      Promise.resolve(Map<string, SyncInfoJournal>())
+      Map<string, SyncInfoJournal>()
     );
   }
 );
 
 export function useSyncInfo() {
-  const [syncInfo, setSyncInfo] = React.useState(null as SyncInfo);
   const etesync = useCredentials().value;
 
-  const selectorParams = useSelector(
+  const { journals, entries, userInfo } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
       entries: state.cache.entries,
       userInfo: state.cache.userInfo,
     })
   );
-  const entries = selectorParams.entries;
 
-  React.useEffect(() => {
+  return React.useMemo(() => {
     if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x.value !== null))) {
-      // FIXME: Hack to make this async. Shouldn't need the timer.
-      const timeout = setTimeout(() => {
-        syncInfoSelector({ etesync, ...selectorParams }).then((newSyncInfo) => {
-          setSyncInfo(newSyncInfo);
-        });
-      }, 10);
-
-      return function cleanup() {
-        clearTimeout(timeout);
-      };
+      return syncInfoSelector({ etesync, journals, entries, userInfo });
+    } else {
+      return null;
     }
-
-    return undefined;
-  });
-
-  return syncInfo;
+  }, [etesync, journals, entries, userInfo]);
 }

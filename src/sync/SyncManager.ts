@@ -85,7 +85,7 @@ export class SyncManager {
     const userInfo = storeState.cache.userInfo as unknown as UserInfoType;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
-    const syncInfo = await syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+    const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
     // FIXME: make the sync parallel.
     const managers = [SyncManagerCalendar, SyncManagerTaskList, SyncManagerAddressBook];
