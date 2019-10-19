@@ -254,9 +254,9 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesType) 
           resolve(false);
         }
 
-        Promise.all(journals.map((journal) => {
-          dispatch(fetchJournalEntries(etesync, currentEntries, journal));
-        })).then(() => resolve(true)).catch(reject);
+        Promise.all(journals.map((journal) => (
+          dispatch(fetchJournalEntries(etesync, currentEntries, journal))
+        ))).then(() => resolve(true)).catch(reject);
       }).catch(reject);
     });
   };
