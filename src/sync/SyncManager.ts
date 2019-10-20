@@ -4,7 +4,7 @@ import { Action } from 'redux-actions';
 import { CURRENT_VERSION } from '../api/Constants';
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { store, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { SyncManagerAddressBook } from './SyncManagerAddressBook';
@@ -81,7 +81,7 @@ export class SyncManager {
 
     const storeState = store.getState();
     const entries = storeState.cache.entries;
-    const journals = storeState.cache.journals;
+    const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
     const userInfo = storeState.cache.userInfo;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
