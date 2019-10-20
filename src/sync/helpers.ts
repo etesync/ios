@@ -114,11 +114,6 @@ export function eventVobjectToNative(event: EventType) {
     alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
     recurrenceRule: eventRruleVobjectToNative(event),
     timeZone: event.timezone || '',
-    // Add these read-only elements just to shush types.
-    id: undefined,
-    calendarId: undefined,
-    availability: undefined,
-    status: undefined,
   };
 
   return ret;
