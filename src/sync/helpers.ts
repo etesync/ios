@@ -103,7 +103,7 @@ export function eventVobjectToNative(event: EventType) {
     }
   }
 
-  const ret: NativeEvent = {
+  const ret: Partial<NativeEvent> = {
     uid: event.uid,
     title: event.title || '',
     allDay,
