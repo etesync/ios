@@ -75,9 +75,10 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 function RefreshIcon() {
   const etesync = useCredentials();
   const dispatch = useDispatch();
-  const { fetchCount } = useSelector(
+  const { fetchCount, syncCount } = useSelector(
     (state: StoreState) => ({
       fetchCount: state.fetchCount,
+      syncCount: state.syncCount,
     })
   );
 
@@ -87,7 +88,7 @@ function RefreshIcon() {
   }
 
   return (
-    <Appbar.Action icon="refresh" disabled={!etesync || fetchCount > 0} onPress={refresh} />
+    <Appbar.Action icon="refresh" disabled={!etesync || fetchCount > 0 || syncCount > 0} onPress={refresh} />
   );
 }
 

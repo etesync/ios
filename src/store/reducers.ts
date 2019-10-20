@@ -301,7 +301,6 @@ export const syncInfoItemReducer = handleActions(
 );
 
 const fetchActions = [
-  actions.performSync,
 ] as Array<ActionFunctionAny<Action<any>>>;
 
 for (const func in actions) {
@@ -319,6 +318,18 @@ export const fetchCount = handleAction(
   combineActions(
     ...fetchActions
   ),
+  (state: number, action: any) => {
+    if (action.payload === undefined) {
+      return state + 1;
+    } else {
+      return state - 1;
+    }
+  },
+  0
+);
+
+export const syncCount = handleAction(
+  actions.performSync,
   (state: number, action: any) => {
     if (action.payload === undefined) {
       return state + 1;
