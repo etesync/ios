@@ -111,19 +111,20 @@ export const syncInfoSelector = createSelector(
 export function useSyncInfo() {
   const etesync = useCredentials();
 
-  const { journals, entries, userInfo } = useSelector(
+  const { journals, entries, userInfo, fetchCount } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
       entries: state.cache.entries,
       userInfo: state.cache.userInfo,
+      fetchCount: state.fetchCount,
     })
   );
 
   return React.useMemo(() => {
-    if ((entries !== null) && (entries.size > 0) && entries.every((x) => (x !== null))) {
+    if ((entries !== null) && (entries.size > 0) && (fetchCount === 0)) {
       return syncInfoSelector({ etesync, journals, entries, userInfo });
     } else {
       return null;
     }
-  }, [etesync, journals, entries, userInfo]);
+  }, [etesync, journals, entries, userInfo, fetchCount]);
 }
