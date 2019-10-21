@@ -3,7 +3,7 @@
   <h1 align="center">EteSync - Secure Data Sync</h1>
 </p>
 
-**IMPORTANT:** this app is work-in-progress and very much incomplete.
+**IMPORTANT:** this app is under heavy development and is still work in progress. To make sure you don't miss any updates updates: [follow our blog or social media accounts](https://www.etesync.com/#news) or alternatively, [register for email updates](http://eepurl.com/dafYZv).
 
 Secure, end-to-end encrypted, and privacy respecting sync for your contacts, calendars and tasks (iOS client).
 
