@@ -9,7 +9,7 @@ import * as EteSync from '../api/EteSync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
-  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer,
+  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, errorsReducer,
 } from './reducers';
 
 export interface StoreState {
@@ -30,6 +30,7 @@ export interface StoreState {
     syncInfoCollection: SyncInfoCollectionData,
     syncInfoItem: SyncInfoItemData,
   };
+  errors: List<Error>;
 }
 
 const settingsPersistConfig = {
@@ -209,6 +210,7 @@ const reducers = combineReducers({
     syncInfoCollection: syncInfoCollectionReducer,
     syncInfoItem: syncInfoItemReducer,
   })),
+  errors: errorsReducer,
 });
 
 export default reducers;

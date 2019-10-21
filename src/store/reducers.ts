@@ -328,6 +328,22 @@ export const fetchCount = handleAction(
   0
 );
 
+export const errorsReducer = handleActions(
+  {
+    [combineActions(...fetchActions) as any]: (state: List<Error>, action: Action<any>) => {
+      if (action.error) {
+        return state.push(action.payload);
+      }
+
+      return state;
+    },
+    [actions.clearErros.toString()]: (state: List<Error>, action: Action<any>) => {
+      return state.clear();
+    },
+  },
+  List([])
+);
+
 export const syncCount = handleAction(
   actions.performSync,
   (state: number, action: any) => {

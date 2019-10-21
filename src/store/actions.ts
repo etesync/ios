@@ -230,6 +230,12 @@ export const unsetSyncInfoItem = createAction(
   }
 );
 
+export const clearErros = createAction(
+  'CLEAR_ERRORS',
+  (etesync: CredentialsData) => {
+    return true;
+  }
+);
 
 export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesData, journal: EteSync.Journal) {
   return (dispatch: any) => {
