@@ -55,7 +55,7 @@ export class SyncManager {
       userInfo = await store.dispatch<any>(createUserInfo(etesync, newUserInfo));
     }
 
-    const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries as any));
+    const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries));
     if (!haveJournals) {
       for (const collectionType of ['ADDRESS_BOOK', 'CALENDAR', 'TASKS']) {
         const collection = new EteSync.CollectionInfo();

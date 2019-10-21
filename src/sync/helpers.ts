@@ -18,8 +18,7 @@ export interface NativeContact extends Contacts.Contact {
   uid: string; // This is the EteSync UUID for the contact
 }
 
-export function entryNativeHashCalc(_entry: {uid: string}, ignoreKeys: string[] = []) {
-  const entry = _entry as any;
+export function entryNativeHashCalc(entry: {uid: string}, ignoreKeys: string[] = []) {
   const sha = new sjcl.hash.sha256();
   Object.keys(entry).sort().forEach((key) => {
     if (!entry[key] || ignoreKeys.includes(key)) {
@@ -76,7 +75,7 @@ function eventRruleVobjectToNative(event: EventType) {
     return undefined;
   }
 
-  const frequency = (Calendar.Frequency as any)[rrule.freq];
+  const frequency = Calendar.Frequency[rrule.freq];
   if (!frequency) {
     return undefined;
   }
@@ -111,7 +110,7 @@ export function eventVobjectToNative(event: EventType) {
     endDate: timeVobjectToNative(endDate),
     location: event.location || '',
     notes: event.description || '',
-    alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
+    alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x),
     recurrenceRule: eventRruleVobjectToNative(event),
     timeZone: event.timezone || '',
   };
@@ -129,7 +128,7 @@ export function taskVobjectToNative(task: TaskType) {
     completionDate: timeVobjectToNative(task.completionDate),
     location: task.location || '',
     notes: task.description || '',
-    alarms: task.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x) as any,
+    alarms: task.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x),
     recurrenceRule: eventRruleVobjectToNative(task),
     timeZone: task.timezone || '',
   };

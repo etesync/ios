@@ -83,7 +83,7 @@ class BaseItem<T extends BaseItemJson> {
   protected _content?: object;
 
   constructor() {
-    this._json = {} as any;
+    this._json = {} as T;
   }
 
   public deserialize(json: T) {
