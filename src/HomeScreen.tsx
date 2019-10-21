@@ -41,9 +41,10 @@ function usePermissions(): boolean {
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const dispatch = useDispatch();
   const etesync = useCredentials();
-  const { settings } = useSelector(
+  const { settings, errors } = useSelector(
     (state: StoreState) => ({
       settings: state.settings,
+      errors: state.errors,
     })
   );
   const SyncGate = useSyncGate();
@@ -61,6 +62,11 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   if (!hasPermissions) {
     // FIXME: show an error message + a button to give permissions
     return <Text>Permissions denied. Please give the app permissions from the settings</Text>;
+  }
+
+  if (!errors.isEmpty()) {
+    // FIXME: good enough for now, though we need to show them all, rather than just throw them.
+    throw errors.first();
   }
 
   if (SyncGate) {
