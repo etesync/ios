@@ -7,6 +7,7 @@ import { PimType } from '../pim-types';
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
+import { NativeBase } from './helpers';
 
 /*
  * This class should probably mirror exactly what's done in Android. So it should
@@ -21,7 +22,7 @@ import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyn
  * Need to map between local calendar IDs and EteSync journal UIDs - probably there also keep the lastSyncUid.
  */
 // XXX should probably be a singleton, or at least one per user - though maybe should be handled externally
-export abstract class SyncManagerBase<T extends PimType> {
+export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   protected etesync: CredentialsData;
   protected userInfo: EteSync.UserInfo;
   protected collectionType: string;

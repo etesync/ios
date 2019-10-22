@@ -8,12 +8,12 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { contactVobjectToNative, entryNativeHashCalc } from './helpers';
+import { contactVobjectToNative, entryNativeHashCalc, NativeContact } from './helpers';
 import { ContactType } from '../pim-types';
 
 import { SyncManagerBase } from './SyncManagerBase';
 
-export class SyncManagerAddressBook extends SyncManagerBase<ContactType> {
+export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeContact> {
   protected collectionType = 'ADDRESS_BOOK';
   private containerId: string;
 

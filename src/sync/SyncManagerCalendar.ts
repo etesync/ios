@@ -8,7 +8,7 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
+import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc as _entryNativeHashCalc, NativeBase, NativeEvent } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
@@ -21,7 +21,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
   return _entryNativeHashCalc(entry, ['lastModifiedDate']);
 }
 
-export abstract class SyncManagerCalendarBase<T extends PimType> extends SyncManagerBase<T> {
+export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
   protected abstract collectionType: string;
   protected abstract entityType: string;
 
@@ -88,7 +88,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType> extends SyncMan
 }
 
 
-export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType> {
+export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, NativeEvent> {
   protected collectionType = 'CALENDAR';
   protected entityType = Calendar.EntityTypes.EVENT;
 

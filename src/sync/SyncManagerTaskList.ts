@@ -5,7 +5,7 @@ import * as Calendar from 'expo-calendar';
 import { SyncInfo } from '../SyncGate';
 import { SyncStateJournalEntryData } from '../store';
 
-import { taskVobjectToNative, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
+import { NativeTask, taskVobjectToNative, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
 import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
@@ -14,7 +14,7 @@ function entryNativeHashCalc(entry: {uid: string}) {
   return _entryNativeHashCalc(entry, ['lastModifiedDate']);
 }
 
-export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType> {
+export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
   protected collectionType = 'TASKS';
   protected entityType = Calendar.EntityTypes.REMINDER;
 
