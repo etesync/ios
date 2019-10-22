@@ -141,14 +141,24 @@ const setMapModelReducer = (state: JournalsData, action: Action<EteSync.Journal[
   }
 
   state = state || ImmutableMap<string, EteSync.Journal>().asMutable();
+  const old = state.asMutable();
 
   return state.withMutations((ret) => {
     const items = action.payload;
     for (const item of items) {
-      const current = state.get(item.uid);
+      const current = old.get(item.uid);
       if (!current || !shallowCompare(current.serialize(), item.serialize())) {
         ret.set(item.uid, item);
       }
+
+      if (current) {
+        old.delete(item.uid);
+      }
+    }
+
+    // Delete all the items that were deleted remotely (not handled above).
+    for (const uid of old.keys()) {
+      ret.delete(uid);
     }
   });
 };
