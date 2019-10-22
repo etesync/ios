@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { Text, TextInput, HelperText, Button, Appbar } from 'react-native-paper';
+import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
 import { useSyncGate } from './SyncGate';
@@ -12,6 +12,7 @@ import { store, StoreState } from './store';
 import { addJournal, updateJournal, deleteJournal, performSync } from './store/actions';
 
 import Container from './widgets/Container';
+import ConfirmationDialog from './widgets/ConfirmationDialog';
 
 import * as EteSync from './api/EteSync';
 
@@ -124,6 +125,7 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
 };
 
 function RightAction() {
+  const [confirmationVisible, setConfirmationVisible] = React.useState(false);
   const navigation = useNavigation();
   const etesync = useCredentials();
   const { journals } = useSelector(
@@ -136,17 +138,31 @@ function RightAction() {
   const journal = journals.get(journalUid);
 
   return (
-    <Appbar.Action
-      icon="delete"
-      onPress={() => {
-        store.dispatch<any>(deleteJournal(etesync, journal)).then(() => {
-          // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-          const syncManager = SyncManager.getManager(etesync);
-          store.dispatch(performSync(syncManager.sync()));
+    <React.Fragment>
+      <Appbar.Action
+        icon="delete"
+        onPress={() => {
+          setConfirmationVisible(true);
+        }}
+      />
+      <ConfirmationDialog
+        title="Are you sure?"
+        visible={confirmationVisible}
+        onOk={() => {
           navigation.navigate('home');
-        });
-      }}
-    />
+          store.dispatch<any>(deleteJournal(etesync, journal)).then(() => {
+            // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
+            const syncManager = SyncManager.getManager(etesync);
+            store.dispatch(performSync(syncManager.sync()));
+          });
+        }}
+        onCancel={() => {
+          setConfirmationVisible(false);
+        }}
+      >
+        <Paragraph>This colection and all of its data will be removed from the server.</Paragraph>
+      </ConfirmationDialog>
+    </React.Fragment>
   );
 }
 
