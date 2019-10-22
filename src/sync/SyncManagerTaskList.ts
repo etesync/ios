@@ -5,14 +5,10 @@ import * as Calendar from 'expo-calendar';
 import { SyncInfo } from '../SyncGate';
 import { SyncStateJournalEntryData } from '../store';
 
-import { NativeTask, taskVobjectToNative, entryNativeHashCalc as _entryNativeHashCalc } from './helpers';
+import { NativeTask, taskVobjectToNative, entryNativeHashCalc } from './helpers';
 import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
-
-function entryNativeHashCalc(entry: {uid: string}) {
-  return _entryNativeHashCalc(entry, ['lastModifiedDate']);
-}
 
 export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
   protected collectionType = 'TASKS';
@@ -24,6 +20,10 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
   protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
     return TaskType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
+  }
+
+  protected nativeToVobject(nativeItem: NativeTask) {
+    return null as TaskType;
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {

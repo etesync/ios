@@ -8,17 +8,13 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc as _entryNativeHashCalc, NativeBase, NativeEvent } from './helpers';
+import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc, NativeBase, NativeEvent } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
 
 import { SyncManagerBase } from './SyncManagerBase';
 
 const ACCOUNT_NAME = 'etesync';
-
-function entryNativeHashCalc(entry: {uid: string}) {
-  return _entryNativeHashCalc(entry, ['lastModifiedDate']);
-}
 
 export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
   protected abstract collectionType: string;
@@ -128,29 +124,14 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
             return;
           }
 
-          if (syncStateEntry === undefined) {
-            // New
-            const event = { ..._event, uid: _event.id };
-            const vobjectEvent = eventNativeToVobject(event);
-            const syncEntry = new EteSync.SyncEntry();
-            logger.info(`New entry ${event.uid}`);
-            syncEntry.action = EteSync.SyncEntryAction.Add;
-            syncEntry.content = vobjectEvent.toIcal();
+          const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
+          const syncEntry = this.syncPushHandleAddChange(syncJournal, syncStateEntry, event);
+          if (syncEntry) {
             syncEntries.push(syncEntry);
-          } else {
-            const event = { ..._event, uid: syncStateEntry.uid };
-            const currentHash = entryNativeHashCalc(event);
-            if (currentHash !== syncStateEntry.lastHash) {
-              // Changed
-              logger.info(`Changed entry ${event.uid}`);
-              const vobjectEvent = eventNativeToVobject(event);
-              const syncEntry = new EteSync.SyncEntry();
-              syncEntry.action = EteSync.SyncEntryAction.Change;
-              syncEntry.content = vobjectEvent.toIcal();
-              syncEntries.push(syncEntry);
-            }
+          }
 
-            syncStateEntriesReverse.delete(_event.id);
+          if (syncStateEntry) {
+            syncStateEntriesReverse.delete(syncStateEntry.uid);
           }
         });
       }
@@ -164,18 +145,12 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           // Skip
         }
 
+        // FIXME: handle the case of the event still existing for some reason.
         if (!existingEvent) {
           // If the event still exists it means it's not deleted.
-          logger.info(`Deleted entry ${syncStateEntry.uid}`);
-          const syncEntry = new EteSync.SyncEntry();
-          syncEntry.action = EteSync.SyncEntryAction.Delete;
-          for (const entry of syncJournal.entries.reverse()) {
-            const event = this.syncEntryToVobject(entry);
-            if (event.uid === syncStateEntry.uid) {
-              syncEntry.content = event.toIcal();
-              syncEntries.push(syncEntry);
-              break;
-            }
+          const syncEntry = this.syncPushHandleDeleted(syncJournal, syncStateEntry);
+          if (syncEntry) {
+            syncEntries.push(syncEntry);
           }
         }
       }
@@ -186,6 +161,10 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
 
   protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
     return EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
+  }
+
+  protected nativeToVobject(nativeItem: NativeEvent) {
+    return eventNativeToVobject(nativeItem);
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {

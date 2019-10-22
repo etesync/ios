@@ -7,7 +7,7 @@ import { PimType } from '../pim-types';
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
-import { NativeBase } from './helpers';
+import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
 /*
@@ -200,12 +200,53 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
+  protected syncPushHandleAddChange(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry, nativeItem: N) {
+    if (syncStateEntry === undefined) {
+      // New
+      const vobjectEvent = this.nativeToVobject(nativeItem);
+      const syncEntry = new EteSync.SyncEntry();
+      logger.info(`New entry ${nativeItem.uid}`);
+      syncEntry.action = EteSync.SyncEntryAction.Add;
+      syncEntry.content = vobjectEvent.toIcal();
+      return syncEntry;
+    } else {
+      const currentHash = entryNativeHashCalc(nativeItem);
+      if (currentHash !== syncStateEntry.lastHash) {
+        // Changed
+        logger.info(`Changed entry ${nativeItem.uid}`);
+        const vobjectEvent = this.nativeToVobject(nativeItem);
+        const syncEntry = new EteSync.SyncEntry();
+        syncEntry.action = EteSync.SyncEntryAction.Change;
+        syncEntry.content = vobjectEvent.toIcal();
+        return syncEntry;
+      }
+    }
+
+    return null;
+  }
+
+  protected syncPushHandleDeleted(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry) {
+    logger.info(`Deleted entry ${syncStateEntry.uid}`);
+    const syncEntry = new EteSync.SyncEntry();
+    syncEntry.action = EteSync.SyncEntryAction.Delete;
+    for (const entry of syncJournal.entries.reverse()) {
+      const pimItem = this.syncEntryToVobject(entry);
+      if (pimItem.uid === syncStateEntry.uid) {
+        syncEntry.content = pimItem.toIcal();
+        return syncEntry;
+      }
+    }
+
+    return null;
+  }
+
   protected abstract async createJournal(syncJournal: SyncInfoJournal): Promise<string>;
   protected abstract async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(syncInfo: SyncInfo): Promise<void>;
 
   protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
+  protected abstract nativeToVobject(nativeItem: N): T;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 

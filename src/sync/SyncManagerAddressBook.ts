@@ -29,6 +29,10 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
+  protected nativeToVobject(nativeItem: NativeContact) {
+    return null as ContactType;
+  }
+
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const contact = this.syncEntryToVobject(syncEntry);
     const nativeContact = contactVobjectToNative(contact);
