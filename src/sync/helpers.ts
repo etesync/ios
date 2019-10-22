@@ -6,16 +6,17 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { ContactType, EventType, TaskType, timezoneLoadFromName } from '../pim-types';
 
-export interface NativeEvent extends Calendar.Event {
-  uid: string; // This is the EteSync UUID for the event
+export interface NativeBase {
+  uid: string; // This is the EteSync UUID for the item
 }
 
-export interface NativeTask extends Calendar.Reminder {
-  uid: string; // This is the EteSync UUID for the event
+export interface NativeEvent extends Calendar.Event, NativeBase {
 }
 
-export interface NativeContact extends Contacts.Contact {
-  uid: string; // This is the EteSync UUID for the contact
+export interface NativeTask extends Calendar.Reminder, NativeBase {
+}
+
+export interface NativeContact extends Contacts.Contact, NativeBase {
 }
 
 export function entryNativeHashCalc(entry: {uid: string}, ignoreKeys: string[] = []) {
