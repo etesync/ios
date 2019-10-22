@@ -3,12 +3,13 @@ import { useSelector } from 'react-redux';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { Text, TextInput, HelperText, Button } from 'react-native-paper';
+import { Text, TextInput, HelperText, Button, Appbar } from 'react-native-paper';
 
+import { SyncManager } from './sync/SyncManager';
 import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 import { store, StoreState } from './store';
-import { addJournal, updateJournal } from './store/actions';
+import { addJournal, updateJournal, deleteJournal, performSync } from './store/actions';
 
 import Container from './widgets/Container';
 
@@ -37,10 +38,21 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
   }
 
   const journalUid = navigation.getParam('journalUid');
-  const collection = syncInfoCollections.get(journalUid);
-
-  const displayName = (_displayName !== null) ? _displayName : collection.displayName;
-  const description = (_description !== null) ? _description : collection.description;
+  let collection = syncInfoCollections.get(journalUid);
+  let displayName = _displayName;
+  let description = _description;
+  if (collection) {
+    if (displayName === null) {
+      displayName = collection.displayName;
+    }
+    if (description === null) {
+      description = collection.description;
+    }
+  } else {
+    collection = new EteSync.CollectionInfo();
+    collection.uid = EteSync.genUid();
+    collection.type = navigation.getParam('journalType');
+  }
 
   function onSave() {
     const saveErrors: FormErrors = {};
@@ -60,14 +72,18 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
     const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, info.uid);
     journal.setInfo(cryptoManager, info);
 
+    // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
+    const syncManager = SyncManager.getManager(etesync);
     if (journalUid) {
-      store.dispatch<any>(updateJournal(etesync, journal)).then(() =>
-        navigation.goBack()
-      );
+      store.dispatch<any>(updateJournal(etesync, journal)).then(() => {
+        store.dispatch(performSync(syncManager.sync()));
+        navigation.goBack();
+      });
     } else {
-      store.dispatch<any>(addJournal(etesync, journal)).then(() =>
-        navigation.goBack()
-      );
+      store.dispatch<any>(addJournal(etesync, journal)).then(() => {
+        store.dispatch(performSync(syncManager.sync()));
+        navigation.goBack();
+      });
     }
   }
 
@@ -107,8 +123,42 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
   );
 };
 
-JournalItemScreen.navigationOptions = {
-  title: 'Journal Edit',
+function RightAction() {
+  const navigation = useNavigation();
+  const etesync = useCredentials();
+  const { journals } = useSelector(
+    (state: StoreState) => ({
+      journals: state.cache.journals,
+    })
+  );
+
+  const journalUid = navigation.getParam('journalUid');
+  const journal = journals.get(journalUid);
+
+  return (
+    <Appbar.Action
+      icon="delete"
+      onPress={() => {
+        store.dispatch<any>(deleteJournal(etesync, journal)).then(() => {
+          // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
+          const syncManager = SyncManager.getManager(etesync);
+          store.dispatch(performSync(syncManager.sync()));
+          navigation.navigate('home');
+        });
+      }}
+    />
+  );
+}
+
+JournalItemScreen.navigationOptions = ({ navigation }) => {
+  const journalUid = navigation.getParam('journalUid');
+
+  return {
+    title: (journalUid) ? 'Edit Collection' : 'Create Collection',
+    rightAction: (journalUid) ? (
+      <RightAction />
+    ) : undefined,
+  };
 };
 
 export default JournalItemScreen;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { ScrollView } from 'react-native';
-import { Avatar, IconButton, Card, List } from 'react-native-paper';
+import { Avatar, IconButton, Card, Menu, List } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 import { useTheme } from '../hacks/theme';
 
@@ -11,6 +11,31 @@ import ColorBox from '../widgets/ColorBox';
 import { useSyncGate } from '../SyncGate';
 
 import { StoreState } from '../store';
+
+
+const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalType: string }) {
+  const [showMenu, setShowMenu] = React.useState(false);
+  const navigation = useNavigation();
+  const theme = useTheme();
+
+  return (
+    <Menu
+      visible={showMenu}
+      onDismiss={() => setShowMenu(false)}
+      anchor={(
+        <IconButton color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon="more-horiz" onPress={() => setShowMenu(true)} />
+      )}
+    >
+      <Menu.Item
+        onPress={() => {
+          setShowMenu(false);
+          navigation.navigate('JournalNew', { journalType: props.journalType });
+        }}
+        title="Create new"
+      />
+    </Menu>
+  );
+});
 
 
 export default function JournalListScreen() {
@@ -102,7 +127,9 @@ export default function JournalListScreen() {
             titleStyle={{ color: 'white' }}
             style={{ ...shadowStyle, backgroundColor: theme.colors.primaryBackground}}
             left={(props) => <Avatar.Icon color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon={card.icon} />}
-            right={(props) => <IconButton color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon="more-horiz" />}
+            right={(props) => (
+              <JournalsMoreMenu journalType={card.lookup} />
+            )}
           />
           {journalMap[card.lookup]}
         </Card>

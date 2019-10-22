@@ -13,6 +13,7 @@ const RootNavigator = createStackNavigator(
   {
     home: HomeScreen,
     Journal: JournalScreen,
+    JournalNew: JournalEditScreen,
     JournalEdit: JournalEditScreen,
     JournalItem: JournalItemScreen,
   },
