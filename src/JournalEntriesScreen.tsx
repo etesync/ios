@@ -5,8 +5,6 @@ import { useNavigation } from './navigation/Hooks';
 import { FlatList, View, ScrollView } from 'react-native';
 import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
 
-import { useSyncInfo } from './SyncHandler';
-
 import * as ICAL from 'ical.js';
 
 import { StoreState } from './store';
@@ -27,26 +25,30 @@ const listIcons = {
 };
 
 const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
-  const syncInfo = useSyncInfo();
   const navigation = useNavigation();
-  const { syncStateEntries } = useSelector(
+  const { syncStateEntries, journalEntries, syncInfoCollections, syncInfoEntries } = useSelector(
     (state: StoreState) => ({
       syncStateEntries: state.sync.stateEntries,
+      journalEntries: state.cache.entries,
+      syncInfoCollections: state.cache.syncInfoCollection,
+      syncInfoEntries: state.cache.syncInfoItem,
     })
   );
 
-  if (!syncInfo) {
+  if (!syncInfoEntries) {
     return (<LoadingIndicator />);
   }
 
   const journalUid = navigation.getParam('journalUid');
-  const syncInfoJournal = syncInfo.get(journalUid);
-  const { collection, entries } = syncInfoJournal;
+  const collection = syncInfoCollections.get(journalUid);
+  const entries = journalEntries.get(journalUid);
+  const syncEntries = syncInfoEntries.get(journalUid);
   const itemCount = syncStateEntries.has(journalUid) ?
       syncStateEntries.get(journalUid).count() :
       -1;
 
-  const changeEntries = entries.map((syncEntry, idx) => {
+  const changeEntries = entries.map((journalEntry, idx) => {
+    const syncEntry = syncEntries.get(journalEntry.uid);
     const comp = new ICAL.Component(ICAL.parse(syncEntry.content));
 
     const icon = listIcons[syncEntry.action];
