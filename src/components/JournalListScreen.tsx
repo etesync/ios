@@ -1,44 +1,39 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { ScrollView } from 'react-native';
 import { Avatar, IconButton, Card, List } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 import { useTheme } from '../hacks/theme';
 
-import * as EteSync from '../api/EteSync';
-
 import { useSyncInfo } from '../SyncHandler';
-import { useCredentials } from '../login';
 
 import { colorIntToHtml } from '../helpers';
 
 import ColorBox from '../widgets/ColorBox';
 
+import { StoreState } from '../store';
+
 
 export default function JournalListScreen() {
   const syncInfo = useSyncInfo();
-  const etesync = useCredentials();
-  const derived = etesync.encryptionKey;
   const navigation = useNavigation();
   const theme = useTheme();
+  const { syncInfoCollections } = useSelector(
+    (state: StoreState) => ({
+      syncInfoCollections: state.cache.syncInfoCollection,
+    })
+  );
 
   if (!syncInfo) {
     return <React.Fragment />;
   }
 
-  const journalMap = syncInfo.reduce(
-    (ret, syncInfoJournal) => {
-      const { journal, derivedJournalKey } = syncInfoJournal;
-      let cryptoManager: EteSync.CryptoManager;
-      if (journal.key) {
-        cryptoManager = EteSync.CryptoManager.fromDerivedKey(derivedJournalKey, journal.version);
-      } else {
-        cryptoManager = new EteSync.CryptoManager(derived, journal.uid, journal.version);
-      }
-
-      const info = journal.getInfo(cryptoManager);
+  const journalMap = syncInfoCollections.reduce(
+    (ret, syncInfoCollection) => {
+      const info = syncInfoCollection;
 
       function journalClicked() {
-        navigation.navigate('Journal', { journalUid: journal.uid });
+        navigation.navigate('Journal', { journalUid: info.uid });
       }
 
       let rightIcon: any;
@@ -54,9 +49,9 @@ export default function JournalListScreen() {
       ret[info.type] = ret[info.type] || [];
       ret[info.type].push(
         <List.Item
-          key={journal.uid}
+          key={info.uid}
           onPress={journalClicked}
-          title={`${info.displayName} (${journal.uid.slice(0, 5)})`}
+          title={`${info.displayName} (${info.uid.slice(0, 5)})`}
           right={rightIcon}
         />
       );
