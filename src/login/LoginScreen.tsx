@@ -17,7 +17,6 @@ import { login, deriveKey } from '../store/actions';
 import * as C from '../constants';
 
 import { useCredentials } from './';
-import { store } from '../store';
 
 const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen() {
   const credentials = useCredentials();
