@@ -25,12 +25,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType> {
     //
   }
 
-  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry) {
+  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
     return new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const contact = this.pimItemFromSyncEntry(syncEntry);
+    const contact = this.syncEntryToVobject(syncEntry);
     const nativeContact = contactVobjectToNative(contact);
     let syncStateEntry = syncStateEntries.get(contact.uid);
     switch (syncEntry.action) {

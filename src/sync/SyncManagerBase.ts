@@ -186,7 +186,7 @@ export abstract class SyncManagerBase<T extends PimType> {
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(syncInfo: SyncInfo): Promise<void>;
 
-  protected abstract pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry): T;
+  protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 

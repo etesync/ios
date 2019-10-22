@@ -171,7 +171,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType> {
           const syncEntry = new EteSync.SyncEntry();
           syncEntry.action = EteSync.SyncEntryAction.Delete;
           for (const entry of syncJournal.entries.reverse()) {
-            const event = this.pimItemFromSyncEntry(entry);
+            const event = this.syncEntryToVobject(entry);
             if (event.uid === syncStateEntry.uid) {
               syncEntry.content = event.toIcal();
               syncEntries.push(syncEntry);
@@ -198,12 +198,12 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType> {
     }
   }
 
-  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry) {
+  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
     return EventType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const event = this.pimItemFromSyncEntry(syncEntry);
+    const event = this.syncEntryToVobject(syncEntry);
     const nativeEvent = eventVobjectToNative(event);
     let syncStateEntry = syncStateEntries.get(event.uid);
     switch (syncEntry.action) {

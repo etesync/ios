@@ -22,12 +22,12 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType> {
     // FIXME: implement
   }
 
-  protected pimItemFromSyncEntry(syncEntry: EteSync.SyncEntry) {
+  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
     return TaskType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const task = this.pimItemFromSyncEntry(syncEntry);
+    const task = this.syncEntryToVobject(syncEntry);
     const nativeReminder = taskVobjectToNative(task);
     let syncStateEntry = syncStateEntries.get(task.uid);
     switch (syncEntry.action) {
