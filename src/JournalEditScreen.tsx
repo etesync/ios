@@ -5,6 +5,7 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { Text, TextInput, HelperText, Button } from 'react-native-paper';
 
+import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 import { store, StoreState } from './store';
 import { addJournal, updateJournal } from './store/actions';
@@ -12,7 +13,6 @@ import { addJournal, updateJournal } from './store/actions';
 import Container from './widgets/Container';
 
 import * as EteSync from './api/EteSync';
-import LoadingIndicator from './widgets/LoadingIndicator';
 
 interface FormErrors {
   displayName?: string;
@@ -22,18 +22,18 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [_displayName, setDisplayName] = React.useState(null as string);
   const [_description, setDescription] = React.useState(null as string);
-  const { syncInfoCollections, fetchCount } = useSelector(
+  const { syncInfoCollections } = useSelector(
     (state: StoreState) => ({
       syncInfoCollections: state.cache.syncInfoCollection,
-      fetchCount: state.fetchCount,
     })
   );
+  const syncGate = useSyncGate();
   const navigation = useNavigation();
   const etesync = useCredentials();
   const loading = false;
 
-  if (fetchCount > 0) {
-    return (<LoadingIndicator />);
+  if (syncGate) {
+    return syncGate;
   }
 
   const journalUid = navigation.getParam('journalUid');

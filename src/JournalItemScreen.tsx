@@ -5,23 +5,22 @@ import { useNavigation } from './navigation/Hooks';
 import { Text } from 'react-native-paper';
 import { ScrollView } from 'react-native';
 
+import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
 
 import Container from './widgets/Container';
 
-import LoadingIndicator from './widgets/LoadingIndicator';
-
 const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen() {
   const navigation = useNavigation();
-  const { syncInfoEntries, fetchCount } = useSelector(
+  const syncGate = useSyncGate();
+  const { syncInfoEntries } = useSelector(
     (state: StoreState) => ({
       syncInfoEntries: state.cache.syncInfoItem,
-      fetchCount: state.fetchCount,
     })
   );
 
-  if (fetchCount > 0) {
-    return (<LoadingIndicator />);
+  if (syncGate) {
+    return syncGate;
   }
 
   const journalUid = navigation.getParam('journalUid');

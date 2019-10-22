@@ -7,8 +7,8 @@ import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
 
 import * as ICAL from 'ical.js';
 
+import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
-import LoadingIndicator from './widgets/LoadingIndicator';
 import Container from './widgets/Container';
 
 import { TaskType, EventType, ContactType } from './pim-types';
@@ -26,6 +26,7 @@ const listIcons = {
 
 const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const navigation = useNavigation();
+  const syncGate = useSyncGate();
   const { syncStateEntries, journalEntries, syncInfoCollections, syncInfoEntries } = useSelector(
     (state: StoreState) => ({
       syncStateEntries: state.sync.stateEntries,
@@ -35,8 +36,8 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
     })
   );
 
-  if (!syncInfoEntries) {
-    return (<LoadingIndicator />);
+  if (syncGate) {
+    return syncGate;
   }
 
   const journalUid = navigation.getParam('journalUid');

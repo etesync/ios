@@ -8,7 +8,7 @@ import { useTheme } from '../hacks/theme';
 import { colorIntToHtml } from '../helpers';
 
 import ColorBox from '../widgets/ColorBox';
-import LoadingIndicator from '../widgets/LoadingIndicator';
+import { useSyncGate } from '../SyncGate';
 
 import { StoreState } from '../store';
 
@@ -16,15 +16,15 @@ import { StoreState } from '../store';
 export default function JournalListScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { syncInfoCollections, fetchCount } = useSelector(
+  const syncGate = useSyncGate();
+  const { syncInfoCollections } = useSelector(
     (state: StoreState) => ({
       syncInfoCollections: state.cache.syncInfoCollection,
-      fetchCount: state.fetchCount,
     })
   );
 
-  if (fetchCount > 0) {
-    return (<LoadingIndicator />);
+  if (syncGate) {
+    return syncGate;
   }
 
   const journalMap = syncInfoCollections.reduce(
