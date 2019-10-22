@@ -1,14 +1,15 @@
 import * as React from 'react';
 
-import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 
+import Container from './widgets/Container';
+
 export const PrettyError = (props: any) => (
-  <View>
+  <Container>
     <Text>Something went wrong!</Text>
     <Text>{props.error.message}</Text>
     <Text>{props.error.stack}</Text>
-  </View>
+  </Container>
 );
 
 export default PrettyError;
