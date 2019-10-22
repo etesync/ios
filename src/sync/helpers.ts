@@ -167,9 +167,7 @@ export function eventNativeToVobject(event: NativeEvent) {
   ret.location = event.location || '';
   ret.description = event.notes || '';
   if (event.alarms) {
-    event.alarms.forEach((_alarm) => {
-      // FIXME: hack around broken expo typing
-      const alarm = _alarm as unknown as Calendar.Alarm;
+    event.alarms.forEach((alarm) => {
       if (alarm.relativeOffset === undefined) {
         // FIXME: we only support relative alarms at the moment
         return;
