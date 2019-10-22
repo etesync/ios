@@ -2,8 +2,6 @@ import * as React from 'react';
 import { Text } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider, Colors } from 'react-native-paper';
 
-import * as Font from 'expo-font';
-
 import { createAppContainer, createDrawerNavigator } from 'react-navigation';
 import RootNavigator from './login/LoginNavigator';
 
@@ -42,11 +40,6 @@ class App extends React.Component {
   };
 
   public async componentWillMount() {
-    await Font.loadAsync({
-      Roboto: require('../node_modules/native-base/Fonts/Roboto.ttf'),
-      Roboto_medium: require('../node_modules/native-base/Fonts/Roboto_medium.ttf'),
-    });
-
     this.setState({ fontLoaded: true });
   }
 

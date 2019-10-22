@@ -23,7 +23,6 @@
     "immutable": "^4.0.0-rc.12",
     "libphonenumber-js": "^1.7.18",
     "moment": "^2.24.0",
-    "native-base": "^2.12.1",
     "node-rsa": "^1.0.6",
     "react": "16.8.6",
     "react-native": "https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz",
