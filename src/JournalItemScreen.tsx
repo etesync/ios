@@ -1,31 +1,34 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { Text } from 'react-native-paper';
 import { ScrollView } from 'react-native';
 
-import Container from './widgets/Container';
+import { StoreState } from './store';
 
-import { useSyncInfo } from './SyncHandler';
+import Container from './widgets/Container';
 
 import LoadingIndicator from './widgets/LoadingIndicator';
 
 const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen() {
-  const syncInfo = useSyncInfo();
   const navigation = useNavigation();
+  const { syncInfoEntries, fetchCount } = useSelector(
+    (state: StoreState) => ({
+      syncInfoEntries: state.cache.syncInfoItem,
+      fetchCount: state.fetchCount,
+    })
+  );
 
-  if (!syncInfo) {
+  if (fetchCount > 0) {
     return (<LoadingIndicator />);
   }
 
   const journalUid = navigation.getParam('journalUid');
   const entryUid = navigation.getParam('entryUid');
-  const syncInfoJournal = syncInfo.get(journalUid);
-  const { entries } = syncInfoJournal;
+  const entries = syncInfoEntries.get(journalUid);
 
-  const entry = entries.find((itr) => {
-    return itr.uid === entryUid;
-  });
+  const entry = entries.get(entryUid);
 
   return (
     <ScrollView style={{ flex: 1 }}>

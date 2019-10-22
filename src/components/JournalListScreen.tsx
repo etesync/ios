@@ -5,27 +5,26 @@ import { Avatar, IconButton, Card, List } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 import { useTheme } from '../hacks/theme';
 
-import { useSyncInfo } from '../SyncHandler';
-
 import { colorIntToHtml } from '../helpers';
 
 import ColorBox from '../widgets/ColorBox';
+import LoadingIndicator from '../widgets/LoadingIndicator';
 
 import { StoreState } from '../store';
 
 
 export default function JournalListScreen() {
-  const syncInfo = useSyncInfo();
   const navigation = useNavigation();
   const theme = useTheme();
-  const { syncInfoCollections } = useSelector(
+  const { syncInfoCollections, fetchCount } = useSelector(
     (state: StoreState) => ({
       syncInfoCollections: state.cache.syncInfoCollection,
+      fetchCount: state.fetchCount,
     })
   );
 
-  if (!syncInfo) {
-    return <React.Fragment />;
+  if (fetchCount > 0) {
+    return (<LoadingIndicator />);
   }
 
   const journalMap = syncInfoCollections.reduce(

@@ -1,16 +1,15 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { Text, TextInput, HelperText, Button } from 'react-native-paper';
 
 import { useCredentials } from './login';
-import { store } from './store';
+import { store, StoreState } from './store';
 import { addJournal, updateJournal } from './store/actions';
 
 import Container from './widgets/Container';
-
-import { useSyncInfo } from './SyncHandler';
 
 import * as EteSync from './api/EteSync';
 import LoadingIndicator from './widgets/LoadingIndicator';
@@ -23,18 +22,22 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [_displayName, setDisplayName] = React.useState(null as string);
   const [_description, setDescription] = React.useState(null as string);
-  const syncInfo = useSyncInfo();
+  const { syncInfoCollections, fetchCount } = useSelector(
+    (state: StoreState) => ({
+      syncInfoCollections: state.cache.syncInfoCollection,
+      fetchCount: state.fetchCount,
+    })
+  );
   const navigation = useNavigation();
   const etesync = useCredentials();
   const loading = false;
 
-  if (!syncInfo) {
+  if (fetchCount > 0) {
     return (<LoadingIndicator />);
   }
 
   const journalUid = navigation.getParam('journalUid');
-  const syncInfoJournal = syncInfo.get(journalUid);
-  const { collection } = syncInfoJournal;
+  const collection = syncInfoCollections.get(journalUid);
 
   const displayName = (_displayName !== null) ? _displayName : collection.displayName;
   const description = (_description !== null) ? _description : collection.description;

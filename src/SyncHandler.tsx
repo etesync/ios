@@ -1,6 +1,3 @@
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-
 import 'moment/locale/en-gb';
 
 import { List, Map } from 'immutable';
@@ -9,10 +6,8 @@ import { createSelector } from 'reselect';
 import * as EteSync from './api/EteSync';
 import { byte } from './api/Helpers';
 
-import { store, JournalsData, EntriesData, StoreState, CredentialsData, UserInfoData } from './store';
+import { store, JournalsData, EntriesData, CredentialsData, UserInfoData } from './store';
 import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from './store/actions';
-
-import { useCredentials } from './login';
 
 export interface SyncInfoJournal {
   journal: EteSync.Journal;
@@ -107,24 +102,3 @@ export const syncInfoSelector = createSelector(
     return ret.asImmutable();
   }
 );
-
-export function useSyncInfo() {
-  const etesync = useCredentials();
-
-  const { journals, entries, userInfo, fetchCount } = useSelector(
-    (state: StoreState) => ({
-      journals: state.cache.journals,
-      entries: state.cache.entries,
-      userInfo: state.cache.userInfo,
-      fetchCount: state.fetchCount,
-    })
-  );
-
-  return React.useMemo(() => {
-    if ((entries !== null) && (entries.size > 0) && (fetchCount === 0)) {
-      return syncInfoSelector({ etesync, journals, entries, userInfo });
-    } else {
-      return null;
-    }
-  }, [etesync, journals, entries, userInfo, fetchCount]);
-}

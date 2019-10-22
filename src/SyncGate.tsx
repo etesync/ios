@@ -8,11 +8,9 @@ import LoadingIndicator from './widgets/LoadingIndicator';
 
 import { StoreState } from './store';
 
-import { useSyncInfo } from './SyncHandler';
 export * from './SyncHandler'; // FIXME: Should be granular
 
 export function useSyncGate() {
-  const syncInfo = useSyncInfo();
   const { userInfo, journals, fetchCount } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
@@ -22,7 +20,7 @@ export function useSyncGate() {
     })
   );
 
-  if ((userInfo === null) || (journals === null) || (syncInfo === null) || (syncInfo.size === 0)) {
+  if ((userInfo === null) || (journals === null)) {
     if (fetchCount > 0) {
       return (<LoadingIndicator />);
     } else {
