@@ -46,14 +46,14 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     if (__DEV__) {
       // await this.clearDeviceCollections(syncInfo);
     }
-    logger.info('Starting Sync');
+    logger.info(`Starting sync: ${this.collectionType}`);
     logger.info('Syncing journal list');
     await this.syncJournalList(syncInfo);
     logger.info('Pulling changes');
     await this.syncPull(syncInfo);
     logger.info('Pushing changes');
     await this.syncPush(syncInfo);
-    logger.info('Finished Sync');
+    logger.info(`Finished sync: ${this.collectionType}`);
   }
 
   protected async syncJournalList(syncInfo: SyncInfo) {
