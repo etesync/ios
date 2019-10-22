@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { ScrollView } from 'react-native';
-import { Avatar, IconButton, Card, Menu, List } from 'react-native-paper';
+import { Avatar, IconButton, Card, Menu, List, Colors } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
-import { useTheme } from '../hacks/theme';
 
 import { colorIntToHtml } from '../helpers';
 
@@ -12,18 +11,18 @@ import { useSyncGate } from '../SyncGate';
 
 import { StoreState } from '../store';
 
+const backgroundPrimary = Colors.amber700;
 
 const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalType: string }) {
   const [showMenu, setShowMenu] = React.useState(false);
   const navigation = useNavigation();
-  const theme = useTheme();
 
   return (
     <Menu
       visible={showMenu}
       onDismiss={() => setShowMenu(false)}
       anchor={(
-        <IconButton color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon="more-horiz" onPress={() => setShowMenu(true)} />
+        <IconButton color="white" theme={{ colors: { primary: backgroundPrimary } }} {...props} icon="dots-horizontal" onPress={() => setShowMenu(true)} />
       )}
     >
       <Menu.Item
@@ -40,7 +39,6 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
 
 export default function JournalListScreen() {
   const navigation = useNavigation();
-  const theme = useTheme();
   const syncGate = useSyncGate();
   const { syncInfoCollections } = useSelector(
     (state: StoreState) => ({
@@ -92,17 +90,17 @@ export default function JournalListScreen() {
     {
       title: 'Address Books',
       lookup: 'ADDRESS_BOOK',
-      icon: 'group',
+      icon: 'contacts',
     },
     {
       title: 'Calendars',
       lookup: 'CALENDAR',
-      icon: 'today',
+      icon: 'calendar',
     },
     {
       title: 'Tasks',
       lookup: 'TASKS',
-      icon: 'list',
+      icon: 'format-list-checkbox',
     },
   ];
 
@@ -125,8 +123,8 @@ export default function JournalListScreen() {
           <Card.Title
             title={card.title}
             titleStyle={{ color: 'white' }}
-            style={{ ...shadowStyle, backgroundColor: theme.colors.primaryBackground}}
-            left={(props) => <Avatar.Icon color="white" theme={{ colors: { primary: theme.colors.primaryBackground } }} {...props} icon={card.icon} />}
+            style={{ ...shadowStyle, backgroundColor: backgroundPrimary }}
+            left={(props) => <Avatar.Icon color="white" theme={{ colors: { primary: backgroundPrimary } }} {...props} icon={card.icon} />}
             right={(props) => (
               <JournalsMoreMenu journalType={card.lookup} />
             )}

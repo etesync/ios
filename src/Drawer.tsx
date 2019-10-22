@@ -17,7 +17,7 @@ const menuItems = [
   {
     title: 'About',
     path: 'About',
-    icon: 'info',
+    icon: 'information-outline',
   },
   {
     title: 'Settings',
@@ -40,7 +40,7 @@ const externalMenuItems = [
   {
     title: 'Report issue',
     link: C.reportIssue,
-    icon: 'bug-report',
+    icon: 'bug',
   },
   {
     title: 'Contact developer',

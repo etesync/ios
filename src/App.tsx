@@ -9,7 +9,6 @@ import ErrorBoundary from './ErrorBoundary';
 import Drawer from './Drawer';
 
 import { getPersistenceFunctions } from './navigation/persistance';
-import { setTheme } from './hacks/theme';
 
 import { useScreens } from 'react-native-screens';
 useScreens();
@@ -19,12 +18,9 @@ const theme = {
   colors: {
     ...DefaultTheme.colors,
     primary: Colors.amber500,
-    primaryBackground: Colors.amber700,
     accent: Colors.lightBlueA400,
   },
 };
-
-setTheme(theme);
 
 const AppNavigator = createAppContainer(createDrawerNavigator(
   { home: RootNavigator },

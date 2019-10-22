@@ -55,8 +55,7 @@ class LoginForm extends React.PureComponent {
     };
   }
 
-  public generateEncryption(e: any) {
-    e.preventDefault();
+  public generateEncryption() {
     const server = this.state.showAdvanced ? this.state.server : undefined;
 
     const username = this.state.username;

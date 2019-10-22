@@ -19,8 +19,8 @@ import { colorIntToHtml } from './helpers';
 import ColorBox from './widgets/ColorBox';
 
 const listIcons = {
-  [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="add" />),
-  [EteSync.SyncEntryAction.Change]: (props: any) => (<List.Icon {...props} color="#FEB115" icon="edit" />),
+  [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="plus" />),
+  [EteSync.SyncEntryAction.Change]: (props: any) => (<List.Icon {...props} color="#FEB115" icon="pencil" />),
   [EteSync.SyncEntryAction.Delete]: (props: any) => (<List.Icon {...props} color="#F20C0C" icon="delete" />),
 };
 
@@ -139,18 +139,18 @@ function RightAction() {
       visible={showMenu}
       onDismiss={() => setShowMenu(false)}
       anchor={(
-        <Appbar.Action icon="more-vert" onPress={() => setShowMenu(true)} />
+        <Appbar.Action icon="dots-vertical" onPress={() => setShowMenu(true)} />
       )}
     >
-      <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="edit" title="Edit" />
-      <Menu.Item onPress={() => navigation.navigate('JournalMembers', { journalUid })} icon="group" title="Members" />
-      <Menu.Item onPress={() => navigation.navigate('Import', { journalUid })} icon="import-export" title="Import" />
+      <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="pencil" title="Edit" />
+      <Menu.Item onPress={() => navigation.navigate('JournalMembers', { journalUid })} icon="account-multiple" title="Members" />
+      <Menu.Item onPress={() => navigation.navigate('Import', { journalUid })} icon="import" title="Import" />
     </Menu>
   );
 }
 
 JournalEntries.navigationOptions = {
-  title: 'Change Journal',
+  title: 'Journal Entries',
   rightAction: (
     <RightAction />
   ),
