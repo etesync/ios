@@ -115,11 +115,7 @@ export class TaskType extends EventType {
 
   public color: string;
 
-  get uid() {
-    return this.component.getFirstPropertyValue('uid');
-  }
-
-  constructor(comp: ICAL.Component | null) {
+  constructor(comp?: ICAL.Component | null) {
     super(comp ? comp : new ICAL.Component('vtodo'));
   }
 

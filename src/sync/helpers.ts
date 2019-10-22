@@ -4,7 +4,7 @@ import * as ICAL from 'ical.js';
 import * as sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-import { ContactType, EventType, TaskType, timezoneLoadFromName } from '../pim-types';
+import { ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
 export interface NativeBase {
   uid: string; // This is the EteSync UUID for the item
@@ -49,7 +49,7 @@ function timeVobjectToNative(time: ICAL.Time) {
   }
 }
 
-function eventAlarmVobjectToNative(alarm: ICAL.Component) {
+function alarmVobjectToNative(alarm: ICAL.Component) {
   const trigger = alarm.getFirstPropertyValue('trigger');
 
   if (!('isNegative' in trigger)) {
@@ -71,7 +71,7 @@ function eventAlarmVobjectToNative(alarm: ICAL.Component) {
   return ret;
 }
 
-function eventRruleVobjectToNative(event: EventType) {
+function rruleVobjectToNative(event: EventType) {
   const rrule = event.component.getFirstPropertyValue('rrule');
   if (!rrule) {
     return undefined;
@@ -112,8 +112,8 @@ export function eventVobjectToNative(event: EventType) {
     endDate: timeVobjectToNative(endDate),
     location: event.location || '',
     notes: event.description || '',
-    alarms: event.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x),
-    recurrenceRule: eventRruleVobjectToNative(event),
+    alarms: event.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter((x) => x),
+    recurrenceRule: rruleVobjectToNative(event),
     timeZone: event.timezone || '',
   };
 
@@ -130,8 +130,8 @@ export function taskVobjectToNative(task: TaskType) {
     completionDate: timeVobjectToNative(task.completionDate),
     location: task.location || '',
     notes: task.description || '',
-    alarms: task.component.getAllSubcomponents('valarm').map(eventAlarmVobjectToNative).filter((x) => x),
-    recurrenceRule: eventRruleVobjectToNative(task),
+    alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter((x) => x),
+    recurrenceRule: rruleVobjectToNative(task),
     timeZone: task.timezone || '',
   };
 
@@ -151,7 +151,78 @@ function fromDate(date: Date, allDay: boolean) {
   }
 }
 
-export function eventNativeToVobject(event: NativeEvent) {
+function alarmNativeToVobject(alarm: Calendar.Alarm, description: string) {
+  if (alarm.relativeOffset === undefined) {
+    // FIXME: we only support relative alarms at the moment
+    return undefined;
+  }
+
+  const alarmComponent = new ICAL.Component(['valarm', [], []]);
+  alarmComponent.addPropertyWithValue('action', 'DISPLAY');
+  alarmComponent.addPropertyWithValue('description', description);
+  const trigger = ((alarm.relativeOffset < 0) ? '-' : '') + `PT${Math.abs(alarm.relativeOffset)}M`;
+  alarmComponent.addPropertyWithValue('trigger', trigger);
+
+  return alarmComponent;
+}
+
+function rruleNativeToVobject(rrule: Calendar.RecurrenceRule) {
+  const value = {
+    frequency: rrule.frequency.toUpperCase(),
+    interval: rrule.interval || 1,
+  } as any;
+
+  if (rrule.endDate) {
+    value.until = rrule.endDate;
+  }
+  if (rrule.occurrence) {
+    value.count = rrule.occurrence;
+  }
+
+  return value;
+}
+
+export function taskNativeToVobject(task: NativeTask): TaskType {
+  const ret = new TaskType();
+  ret.uid = task.uid;
+  ret.summary = task.title || '';
+  if (task.startDate) {
+    ret.startDate = fromDate(new Date(task.startDate), false);
+  }
+  if (task.dueDate) {
+    ret.dueDate = fromDate(new Date(task.dueDate), false);
+  }
+  if (task.completionDate) {
+    ret.completionDate = fromDate(new Date(task.completionDate), false);
+  }
+  ret.status = (task.completed) ? TaskStatusType.Completed : TaskStatusType.InProcess;
+  ret.location = task.location || '';
+  ret.description = task.notes || '';
+  if (task.alarms) {
+    task.alarms.forEach((alarm) => {
+      const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
+      ret.component.addSubcomponent(alarmComponent);
+    });
+  }
+
+  if (task.recurrenceRule) {
+    const value = rruleNativeToVobject(task.recurrenceRule);
+    ret.component.addPropertyWithValue('rrule', value);
+  }
+
+  if (task.timeZone) {
+    const timezone = timezoneLoadFromName(task.timeZone);
+    if (timezone) {
+      ret.startDate = (ret.startDate) ? ret.startDate : ret.startDate.convertToZone(timezone);
+      ret.dueDate = (ret.dueDate) ? ret.dueDate : ret.dueDate.convertToZone(timezone);
+      ret.completionDate = (ret.completionDate) ? ret.completionDate : ret.completionDate.convertToZone(timezone);
+    }
+  }
+
+  return ret;
+}
+
+export function eventNativeToVobject(event: NativeEvent): EventType {
   const startDate = fromDate(new Date(event.startDate), event.allDay);
   const endDate = fromDate(new Date(event.endDate), event.allDay);
 
@@ -168,34 +239,13 @@ export function eventNativeToVobject(event: NativeEvent) {
   ret.description = event.notes || '';
   if (event.alarms) {
     event.alarms.forEach((alarm) => {
-      if (alarm.relativeOffset === undefined) {
-        // FIXME: we only support relative alarms at the moment
-        return;
-      }
-
-      const alarmComponent = new ICAL.Component(['valarm', [], []]);
-      alarmComponent.addPropertyWithValue('action', 'DISPLAY');
-      alarmComponent.addPropertyWithValue('description', ret.summary);
-      const trigger = ((alarm.relativeOffset < 0) ? '-' : '') + `PT${Math.abs(alarm.relativeOffset)}M`;
-      alarmComponent.addPropertyWithValue('trigger', trigger);
-
+      const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
       ret.component.addSubcomponent(alarmComponent);
     });
   }
 
   if (event.recurrenceRule) {
-    const value = {
-      frequency: event.recurrenceRule.frequency.toUpperCase(),
-      interval: event.recurrenceRule.interval || 1,
-    } as any;
-
-    if (event.recurrenceRule.endDate) {
-      value.until = event.recurrenceRule.endDate;
-    }
-    if (event.recurrenceRule.occurrence) {
-      value.count = event.recurrenceRule.occurrence;
-    }
-
+    const value = rruleNativeToVobject(event.recurrenceRule);
     ret.component.addPropertyWithValue('rrule', value);
   }
 

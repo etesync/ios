@@ -5,7 +5,7 @@ import * as Calendar from 'expo-calendar';
 import { SyncInfo } from '../SyncGate';
 import { SyncStateJournalEntryData } from '../store';
 
-import { NativeTask, taskVobjectToNative, entryNativeHashCalc } from './helpers';
+import { NativeTask, taskVobjectToNative, taskNativeToVobject, entryNativeHashCalc } from './helpers';
 import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
@@ -23,7 +23,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
   }
 
   protected nativeToVobject(nativeItem: NativeTask) {
-    return null as TaskType;
+    return taskNativeToVobject(nativeItem);
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
