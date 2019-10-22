@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "EteSync",
+    "description": "Secure, end-to-end encrypted, and privacy respecting sync for your contacts, calendars and tasks.",
     "slug": "ios",
     "privacy": "public",
     "sdkVersion": "35.0.0",
@@ -8,6 +9,7 @@
       "ios"
     ],
     "version": "1.0.0",
+    "githubUrl": "https://github.com/etesync/ios",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
