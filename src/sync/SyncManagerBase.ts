@@ -8,6 +8,7 @@ import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 import { NativeBase } from './helpers';
+import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
 /*
  * This class should probably mirror exactly what's done in Android. So it should
@@ -180,6 +181,23 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
 
     this.syncStateEntries = syncStateEntriesAll.asImmutable();
+  }
+
+  protected pushJournalEntries(syncJournal: SyncInfoJournal, syncEntries: EteSync.SyncEntry[]) {
+    if (syncEntries.length > 0) {
+      let prevUid: string | null = null;
+      const last = syncJournal.journalEntries.last() as EteSync.Entry;
+      if (last) {
+        prevUid = last.uid;
+      }
+      const journalEntries = syncEntries.map((syncEntry) => {
+        const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, syncEntry);
+        prevUid = ret.uid;
+        return ret;
+      });
+
+      console.log(journalEntries.map((ent) => (ent.uid)));
+    }
   }
 
   protected abstract async createJournal(syncJournal: SyncInfoJournal): Promise<string>;

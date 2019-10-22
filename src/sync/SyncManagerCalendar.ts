@@ -11,7 +11,6 @@ import { unsetSyncStateJournal } from '../store/actions';
 import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc as _entryNativeHashCalc, NativeBase, NativeEvent } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
-import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
 import { SyncManagerBase } from './SyncManagerBase';
 
@@ -181,20 +180,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         }
       }
 
-      if (syncEntries.length > 0) {
-        let prevUid: string | null = null;
-        const last = syncJournal.journalEntries.last() as EteSync.Entry;
-        if (last) {
-          prevUid = last.uid;
-        }
-        const journalEntries = syncEntries.map((syncEntry) => {
-          const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, syncEntry);
-          prevUid = ret.uid;
-          return ret;
-        });
-
-        console.log(journalEntries.map((ent) => (ent.uid)));
-      }
+      this.pushJournalEntries(syncJournal, syncEntries);
     }
   }
 
