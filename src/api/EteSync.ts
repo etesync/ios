@@ -4,7 +4,7 @@ import URI from 'urijs';
 import * as Constants from './Constants';
 
 import { byte, base64, stringToByteArray } from './Helpers';
-import { CryptoManager, AsymmetricKeyPair, HMAC_SIZE_BYTES } from './Crypto';
+import { CryptoManager, AsymmetricCryptoManager, AsymmetricKeyPair, HMAC_SIZE_BYTES } from './Crypto';
 export { CryptoManager, AsymmetricCryptoManager, AsymmetricKeyPair, deriveKey, genUid } from './Crypto';
 
 type URI = typeof URI;
@@ -152,6 +152,16 @@ export class Journal extends BaseJournal<JournalJson> {
     return this._json.version;
   }
 
+  public getCryptoManager(derived: string, keyPair: AsymmetricKeyPair) {
+    if (this.key) {
+      const asymmetricCryptoManager = new AsymmetricCryptoManager(keyPair);
+      const derivedJournalKey = asymmetricCryptoManager.decryptBytes(this.key);
+      return CryptoManager.fromDerivedKey(derivedJournalKey, this.version);
+    } else {
+      return new CryptoManager(derived, this.uid, this.version);
+    }
+  }
+
   public setInfo(cryptoManager: CryptoManager, info: CollectionInfo) {
     this._json.uid = info.uid;
     this._content = info;
@@ -268,6 +278,10 @@ export class UserInfo extends BaseItem<UserInfoJson> {
     const ret = super.serialize();
     ret.owner = this._owner;
     return ret;
+  }
+
+  public getCryptoManager(derived: string) {
+    return new CryptoManager(derived, 'userInfo', this.version);
   }
 
   public setKeyPair(cryptoManager: CryptoManager, keyPair: AsymmetricKeyPair) {
