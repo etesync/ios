@@ -144,7 +144,7 @@ function RightAction() {
     >
       <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="pencil" title="Edit" />
       <Menu.Item onPress={() => navigation.navigate('JournalMembers', { journalUid })} icon="account-multiple" title="Members" />
-      <Menu.Item onPress={() => navigation.navigate('Import', { journalUid })} icon="import" title="Import" />
+      <Menu.Item onPress={() => navigation.navigate('JournalImport', { journalUid })} icon="import" title="Import" />
     </Menu>
   );
 }

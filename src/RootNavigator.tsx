@@ -5,6 +5,7 @@ import HomeScreen from './HomeScreen';
 import JournalScreen from './JournalEntriesScreen';
 import JournalItemScreen from './JournalItemScreen';
 import JournalEditScreen from './JournalEditScreen';
+import JournalImportScreen from './JournalImportScreen';
 import AppHeader from './AppHeader';
 
 import * as C from './constants';
@@ -16,6 +17,7 @@ const RootNavigator = createStackNavigator(
     JournalNew: JournalEditScreen,
     JournalEdit: JournalEditScreen,
     JournalItem: JournalItemScreen,
+    JournalImport: JournalImportScreen,
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
