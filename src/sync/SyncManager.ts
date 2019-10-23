@@ -4,7 +4,7 @@ import { Action } from 'redux-actions';
 import { CURRENT_VERSION } from '../api/Constants';
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { SyncManagerAddressBook } from './SyncManagerAddressBook';
@@ -94,6 +94,9 @@ export class SyncManager {
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     }
+
+    // Force flusing the store to disk
+    persistor.persist();
 
     return true;
   }
