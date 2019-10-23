@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Text } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider, Colors } from 'react-native-paper';
 
 import { createAppContainer, createDrawerNavigator } from 'react-navigation';
@@ -31,19 +30,7 @@ const AppNavigator = createAppContainer(createDrawerNavigator(
 ));
 
 class App extends React.Component {
-  public state = {
-    fontLoaded: false,
-  };
-
-  public async componentWillMount() {
-    this.setState({ fontLoaded: true });
-  }
-
   public render() {
-    if (!this.state.fontLoaded) {
-      return <Text>Loading</Text>;
-    }
-
     return (
       <PaperProvider theme={theme}>
         <ErrorBoundary>
