@@ -44,15 +44,16 @@ export class SyncManager {
     const etesync = this.etesync;
     const me = etesync.credentials.email;
 
-    let userInfo = await store.dispatch(fetchUserInfo(etesync, me));
-    if (userInfo.error || !userInfo.payload) {
+    const userInfoAction = await store.dispatch(fetchUserInfo(etesync, me));
+    let userInfo = userInfoAction.payload;
+    if (userInfoAction.error || !userInfoAction.payload) {
       const newUserInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
       const keyPair = await EteSync.AsymmetricCryptoManager.generateKeyPair();
-      const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, 'userInfo');
+      const cryptoManager = newUserInfo.getCryptoManager(etesync.encryptionKey);
 
       newUserInfo.setKeyPair(cryptoManager, keyPair);
 
-      userInfo = await store.dispatch<any>(createUserInfo(etesync, newUserInfo));
+      userInfo = (await store.dispatch<any>(createUserInfo(etesync, newUserInfo))).payload;
     }
 
     const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries));
@@ -64,7 +65,9 @@ export class SyncManager {
         collection.displayName = 'Default';
 
         const journal = new EteSync.Journal();
-        const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, collection.uid);
+        journal.uid = collection.uid;
+        const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
+        const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
         journal.setInfo(cryptoManager, collection);
         const journalAction: Action<EteSync.Journal> = await store.dispatch<any>(addJournal(etesync, journal));
         // FIXME: Limit based on error code to only do it for associates.

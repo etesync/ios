@@ -24,9 +24,10 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [_displayName, setDisplayName] = React.useState(null as string);
   const [_description, setDescription] = React.useState(null as string);
-  const { syncInfoCollections } = useSelector(
+  const { syncInfoCollections, userInfo } = useSelector(
     (state: StoreState) => ({
       syncInfoCollections: state.cache.syncInfoCollection,
+      userInfo: state.cache.userInfo,
     })
   );
   const syncGate = useSyncGate();
@@ -70,7 +71,9 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
 
     const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
     const journal = new EteSync.Journal();
-    const cryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, info.uid);
+    journal.uid = collection.uid;
+    const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
+    const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
     journal.setInfo(cryptoManager, info);
 
     // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.

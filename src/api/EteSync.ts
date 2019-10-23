@@ -136,6 +136,14 @@ export class Journal extends BaseJournal<JournalJson> {
     this._json.version = version;
   }
 
+  set uid(uid: string) {
+    this._json.uid = uid;
+  }
+
+  get uid(): string {
+    return this._json.uid;
+  }
+
   get key(): byte[] | undefined {
     if (this._json.key) {
       return sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(this._json.key));

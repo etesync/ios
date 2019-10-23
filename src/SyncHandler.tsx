@@ -35,9 +35,9 @@ export const syncInfoSelector = createSelector(
     const syncInfoCollection = store.getState().cache.syncInfoCollection;
     const syncInfoItem = store.getState().cache.syncInfoItem;
     const derived = etesync.encryptionKey;
+    const userInfoCryptoManager = userInfo.getCryptoManager(etesync.encryptionKey);
     let asymmetricCryptoManager: EteSync.AsymmetricCryptoManager;
     try {
-      const userInfoCryptoManager = new EteSync.CryptoManager(etesync.encryptionKey, 'userInfo');
       userInfo.verify(userInfoCryptoManager);
     } catch (error) {
       if (error instanceof EteSync.IntegrityError) {
@@ -60,7 +60,7 @@ export const syncInfoSelector = createSelector(
       let derivedJournalKey: byte[];
       if (journal.key) {
         if (!asymmetricCryptoManager) {
-          const keyPair = userInfo.getKeyPair(new EteSync.CryptoManager(derived, 'userInfo', userInfo.version));
+          const keyPair = userInfo.getKeyPair(userInfoCryptoManager);
           asymmetricCryptoManager = new EteSync.AsymmetricCryptoManager(keyPair);
         }
         derivedJournalKey = asymmetricCryptoManager.decryptBytes(journal.key);
