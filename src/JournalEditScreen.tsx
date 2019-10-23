@@ -20,7 +20,7 @@ interface FormErrors {
   displayName?: string;
 }
 
-const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen() {
+const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen() {
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [_displayName, setDisplayName] = React.useState(null as string);
   const [_description, setDescription] = React.useState(null as string);
@@ -166,7 +166,7 @@ function RightAction() {
   );
 }
 
-JournalItemScreen.navigationOptions = ({ navigation }) => {
+JournalEditScreen.navigationOptions = ({ navigation }) => {
   const journalUid = navigation.getParam('journalUid');
 
   return {
@@ -177,4 +177,4 @@ JournalItemScreen.navigationOptions = ({ navigation }) => {
   };
 };
 
-export default JournalItemScreen;
+export default JournalEditScreen;
