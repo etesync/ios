@@ -53,7 +53,6 @@
     "@types/sjcl": "^1.0.28",
     "@types/urijs": "^1.15.38",
     "@types/uuid": "^3.4.4",
-    "@types/webcrypto": "^0.0.28",
     "babel-preset-expo": "^7.0.0",
     "jest-expo": "^35.0.0",
     "react-test-renderer": "^16.8.6",
