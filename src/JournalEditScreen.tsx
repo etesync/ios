@@ -152,8 +152,8 @@ function RightAction() {
         title="Are you sure?"
         visible={confirmationVisible}
         onOk={() => {
-          navigation.navigate('home');
-          store.dispatch<any>(deleteJournal(etesync, journal)).then(() => {
+          return store.dispatch<any>(deleteJournal(etesync, journal)).then(() => {
+            navigation.navigate('home');
             // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
             const syncManager = SyncManager.getManager(etesync);
             store.dispatch(performSync(syncManager.sync()));
