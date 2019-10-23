@@ -36,6 +36,7 @@ function cleanCalendrItemForWriting(event: Calendar.Event | Calendar.Reminder) {
 async function eventsImport(localId: string, toLocalId: string) {
   const now = new Date();
   const dateYearRange = 4; // Maximum year range supported on iOS
+  const handled = {};
 
   for (let i = -2 ; i <= 1 ; i++) {
     const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
@@ -43,6 +44,11 @@ async function eventsImport(localId: string, toLocalId: string) {
 
     const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
     for (const event of existingEvents) {
+      if (handled[event.id]) {
+        continue;
+      }
+
+      handled[event.id] = true;
       // FIXME: remove read-only fields
       cleanCalendrItemForWriting(event);
       await Calendar.createEventAsync(toLocalId, event);
@@ -74,6 +80,7 @@ function tasksFetchDeviceCollections(setDeviceCollections: (collections: ImportC
 async function tasksImport(localId: string, toLocalId: string) {
   const now = new Date();
   const dateYearRange = 4; // Maximum year range supported on iOS
+  const handled = {};
 
   for (let i = -2 ; i <= 1 ; i++) {
     const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
@@ -81,6 +88,11 @@ async function tasksImport(localId: string, toLocalId: string) {
 
     const existingTasks = await Calendar.getRemindersAsync([localId] as any, undefined, eventsRangeStart, eventsRangeEnd);
     for (const task of existingTasks) {
+      if (handled[task.id]) {
+        continue;
+      }
+      handled[task.id] = true;
+
       // FIXME: remove read-only fields
       cleanCalendrItemForWriting(task);
       await Calendar.createReminderAsync(toLocalId, task);

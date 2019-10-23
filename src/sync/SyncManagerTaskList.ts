@@ -26,6 +26,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         continue;
       }
 
+      const handled = {};
       const collection = syncJournal.collection;
       const uid = collection.uid;
       logger.info(`Pushing ${uid}`);
@@ -46,6 +47,11 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         const existingReminders = await Calendar.getRemindersAsync([localId] as any, undefined, remindersRangeStart, remindersRangeEnd);
 
         existingReminders.forEach((_reminder) => {
+          if (handled[_reminder.id]) {
+            return;
+          }
+          handled[_reminder.id] = true;
+
           const syncStateEntry = syncStateEntriesReverse.get(_reminder.id);
 
           // FIXME: ignore recurring reminders at the moment as they seem to be broken with Expo

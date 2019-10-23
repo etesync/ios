@@ -97,6 +97,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         continue;
       }
 
+      const handled = {};
       const collection = syncJournal.collection;
       const uid = collection.uid;
       logger.info(`Pushing ${uid}`);
@@ -115,8 +116,12 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
 
         const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
-
         existingEvents.forEach((_event) => {
+          if (handled[_event.id]) {
+            return;
+          }
+          handled[_event.id] = true;
+
           const syncStateEntry = syncStateEntriesReverse.get(_event.id);
 
           // FIXME: ignore recurring events at the moment as they seem to be broken with Expo
