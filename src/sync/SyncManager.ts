@@ -7,7 +7,7 @@ import { syncInfoSelector } from '../SyncHandler';
 import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
-import { SyncManagerAddressBook } from './SyncManagerAddressBook';
+// import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
 import { SyncManagerTaskList } from './SyncManagerTaskList';
 
@@ -34,6 +34,12 @@ export class SyncManager {
   protected collectionType: string;
   protected syncStateJournals: SyncStateJournalData;
   protected syncStateEntries: SyncStateEntryData;
+
+  private managers = [
+    SyncManagerCalendar,
+    SyncManagerTaskList,
+    // SyncManagerAddressBook,
+  ];
 
   constructor(etesync: CredentialsData) {
     this.etesync = etesync;
@@ -89,10 +95,8 @@ export class SyncManager {
     const syncStateEntries = storeState.sync.stateEntries;
     const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
-    // FIXME: make the sync parallel.
-    const managers = [SyncManagerCalendar, SyncManagerTaskList, SyncManagerAddressBook];
-    managers.pop(); // FIXME: Removing the address book as it's not yet supported.
-    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
+    // FIXME: make the sync parallel
+    for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
       await syncManager.init();
       await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
     }
@@ -101,5 +105,15 @@ export class SyncManager {
     persistor.persist();
 
     return true;
+  }
+
+  public async clearDeviceCollections() {
+    const storeState = store.getState();
+    const userInfo = storeState.cache.userInfo;
+
+    for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
+      await syncManager.init();
+      await syncManager.clearDeviceCollections();
+    }
   }
 }

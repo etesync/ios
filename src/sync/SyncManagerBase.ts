@@ -44,7 +44,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     this.syncStateEntries = syncStateEntries;
 
     if (__DEV__) {
-      // await this.clearDeviceCollections(syncInfo);
+      // await this.clearDeviceCollections();
     }
     logger.info(`Starting sync: ${this.collectionType}`);
     logger.info('Syncing journal list');
@@ -55,6 +55,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     await this.syncPush(syncInfo);
     logger.info(`Finished sync: ${this.collectionType}`);
   }
+
+  public abstract async clearDeviceCollections(): Promise<void>;
 
   protected async syncJournalList(syncInfo: SyncInfo) {
     const etesync = this.etesync;
@@ -249,6 +251,4 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   protected abstract nativeToVobject(nativeItem: N): T;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
-
-  protected abstract async clearDeviceCollections(syncInfo: SyncInfo): Promise<void>;
 }

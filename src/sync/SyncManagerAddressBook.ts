@@ -21,6 +21,35 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     this.containerId = await Contacts.getDefaultContainerIdAsync();
   }
 
+  public async clearDeviceCollections() {
+    const etesync = this.etesync;
+    const syncStateJournals = this.syncStateJournals.asMutable();
+    const syncStateEntries = this.syncStateEntries.asMutable();
+
+    const contacts = (await Contacts.getContactsAsync()).data;
+    for (const contact of contacts) {
+      logger.info(`Deleting ${contact.id}`);
+      await Contacts.removeContactAsync(contact.id);
+    }
+
+    await Promise.all(syncStateJournals.map(async (journal) => {
+      store.dispatch(unsetSyncStateJournal(etesync, journal));
+      try {
+        await Contacts.getGroupsAsync({ groupId: journal.localId });
+        await Contacts.removeGroupAsync(journal.localId);
+      } catch (e) {
+        logger.warn(e);
+      }
+      syncStateJournals.delete(journal.uid);
+
+      // Deletion from the store happens automatically
+      syncStateEntries.delete(journal.uid);
+    }));
+
+    this.syncStateJournals = syncStateJournals.asImmutable();
+    this.syncStateEntries = syncStateEntries.asImmutable();
+  }
+
   protected async syncPush(syncInfo: SyncInfo) {
     //
   }
@@ -90,35 +119,5 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
   protected async deleteJournal(containerLocalId: string) {
     return Contacts.removeGroupAsync(containerLocalId);
-  }
-
-
-  protected async clearDeviceCollections(syncInfo: SyncInfo) {
-    const etesync = this.etesync;
-    const syncStateJournals = this.syncStateJournals.asMutable();
-    const syncStateEntries = this.syncStateEntries.asMutable();
-
-    const contacts = (await Contacts.getContactsAsync()).data;
-    for (const contact of contacts) {
-      logger.info(`Deleting ${contact.id}`);
-      await Contacts.removeContactAsync(contact.id);
-    }
-
-    await Promise.all(syncStateJournals.map(async (journal) => {
-      store.dispatch(unsetSyncStateJournal(etesync, journal));
-      try {
-        await Contacts.getGroupsAsync({ groupId: journal.localId });
-        await Contacts.removeGroupAsync(journal.localId);
-      } catch (e) {
-        logger.warn(e);
-      }
-      syncStateJournals.delete(journal.uid);
-
-      // Deletion from the store happens automatically
-      syncStateEntries.delete(journal.uid);
-    }));
-
-    this.syncStateJournals = syncStateJournals.asImmutable();
-    this.syncStateEntries = syncStateEntries.asImmutable();
   }
 }
