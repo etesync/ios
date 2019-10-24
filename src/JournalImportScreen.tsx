@@ -4,7 +4,7 @@ import * as Calendar from 'expo-calendar';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { ScrollView } from 'react-native';
-import { List, Paragraph } from 'react-native-paper';
+import { Divider, List, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
 import { useCredentials } from './login';
@@ -12,6 +12,7 @@ import { useSyncGate } from './SyncGate';
 import { store, StoreState } from './store';
 import { performSync } from './store/actions';
 
+import Container from './widgets/Container';
 import ColorBox from './widgets/ColorBox';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
@@ -123,15 +124,18 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let importCollection: typeof eventsImport;
+  let showDisclaimer: boolean;
   switch (collectionType) {
     case 'CALENDAR': {
       fetchDeviceCollections = eventsFetchDeviceCollections;
       importCollection = eventsImport;
+      showDisclaimer = true;
       break;
     }
     case 'TASKS': {
       fetchDeviceCollections = tasksFetchDeviceCollections;
       importCollection = tasksImport;
+      showDisclaimer = true;
       break;
     }
     default: {
@@ -159,6 +163,17 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
 
   return (
     <React.Fragment>
+      { (showDisclaimer) ? (
+        <>
+          <Container>
+            <Paragraph>
+              Due to limitations in iOS only items from up to 8 years in the past and 4 years in the future will be imported.
+            </Paragraph>
+          </Container>
+          <Divider />
+        </>
+        ) : null
+      }
       <ScrollView style={{ flex: 1 }}>
         { deviceCollections.map(
           (collection) => (collection.id === syncStateJournal.localId) ?
