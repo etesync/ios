@@ -12,12 +12,14 @@ interface PropsType {
   onOk?: () => void | Promise<any>;
   labelCancel?: string;
   labelOk?: string;
+  loadingText?: string;
 }
 
 export default React.memo(function ConfirmationDialog(props: PropsType) {
   const [loading, setLoading] = React.useState(false);
   const labelCancel = props.labelCancel || 'Cancel';
   const labelOk = props.labelOk || 'OK';
+  const loadingText = props.loadingText || 'Loading...';
 
   React.useMemo(() => {
     Keyboard.dismiss();
@@ -41,7 +43,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
         <Dialog.Content>
           { (loading) ?
             <>
-              <Paragraph>Loading...</Paragraph>
+              <Paragraph>{loadingText}</Paragraph>
               <ProgressBar indeterminate />
             </> :
             props.children
