@@ -13,6 +13,7 @@ import PrettyFingerprint from './widgets/PrettyFingerprint';
 import Container from './widgets/Container';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
+import ErrorDialog from './widgets/ErrorDialog';
 
 import * as EteSync from './api/EteSync';
 import * as sjcl from 'sjcl';
@@ -20,6 +21,11 @@ import * as sjcl from 'sjcl';
 const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {
   const [members, setMembers] = React.useState(undefined as EteSync.JournalMemberJson[]);
   const [revokeUser, setRevokeUser] = React.useState(undefined as string);
+  const { journals } = useSelector(
+    (state: StoreState) => ({
+      journals: state.cache.journals,
+    })
+  );
   const syncGate = useSyncGate();
   const navigation = useNavigation();
   const etesync = useCredentials();
@@ -29,8 +35,25 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
   }
 
   const journalUid = navigation.getParam('journalUid');
-  // FIXME: don't allow sharing to type 1 journals
-  // And only if we are owners
+  const journal = journals.get(journalUid);
+
+  let error: string;
+  if (journal.version < 2) {
+    error = 'Sharing of old-style collections is not allowed. In order to share this collection, create a new one, and copy its contents over using the "import" dialog. If you are experiencing any issues, please contact support.';
+  } else if (journal.owner !== etesync.credentials.email) {
+    error = `Only the owner of the collection (${journal.owner}) can view and modify its members.`;
+  }
+
+  if (error) {
+    return (
+      <ErrorDialog
+        error={error}
+        onOk={() => {
+          navigation.goBack();
+        }}
+      />
+    );
+  }
 
   if (!members) {
     const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journalUid);
