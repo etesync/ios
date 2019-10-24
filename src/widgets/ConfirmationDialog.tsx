@@ -8,6 +8,7 @@ interface PropsType {
   title: string;
   children: React.ReactNode | React.ReactNode[];
   visible: boolean;
+  dismissable?: boolean;
   onCancel?: () => void;
   onOk?: () => void | Promise<any>;
   labelCancel?: string;
@@ -38,6 +39,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
       <Dialog
         visible={props.visible}
         onDismiss={props.onCancel}
+        dismissable={props.dismissable && !loading}
       >
         <Dialog.Title>{props.title}</Dialog.Title>
         <Dialog.Content>
