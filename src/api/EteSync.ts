@@ -131,17 +131,13 @@ export interface JournalJson extends BaseJson {
 }
 
 export class Journal extends BaseJournal<JournalJson> {
-  constructor(version: number = Constants.CURRENT_VERSION) {
+  constructor(initial?: Partial<JournalJson>, version: number = Constants.CURRENT_VERSION) {
     super();
-    this._json.version = version;
-  }
-
-  set uid(uid: string) {
-    this._json.uid = uid;
-  }
-
-  get uid(): string {
-    return this._json.uid;
+    this._json = {
+      ...this._json,
+      version,
+      ...initial,
+    };
   }
 
   get key(): byte[] | undefined {
@@ -446,7 +442,7 @@ export class JournalManager extends BaseManager {
   public fetch(journalUid: string): Promise<Journal> {
     return new Promise((resolve, reject) => {
       this.newCall<JournalJson>([journalUid, '']).then((json) => {
-        const journal = new Journal(json.version);
+        const journal = new Journal({ uid: json.uid }, json.version);
         journal.deserialize(json);
         resolve(journal);
       }).catch((error: Error) => {
@@ -459,7 +455,7 @@ export class JournalManager extends BaseManager {
     return new Promise((resolve, reject) => {
       this.newCall<JournalJson[]>().then((json) => {
         resolve(json.map((val: JournalJson) => {
-          const journal = new Journal(val.version);
+          const journal = new Journal({ uid: val.uid }, val.version);
           journal.deserialize(val);
           return journal;
         }));

@@ -64,8 +64,7 @@ export class SyncManager {
         collection.type = collectionType;
         collection.displayName = 'Default';
 
-        const journal = new EteSync.Journal();
-        journal.uid = collection.uid;
+        const journal = new EteSync.Journal({ uid: collection.uid });
         const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
         const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
         journal.setInfo(cryptoManager, collection);

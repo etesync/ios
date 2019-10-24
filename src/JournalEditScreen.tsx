@@ -24,8 +24,9 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [_displayName, setDisplayName] = React.useState(null as string);
   const [_description, setDescription] = React.useState(null as string);
-  const { syncInfoCollections, userInfo } = useSelector(
+  const { syncInfoCollections, journals, userInfo } = useSelector(
     (state: StoreState) => ({
+      journals: state.cache.journals,
       syncInfoCollections: state.cache.syncInfoCollection,
       userInfo: state.cache.userInfo,
     })
@@ -70,8 +71,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
     }
 
     const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
-    const journal = new EteSync.Journal();
-    journal.uid = collection.uid;
+    const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid).serialize() : { uid: journalUid });
     const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
     const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
     journal.setInfo(cryptoManager, info);
