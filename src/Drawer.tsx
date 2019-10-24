@@ -129,10 +129,13 @@ function Drawer() {
               <List.Item
                 title="Logout"
                 onPress={() => {
-                  navigation.navigate('Auth');
                   dispatch(logout());
-                  // FIXME: Hack to make sure data is cleaned.
-                  persistor.purge();
+
+                  // FIXME: we are purging to make sure all the data is clean.
+                  // We probably don't want to clear everything though.
+                  persistor.purge().then(() => {
+                    navigation.navigate('Auth');
+                  });
                 }}
                 left={(props) => <List.Icon {...props} icon="exit-to-app" />}
               />

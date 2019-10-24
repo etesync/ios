@@ -86,10 +86,10 @@ export const credentials = handleActions(
       }
     },
     [actions.logout.toString()]: (state: CredentialsDataRemote, action: any) => {
-      return null;
+      return {};
     },
   },
-  null
+  {} as CredentialsDataRemote
 );
 
 function entriesListSetExtend(
