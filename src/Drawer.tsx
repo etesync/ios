@@ -9,6 +9,8 @@ import { useDispatch } from 'react-redux';
 import { persistor, StoreState } from './store';
 import { logout } from './store/actions';
 
+import { SyncManager } from './sync/SyncManager';
+
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PrettyFingerprint from './widgets/PrettyFingerprint';
 
@@ -87,9 +89,47 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
   );
 }
 
+function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const etesync = useCredentials();
+
+  if (!etesync) {
+    return null;
+  }
+
+  return (
+    <ConfirmationDialog
+      title="Are you sure?"
+      visible={props.visible}
+      onOk={async () => {
+        const syncManager = SyncManager.getManager(etesync);
+        await syncManager.clearDeviceCollections();
+
+        dispatch(logout());
+
+        // FIXME: we are purging to make sure all the data is clean.
+        // We probably don't want to clear everything though.
+        await persistor.purge();
+        navigation.navigate('Auth');
+
+        props.onDismiss();
+      }}
+      onCancel={props.onDismiss}
+    >
+      <Paragraph>
+        Are you sure you would like to log out?
+      </Paragraph>
+      <Paragraph>
+        Logging out will remove your account and all of its data from your device, and unsynced changes WILL be lost.
+      </Paragraph>
+    </ConfirmationDialog>
+  );
+}
+
 function Drawer() {
   const [showFingerprint, setShowFingerprint] = React.useState(false);
-  const dispatch = useDispatch();
+  const [showLogout, setShowLogout] = React.useState(false);
   const navigation = useNavigation();
   const etesync = useCredentials();
 
@@ -128,15 +168,7 @@ function Drawer() {
               />
               <List.Item
                 title="Logout"
-                onPress={() => {
-                  dispatch(logout());
-
-                  // FIXME: we are purging to make sure all the data is clean.
-                  // We probably don't want to clear everything though.
-                  persistor.purge().then(() => {
-                    navigation.navigate('Auth');
-                  });
-                }}
+                onPress={() => setShowLogout(true)}
                 left={(props) => <List.Icon {...props} icon="exit-to-app" />}
               />
             </>
@@ -156,6 +188,7 @@ function Drawer() {
       </ScrollView>
 
       <FingerprintDialog visible={showFingerprint} onDismiss={() => setShowFingerprint(false)} />
+      <LogoutDialog visible={showLogout} onDismiss={() => setShowLogout(false)} />
     </>
   );
 }
