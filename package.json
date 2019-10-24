@@ -58,7 +58,7 @@
     "react-test-renderer": "^16.8.6",
     "tslint": "^5.12.1",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.7.1-rc"
   },
   "jest": {
     "preset": "jest-expo"
