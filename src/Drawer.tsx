@@ -1,12 +1,16 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView, Image, Linking } from 'react-native';
-import { Subheading, Divider, List, Text } from 'react-native-paper';
+import { ScrollView, Image, Linking, View } from 'react-native';
+import { Subheading, Divider, List, Text, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
 import { useDispatch } from 'react-redux';
-import { persistor } from './store';
+import { persistor, StoreState } from './store';
 import { logout } from './store/actions';
+
+import ConfirmationDialog from './widgets/ConfirmationDialog';
+import PrettyFingerprint from './widgets/PrettyFingerprint';
 
 import { useCredentials } from './login';
 import Container from './widgets/Container';
@@ -49,7 +53,42 @@ const externalMenuItems = [
   },
 ];
 
+function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
+  const { userInfo } = useSelector(
+    (state: StoreState) => ({
+      userInfo: state.cache.userInfo,
+    })
+  );
+
+  if (!userInfo) {
+    return null;
+  }
+
+  const publicKey = userInfo.publicKey;
+
+  return (
+    <ConfirmationDialog
+      title="Security Fingerprint"
+      visible={props.visible}
+      onOk={props.onDismiss}
+      onCancel={props.onDismiss}
+    >
+      <>
+        <Paragraph>
+          Your security fingerprint is:
+        </Paragraph>
+        { publicKey &&
+          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
+            <PrettyFingerprint publicKey={publicKey} />
+          </View>
+        }
+      </>
+    </ConfirmationDialog>
+  );
+}
+
 function Drawer() {
+  const [showFingerprint, setShowFingerprint] = React.useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const etesync = useCredentials();
@@ -83,7 +122,7 @@ function Drawer() {
               <List.Item
                 title="Show Fingerprint"
                 onPress={() => {
-                  console.log('Show fingerprint');
+                  setShowFingerprint(true);
                 }}
                 left={(props) => <List.Icon {...props} icon="fingerprint" />}
               />
@@ -112,6 +151,8 @@ function Drawer() {
           )) }
         </List.Section>
       </ScrollView>
+
+      <FingerprintDialog visible={showFingerprint} onDismiss={() => setShowFingerprint(false)} />
     </>
   );
 }
