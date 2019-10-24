@@ -12,6 +12,7 @@ import { useSyncGate } from './SyncGate';
 import { store, StoreState } from './store';
 import { performSync } from './store/actions';
 
+import ColorBox from './widgets/ColorBox';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 
@@ -165,6 +166,10 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
               <List.Item
                 key={collection.id}
                 title={collection.title}
+                right={() => (collection.color) ?
+                  <ColorBox size={36} color={collection.color} /> :
+                  null
+                }
                 description={collection.description}
                 onPress={() => setSelectedCollection(collection)}
               />
