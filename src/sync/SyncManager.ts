@@ -1,3 +1,5 @@
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
+
 import * as EteSync from '../api/EteSync';
 import { Action } from 'redux-actions';
 
@@ -84,21 +86,28 @@ export class SyncManager {
   }
 
   public async sync() {
-    prngAddEntropy();
-    await this.fetchAllJournals();
+    const keepAwakeTag = 'SyncManager';
 
-    const storeState = store.getState();
-    const entries = storeState.cache.entries;
-    const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
-    const userInfo = storeState.cache.userInfo;
-    const syncStateJournals = storeState.sync.stateJournals;
-    const syncStateEntries = storeState.sync.stateEntries;
-    const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+    try {
+      activateKeepAwake(keepAwakeTag);
+      prngAddEntropy();
+      await this.fetchAllJournals();
 
-    // FIXME: make the sync parallel
-    for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
-      await syncManager.init();
-      await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
+      const storeState = store.getState();
+      const entries = storeState.cache.entries;
+      const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
+      const userInfo = storeState.cache.userInfo;
+      const syncStateJournals = storeState.sync.stateJournals;
+      const syncStateEntries = storeState.sync.stateEntries;
+      const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+
+      // FIXME: make the sync parallel
+      for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
+        await syncManager.init();
+        await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
+      }
+    } finally {
+      deactivateKeepAwake(keepAwakeTag);
     }
 
     // Force flusing the store to disk
