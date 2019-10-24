@@ -2,13 +2,14 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { List, Appbar, Paragraph, TextInput, HelperText } from 'react-native-paper';
 
 import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 import { StoreState } from './store';
 
+import PrettyFingerprint from './widgets/PrettyFingerprint';
 import Container from './widgets/Container';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
@@ -145,7 +146,11 @@ function RightAction() {
           <Paragraph>
             Verify {username}'s security fingerprint to ensure the encryption is secure.
           </Paragraph>
-          <Paragraph>FINGERPRINT GOES HERE</Paragraph>
+          { publicKey &&
+            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
+              <PrettyFingerprint publicKey={publicKey} />
+            </View>
+          }
         </>
       </ConfirmationDialog>
       { memberDialogVisible &&
