@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import * as Calendar from 'expo-calendar';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView, View } from 'react-native';
-import { List, Paragraph, ProgressBar } from 'react-native-paper';
+import { ScrollView } from 'react-native';
+import { List, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
 import { useCredentials } from './login';
@@ -101,7 +101,6 @@ async function tasksImport(localId: string, toLocalId: string) {
 }
 
 const JournalImportScreen: NavigationScreenComponent = function _JournalImportScreen() {
-  const [importing, setImporting] = React.useState(false);
   const [deviceCollections, setDeviceCollections] = React.useState(undefined as ImportCollection[]);
   const [selectedCollection, setSelectedCollection] = React.useState(null as ImportCollection);
   const { syncStateJournals, syncInfoCollections } = useSelector(
@@ -174,10 +173,10 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
       </ScrollView>
       <ConfirmationDialog
         title="Import Confirmation"
-        visible={!importing && !!selectedCollection}
+        visible={!!selectedCollection}
+        loadingText="Please wait, may take a while..."
         onOk={() => {
-          setImporting(true);
-          importCollection(selectedCollection.id, syncStateJournal.localId).then(() => {
+          return importCollection(selectedCollection.id, syncStateJournal.localId).then(() => {
             const syncManager = SyncManager.getManager(etesync);
             store.dispatch(performSync(syncManager.sync()));
             setSelectedCollection(null);
@@ -191,15 +190,6 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
         <Paragraph>
           Are you sure you would like to import from "{selectedCollection && selectedCollection.title}?"
         </Paragraph>
-      </ConfirmationDialog>
-      <ConfirmationDialog
-        title="Importing..."
-        visible={importing}
-      >
-        <View>
-          <Paragraph>Please wait, may take a while...</Paragraph>
-          <ProgressBar indeterminate />
-        </View>
       </ConfirmationDialog>
     </React.Fragment>
   );
