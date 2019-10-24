@@ -82,8 +82,9 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
 };
 
 function RightAction() {
-  const [confirmationVisible, setConfirmationVisible] = React.useState(false);
+  const [memberDialogVisible, setMemberDialogVisible] = React.useState(false);
   const [username, setUsername] = React.useState('');
+  const [publicKey, setPublicKey] = React.useState('');
   const [errorUsername, setErrorUsername] = React.useState(null as string);
   const navigation = useNavigation();
   const etesync = useCredentials();
@@ -100,10 +101,6 @@ function RightAction() {
   async function memberAdd() {
     const derived = etesync.encryptionKey;
 
-    const userInfoManager = new EteSync.UserInfoManager(etesync.credentials, etesync.serviceApiUrl);
-    const newUserInfo = await userInfoManager.fetch(username);
-    const publicKey = newUserInfo.publicKey;
-
     const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(derived));
     const cryptoManager = journal.getCryptoManager(derived, keyPair);
 
@@ -118,44 +115,72 @@ function RightAction() {
     });
   }
 
+  async function memberPubkeyGet() {
+    const userInfoManager = new EteSync.UserInfoManager(etesync.credentials, etesync.serviceApiUrl);
+    const newUserInfo = await userInfoManager.fetch(username);
+    return newUserInfo.publicKey;
+  }
+
   return (
     <React.Fragment>
       <Appbar.Action
         icon="account-plus"
         onPress={() => {
-          setConfirmationVisible(true);
+          setMemberDialogVisible(true);
         }}
       />
       <ConfirmationDialog
-        title="Add Member"
-        visible={confirmationVisible}
+        title="Verify security fingerprint"
+        visible={!!publicKey}
         onOk={async () => {
           await memberAdd();
           navigation.goBack();
         }}
         onCancel={() => {
-          setConfirmationVisible(false);
+          setPublicKey(undefined);
+          setMemberDialogVisible(false);
         }}
       >
         <>
-          <TextInput
-            keyboardType={'email-address'}
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoFocus
-            error={!!errorUsername}
-            onChangeText={setUsername}
-            label="Username"
-            value={username}
-          />
-          <HelperText
-            type="error"
-            error={!!errorUsername}
-          >
-            {errorUsername}
-          </HelperText>
+          <Paragraph>
+            Verify {username}'s security fingerprint to ensure the encryption is secure.
+          </Paragraph>
+          <Paragraph>FINGERPRINT GOES HERE</Paragraph>
         </>
       </ConfirmationDialog>
+      { memberDialogVisible &&
+        <ConfirmationDialog
+          title="Add Member"
+          visible={memberDialogVisible && !publicKey}
+          onOk={async () => {
+            const ret = await memberPubkeyGet();
+            setPublicKey(ret);
+            return ret;
+          }}
+          onCancel={() => {
+            setMemberDialogVisible(false);
+          }}
+        >
+          <>
+            <TextInput
+              keyboardType={'email-address'}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus
+              error={!!errorUsername}
+              onChangeText={setUsername}
+              label="Username"
+              value={username}
+            />
+            <HelperText
+              type="error"
+              error={!!errorUsername}
+            >
+              {errorUsername}
+            </HelperText>
+          </>
+        </ConfirmationDialog>
+      }
     </React.Fragment>
   );
 }
