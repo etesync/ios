@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Keyboard } from 'react-native';
 import { Portal, Dialog, Button, ProgressBar, Paragraph } from 'react-native-paper';
 
+import { isPromise } from '../helpers';
+
 interface PropsType {
   title: string;
   children: React.ReactNode | React.ReactNode[];
@@ -23,7 +25,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
 
   function onOk() {
     const ret = props.onOk();
-    if (ret && ret.then) {
+    if (isPromise(ret)) {
       // If it's a promise, we update the loading state based on it.
       setLoading(true);
     }

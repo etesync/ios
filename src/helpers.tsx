@@ -18,3 +18,7 @@ export function colorIntToHtml(color: number) {
   return '#' + toHex(red) + toHex(green) + toHex(blue) +
     ((alpha > 0) ? toHex(alpha) : '');
 }
+
+export function isPromise(x: any): x is Promise<any> {
+    return (x && x.then);
+}
