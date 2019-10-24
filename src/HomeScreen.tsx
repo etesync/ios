@@ -11,6 +11,8 @@ import 'moment/locale/en-gb';
 import { SyncManager } from './sync/SyncManager';
 
 import JournalListScreen from './components/JournalListScreen';
+import LoadingIndicator from './widgets/LoadingIndicator';
+import Container from './widgets/Container';
 
 import { StoreState } from './store';
 import { performSync } from './store/actions';
@@ -22,8 +24,8 @@ export * from './SyncHandler'; // FIXME: Should be granular
 import { logger } from './logging';
 
 
-function usePermissions(): boolean {
-  const [hasPermissions, setHasPermissions] = React.useState(false);
+function usePermissions() {
+  const [hasPermissions, setHasPermissions] = React.useState(null as boolean);
   const [asked, setAsked] = React.useState(false);
 
   if (!asked) {
@@ -35,7 +37,14 @@ function usePermissions(): boolean {
     })();
   }
 
-  return hasPermissions;
+  if (hasPermissions === null) {
+    return (<LoadingIndicator />);
+  } else if (hasPermissions === false) {
+    // FIXME: show an error message + a button to give permissions
+    return (<Text>Please give this app permissions to access your contacts, calendars and tasks from the system settings app.</Text>);
+  } else {
+    return null;
+  }
 }
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
@@ -48,7 +57,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
     })
   );
   const SyncGate = useSyncGate();
-  const hasPermissions = usePermissions();
+  const permissionsStatus = usePermissions();
 
   React.useMemo(() => {
     const syncManager = SyncManager.getManager(etesync);
@@ -59,9 +68,12 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
     moment.locale(settings.locale);
   }, [settings.locale]);
 
-  if (!hasPermissions) {
-    // FIXME: show an error message + a button to give permissions
-    return <Text>Permissions denied. Please give the app permissions from the settings</Text>;
+  if (permissionsStatus) {
+    return (
+      <Container>
+        {permissionsStatus}
+      </Container>
+    );
   }
 
   if (!errors.isEmpty()) {
