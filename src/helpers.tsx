@@ -20,5 +20,5 @@ export function colorIntToHtml(color: number) {
 }
 
 export function isPromise(x: any): x is Promise<any> {
-    return (x && x.then);
+  return x && typeof x.then === 'function';
 }
