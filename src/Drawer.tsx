@@ -79,6 +79,14 @@ function Drawer() {
               />
           )) }
           { etesync &&
+            <>
+              <List.Item
+                title="Show Fingerprint"
+                onPress={() => {
+                  console.log('Show fingerprint');
+                }}
+                left={(props) => <List.Icon {...props} icon="fingerprint" />}
+              />
               <List.Item
                 title="Logout"
                 onPress={() => {
@@ -89,6 +97,7 @@ function Drawer() {
                 }}
                 left={(props) => <List.Icon {...props} icon="exit-to-app" />}
               />
+            </>
           }
         </>
         <Divider />
