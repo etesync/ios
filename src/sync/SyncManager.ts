@@ -52,11 +52,11 @@ export class SyncManager {
     const etesync = this.etesync;
     const me = etesync.credentials.email;
 
-    const userInfoAction = await store.dispatch(fetchUserInfo(etesync, me));
-    let userInfo = userInfoAction.payload;
+    const userInfoAction = store.dispatch(fetchUserInfo(etesync, me));
+    let userInfo = await userInfoAction.payload;
     if (userInfoAction.error || !userInfoAction.payload) {
       const newUserInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
-      const keyPair = await EteSync.AsymmetricCryptoManager.generateKeyPair();
+      const keyPair = EteSync.AsymmetricCryptoManager.generateKeyPair();
       const cryptoManager = newUserInfo.getCryptoManager(etesync.encryptionKey);
 
       newUserInfo.setKeyPair(cryptoManager, keyPair);
@@ -79,7 +79,7 @@ export class SyncManager {
         const journalAction: Action<EteSync.Journal> = await store.dispatch<any>(addJournal(etesync, journal));
         // FIXME: Limit based on error code to only do it for associates.
         if (!journalAction.error) {
-          await store.dispatch(fetchEntries(etesync, collection.uid));
+          await store.dispatch(fetchEntries(etesync, collection.uid)).payload;
         }
       }
     }
