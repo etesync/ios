@@ -14,7 +14,7 @@ interface PropsType {
 export default React.memo(function ErrorDialog(props: PropsType) {
   return (
     <ConfirmationDialog
-      title={props.title}
+      title={props.title ?? 'Error'}
       visible={!!props.error}
       onCancel={props.onOk}
       labelCancel={props.labelOk ?? 'Ok'}

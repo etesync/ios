@@ -57,7 +57,7 @@ export const syncInfoSelector = createSelector(
       }
 
       let cryptoManager: EteSync.CryptoManager;
-      let derivedJournalKey: byte[];
+      let derivedJournalKey: byte[] | undefined;
       if (journal.key) {
         if (!asymmetricCryptoManager) {
           const keyPair = userInfo.getKeyPair(userInfoCryptoManager);

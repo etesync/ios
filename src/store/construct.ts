@@ -79,7 +79,7 @@ const entriesSerialize = (state: List<EteSync.Entry>) => {
   return state.map((x) => x.serialize()).toJS();
 };
 
-const entriesDeserialize = (state: EteSync.EntryJson[]): List<EteSync.Entry> => {
+const entriesDeserialize = (state: EteSync.EntryJson[]): List<EteSync.Entry> | null => {
   if (state === null) {
     return null;
   }

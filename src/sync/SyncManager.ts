@@ -6,7 +6,7 @@ import { Action } from 'redux-actions';
 import { CURRENT_VERSION } from '../api/Constants';
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { store, persistor, CredentialsData, JournalsData, UserInfoData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 // import { SyncManagerAddressBook } from './SyncManagerAddressBook';
@@ -96,7 +96,7 @@ export class SyncManager {
       const storeState = store.getState();
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
-      const userInfo = storeState.cache.userInfo;
+      const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
       const syncStateJournals = storeState.sync.stateJournals;
       const syncStateEntries = storeState.sync.stateEntries;
       const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
@@ -118,7 +118,7 @@ export class SyncManager {
 
   public async clearDeviceCollections() {
     const storeState = store.getState();
-    const userInfo = storeState.cache.userInfo;
+    const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
 
     for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
       await syncManager.init();

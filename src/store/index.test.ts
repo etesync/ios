@@ -25,26 +25,26 @@ it('Entries reducer', () => {
   let entry2;
 
   state = entries(state, action as any);
-  journal = state.get(jId);
-  entry2 = journal.get(0);
+  journal = state.get(jId)!;
+  entry2 = journal.get(0)!;
   expect(entry2.serialize()).toEqual(entry.serialize());
 
   // We replace if there's no prevUid
   state = entries(state, action as any);
-  journal = state.get(jId);
-  entry2 = journal.get(0);
+  journal = state.get(jId)!;
+  entry2 = journal.get(0)!;
   expect(entry2.serialize()).toEqual(entry.serialize());
   expect(journal.size).toBe(1);
 
   // We extend if prevUid is set
   action.meta.prevUid = entry.uid;
   state = entries(state, action as any);
-  journal = state.get(jId);
+  journal = state.get(jId)!;
   expect(journal.size).toBe(2);
 
   // Creating entries should also work the same
   action.type = addEntries.toString();
   state = entries(state, action as any);
-  journal = state.get(jId);
+  journal = state.get(jId)!;
   expect(journal.size).toBe(3);
 });

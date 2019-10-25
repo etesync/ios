@@ -88,12 +88,12 @@ async function tasksImport(localId: string, toLocalId: string) {
     const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
     const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
 
-    const existingTasks = await Calendar.getRemindersAsync([localId] as any, undefined, eventsRangeStart, eventsRangeEnd);
+    const existingTasks = await Calendar.getRemindersAsync([localId] as any, null, eventsRangeStart, eventsRangeEnd);
     for (const task of existingTasks) {
-      if (handled[task.id]) {
+      if (handled[task.id!]) {
         continue;
       }
-      handled[task.id] = true;
+      handled[task.id!] = true;
 
       // FIXME: remove read-only fields
       cleanCalendrItemForWriting(task);
@@ -103,8 +103,8 @@ async function tasksImport(localId: string, toLocalId: string) {
 }
 
 const JournalImportScreen: NavigationScreenComponent = function _JournalImportScreen() {
-  const [deviceCollections, setDeviceCollections] = React.useState(undefined as ImportCollection[]);
-  const [selectedCollection, setSelectedCollection] = React.useState(null as ImportCollection);
+  const [deviceCollections, setDeviceCollections] = React.useState(undefined as ImportCollection[] | undefined);
+  const [selectedCollection, setSelectedCollection] = React.useState(null as ImportCollection | null);
   const { syncStateJournals, syncInfoCollections } = useSelector(
     (state: StoreState) => ({
       syncStateJournals: state.sync.stateJournals,
@@ -112,7 +112,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
     })
   );
   const syncGate = useSyncGate();
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
   const navigation = useNavigation();
 
   if (syncGate) {
@@ -120,7 +120,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
   }
 
   const journalUid = navigation.getParam('journalUid');
-  const collectionType = syncInfoCollections.get(journalUid).type;
+  const collectionType = syncInfoCollections.get(journalUid)!.type;
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let importCollection: typeof eventsImport;
@@ -159,7 +159,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
     return (<LoadingIndicator />);
   }
 
-  const syncStateJournal = syncStateJournals.get(journalUid);
+  const syncStateJournal = syncStateJournals.get(journalUid)!;
 
   return (
     <React.Fragment>
@@ -196,7 +196,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
         visible={!!selectedCollection}
         loadingText="Please wait, may take a while..."
         onOk={() => {
-          return importCollection(selectedCollection.id, syncStateJournal.localId).then(() => {
+          return importCollection(selectedCollection!.id, syncStateJournal.localId).then(() => {
             const syncManager = SyncManager.getManager(etesync);
             store.dispatch(performSync(syncManager.sync()));
             setSelectedCollection(null);

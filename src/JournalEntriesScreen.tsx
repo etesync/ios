@@ -41,15 +41,15 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   }
 
   const journalUid = navigation.getParam('journalUid');
-  const collection = syncInfoCollections.get(journalUid);
-  const entries = journalEntries.get(journalUid);
-  const syncEntries = syncInfoEntries.get(journalUid);
+  const collection = syncInfoCollections.get(journalUid)!;
+  const entries = journalEntries.get(journalUid)!;
+  const syncEntries = syncInfoEntries.get(journalUid)!;
   const itemCount = syncStateEntries.has(journalUid) ?
-      syncStateEntries.get(journalUid).count() :
+      syncStateEntries.get(journalUid)!.count() :
       -1;
 
   const changeEntries = entries.map((journalEntry, idx) => {
-    const syncEntry = syncEntries.get(journalEntry.uid);
+    const syncEntry = syncEntries.get(journalEntry.uid)!;
     const comp = new ICAL.Component(ICAL.parse(syncEntry.content));
 
     const icon = listIcons[syncEntry.action];
@@ -93,7 +93,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
         left={icon}
         title={title}
         description={description}
-        onPress={() => navigation.navigate('JournalItem', { journalUid, entryUid: uid })}
+        onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: uid }); }}
       />
     );
   }

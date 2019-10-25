@@ -73,12 +73,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         continue;
       }
 
-      let syncStateJournal = syncStateJournals.get(uid);
+      let syncStateJournal = syncStateJournals.get(uid)!;
       let localId: string;
       if (syncStateJournals.has(uid)) {
         // FIXME: only modify if changed!
         logger.info(`Updating ${uid}`);
-        localId = syncStateJournals.get(uid).localId;
+        localId = syncStateJournal.localId;
         await this.updateJournal(localId, syncJournal);
         syncStateJournals.delete(uid);
       } else {
@@ -134,8 +134,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
       const journalSyncEntries = (syncStateEntriesAll.get(uid) ?? ImmutableMap({})).asMutable();
 
-      const syncStateJournal = syncStateJournals.get(uid);
-      const localId = syncStateJournals.get(uid).localId;
+      const syncStateJournal = syncStateJournals.get(uid)!;
+      const localId = syncStateJournal.localId;
 
       const entries = syncJournal.entries;
       const lastEntry: EteSync.SyncEntry = entries.last();
@@ -158,7 +158,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         }
 
         for (let i = firstEntry ; i < entries.size ; i++) {
-          const syncEntry: EteSync.SyncEntry = entries.get(i);
+          const syncEntry: EteSync.SyncEntry = entries.get(i)!;
           const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
           switch (syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
@@ -175,7 +175,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           }
         }
         // FIXME: probably do in chunks
-        syncStateJournal.lastSyncUid = lastEntry.uid;
+        syncStateJournal.lastSyncUid = lastEntry.uid ?? null;
         store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
 
         syncStateEntriesAll.set(uid, journalSyncEntries.asImmutable());
@@ -202,7 +202,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected syncPushHandleAddChange(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry, nativeItem: N) {
+  protected syncPushHandleAddChange(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
     if (syncStateEntry === undefined) {
       // New
       const vobjectEvent = this.nativeToVobject(nativeItem);

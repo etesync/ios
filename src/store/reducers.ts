@@ -72,7 +72,7 @@ export const encryptionKeyReducer = handleActions(
 export const credentials = handleActions(
   {
     [actions.fetchCredentials.toString()]: (
-      state: CredentialsDataRemote, action: any, extend: boolean = false) => {
+      state: CredentialsDataRemote, action: any) => {
       if (action.error) {
         return state;
       } else if (action.payload === undefined) {
@@ -93,13 +93,15 @@ export const credentials = handleActions(
 );
 
 function entriesListSetExtend(
-  state: List<any>, action: Action<EteSync.Entry[]>, extend: boolean = false) {
+  state: List<any> | undefined, action: Action<EteSync.Entry[]>, extend: boolean = false) {
+  state = state ?? List([]);
+
   if (action.error) {
     return state;
   } else {
-    const payload = (action.payload === undefined) ? null : action.payload;
+    const payload = action.payload ?? null;
 
-    if (action.payload === undefined) {
+    if (!payload) {
       return state;
     }
 
@@ -109,8 +111,6 @@ function entriesListSetExtend(
       }
     } else if (payload !== null) {
       state = List(payload);
-    } else {
-      state = null;
     }
     return state;
   }
@@ -120,7 +120,7 @@ function fetchCreateEntriesReducer(state: EntriesData, action: any) {
   const prevState = state.get(action.meta.journal);
   const extend = action.meta.prevUid != null;
   return state.set(action.meta.journal,
-                   entriesListSetExtend(prevState, action, extend) || List([]));
+                   entriesListSetExtend(prevState, action, extend));
 }
 
 export const entries = handleActions(
@@ -140,7 +140,7 @@ const setMapModelReducer = (state: JournalsData, action: Action<EteSync.Journal[
     return state;
   }
 
-  state = state || ImmutableMap<string, EteSync.Journal>().asMutable();
+  state = state ?? ImmutableMap<string, EteSync.Journal>().asMutable();
   const old = state.asMutable();
 
   return state.withMutations((ret) => {
@@ -170,7 +170,7 @@ const addEditMapModelReducer = (state: JournalsData, action: ActionMeta<EteSync.
     let payload = (action.payload === undefined) ? null : action.payload;
     payload = (action.meta === undefined) ? payload : action.meta.item;
 
-    if (action.payload === undefined) {
+    if (!payload) {
       return state;
     }
 
@@ -186,7 +186,7 @@ const deleteMapModelReducer = (state: JournalsData, action: ActionMeta<EteSync.J
     let payload = (action.payload === undefined) ? null : action.payload;
     payload = (action.meta === undefined) ? payload : action.meta.item;
 
-    if (action.payload === undefined) {
+    if (!payload) {
       return state;
     }
 
@@ -210,17 +210,17 @@ export const userInfo = handleAction(
     actions.fetchUserInfo,
     actions.createUserInfo
   ),
-  (state: UserInfoData, action: any, extend: boolean = false) => {
+  (state: UserInfoData | null, action: any) => {
     if (action.error) {
       return state;
     } else {
-      let payload = (action.payload === undefined) ? null : action.payload;
+      let payload = action.payload ?? null;
 
       if (payload === null) {
         return state;
       }
 
-      payload = (action.meta === undefined) ? payload : action.meta.userInfo;
+      payload = action.meta?.userInfo ?? payload;
 
       if (!state || !shallowCompare(state.serialize(), payload.serialize())) {
         return payload;

@@ -25,7 +25,7 @@ import { logger } from './logging';
 
 
 function usePermissions() {
-  const [hasPermissions, setHasPermissions] = React.useState(null as boolean);
+  const [hasPermissions, setHasPermissions] = React.useState(null as boolean | null);
   const [asked, setAsked] = React.useState(false);
 
   if (!asked) {
@@ -49,7 +49,7 @@ function usePermissions() {
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const dispatch = useDispatch();
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
   const { settings, errors } = useSelector(
     (state: StoreState) => ({
       settings: state.settings,
@@ -91,7 +91,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 });
 
 function RefreshIcon() {
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
   const dispatch = useDispatch();
   const { fetchCount, syncCount } = useSelector(
     (state: StoreState) => ({

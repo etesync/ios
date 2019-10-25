@@ -59,7 +59,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   }
 
   protected nativeToVobject(nativeItem: NativeContact) {
-    return null as ContactType;
+    return {} as ContactType;
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
@@ -69,11 +69,13 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
       case EteSync.SyncEntryAction.Change:
-        let contactExists: boolean;
+        let contactExists = false;
         try {
-          contactExists = (await Contacts.getContactsAsync({
-            id: syncStateEntry.localId,
-          })).data.length > 0;
+          if (syncStateEntry) {
+            contactExists = (await Contacts.getContactsAsync({
+              id: syncStateEntry.localId,
+            })).data.length > 0;
+          }
         } catch (e) {
           // Skip
         }
@@ -99,6 +101,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
           await Contacts.removeContactAsync(syncStateEntry.localId);
+        } else {
+          syncStateEntry = {
+            uid: nativeContact.uid,
+            localId: '',
+            lastHash: '',
+          };
         }
         break;
     }

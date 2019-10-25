@@ -31,35 +31,35 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
       const uid = collection.uid;
       logger.info(`Pushing ${uid}`);
 
-      const syncStateEntriesReverse = this.syncStateEntries.get(uid).mapEntries((_entry) => {
+      const syncStateEntriesReverse = this.syncStateEntries.get(uid)!.mapEntries((_entry) => {
         const entry = _entry[1];
         return [entry.localId, entry];
       }).asMutable();
 
       const syncEntries: EteSync.SyncEntry[] = [];
 
-      const syncStateJournal = syncStateJournals.get(uid);
+      const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
       for (let i = -2 ; i <= 1 ; i++) {
         const remindersRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
         const remindersRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
 
-        const existingReminders = await Calendar.getRemindersAsync([localId] as any, undefined, remindersRangeStart, remindersRangeEnd);
+        const existingReminders = await Calendar.getRemindersAsync([localId] as any, null, remindersRangeStart, remindersRangeEnd);
 
         existingReminders.forEach((_reminder) => {
-          if (handled[_reminder.id]) {
+          if (handled[_reminder.id!]) {
             return;
           }
-          handled[_reminder.id] = true;
+          handled[_reminder.id!] = true;
 
-          const syncStateEntry = syncStateEntriesReverse.get(_reminder.id);
+          const syncStateEntry = syncStateEntriesReverse.get(_reminder.id!);
 
           // FIXME: ignore recurring reminders at the moment as they seem to be broken with Expo
           if (_reminder.recurrenceRule) {
             return;
           }
 
-          const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id };
+          const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
           const syncEntry = this.syncPushHandleAddChange(syncJournal, syncStateEntry, reminder);
           if (syncEntry) {
             syncEntries.push(syncEntry);
@@ -73,7 +73,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
-        let existingReminder: Calendar.Reminder;
+        let existingReminder: Calendar.Reminder | undefined;
         try {
           existingReminder = await Calendar.getReminderAsync(syncStateEntry.localId);
         } catch (e) {
@@ -109,9 +109,11 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
       case EteSync.SyncEntryAction.Change:
-        let existingReminder: Calendar.Reminder;
+        let existingReminder: Calendar.Reminder | undefined;
         try {
-          existingReminder = await Calendar.getReminderAsync(syncStateEntry.localId);
+          if (syncStateEntry) {
+            existingReminder = await Calendar.getReminderAsync(syncStateEntry.localId);
+          }
         } catch (e) {
           // Skip
         }
@@ -134,6 +136,12 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
           await Calendar.deleteReminderAsync(syncStateEntry.localId);
+        } else {
+          syncStateEntry = {
+            uid: nativeReminder.uid,
+            localId: '',
+            lastHash: '',
+          };
         }
         break;
     }

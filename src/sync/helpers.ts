@@ -6,6 +6,8 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
+import { isDefined } from '../helpers';
+
 export interface NativeBase {
   uid: string; // This is the EteSync UUID for the item
 }
@@ -32,7 +34,7 @@ export function entryNativeHashCalc(entry: {uid: string}) {
   return sjcl.codec.hex.fromBits(sha.finalize());
 }
 
-function timeVobjectToNative(time: ICAL.Time) {
+function timeVobjectToNative(time: ICAL.Time | undefined) {
   if (!time) {
     return undefined;
   }
@@ -104,7 +106,7 @@ export function eventVobjectToNative(event: EventType) {
     }
   }
 
-  const ret: Partial<NativeEvent> = {
+  const ret: Partial<NativeEvent> & NativeBase = {
     uid: event.uid,
     title: event.title ?? '',
     allDay,
@@ -112,7 +114,7 @@ export function eventVobjectToNative(event: EventType) {
     endDate: timeVobjectToNative(endDate),
     location: event.location ?? '',
     notes: event.description ?? '',
-    alarms: event.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter((x) => x),
+    alarms: event.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(event),
     timeZone: event.timezone ?? '',
   };
@@ -130,7 +132,7 @@ export function taskVobjectToNative(task: TaskType) {
     completionDate: timeVobjectToNative(task.completionDate),
     location: task.location ?? '',
     notes: task.description ?? '',
-    alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter((x) => x),
+    alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(task),
     timeZone: task.timezone ?? '',
   };
@@ -201,7 +203,9 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
   if (task.alarms) {
     task.alarms.forEach((alarm) => {
       const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
-      ret.component.addSubcomponent(alarmComponent);
+      if (alarmComponent) {
+        ret.component.addSubcomponent(alarmComponent);
+      }
     });
   }
 
@@ -213,9 +217,9 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
   if (task.timeZone) {
     const timezone = timezoneLoadFromName(task.timeZone);
     if (timezone) {
-      ret.startDate = ret.startDate ?? ret.startDate.convertToZone(timezone);
-      ret.dueDate = ret.dueDate ?? ret.dueDate.convertToZone(timezone);
-      ret.completionDate = ret.completionDate ?? ret.completionDate.convertToZone(timezone);
+      ret.startDate = ret.startDate?.convertToZone(timezone);
+      ret.dueDate = ret.dueDate?.convertToZone(timezone);
+      ret.completionDate = ret.completionDate?.convertToZone(timezone);
     }
   }
 
@@ -240,7 +244,9 @@ export function eventNativeToVobject(event: NativeEvent): EventType {
   if (event.alarms) {
     event.alarms.forEach((alarm) => {
       const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
-      ret.component.addSubcomponent(alarmComponent);
+      if (alarmComponent) {
+        ret.component.addSubcomponent(alarmComponent);
+      }
     });
   }
 
@@ -260,10 +266,10 @@ export function eventNativeToVobject(event: NativeEvent): EventType {
   return ret;
 }
 
-function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper: (fieldType: string, value: any) => T) {
+function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper: (fieldType: string, value: any) => T | undefined) {
   return contact.comp.getAllProperties(fieldName).map((prop) => {
     return mapper(prop.toJSON()[1].type, prop.getFirstValue());
-  }).filter((field) => field);
+  }).filter(isDefined);
 }
 
 export function contactVobjectToNative(contact: ContactType) {

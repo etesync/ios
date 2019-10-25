@@ -19,10 +19,10 @@ import * as C from '../constants';
 import { useCredentials } from './';
 
 const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen() {
-  const credentials = useCredentials();
+  const credentials = useCredentials()!;
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [loginError, setLoginError] = React.useState(undefined as Error);
+  const [loginError, setLoginError] = React.useState(undefined as Error | undefined);
   const [loading, setLoading] = React.useState(false);
 
   function onFormSubmit(username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) {

@@ -23,7 +23,8 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
   protected localSource: Calendar.Source;
 
   public async init() {
-    this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name === ACCOUNT_NAME));
+    // FIXME: handle source not found.
+    this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name === ACCOUNT_NAME))!;
   }
 
   public async clearDeviceCollections() {
@@ -100,14 +101,14 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
       const uid = collection.uid;
       logger.info(`Pushing ${uid}`);
 
-      const syncStateEntriesReverse = this.syncStateEntries.get(uid).mapEntries((_entry) => {
+      const syncStateEntriesReverse = this.syncStateEntries.get(uid)!.mapEntries((_entry) => {
         const entry = _entry[1];
         return [entry.localId, entry];
       }).asMutable();
 
       const syncEntries: EteSync.SyncEntry[] = [];
 
-      const syncStateJournal = syncStateJournals.get(uid);
+      const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
       for (let i = -2 ; i <= 1 ; i++) {
         const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
@@ -141,7 +142,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
-        let existingEvent: Calendar.Event;
+        let existingEvent: Calendar.Event | undefined;
         try {
           existingEvent = await Calendar.getEventAsync(syncStateEntry.localId);
         } catch (e) {
@@ -177,9 +178,11 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
       case EteSync.SyncEntryAction.Change:
-        let existingEvent: Calendar.Event;
+        let existingEvent: Calendar.Event | undefined;
         try {
-          existingEvent = await Calendar.getEventAsync(syncStateEntry.localId);
+          if (syncStateEntry) {
+            existingEvent = await Calendar.getEventAsync(syncStateEntry.localId);
+          }
         } catch (e) {
           // Skip
         }
@@ -202,6 +205,12 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
           await Calendar.deleteEventAsync(syncStateEntry.localId);
+        } else {
+          syncStateEntry = {
+            uid: nativeEvent.uid,
+            localId: '',
+            lastHash: '',
+          };
         }
         break;
     }

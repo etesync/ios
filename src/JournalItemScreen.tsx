@@ -25,9 +25,9 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
 
   const journalUid = navigation.getParam('journalUid');
   const entryUid = navigation.getParam('entryUid');
-  const entries = syncInfoEntries.get(journalUid);
+  const entries = syncInfoEntries.get(journalUid)!;
 
-  const entry = entries.get(entryUid);
+  const entry = entries.get(entryUid)!;
 
   return (
     <ScrollView style={{ flex: 1 }}>

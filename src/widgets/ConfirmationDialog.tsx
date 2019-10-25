@@ -27,7 +27,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
   }, [props.visible]);
 
   function onOk() {
-    const ret = props.onOk();
+    const ret = props.onOk?.();
     if (isPromise(ret)) {
       // If it's a promise, we update the loading state based on it.
       setLoading(true);

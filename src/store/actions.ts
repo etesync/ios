@@ -243,7 +243,7 @@ export function fetchJournalEntries(etesync: CredentialsData, currentEntries: En
     const entries = currentEntries.get(journal.uid);
     if (entries && entries) {
       const last = entries.last() as EteSync.Entry;
-      prevUid = (last) ? last.uid : null;
+      prevUid = last?.uid ?? null;
     }
 
     return dispatch(fetchEntries(etesync, journal.uid, prevUid));

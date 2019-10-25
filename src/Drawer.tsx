@@ -153,7 +153,7 @@ function Drawer() {
               <List.Item
                 key={menuItem.title}
                 title={menuItem.title}
-                onPress={() => navigation.navigate(menuItem.path)}
+                onPress={() => { navigation.navigate(menuItem.path); }}
                 left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
               />
           )) }
@@ -180,7 +180,7 @@ function Drawer() {
               <List.Item
                 key={menuItem.title}
                 title={menuItem.title}
-                onPress={() => Linking.openURL(menuItem.link)}
+                onPress={() => { Linking.openURL(menuItem.link); }}
                 left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
               />
           )) }

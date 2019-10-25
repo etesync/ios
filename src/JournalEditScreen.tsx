@@ -22,8 +22,8 @@ interface FormErrors {
 
 const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen() {
   const [errors, setErrors] = React.useState({} as FormErrors);
-  const [_displayName, setDisplayName] = React.useState(null as string);
-  const [_description, setDescription] = React.useState(null as string);
+  const [_displayName, setDisplayName] = React.useState(null as string | null);
+  const [_description, setDescription] = React.useState(null as string | null);
   const { syncInfoCollections, journals, userInfo } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
@@ -33,7 +33,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   );
   const syncGate = useSyncGate();
   const navigation = useNavigation();
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
   const loading = false;
 
   if (syncGate) {
@@ -42,16 +42,9 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
 
   const journalUid = navigation.getParam('journalUid');
   let collection = syncInfoCollections.get(journalUid);
-  let displayName = _displayName;
-  let description = _description;
-  if (collection) {
-    if (displayName === null) {
-      displayName = collection.displayName;
-    }
-    if (description === null) {
-      description = collection.description;
-    }
-  } else {
+  const displayName = _displayName ?? collection?.displayName ?? '';
+  const description = _description ?? collection?.description ?? '';
+  if (!collection) {
     collection = new EteSync.CollectionInfo();
     collection.uid = EteSync.genUid();
     collection.type = navigation.getParam('journalType');
@@ -71,7 +64,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
     }
 
     const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
-    const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid).serialize() : { uid: journalUid });
+    const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: journalUid });
     const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
     const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
     journal.setInfo(cryptoManager, info);
@@ -130,7 +123,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
 function RightAction() {
   const [confirmationVisible, setConfirmationVisible] = React.useState(false);
   const navigation = useNavigation();
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
   const { journals } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
@@ -138,7 +131,7 @@ function RightAction() {
   );
 
   const journalUid = navigation.getParam('journalUid');
-  const journal = journals.get(journalUid);
+  const journal = journals.get(journalUid)!;
 
   return (
     <React.Fragment>

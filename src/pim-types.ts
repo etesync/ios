@@ -7,7 +7,11 @@ export interface PimType {
   clone(): PimType;
 }
 
-export function timezoneLoadFromName(timezone: string) {
+export function timezoneLoadFromName(timezone: string | null) {
+  if (!timezone) {
+    return null;
+  }
+
   let zone = zones.zones[timezone];
   if (!zone && zones.aliases[timezone]) {
     zone = zones.zones[zones.aliases[timezone]];

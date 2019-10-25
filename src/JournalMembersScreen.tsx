@@ -19,8 +19,8 @@ import * as EteSync from './api/EteSync';
 import * as sjcl from 'sjcl';
 
 const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {
-  const [members, setMembers] = React.useState(undefined as EteSync.JournalMemberJson[]);
-  const [revokeUser, setRevokeUser] = React.useState(undefined as string);
+  const [members, setMembers] = React.useState(undefined as EteSync.JournalMemberJson[] | undefined);
+  const [revokeUser, setRevokeUser] = React.useState(undefined as EteSync.JournalMemberJson | undefined);
   const { journals } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
@@ -28,16 +28,16 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
   );
   const syncGate = useSyncGate();
   const navigation = useNavigation();
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
 
   if (syncGate) {
     return syncGate;
   }
 
   const journalUid = navigation.getParam('journalUid');
-  const journal = journals.get(journalUid);
+  const journal = journals.get(journalUid)!;
 
-  let error: string;
+  let error: string | undefined;
   if (journal.version < 2) {
     error = 'Sharing of old-style collections is not allowed. In order to share this collection, create a new one, and copy its contents over using the "import" dialog. If you are experiencing any issues, please contact support.';
   } else if (journal.owner !== etesync.credentials.email) {
@@ -74,7 +74,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
             <List.Item
               key={member.user}
               title={member.user}
-              onPress={() => setRevokeUser(member.user)}
+              onPress={() => setRevokeUser(member)}
             />
           )) :
           (<Paragraph>No members</Paragraph>)
@@ -85,7 +85,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
         visible={!!revokeUser}
         onOk={() => {
           const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journalUid);
-          return journalMembersManager.delete({ user: revokeUser, key: undefined }).then(() => {
+          return journalMembersManager.delete(revokeUser!).then(() => {
             setRevokeUser(undefined);
             navigation.goBack();
           });
@@ -109,9 +109,9 @@ function RightAction() {
   const [memberDialogVisible, setMemberDialogVisible] = React.useState(false);
   const [username, setUsername] = React.useState('');
   const [publicKey, setPublicKey] = React.useState('');
-  const [errorUsername, setErrorUsername] = React.useState(null as string);
+  const [errorUsername, setErrorUsername] = React.useState(null as string | null);
   const navigation = useNavigation();
-  const etesync = useCredentials();
+  const etesync = useCredentials()!;
   const { journals, userInfo } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
@@ -120,7 +120,7 @@ function RightAction() {
   );
 
   const journalUid = navigation.getParam('journalUid');
-  const journal = journals.get(journalUid);
+  const journal = journals.get(journalUid)!;
 
   async function memberAdd() {
     const derived = etesync.encryptionKey;
@@ -161,7 +161,7 @@ function RightAction() {
           navigation.goBack();
         }}
         onCancel={() => {
-          setPublicKey(undefined);
+          setPublicKey('');
           setMemberDialogVisible(false);
         }}
       >

@@ -11,7 +11,7 @@ const persistNavigationState = async (navState: {}) => {
 
 const loadNavigationState = async () => {
   const jsonString = await AsyncStorage.getItem(persistenceKey);
-  return JSON.parse(jsonString);
+  return jsonString ? JSON.parse(jsonString) : undefined;
 };
 
 export function getPersistenceFunctions() {
