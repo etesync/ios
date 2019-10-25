@@ -25,7 +25,7 @@ import { logger } from './logging';
 
 
 function usePermissions() {
-  const [hasPermissions, setHasPermissions] = React.useState(null as boolean | null);
+  const [hasPermissions, setHasPermissions] = React.useState<null | boolean>(null);
   const [asked, setAsked] = React.useState(false);
 
   if (!asked) {

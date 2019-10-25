@@ -22,8 +22,8 @@ interface FormErrors {
 
 const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen() {
   const [errors, setErrors] = React.useState({} as FormErrors);
-  const [_displayName, setDisplayName] = React.useState(null as string | null);
-  const [_description, setDescription] = React.useState(null as string | null);
+  const [_displayName, setDisplayName] = React.useState<string | null>(null);
+  const [_description, setDescription] = React.useState<string | null>(null);
   const { syncInfoCollections, journals, userInfo } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,

@@ -19,8 +19,8 @@ import * as EteSync from './api/EteSync';
 import * as sjcl from 'sjcl';
 
 const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {
-  const [members, setMembers] = React.useState(undefined as EteSync.JournalMemberJson[] | undefined);
-  const [revokeUser, setRevokeUser] = React.useState(undefined as EteSync.JournalMemberJson | undefined);
+  const [members, setMembers] = React.useState<EteSync.JournalMemberJson[] | undefined>(undefined);
+  const [revokeUser, setRevokeUser] = React.useState<EteSync.JournalMemberJson | undefined>(undefined);
   const { journals } = useSelector(
     (state: StoreState) => ({
       journals: state.cache.journals,
@@ -109,7 +109,7 @@ function RightAction() {
   const [memberDialogVisible, setMemberDialogVisible] = React.useState(false);
   const [username, setUsername] = React.useState('');
   const [publicKey, setPublicKey] = React.useState('');
-  const [errorUsername, setErrorUsername] = React.useState(null as string | null);
+  const [errorUsername, setErrorUsername] = React.useState<string | null>(null);
   const navigation = useNavigation();
   const etesync = useCredentials()!;
   const { journals, userInfo } = useSelector(
