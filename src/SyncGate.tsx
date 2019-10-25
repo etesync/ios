@@ -27,7 +27,7 @@ export function useSyncGate() {
     || (entries === null)
     || (syncInfoCollections.size !== journals.size)
     || !syncInfoEntries.every((syncEntries, key) => {
-      return syncEntries && (syncEntries.size === entries.get(key).size);
+      return (syncEntries?.size === entries.get(key).size);
     })
   ) {
     if (fetchCount > 0) {

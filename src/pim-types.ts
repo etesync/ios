@@ -162,7 +162,7 @@ export class TaskType extends EventType {
   }
 
   get allDay() {
-    return !!((this.startDate && this.startDate.isDate) || (this.dueDate && this.dueDate.isDate));
+    return !!((this.startDate?.isDate) || (this.dueDate?.isDate));
   }
 
   public clone() {

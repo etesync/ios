@@ -106,15 +106,15 @@ export function eventVobjectToNative(event: EventType) {
 
   const ret: Partial<NativeEvent> = {
     uid: event.uid,
-    title: event.title || '',
+    title: event.title ?? '',
     allDay,
     startDate: timeVobjectToNative(event.startDate),
     endDate: timeVobjectToNative(endDate),
-    location: event.location || '',
-    notes: event.description || '',
+    location: event.location ?? '',
+    notes: event.description ?? '',
     alarms: event.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter((x) => x),
     recurrenceRule: rruleVobjectToNative(event),
-    timeZone: event.timezone || '',
+    timeZone: event.timezone ?? '',
   };
 
   return ret;
@@ -123,16 +123,16 @@ export function eventVobjectToNative(event: EventType) {
 export function taskVobjectToNative(task: TaskType) {
   const ret: NativeTask = {
     uid: task.uid,
-    title: task.title || '',
+    title: task.title ?? '',
     startDate: timeVobjectToNative(task.startDate),
     dueDate: timeVobjectToNative(task.dueDate),
     completed: task.finished,
     completionDate: timeVobjectToNative(task.completionDate),
-    location: task.location || '',
-    notes: task.description || '',
+    location: task.location ?? '',
+    notes: task.description ?? '',
     alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter((x) => x),
     recurrenceRule: rruleVobjectToNative(task),
-    timeZone: task.timezone || '',
+    timeZone: task.timezone ?? '',
   };
 
   return ret;
@@ -185,7 +185,7 @@ function rruleNativeToVobject(rrule: Calendar.RecurrenceRule) {
 export function taskNativeToVobject(task: NativeTask): TaskType {
   const ret = new TaskType();
   ret.uid = task.uid;
-  ret.summary = task.title || '';
+  ret.summary = task.title ?? '';
   if (task.startDate) {
     ret.startDate = fromDate(new Date(task.startDate), false);
   }
@@ -196,8 +196,8 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
     ret.completionDate = fromDate(new Date(task.completionDate), false);
   }
   ret.status = (task.completed) ? TaskStatusType.Completed : TaskStatusType.InProcess;
-  ret.location = task.location || '';
-  ret.description = task.notes || '';
+  ret.location = task.location ?? '';
+  ret.description = task.notes ?? '';
   if (task.alarms) {
     task.alarms.forEach((alarm) => {
       const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
@@ -213,9 +213,9 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
   if (task.timeZone) {
     const timezone = timezoneLoadFromName(task.timeZone);
     if (timezone) {
-      ret.startDate = (ret.startDate) ? ret.startDate : ret.startDate.convertToZone(timezone);
-      ret.dueDate = (ret.dueDate) ? ret.dueDate : ret.dueDate.convertToZone(timezone);
-      ret.completionDate = (ret.completionDate) ? ret.completionDate : ret.completionDate.convertToZone(timezone);
+      ret.startDate = ret.startDate ?? ret.startDate.convertToZone(timezone);
+      ret.dueDate = ret.dueDate ?? ret.dueDate.convertToZone(timezone);
+      ret.completionDate = ret.completionDate ?? ret.completionDate.convertToZone(timezone);
     }
   }
 
@@ -232,11 +232,11 @@ export function eventNativeToVobject(event: NativeEvent): EventType {
 
   const ret = new EventType();
   ret.uid = event.uid;
-  ret.summary = event.title || '';
+  ret.summary = event.title ?? '';
   ret.startDate = startDate;
   ret.endDate = endDate;
-  ret.location = event.location || '';
-  ret.description = event.notes || '';
+  ret.location = event.location ?? '';
+  ret.description = event.notes ?? '';
   if (event.alarms) {
     event.alarms.forEach((alarm) => {
       const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
@@ -313,7 +313,7 @@ export function contactVobjectToNative(contact: ContactType) {
   });
   const jobTitle = titles.length > 0 ? titles[0] : undefined;
 
-  const nickname = contact.comp.getFirstPropertyValue('nickname') || undefined;
+  const nickname = contact.comp.getFirstPropertyValue('nickname') ?? undefined;
 
   const ret: NativeContact = {
     id: '',

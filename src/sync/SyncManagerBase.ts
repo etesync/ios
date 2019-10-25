@@ -132,14 +132,14 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const uid = collection.uid;
       logger.info(`Pulling ${uid}`);
 
-      const journalSyncEntries = (syncStateEntriesAll.get(uid) || ImmutableMap({})).asMutable();
+      const journalSyncEntries = (syncStateEntriesAll.get(uid) ?? ImmutableMap({})).asMutable();
 
       const syncStateJournal = syncStateJournals.get(uid);
       const localId = syncStateJournals.get(uid).localId;
 
       const entries = syncJournal.entries;
       const lastEntry: EteSync.SyncEntry = entries.last();
-      if (lastEntry && (lastEntry.uid !== syncStateJournal.lastSyncUid)) {
+      if (lastEntry?.uid !== syncStateJournal.lastSyncUid) {
         logger.info(`Applying changes. Current uid: ${lastEntry.uid}, last one: ${syncStateJournal.lastSyncUid}`);
         const lastSyncUid = syncStateJournal.lastSyncUid;
 

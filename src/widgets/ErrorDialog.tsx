@@ -17,7 +17,7 @@ export default React.memo(function ErrorDialog(props: PropsType) {
       title={props.title}
       visible={!!props.error}
       onCancel={props.onOk}
-      labelCancel={props.labelOk || 'Ok'}
+      labelCancel={props.labelOk ?? 'Ok'}
       labelOk={props.labelOk}
       loadingText={props.loadingText}
     >

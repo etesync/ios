@@ -18,9 +18,9 @@ interface PropsType {
 
 export default React.memo(function ConfirmationDialog(props: PropsType) {
   const [loading, setLoading] = React.useState(false);
-  const labelCancel = props.labelCancel || 'Cancel';
-  const labelOk = props.labelOk || 'OK';
-  const loadingText = props.loadingText || 'Loading...';
+  const labelCancel = props.labelCancel ?? 'Cancel';
+  const labelOk = props.labelOk ?? 'OK';
+  const loadingText = props.loadingText ?? 'Loading...';
 
   React.useMemo(() => {
     Keyboard.dismiss();

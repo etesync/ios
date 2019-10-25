@@ -68,7 +68,7 @@ export default function JournalListScreen() {
           break;
       }
 
-      ret[info.type] = ret[info.type] || [];
+      ret[info.type] = ret[info.type] ?? [];
       ret[info.type].push(
         <List.Item
           key={info.uid}

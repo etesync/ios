@@ -174,7 +174,7 @@ class LoginForm extends React.PureComponent {
             type="error"
             // visible={!!this.state.errors.errorEncryptionPassword}
           >
-            {this.state.errors.errorEncryptionPassword || 'Choose a new one if not already set'}
+            {this.state.errors.errorEncryptionPassword ?? 'Choose a new one if not already set'}
           </HelperText>
 
           <TouchableRipple
