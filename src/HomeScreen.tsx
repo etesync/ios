@@ -19,7 +19,6 @@ import { performSync } from './store/actions';
 
 import { useCredentials } from './login';
 import { useSyncGate } from './SyncGate';
-export * from './SyncHandler'; // FIXME: Should be granular
 
 import { logger } from './logging';
 
