@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es2015", "esnext.asynciterable"],
+    "target": "es6",
     "jsx": "react-native",
     "downlevelIteration": true,
     "noUnusedLocals": true,
+    "moduleResolution": "node",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -12,6 +12,7 @@
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "noUnusedParameters": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
