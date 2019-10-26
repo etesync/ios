@@ -30,11 +30,12 @@ export const { fetchCredentials, logout } = createActions({
   LOGOUT: () => undefined,
 });
 
-export const { deriveKey } = createActions({
-  DERIVE_KEY: (username: string, encryptionPassword: string) => {
+export const deriveKey = createAction(
+  'DERIVE_KEY',
+  (username: string, encryptionPassword: string) => {
     return EteSync.deriveKey(username, encryptionPassword);
-  },
-});
+  }
+);
 
 export const resetKey = createAction(
   'RESET_KEY',
