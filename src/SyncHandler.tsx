@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 import * as EteSync from './api/EteSync';
 import { byte } from './api/Helpers';
 
-import { store, JournalsData, EntriesData, CredentialsData, UserInfoData } from './store';
+import { store, JournalsData, EntriesData, CredentialsData, UserInfoData, SyncInfoItem } from './store';
 import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from './store/actions';
 
 export interface SyncInfoJournal {
@@ -80,7 +80,7 @@ export const syncInfoSelector = createSelector(
         const syncEntry = entry.getSyncEntry(cryptoManager, prevUid);
         prevUid = entry.uid;
 
-        store.dispatch(setSyncInfoItem(etesync, journal.uid, syncEntry as any));
+        store.dispatch(setSyncInfoItem(etesync, journal.uid, syncEntry as SyncInfoItem));
         return syncEntry;
       });
 
