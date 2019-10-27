@@ -6,7 +6,7 @@ import { logger } from '../logging';
 import { PimType } from '../pim-types';
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
 import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
@@ -205,7 +205,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     this.syncStateEntries = syncStateEntriesAll.asImmutable();
   }
 
-  protected pushJournalEntries(syncJournal: SyncInfoJournal, pushEntries: PushEntry[]) {
+  protected async pushJournalEntries(syncJournal: SyncInfoJournal, pushEntries: PushEntry[]) {
     if (pushEntries.length > 0) {
       const etesync = this.etesync;
       const journalUid = syncJournal.collection.uid;
@@ -227,9 +227,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         journalEntries.push(cur);
 
         if (((i === pushEntries.length - 1) || (i % CHUNK_PUSH) === 0)) {
-          // FIXME: push in chunks AND update the syncStateEntry (the items) and syncStateJournal (the lastUid handled) while syncing
-          console.log(`Last pushed: ${lastSyncUid}`);
-          console.log(journalEntries.map((ent) => (ent.uid)));
+          await store.dispatch(addEntries(etesync, journalUid, journalEntries, lastSyncUid)).payload;
 
           switch (pushEntry.syncEntry.action) {
             case EteSync.SyncEntryAction.Add:

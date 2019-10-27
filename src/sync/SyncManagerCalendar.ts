@@ -159,7 +159,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         }
       }
 
-      this.pushJournalEntries(syncJournal, pushEntries);
+      await this.pushJournalEntries(syncJournal, pushEntries);
     }
   }
 

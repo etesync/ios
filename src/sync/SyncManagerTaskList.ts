@@ -91,7 +91,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         }
       }
 
-      this.pushJournalEntries(syncJournal, syncEntries);
+      await this.pushJournalEntries(syncJournal, syncEntries);
     }
   }
 
