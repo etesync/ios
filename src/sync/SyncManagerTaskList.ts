@@ -4,8 +4,7 @@ import * as Calendar from 'expo-calendar';
 
 import { logger } from '../logging';
 
-import { SyncInfo } from '../SyncGate';
-import { SyncStateJournalEntryData } from '../store';
+import { store, SyncStateJournalEntryData } from '../store';
 
 import { NativeTask, taskVobjectToNative, taskNativeToVobject, entryNativeHashCalc } from './helpers';
 import { TaskType } from '../pim-types';
@@ -17,19 +16,21 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
   protected collectionType = 'TASKS';
   protected entityType = Calendar.EntityTypes.REMINDER;
 
-  protected async syncPush(syncInfo: SyncInfo) {
+  protected async syncPush() {
     const syncStateJournals = this.syncStateJournals;
+    const storeState = store.getState();
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
-    for (const syncJournal of syncInfo.values()) {
-      if (syncJournal.collection.type !== this.collectionType) {
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
         continue;
       }
 
       const handled = {};
-      const collection = syncJournal.collection;
-      const uid = collection.uid;
       logger.info(`Pushing ${uid}`);
 
       const syncStateEntriesReverse = this.syncStateEntries.get(uid)!.mapEntries((_entry) => {
@@ -61,7 +62,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
           }
 
           const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
-          const syncEntry = this.syncPushHandleAddChange(syncJournal, syncStateEntry, reminder);
+          const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder);
           if (syncEntry) {
             syncEntries.push(syncEntry);
           }
@@ -84,14 +85,14 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         // FIXME: handle the case of the reminder still existing for some reason.
         if (!existingReminder) {
           // If the reminder still exists it means it's not deleted.
-          const syncEntry = this.syncPushHandleDeleted(syncJournal, syncStateEntry);
+          const syncEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (syncEntry) {
             syncEntries.push(syncEntry);
           }
         }
       }
 
-      await this.pushJournalEntries(syncJournal, syncEntries);
+      await this.pushJournalEntries(syncStateJournal, syncEntries);
     }
   }
 

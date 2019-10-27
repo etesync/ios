@@ -4,8 +4,7 @@ import { Map as ImmutableMap } from 'immutable';
 import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
-import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, SyncInfoItem } from '../store';
+import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, SyncInfoItem, JournalsData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncInfoItem, unsetSyncInfoItem } from '../store/actions';
 import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
@@ -62,7 +61,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     //
   }
 
-  public async sync(syncInfo: SyncInfo, syncStateJournals: SyncStateJournalData, syncStateEntries: SyncStateEntryData) {
+  // FIXME: Remove these parameters, we should just get them inside.
+  public async sync(syncStateJournals: SyncStateJournalData, syncStateEntries: SyncStateEntryData) {
     this.syncStateJournals = syncStateJournals;
     this.syncStateEntries = syncStateEntries;
 
@@ -71,27 +71,28 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
     logger.info(`Starting sync: ${this.collectionType}`);
     logger.info('Syncing journal list');
-    await this.syncJournalList(syncInfo);
+    await this.syncJournalList();
     logger.info('Pulling changes');
-    await this.syncPull(syncInfo);
+    await this.syncPull();
     logger.info('Pushing changes');
-    await this.syncPush(syncInfo);
+    await this.syncPush();
     logger.info(`Finished sync: ${this.collectionType}`);
   }
 
   public abstract async clearDeviceCollections(): Promise<void>;
 
-  protected async syncJournalList(syncInfo: SyncInfo) {
+  protected async syncJournalList() {
     const etesync = this.etesync;
     const syncStateJournals = this.syncStateJournals.asMutable();
+    const storeState = store.getState();
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
     const currentJournals = [] as SyncStateJournal[];
     const notOurs = new Map<string, boolean>();
 
-    for (const syncJournal of syncInfo.values()) {
-      const collection = syncJournal.collection;
+    for (const collection of syncInfoCollections.values()) {
       const uid = collection.uid;
 
-      if (syncJournal.collection.type !== this.collectionType) {
+      if (collection.type !== this.collectionType) {
         notOurs.set(uid, true);
         continue;
       }
@@ -102,11 +103,11 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         // FIXME: only modify if changed!
         logger.info(`Updating ${uid}`);
         localId = syncStateJournal.localId;
-        await this.updateJournal(localId, syncJournal);
+        await this.updateJournal(localId, collection);
         syncStateJournals.delete(uid);
       } else {
         logger.info(`Creating ${uid}`);
-        localId = await this.createJournal(syncJournal);
+        localId = await this.createJournal(collection);
 
         syncStateJournal = {
           localId,
@@ -139,20 +140,24 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     this.syncStateJournals = syncStateJournals.asImmutable();
   }
 
-  protected async syncPull(syncInfo: SyncInfo) {
+  protected async syncPull() {
+    const storeState = store.getState();
+    const journalsEntries = storeState.cache.entries;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const syncInfoItems = storeState.cache.syncInfoItem;
     // FIXME: Sholud alert beforehand if local is not enable and only iCloud is and let people know, and if that the case, use iCloud if there's no local.
     // See notes for more info
     const etesync = this.etesync;
     const syncStateJournals = this.syncStateJournals;
     const syncStateEntriesAll = this.syncStateEntries.asMutable();
 
-    for (const syncJournal of syncInfo.values()) {
-      if (syncJournal.collection.type !== this.collectionType) {
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
         continue;
       }
 
-      const collection = syncJournal.collection;
-      const uid = collection.uid;
       logger.info(`Pulling ${uid}`);
 
       const journalSyncEntries = (syncStateEntriesAll.get(uid) ?? ImmutableMap({})).asMutable();
@@ -160,7 +165,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
 
-      const entries = syncJournal.entries;
+      const syncInfoJournalItems = syncInfoItems.get(uid)!;
+      const entries = journalsEntries.get(uid)!.map((entry) => syncInfoJournalItems.get(entry.uid)!);
       const lastEntry: EteSync.SyncEntry = entries.last();
       if (lastEntry?.uid !== syncStateJournal.lastSyncUid) {
         logger.info(`Applying changes. Current uid: ${lastEntry.uid}, last one: ${syncStateJournal.lastSyncUid}`);
@@ -211,22 +217,20 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     this.syncStateEntries = syncStateEntriesAll.asImmutable();
   }
 
-  protected async pushJournalEntries(syncJournal: SyncInfoJournal, pushEntries: PushEntry[]) {
+  protected async pushJournalEntries(pSyncStateJournal: SyncStateJournal, pushEntries: PushEntry[]) {
     if (pushEntries.length > 0) {
       const etesync = this.etesync;
-      const journalUid = syncJournal.collection.uid;
-      let prevUid: string | null = null;
-      const last = syncJournal.journalEntries.last(null);
-      if (last) {
-        prevUid = last.uid;
-      }
-      let lastSyncUid: string | null = prevUid;
+      const storeState = store.getState();
+      const journals = storeState.cache.journals as JournalsData;
+      const syncStateJournal = { ...pSyncStateJournal };
 
-      const syncStateJournal = { ...this.syncStateJournals.get(journalUid)! };
+      const journalUid = syncStateJournal.uid;
+      let prevUid: string | null = syncStateJournal.lastSyncUid;
+      let lastSyncUid: string | null = prevUid;
 
       for (const pushChunk of arrayToChunkIterator(pushEntries, CHUNK_PUSH)) {
         const journalEntries = pushChunk.map((pushEntry) => {
-          const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, pushEntry.syncEntry);
+          const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, journals.get(journalUid)!, prevUid, pushEntry.syncEntry);
           prevUid = ret.uid;
 
           pushEntry.syncEntry.uid = ret.uid;
@@ -260,7 +264,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected syncPushHandleAddChange(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
+  protected syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
     let syncEntryAction: EteSync.SyncEntryAction | undefined;
     const currentHash = entryNativeHashCalc(nativeItem);
 
@@ -294,12 +298,17 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     return null;
   }
 
-  protected syncPushHandleDeleted(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry) {
+  protected syncPushHandleDeleted(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry) {
     logger.info(`Deleted entry ${syncStateEntry.uid}`);
+
+    const storeState = store.getState();
+    const syncInfoItems = storeState.cache.syncInfoItem;
+    const uid = syncStateJournal.uid;
+    const syncInfoJournalItems = syncInfoItems.get(uid)!;
 
     const syncEntry = new EteSync.SyncEntry();
     syncEntry.action = EteSync.SyncEntryAction.Delete;
-    for (const entry of syncJournal.entries.reverse()) {
+    for (const entry of syncInfoJournalItems.values()) {
       const pimItem = this.syncEntryToVobject(entry);
       if (pimItem.uid === syncStateEntry.uid) {
         syncEntry.content = pimItem.toIcal();
@@ -310,10 +319,10 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     return null;
   }
 
-  protected abstract async createJournal(syncJournal: SyncInfoJournal): Promise<string>;
-  protected abstract async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal): Promise<void>;
+  protected abstract async createJournal(collection: EteSync.CollectionInfo): Promise<string>;
+  protected abstract async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
-  protected abstract async syncPush(syncInfo: SyncInfo): Promise<void>;
+  protected abstract async syncPush(): Promise<void>;
 
   protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
   protected abstract nativeToVobject(nativeItem: N): T;

@@ -4,7 +4,6 @@ import * as Contacts from 'expo-contacts';
 
 import { logger } from '../logging';
 
-import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
@@ -50,7 +49,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     this.syncStateEntries = syncStateEntries.asImmutable();
   }
 
-  protected async syncPush(syncInfo: SyncInfo) {
+  protected async syncPush() {
     //
   }
 
@@ -114,14 +113,11 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return syncStateEntry;
   }
 
-  protected async createJournal(syncJournal: SyncInfoJournal): Promise<string> {
-    const collection = syncJournal.collection;
-
+  protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
     return Contacts.createGroupAsync(collection.displayName);
   }
 
-  protected async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal) {
-    const collection = syncJournal.collection;
+  protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
     return Contacts.updateGroupNameAsync(collection.displayName, containerLocalId);
   }
 

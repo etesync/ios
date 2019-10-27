@@ -99,12 +99,12 @@ export class SyncManager {
       const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
       const syncStateJournals = storeState.sync.stateJournals;
       const syncStateEntries = storeState.sync.stateEntries;
-      const syncInfo = syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+      syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
       // FIXME: make the sync parallel
       for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
         await syncManager.init();
-        await syncManager.sync(syncInfo, syncStateJournals, syncStateEntries);
+        await syncManager.sync(syncStateJournals, syncStateEntries);
       }
     } finally {
       deactivateKeepAwake(keepAwakeTag);

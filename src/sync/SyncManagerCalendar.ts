@@ -4,7 +4,6 @@ import * as Calendar from 'expo-calendar';
 
 import { logger } from '../logging';
 
-import { SyncInfo, SyncInfoJournal } from '../SyncGate';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
@@ -53,9 +52,8 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     });
   }
 
-  protected async createJournal(syncJournal: SyncInfoJournal): Promise<string> {
+  protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
     const localSource = this.localSource;
-    const collection = syncJournal.collection;
 
     return Calendar.createCalendarAsync({
       sourceId: localSource.id,
@@ -65,9 +63,8 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     });
   }
 
-  protected async updateJournal(containerLocalId: string, syncJournal: SyncInfoJournal) {
+  protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
     const localSource = this.localSource;
-    const collection = syncJournal.collection;
 
     Calendar.updateCalendarAsync(containerLocalId, {
       sourceId: localSource.id,
@@ -86,19 +83,21 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
   protected collectionType = 'CALENDAR';
   protected entityType = Calendar.EntityTypes.EVENT;
 
-  protected async syncPush(syncInfo: SyncInfo) {
+  protected async syncPush() {
     const syncStateJournals = this.syncStateJournals;
+    const storeState = store.getState();
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
-    for (const syncJournal of syncInfo.values()) {
-      if (syncJournal.collection.type !== this.collectionType) {
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
         continue;
       }
 
       const handled = {};
-      const collection = syncJournal.collection;
-      const uid = collection.uid;
       logger.info(`Pushing ${uid}`);
 
       const syncStateEntriesReverse = this.syncStateEntries.get(uid)!.mapEntries((_entry) => {
@@ -129,7 +128,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           }
 
           const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
-          const pushEntry = this.syncPushHandleAddChange(syncJournal, syncStateEntry, event);
+          const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event);
           if (pushEntry) {
             pushEntries.push(pushEntry);
           }
@@ -152,14 +151,14 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         // FIXME: handle the case of the event still existing for some reason.
         if (!existingEvent) {
           // If the event still exists it means it's not deleted.
-          const pushEntry = this.syncPushHandleDeleted(syncJournal, syncStateEntry);
+          const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (pushEntry) {
             pushEntries.push(pushEntry);
           }
         }
       }
 
-      await this.pushJournalEntries(syncJournal, pushEntries);
+      await this.pushJournalEntries(syncStateJournal, pushEntries);
     }
   }
 
