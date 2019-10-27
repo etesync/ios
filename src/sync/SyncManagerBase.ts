@@ -233,8 +233,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, journals.get(journalUid)!, prevUid, pushEntry.syncEntry);
           prevUid = ret.uid;
 
-          pushEntry.syncEntry.uid = ret.uid;
-
           return ret;
         });
 
@@ -245,20 +243,16 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             case EteSync.SyncEntryAction.Add:
             case EteSync.SyncEntryAction.Change: {
               store.dispatch(setSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
-              store.dispatch(setSyncInfoItem(etesync, journalUid, pushEntry.syncEntry as SyncInfoItem));
               break;
             }
             case EteSync.SyncEntryAction.Delete: {
               store.dispatch(unsetSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
-              store.dispatch(unsetSyncInfoItem(etesync, journalUid, pushEntry.syncEntry as SyncInfoItem));
               break;
             }
           }
-
-          // It was set above in the journalEntries map.
-          lastSyncUid = pushEntry.syncEntry.uid!;
         }
 
+        lastSyncUid = journalEntries[journalEntries.length - 1].uid;
         persistSyncJournal(etesync, syncStateJournal, lastSyncUid!);
       }
     }
