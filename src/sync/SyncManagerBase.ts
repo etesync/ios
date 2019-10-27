@@ -18,7 +18,13 @@ export interface PushEntry {
   syncStateEntry: SyncStateEntry;
 }
 
-function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | undefined) {
+function* arrayToChunkIterator<T extends any[]>(arr: T, size: number) {
+  for (let i = 0 ; i < arr.length ; i += size) {
+    yield arr.slice(i, i + size);
+  }
+}
+
+function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | null) {
   if (lastUid) {
     syncStateJournal.lastSyncUid = lastUid;
   }
@@ -194,7 +200,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           }
 
           if (((i === entries.size - 1) || (i % CHUNK_PULL) === 0)) {
-            persistSyncJournal(etesync, syncStateJournal, lastEntry.uid);
+            persistSyncJournal(etesync, syncStateJournal, lastEntry.uid!);
           }
         }
 
@@ -218,17 +224,19 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
       const syncStateJournal = { ...this.syncStateJournals.get(journalUid)! };
 
-      let i = 0;
-      let journalEntries: EteSync.Entry[] = [];
-      for (const pushEntry of pushEntries) {
-        const cur = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, pushEntry.syncEntry);
-        prevUid = cur.uid;
+      for (const pushChunk of arrayToChunkIterator(pushEntries, CHUNK_PUSH)) {
+        const journalEntries = pushChunk.map((pushEntry) => {
+          const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, pushEntry.syncEntry);
+          prevUid = ret.uid;
 
-        journalEntries.push(cur);
+          pushEntry.syncEntry.uid = ret.uid;
 
-        if (((i === pushEntries.length - 1) || (i % CHUNK_PUSH) === 0)) {
-          await store.dispatch(addEntries(etesync, journalUid, journalEntries, lastSyncUid));
+          return ret;
+        });
 
+        await store.dispatch(addEntries(etesync, journalUid, journalEntries, lastSyncUid));
+
+        for (const pushEntry of pushChunk) {
           switch (pushEntry.syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
             case EteSync.SyncEntryAction.Change: {
@@ -243,12 +251,11 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             }
           }
 
-          journalEntries = [];
-          lastSyncUid = cur.uid;
-          persistSyncJournal(etesync, syncStateJournal, lastSyncUid);
+          // It was set above in the journalEntries map.
+          lastSyncUid = pushEntry.syncEntry.uid!;
         }
 
-        i++;
+        persistSyncJournal(etesync, syncStateJournal, lastSyncUid!);
       }
     }
   }
@@ -273,7 +280,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const vobjectEvent = this.nativeToVobject(nativeItem);
       const syncEntry = new EteSync.SyncEntry();
       syncEntry.action = syncEntryAction;
-      syncEntry.uid = nativeItem.uid;
       syncEntry.content = vobjectEvent.toIcal();
 
       syncStateEntry = {
