@@ -9,16 +9,17 @@ import { ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName 
 import { isDefined } from '../helpers';
 
 export interface NativeBase {
+  id?: string; // This is the local ID of the item (on the device)
   uid: string; // This is the EteSync UUID for the item
 }
 
-export interface NativeEvent extends Calendar.Event, NativeBase {
+export interface NativeEvent extends Omit<Calendar.Event, 'id'>, NativeBase {
 }
 
 export interface NativeTask extends Calendar.Reminder, NativeBase {
 }
 
-export interface NativeContact extends Contacts.Contact, NativeBase {
+export interface NativeContact extends Omit<Contacts.Contact, 'id'>, NativeBase {
 }
 
 export function entryNativeHashCalc(entry: {uid: string}) {
@@ -321,7 +322,7 @@ export function contactVobjectToNative(contact: ContactType) {
 
   const nickname = contact.comp.getFirstPropertyValue('nickname') ?? undefined;
 
-  const ret: NativeContact = {
+  const ret: NativeContact & Contacts.Contact = {
     id: '',
     uid: contact.uid,
     name: contact.fn,
