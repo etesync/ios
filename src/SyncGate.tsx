@@ -2,8 +2,6 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { Text } from 'react-native';
 
-import 'moment/locale/en-gb';
-
 import LoadingIndicator from './widgets/LoadingIndicator';
 
 import { StoreState } from './store';

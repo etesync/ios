@@ -1,5 +1,3 @@
-import 'moment/locale/en-gb';
-
 import { List, Map } from 'immutable';
 import { createSelector } from 'reselect';
 
