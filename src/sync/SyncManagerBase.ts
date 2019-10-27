@@ -5,8 +5,8 @@ import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
+import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, SyncInfoItem } from '../store';
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncInfoItem, unsetSyncInfoItem } from '../store/actions';
 import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
@@ -233,10 +233,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             case EteSync.SyncEntryAction.Add:
             case EteSync.SyncEntryAction.Change: {
               store.dispatch(setSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
+              store.dispatch(setSyncInfoItem(etesync, journalUid, pushEntry.syncEntry as SyncInfoItem));
               break;
             }
             case EteSync.SyncEntryAction.Delete: {
               store.dispatch(unsetSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
+              store.dispatch(unsetSyncInfoItem(etesync, journalUid, pushEntry.syncEntry as SyncInfoItem));
               break;
             }
           }
@@ -271,6 +273,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const vobjectEvent = this.nativeToVobject(nativeItem);
       const syncEntry = new EteSync.SyncEntry();
       syncEntry.action = syncEntryAction;
+      syncEntry.uid = nativeItem.uid;
       syncEntry.content = vobjectEvent.toIcal();
 
       syncStateEntry = {
