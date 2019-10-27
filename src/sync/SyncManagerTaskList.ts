@@ -11,6 +11,7 @@ import { NativeTask, taskVobjectToNative, taskNativeToVobject, entryNativeHashCa
 import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
+import { PushEntry } from './SyncManagerBase';
 
 export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
   protected collectionType = 'TASKS';
@@ -36,7 +37,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         return [entry.localId, entry];
       }).asMutable();
 
-      const syncEntries: EteSync.SyncEntry[] = [];
+      const syncEntries: PushEntry[] = [];
 
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;

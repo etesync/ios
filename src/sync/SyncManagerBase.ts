@@ -13,6 +13,11 @@ import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
 
+export interface PushEntry {
+  syncEntry: EteSync.SyncEntry;
+  syncStateEntry: SyncStateEntry;
+}
+
 function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | undefined) {
   if (lastUid) {
     syncStateJournal.lastSyncUid = lastUid;
@@ -200,43 +205,84 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     this.syncStateEntries = syncStateEntriesAll.asImmutable();
   }
 
-  protected pushJournalEntries(syncJournal: SyncInfoJournal, syncEntries: EteSync.SyncEntry[]) {
-    if (syncEntries.length > 0) {
+  protected pushJournalEntries(syncJournal: SyncInfoJournal, pushEntries: PushEntry[]) {
+    if (pushEntries.length > 0) {
+      const etesync = this.etesync;
+      const journalUid = syncJournal.collection.uid;
       let prevUid: string | null = null;
-      const last = syncJournal.journalEntries.last() as EteSync.Entry;
+      const last = syncJournal.journalEntries.last(null);
       if (last) {
         prevUid = last.uid;
       }
-      const journalEntries = syncEntries.map((syncEntry) => {
-        const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, syncEntry);
-        prevUid = ret.uid;
-        return ret;
-      });
+      let lastSyncUid: string | null = prevUid;
 
-      console.log(journalEntries.map((ent) => (ent.uid)));
+      const syncStateJournal = { ...this.syncStateJournals.get(journalUid)! };
+
+      let i = 0;
+      let journalEntries: EteSync.Entry[] = [];
+      for (const pushEntry of pushEntries) {
+        const cur = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, syncJournal.journal, prevUid, pushEntry.syncEntry);
+        prevUid = cur.uid;
+
+        journalEntries.push(cur);
+
+        if (((i === pushEntries.length - 1) || (i % CHUNK_PUSH) === 0)) {
+          // FIXME: push in chunks AND update the syncStateEntry (the items) and syncStateJournal (the lastUid handled) while syncing
+          console.log(`Last pushed: ${lastSyncUid}`);
+          console.log(journalEntries.map((ent) => (ent.uid)));
+
+          switch (pushEntry.syncEntry.action) {
+            case EteSync.SyncEntryAction.Add:
+            case EteSync.SyncEntryAction.Change: {
+              store.dispatch(setSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
+              break;
+            }
+            case EteSync.SyncEntryAction.Delete: {
+              store.dispatch(unsetSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
+              break;
+            }
+          }
+
+          journalEntries = [];
+          lastSyncUid = cur.uid;
+          persistSyncJournal(etesync, syncStateJournal, lastSyncUid);
+        }
+
+        i++;
+      }
     }
   }
 
   protected syncPushHandleAddChange(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
+    let syncEntry: EteSync.SyncEntry | undefined;
+    const currentHash = entryNativeHashCalc(nativeItem);
+
     if (syncStateEntry === undefined) {
       // New
       const vobjectEvent = this.nativeToVobject(nativeItem);
-      const syncEntry = new EteSync.SyncEntry();
+      syncEntry = new EteSync.SyncEntry();
       logger.info(`New entry ${nativeItem.uid}`);
       syncEntry.action = EteSync.SyncEntryAction.Add;
       syncEntry.content = vobjectEvent.toIcal();
-      return syncEntry;
     } else {
-      const currentHash = entryNativeHashCalc(nativeItem);
       if (currentHash !== syncStateEntry.lastHash) {
         // Changed
         logger.info(`Changed entry ${nativeItem.uid}`);
         const vobjectEvent = this.nativeToVobject(nativeItem);
-        const syncEntry = new EteSync.SyncEntry();
+        syncEntry = new EteSync.SyncEntry();
         syncEntry.action = EteSync.SyncEntryAction.Change;
         syncEntry.content = vobjectEvent.toIcal();
-        return syncEntry;
       }
+    }
+
+    if (syncEntry) {
+      syncStateEntry = {
+        uid: nativeItem.uid,
+        localId: nativeItem.id!,
+        lastHash: currentHash,
+      };
+
+      return {syncEntry, syncStateEntry};
     }
 
     return null;
@@ -244,13 +290,14 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   protected syncPushHandleDeleted(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry) {
     logger.info(`Deleted entry ${syncStateEntry.uid}`);
+
     const syncEntry = new EteSync.SyncEntry();
     syncEntry.action = EteSync.SyncEntryAction.Delete;
     for (const entry of syncJournal.entries.reverse()) {
       const pimItem = this.syncEntryToVobject(entry);
       if (pimItem.uid === syncStateEntry.uid) {
         syncEntry.content = pimItem.toIcal();
-        return syncEntry;
+        return {syncEntry, syncStateEntry};
       }
     }
 

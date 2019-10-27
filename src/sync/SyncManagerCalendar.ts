@@ -12,7 +12,7 @@ import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc, Native
 import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
 
-import { SyncManagerBase } from './SyncManagerBase';
+import { SyncManagerBase, PushEntry } from './SyncManagerBase';
 
 const ACCOUNT_NAME = 'etesync';
 
@@ -106,7 +106,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         return [entry.localId, entry];
       }).asMutable();
 
-      const syncEntries: EteSync.SyncEntry[] = [];
+      const pushEntries: PushEntry[] = [];
 
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
@@ -129,9 +129,9 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           }
 
           const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
-          const syncEntry = this.syncPushHandleAddChange(syncJournal, syncStateEntry, event);
-          if (syncEntry) {
-            syncEntries.push(syncEntry);
+          const pushEntry = this.syncPushHandleAddChange(syncJournal, syncStateEntry, event);
+          if (pushEntry) {
+            pushEntries.push(pushEntry);
           }
 
           if (syncStateEntry) {
@@ -152,14 +152,14 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         // FIXME: handle the case of the event still existing for some reason.
         if (!existingEvent) {
           // If the event still exists it means it's not deleted.
-          const syncEntry = this.syncPushHandleDeleted(syncJournal, syncStateEntry);
-          if (syncEntry) {
-            syncEntries.push(syncEntry);
+          const pushEntry = this.syncPushHandleDeleted(syncJournal, syncStateEntry);
+          if (pushEntry) {
+            pushEntries.push(pushEntry);
           }
         }
       }
 
-      this.pushJournalEntries(syncJournal, syncEntries);
+      this.pushJournalEntries(syncJournal, pushEntries);
     }
   }
 
