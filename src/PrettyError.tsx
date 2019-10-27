@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 
 import Container from './widgets/Container';
 
-export const PrettyError = (props: any) => (
+export const PrettyError = (props: { error: Error }) => (
   <Container>
     <Text>Something went wrong!</Text>
     <Text>{props.error.message}</Text>

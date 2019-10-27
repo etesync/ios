@@ -1,6 +1,25 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
+import { ScrollView } from 'react-native';
+
+import { StoreState } from './store';
 
 import PrettyError from './PrettyError';
+
+function ErrorBoundaryInner(props: any) {
+  const errors = useSelector((state: StoreState) => state.errors);
+  const error = props.error ?? errors.first(null);
+  if (error) {
+    // tslint:disable-next-line:no-console
+    console.error(error);
+    return (
+      <ScrollView>
+        <PrettyError error={error} />
+      </ScrollView>
+    );
+  }
+  return props.children;
+}
 
 class ErrorBoundary extends React.Component {
   public state: {
@@ -17,13 +36,11 @@ class ErrorBoundary extends React.Component {
   }
 
   public render() {
-    const { error } = this.state;
-    if (error) {
-      return (
-        <PrettyError error={this.state.error} />
-      );
-    }
-    return this.props.children;
+    return (
+      <ErrorBoundaryInner error={this.state.error}>
+        {this.props.children}
+      </ErrorBoundaryInner>
+    );
   }
 }
 
