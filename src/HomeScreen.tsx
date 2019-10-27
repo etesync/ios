@@ -58,7 +58,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   const SyncGate = useSyncGate();
   const permissionsStatus = usePermissions();
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     const syncManager = SyncManager.getManager(etesync);
     dispatch(performSync(syncManager.sync()));
   }, [etesync]);

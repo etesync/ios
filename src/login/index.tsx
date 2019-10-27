@@ -1,18 +1,20 @@
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import * as store from '../store';
 
 const credentialsSelector = createSelector(
-  (state: store.StoreState) => state.credentials,
+  (state: store.StoreState) => state.credentials.credentials,
+  (state: store.StoreState) => state.credentials.serviceApiUrl,
   (state: store.StoreState) => state.encryptionKey.key,
-  (credentials, encryptionKey) => {
-    if (!credentials.credentials) {
+  (credentials, serviceApiUrl, encryptionKey) => {
+    if (!credentials) {
       return null;
     }
 
     const ret: store.CredentialsData = {
-      ...credentials,
+      credentials,
+      serviceApiUrl,
       encryptionKey,
     };
     return ret;
@@ -20,5 +22,5 @@ const credentialsSelector = createSelector(
 );
 
 export function useCredentials() {
-  return useSelector(credentialsSelector);
+  return useSelector(credentialsSelector, shallowEqual);
 }
