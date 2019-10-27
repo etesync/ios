@@ -54,11 +54,13 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   const permissionsStatus = usePermissions();
 
   React.useEffect(() => {
-    const syncManager = SyncManager.getManager(etesync);
-    dispatch(performSync(syncManager.sync()));
+    if (etesync) {
+      const syncManager = SyncManager.getManager(etesync);
+      dispatch(performSync(syncManager.sync()));
+    }
   }, [etesync]);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     moment.locale(settings.locale);
   }, [settings.locale]);
 
