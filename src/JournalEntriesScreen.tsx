@@ -48,14 +48,14 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       syncStateEntries.get(journalUid)!.count() :
       -1;
 
-  const changeEntries = entries.map((journalEntry, idx) => {
-    const syncEntry = syncEntries.get(journalEntry.uid)!;
+  function renderEntry(param: { item: EteSync.Entry }) {
+    const syncEntry = syncEntries.get(param.item.uid)!;
     const comp = new ICAL.Component(ICAL.parse(syncEntry.content));
 
     const icon = listIcons[syncEntry.action];
 
     let name;
-    let uid;
+    let uid: string;
     if (comp.name === 'vcalendar') {
       if (EventType.isEvent(comp)) {
         const vevent = EventType.fromVCalendar(comp);
@@ -75,24 +75,12 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       uid = '';
     }
 
-    return ({
-        key: idx.toString(),
-        icon,
-        title: name,
-        description: uid,
-        uid: syncEntry.uid,
-    });
-  }).reverse();
-
-  function renderEntry(param: { item: {key: string, icon: (props: any) => React.ReactNode, title: string, description: string, uid: string } }) {
-    const { key, icon, title, description, uid } = param.item;
-
     return (
       <List.Item
-        key={key}
+        key={syncEntry.uid}
         left={icon}
-        title={title}
-        description={description}
+        title={name}
+        description={uid}
         onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: uid }); }}
       />
     );
@@ -120,8 +108,10 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       <Divider />
       <ScrollView style={{ flex: 1 }}>
         <FlatList
-          data={changeEntries.toJS()}
+          data={entries.reverse().toJS()}
+          keyExtractor={(_item, idx) => idx.toString()}
           renderItem={renderEntry}
+          maxToRenderPerBatch={10}
         />
       </ScrollView>
     </>
