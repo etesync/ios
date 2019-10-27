@@ -52,16 +52,16 @@ export class SyncManager {
     const etesync = this.etesync;
     const me = etesync.credentials.email;
 
-    const userInfoAction = store.dispatch(fetchUserInfo(etesync, me));
+    const userInfoAction = await store.dispatch(fetchUserInfo(etesync, me));
     let userInfo = await userInfoAction.payload;
     if (userInfoAction.error || !userInfoAction.payload) {
-      const newUserInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
+      userInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
       const keyPair = EteSync.AsymmetricCryptoManager.generateKeyPair();
-      const cryptoManager = newUserInfo.getCryptoManager(etesync.encryptionKey);
+      const cryptoManager = userInfo.getCryptoManager(etesync.encryptionKey);
 
-      newUserInfo.setKeyPair(cryptoManager, keyPair);
+      userInfo.setKeyPair(cryptoManager, keyPair);
 
-      userInfo = (await store.dispatch<any>(createUserInfo(etesync, newUserInfo))).payload;
+      await store.dispatch(createUserInfo(etesync, userInfo));
     }
 
     const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries));
@@ -79,7 +79,7 @@ export class SyncManager {
         const journalAction: Action<EteSync.Journal> = await store.dispatch<any>(addJournal(etesync, journal));
         // FIXME: Limit based on error code to only do it for associates.
         if (!journalAction.error) {
-          await store.dispatch(fetchEntries(etesync, collection.uid, null)).payload;
+          await store.dispatch(fetchEntries(etesync, collection.uid, null));
         }
       }
     }

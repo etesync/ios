@@ -227,7 +227,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         journalEntries.push(cur);
 
         if (((i === pushEntries.length - 1) || (i % CHUNK_PUSH) === 0)) {
-          await store.dispatch(addEntries(etesync, journalUid, journalEntries, lastSyncUid)).payload;
+          await store.dispatch(addEntries(etesync, journalUid, journalEntries, lastSyncUid));
 
           switch (pushEntry.syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
