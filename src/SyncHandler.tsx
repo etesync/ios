@@ -73,8 +73,10 @@ export const syncInfoSelector = createSelector(
       const syncEntries = journalEntries.map((entry: EteSync.Entry) => {
         const cacheEntry = syncInfoItem.getIn([journal.uid, entry.uid]);
         if (cacheEntry) {
+          prevUid = entry.uid;
           return cacheEntry;
         }
+
         const syncEntry = entry.getSyncEntry(cryptoManager, prevUid);
         prevUid = entry.uid;
 
