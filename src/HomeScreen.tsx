@@ -49,12 +49,8 @@ function usePermissions() {
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const dispatch = useDispatch();
   const etesync = useCredentials()!;
-  const { settings, errors } = useSelector(
-    (state: StoreState) => ({
-      settings: state.settings,
-      errors: state.errors,
-    })
-  );
+  const settings = useSelector((state: StoreState) => state.settings);
+  const errors = useSelector((state: StoreState) => state.errors);
   const SyncGate = useSyncGate();
   const permissionsStatus = usePermissions();
 
