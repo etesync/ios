@@ -252,28 +252,27 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   }
 
   protected syncPushHandleAddChange(syncJournal: SyncInfoJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
-    let syncEntry: EteSync.SyncEntry | undefined;
+    let syncEntryAction: EteSync.SyncEntryAction | undefined;
     const currentHash = entryNativeHashCalc(nativeItem);
 
     if (syncStateEntry === undefined) {
       // New
-      const vobjectEvent = this.nativeToVobject(nativeItem);
-      syncEntry = new EteSync.SyncEntry();
       logger.info(`New entry ${nativeItem.uid}`);
-      syncEntry.action = EteSync.SyncEntryAction.Add;
-      syncEntry.content = vobjectEvent.toIcal();
+      syncEntryAction = EteSync.SyncEntryAction.Add;
     } else {
       if (currentHash !== syncStateEntry.lastHash) {
         // Changed
         logger.info(`Changed entry ${nativeItem.uid}`);
-        const vobjectEvent = this.nativeToVobject(nativeItem);
-        syncEntry = new EteSync.SyncEntry();
-        syncEntry.action = EteSync.SyncEntryAction.Change;
-        syncEntry.content = vobjectEvent.toIcal();
+        syncEntryAction = EteSync.SyncEntryAction.Change;
       }
     }
 
-    if (syncEntry) {
+    if (syncEntryAction) {
+      const vobjectEvent = this.nativeToVobject(nativeItem);
+      const syncEntry = new EteSync.SyncEntry();
+      syncEntry.action = syncEntryAction;
+      syncEntry.content = vobjectEvent.toIcal();
+
       syncStateEntry = {
         uid: nativeItem.uid,
         localId: nativeItem.id!,
