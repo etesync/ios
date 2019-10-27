@@ -29,10 +29,11 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
     serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
     setLoading(true);
     dispatch<any>(login(username, password, encryptionPassword, serviceApiUrl)).then(() => {
-      setLoading(false);
       navigation.navigate('App');
     }).catch((e: any) => {
       setLoginError(e);
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
