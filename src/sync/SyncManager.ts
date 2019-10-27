@@ -106,6 +106,9 @@ export class SyncManager {
         await syncManager.init();
         await syncManager.sync(syncStateJournals, syncStateEntries);
       }
+
+      // We do it again here so we decrypt the newly added items too
+      syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
     } finally {
       deactivateKeepAwake(keepAwakeTag);
     }
