@@ -79,7 +79,7 @@ export class SyncManager {
         const journalAction: Action<EteSync.Journal> = await store.dispatch<any>(addJournal(etesync, journal));
         // FIXME: Limit based on error code to only do it for associates.
         if (!journalAction.error) {
-          await store.dispatch(fetchEntries(etesync, collection.uid)).payload;
+          await store.dispatch(fetchEntries(etesync, collection.uid, null)).payload;
         }
       }
     }

@@ -1,12 +1,13 @@
-import { Action, createAction, createActions } from 'redux-actions';
+import { Action, createAction } from 'redux-actions';
 
 import * as EteSync from '../api/EteSync';
 import { UserInfo } from '../api/EteSync';
 
 import { CredentialsData, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 
-export const { fetchCredentials, logout } = createActions({
-  FETCH_CREDENTIALS: (username: string, password: string, server: string) => {
+export const fetchCredentials = createAction(
+  'FETCH_CREDENTIALS',
+  (username: string, password: string, server: string) => {
     const authenticator = new EteSync.Authenticator(server);
 
     return new Promise((resolve, reject) => {
@@ -26,9 +27,13 @@ export const { fetchCredentials, logout } = createActions({
         }
       );
     });
-  },
-  LOGOUT: () => undefined,
-});
+  }
+);
+
+export const logout = createAction(
+  'LOGOUT',
+  () => undefined
+);
 
 export const deriveKey = createAction(
   'DERIVE_KEY',
@@ -51,15 +56,16 @@ export const login = (username: string, password: string, encryptionPassword: st
   };
 };
 
-export const { fetchListJournal } = createActions({
-  FETCH_LIST_JOURNAL: (etesync: CredentialsData) => {
+export const fetchListJournal = createAction(
+  'FETCH_LIST_JOURNAL',
+  (etesync: CredentialsData) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
     const journalManager = new EteSync.JournalManager(creds, apiBase);
 
     return journalManager.list();
-  },
-});
+  }
+);
 
 export const addJournal = createAction(
   'ADD_JOURNAL',
@@ -103,42 +109,45 @@ export const deleteJournal = createAction(
   }
 );
 
-export const { fetchEntries, addEntries } = createActions({
-  FETCH_ENTRIES: [
-    (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
-      const creds = etesync.credentials;
-      const apiBase = etesync.serviceApiUrl;
-      const entryManager = new EteSync.EntryManager(creds, apiBase, journalUid);
+export const fetchEntries = createAction(
+  'FETCH_ENTRIES',
+  (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
+    const creds = etesync.credentials;
+    const apiBase = etesync.serviceApiUrl;
+    const entryManager = new EteSync.EntryManager(creds, apiBase, journalUid);
 
-      return entryManager.list(prevUid);
-    },
-    (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
-      return { journal: journalUid, prevUid };
-    },
-  ],
-  ADD_ENTRIES: [
-    (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
-      const creds = etesync.credentials;
-      const apiBase = etesync.serviceApiUrl;
-      const entryManager = new EteSync.EntryManager(creds, apiBase, journalUid);
+    return entryManager.list(prevUid);
+  },
+  (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
+    return { journal: journalUid, prevUid };
+  }
+);
 
-      return entryManager.create(newEntries, prevUid).then((response) => newEntries);
-    },
-    (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
-      return { journal: journalUid, entries: newEntries, prevUid };
-    },
-  ],
-});
+export const addEntries = createAction(
+  'ADD_ENTRIES',
+  async (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
+    const creds = etesync.credentials;
+    const apiBase = etesync.serviceApiUrl;
+    const entryManager = new EteSync.EntryManager(creds, apiBase, journalUid);
 
-export const { fetchUserInfo } = createActions({
-  FETCH_USER_INFO: (etesync: CredentialsData, owner: string) => {
+    await entryManager.create(newEntries, prevUid);
+    return newEntries;
+  },
+  (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
+    return {journal: journalUid, entries: newEntries, prevUid};
+  }
+);
+
+export const fetchUserInfo = createAction(
+  'FETCH_USER_INFO',
+  (etesync: CredentialsData, owner: string) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
     const userInfoManager = new EteSync.UserInfoManager(creds, apiBase);
 
     return userInfoManager.fetch(owner);
-  },
-});
+  }
+);
 
 export const createUserInfo = createAction(
   'CREATE_USER_INFO',
