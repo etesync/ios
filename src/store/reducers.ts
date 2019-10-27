@@ -1,4 +1,5 @@
 import { Action, ActionMeta, ActionFunctionAny, combineActions, handleAction, handleActions } from 'redux-actions';
+import { shallowEqual } from 'react-redux';
 
 import { List, Map as ImmutableMap } from 'immutable';
 
@@ -44,15 +45,6 @@ export type SyncInfoItem = EteSync.SyncEntry & BaseModel;
 export type SyncInfoItemData = ImmutableMap<string, ImmutableMap<string, SyncInfoItem>>;
 export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo>;
 
-
-const shallowCompare = (obj1: {[key: string]: any}, obj2: {[key: string]: any}) => {
-  return (
-    Object.keys(obj1).length === Object.keys(obj2).length &&
-    Object.keys(obj1).every((key) =>
-      obj2.hasOwnProperty(key) && obj1[key] === obj2[key]
-    )
-  );
-};
 
 export const encryptionKeyReducer = handleActions(
   {
@@ -147,7 +139,7 @@ const setMapModelReducer = (state: JournalsData, action: Action<EteSync.Journal[
     const items = action.payload;
     for (const item of items) {
       const current = old.get(item.uid);
-      if (!current || !shallowCompare(current.serialize(), item.serialize())) {
+      if (!current || !shallowEqual(current.serialize(), item.serialize())) {
         ret.set(item.uid, item);
       }
 
@@ -222,7 +214,7 @@ export const userInfo = handleAction(
 
       payload = action.meta?.userInfo ?? payload;
 
-      if (!state || !shallowCompare(state.serialize(), payload.serialize())) {
+      if (!state || !shallowEqual(state.serialize(), payload.serialize())) {
         return payload;
       }
 
@@ -238,7 +230,7 @@ function simpleMapReducer<TypeData extends ImmutableMap<string, TypeItem>, TypeI
     [_actions['set' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
       const syncStateJournal = action.payload;
       const current = state.get(syncStateJournal.uid);
-      if (!current || !shallowCompare(current, syncStateJournal)) {
+      if (!current || !shallowEqual(current, syncStateJournal)) {
         return state.set(syncStateJournal.uid, syncStateJournal);
       }
 
