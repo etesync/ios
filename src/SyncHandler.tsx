@@ -1,4 +1,3 @@
-import { List, Map } from 'immutable';
 import { createSelector } from 'reselect';
 
 import * as EteSync from './api/EteSync';
@@ -6,16 +5,6 @@ import { byte } from './api/Helpers';
 
 import { store, JournalsData, EntriesData, CredentialsData, UserInfoData, SyncInfoItem } from './store';
 import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from './store/actions';
-
-export interface SyncInfoJournal {
-  journal: EteSync.Journal;
-  derivedJournalKey?: byte[];
-  journalEntries: List<EteSync.Entry>;
-  collection: EteSync.CollectionInfo;
-  entries: List<EteSync.SyncEntry>;
-}
-
-export type SyncInfo = Map<string, SyncInfoJournal>;
 
 interface SyncInfoSelectorProps {
   etesync: CredentialsData;
@@ -45,7 +34,7 @@ export const syncInfoSelector = createSelector(
       }
     }
 
-    const ret = Map<string, SyncInfoJournal>().asMutable();
+    const handled = {};
     journals.forEach((journal) => {
       const journalEntries = entries.get(journal.uid);
       let prevUid: string | null = null;
@@ -70,7 +59,7 @@ export const syncInfoSelector = createSelector(
       const collectionInfo = journal.getInfo(cryptoManager);
       store.dispatch(setSyncInfoCollection(etesync, collectionInfo));
 
-      const syncEntries = journalEntries.map((entry: EteSync.Entry) => {
+      journalEntries.forEach((entry: EteSync.Entry) => {
         const cacheEntry = syncInfoItem.getIn([journal.uid, entry.uid]);
         if (cacheEntry) {
           prevUid = entry.uid;
@@ -84,21 +73,13 @@ export const syncInfoSelector = createSelector(
         return syncEntry;
       });
 
-      ret.set(journal.uid, {
-        entries: syncEntries,
-        collection: collectionInfo,
-        journal,
-        derivedJournalKey,
-        journalEntries,
-      });
+      handled[journal.uid] = true;
     });
 
     for (const collection of syncInfoCollection.values()) {
-      if (!ret.has(collection.uid)) {
+      if (!handled[collection.uid]) {
         store.dispatch(unsetSyncInfoCollection(etesync, collection));
       }
     }
-
-    return ret.asImmutable();
   }
 );
