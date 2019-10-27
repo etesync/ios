@@ -11,23 +11,21 @@ import { StoreState } from './store';
 import { syncInfoSelector } from './SyncHandler';
 
 export function useSyncGate() {
-  const etesync = useCredentials()!;
+  const etesync = useCredentials();
   const journals = useSelector((state: StoreState) => state.cache.journals);
   const entries = useSelector((state: StoreState) => state.cache.entries);
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
   const syncInfoEntries = useSelector((state: StoreState) => state.cache.syncInfoItem);
   const syncCount = useSelector((state: StoreState) => state.syncCount);
-  if (syncCount > 0) {
+
+  if ((syncCount > 0) || !etesync || !journals || !entries || !userInfo) {
     return (<LoadingIndicator />);
   }
 
   syncInfoSelector({ etesync, entries, journals, userInfo });
 
-  if ((userInfo === null)
-    || (journals === null)
-    || (entries === null)
-    || (syncInfoCollections.size !== journals.size)
+  if ((syncInfoCollections.size !== journals.size)
     || !syncInfoEntries.every((syncEntries, key) => {
       return (syncEntries && (syncEntries.size === entries.get(key)?.size));
     })
