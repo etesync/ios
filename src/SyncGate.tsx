@@ -9,16 +9,12 @@ import { StoreState } from './store';
 export * from './SyncHandler'; // FIXME: Should be granular
 
 export function useSyncGate() {
-  const { userInfo, journals, entries, syncInfoCollections, syncInfoEntries, fetchCount } = useSelector(
-    (state: StoreState) => ({
-      journals: state.cache.journals,
-      entries: state.cache.entries,
-      userInfo: state.cache.userInfo,
-      syncInfoCollections: state.cache.syncInfoCollection,
-      syncInfoEntries: state.cache.syncInfoItem,
-      fetchCount: state.fetchCount,
-    })
-  );
+  const journals = useSelector((state: StoreState) => state.cache.journals);
+  const entries = useSelector((state: StoreState) => state.cache.entries);
+  const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
+  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
+  const syncInfoEntries = useSelector((state: StoreState) => state.cache.syncInfoItem);
+  const fetchCount = useSelector((state: StoreState) => state.fetchCount);
 
   if ((userInfo === null)
     || (journals === null)
