@@ -5,10 +5,22 @@ import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
 import { SyncInfo, SyncInfoJournal } from '../SyncGate';
-import { store, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
+import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry } from '../store/actions';
 import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
+
+export const CHUNK_PULL = 30;
+export const CHUNK_PUSH = 30;
+
+function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | undefined) {
+  if (lastUid) {
+    syncStateJournal.lastSyncUid = lastUid;
+  }
+  store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
+
+  persistor.persist();
+}
 
 /*
  * This class should probably mirror exactly what's done in Android. So it should
@@ -162,21 +174,24 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
           switch (syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
-            case EteSync.SyncEntryAction.Change:
+            case EteSync.SyncEntryAction.Change: {
               journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
               store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
               break;
-            case EteSync.SyncEntryAction.Delete:
+            }
+            case EteSync.SyncEntryAction.Delete: {
               if (syncStateEntry) {
                 journalSyncEntries.delete(syncStateEntry.uid);
                 store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
               }
               break;
+            }
+          }
+
+          if (((i === entries.size - 1) || (i % CHUNK_PULL) === 0)) {
+            persistSyncJournal(etesync, syncStateJournal, lastEntry.uid);
           }
         }
-        // FIXME: probably do in chunks
-        syncStateJournal.lastSyncUid = lastEntry.uid ?? null;
-        store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
 
         syncStateEntriesAll.set(uid, journalSyncEntries.asImmutable());
       }
