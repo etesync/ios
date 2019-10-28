@@ -4,8 +4,8 @@ import { Map as ImmutableMap } from 'immutable';
 import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
-import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, SyncInfoItem, JournalsData } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncInfoItem, unsetSyncInfoItem } from '../store/actions';
+import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
 import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
