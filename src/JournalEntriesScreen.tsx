@@ -81,7 +81,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
         left={icon}
         title={name}
         description={uid}
-        onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: uid }); }}
+        onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: syncEntry.uid }); }}
       />
     );
   }
