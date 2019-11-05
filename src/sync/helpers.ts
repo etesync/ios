@@ -143,11 +143,13 @@ export function taskVobjectToNative(task: TaskType) {
 
 
 
-function fromDate(date: Date, allDay: boolean) {
+function timeNativeToVobject(date: Date, allDay: boolean) {
   const ret = ICAL.Time.fromJSDate(date, true);
   if (!allDay) {
     return ret;
   } else {
+    // Adding almost a day and then making it allDay acorrectly handles allDay adjustments.
+    ret.adjust(0, 23, 59, 0);
     const data = ret.toJSON();
     data.isDate = allDay;
     return ICAL.Time.fromData(data);
@@ -190,13 +192,13 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
   ret.uid = task.uid;
   ret.summary = task.title ?? '';
   if (task.startDate) {
-    ret.startDate = fromDate(new Date(task.startDate), false);
+    ret.startDate = timeNativeToVobject(new Date(task.startDate), false);
   }
   if (task.dueDate) {
-    ret.dueDate = fromDate(new Date(task.dueDate), false);
+    ret.dueDate = timeNativeToVobject(new Date(task.dueDate), false);
   }
   if (task.completionDate) {
-    ret.completionDate = fromDate(new Date(task.completionDate), false);
+    ret.completionDate = timeNativeToVobject(new Date(task.completionDate), false);
   }
   ret.status = (task.completed) ? TaskStatusType.Completed : TaskStatusType.InProcess;
   ret.location = task.location ?? '';
@@ -228,12 +230,8 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
 }
 
 export function eventNativeToVobject(event: NativeEvent): EventType {
-  const startDate = fromDate(new Date(event.startDate), event.allDay);
-  const endDate = fromDate(new Date(event.endDate), event.allDay);
-
-  if (event.allDay) {
-    endDate.adjust(1, 0, 0, 0);
-  }
+  const startDate = timeNativeToVobject(new Date(event.startDate), event.allDay);
+  const endDate = timeNativeToVobject(new Date(event.endDate), event.allDay);
 
   const ret = new EventType();
   ret.uid = event.uid;
