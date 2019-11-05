@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Avatar, IconButton, Card, Menu, List, Colors } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 
 import { colorIntToHtml } from '../helpers';
 
 import ColorBox from '../widgets/ColorBox';
+import { useCredentials } from '../login';
 import { useSyncGate } from '../SyncGate';
 
 import { StoreState } from '../store';
@@ -38,31 +39,51 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
 
 
 export default function JournalListScreen() {
+  const etesync = useCredentials()!;
   const navigation = useNavigation();
   const syncGate = useSyncGate();
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
+  const journals = useSelector((state: StoreState) => state.cache.journals);
 
   if (syncGate) {
     return syncGate;
   }
 
+  const me = etesync.credentials.email;
+
   const journalMap = syncInfoCollections.reduce(
     (ret, syncInfoCollection) => {
       const info = syncInfoCollection;
+      const journal = journals.get(info.uid)!;
+      const shared = journal.owner !== me;
 
       function journalClicked() {
         navigation.navigate('Journal', { journalUid: info.uid });
       }
 
-      let rightIcon: any;
+      let colorBox: any;
       switch (info.type) {
         case 'CALENDAR':
         case 'TASKS':
-          rightIcon = (props: any) => (
-            <ColorBox {...props} size={36} color={colorIntToHtml(info.color)} />
+          colorBox = (
+            <ColorBox size={36} color={colorIntToHtml(info.color)} />
           );
           break;
       }
+
+      const rightIcon = (props: any) => (
+        <View {...props} style={{ flexDirection: 'row' }}>
+          <View>
+            {shared &&
+              <Avatar.Icon icon="account-multiple" size={18} style={{backgroundColor: '#ffffff'}} />
+            }
+            {journal.readOnly &&
+              <Avatar.Icon icon="eye" size={18} style={{backgroundColor: '#ffffff'}} />
+            }
+          </View>
+          {colorBox}
+        </View>
+      );
 
       ret[info.type] = ret[info.type] ?? [];
       ret[info.type].push(
