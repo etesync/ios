@@ -73,14 +73,12 @@ export default function JournalListScreen() {
 
       const rightIcon = (props: any) => (
         <View {...props} style={{ flexDirection: 'row' }}>
-          <View>
-            {shared &&
-              <Avatar.Icon icon="account-multiple" size={18} style={{backgroundColor: '#ffffff'}} />
-            }
-            {journal.readOnly &&
-              <Avatar.Icon icon="eye" size={18} style={{backgroundColor: '#ffffff'}} />
-            }
-          </View>
+          {shared &&
+            <Avatar.Icon icon="account-multiple" size={36} style={{backgroundColor: '#ffffff'}} />
+          }
+          {journal.readOnly &&
+            <Avatar.Icon icon="eye" size={36} style={{backgroundColor: '#ffffff'}} />
+          }
           {colorBox}
         </View>
       );
