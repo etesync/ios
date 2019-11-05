@@ -540,6 +540,7 @@ export class EntryManager extends BaseManager {
 export interface JournalMemberJson {
   user: string;
   key: base64;
+  readOnly?: boolean;
 }
 
 export class JournalMembersManager extends BaseManager {
