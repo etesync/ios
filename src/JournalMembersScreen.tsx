@@ -95,7 +95,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
         }}
       >
         <Paragraph>
-          Would you like to revoke {revokeUser}'s access?
+          Would you like to revoke {revokeUser?.user}'s access?
         </Paragraph>
         <Paragraph>
           Please be advised that a malicious user would potentially be able to retain access to encryption keys. Please refer to the FAQ for more information.
