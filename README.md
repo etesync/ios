@@ -22,11 +22,10 @@ The app is work-in-progress and incomplete. Here's a short list of things that a
 
 1. Setup is a bit clunky and requires manually adding an account to the device.
 2. The app is quite slow and potentially buggy. Hangs are to be expected, and initial sync can even take a few minutes. Just wait.
-3. Many buttons are just stubs and don't actually work.
+3. A few buttons are just stubs and don't actually work.
 4. Address books are not currently synced to the device, you can only view the change log. This is due to [an expo bug](https://github.com/expo/expo/pull/6016) that we already fixed upstream, but are waiting for a release that includes it.
-5. Everything is read-only at the moment. As in, you are able to edit/add calendar events but it won't actually sync the changes!
-6. Sync is only triggered when you open the app and when you manually click the sync button. It doesn't yet sync automatically in the background.
-7. Some parts have not been designed yet.
+5. Sync is only triggered when you open the app and when you manually click the sync button. It doesn't yet sync automatically in the background.
+6. The app may push changes of items that haven't actually changed. If you notice such changes, please report them!
 
 # Setup
 
