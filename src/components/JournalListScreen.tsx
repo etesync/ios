@@ -40,11 +40,7 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
 export default function JournalListScreen() {
   const navigation = useNavigation();
   const syncGate = useSyncGate();
-  const { syncInfoCollections } = useSelector(
-    (state: StoreState) => ({
-      syncInfoCollections: state.cache.syncInfoCollection,
-    })
-  );
+  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
 
   if (syncGate) {
     return syncGate;
