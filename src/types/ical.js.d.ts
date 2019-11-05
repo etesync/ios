@@ -87,6 +87,9 @@ declare module 'ical.js' {
     public year: number;
     public month: number;
     public day: number;
+    public hour: number;
+    public minute: number;
+    public second: number;
 
     constructor(data?: TimeJsonData);
     public compare(aOther: Time): number;

@@ -41,11 +41,12 @@ function timeVobjectToNative(time: ICAL.Time | undefined) {
   }
 
   if (time.isDate) {
-
     const ret = new Date(0);
     ret.setUTCFullYear(time.year);
     ret.setUTCMonth(time.month - 1);
     ret.setUTCDate(time.day);
+    ret.setUTCHours(time.hour);
+    ret.setUTCMinutes(time.minute);
     return ret;
   } else {
     return time.toJSDate();
@@ -97,14 +98,14 @@ function rruleVobjectToNative(event: EventType) {
 
 export function eventVobjectToNative(event: EventType) {
   const allDay = event.startDate.isDate;
-  let endDate = event.endDate.clone();
+  const endDate = event.endDate.clone();
 
   if (allDay) {
-    endDate.adjust(-1, 0, 0, 0);
-    // FIXME: why is it even needed?
-    if (event.startDate.compare(endDate) > 0) {
-      endDate = event.startDate.clone();
+    endDate.isDate = false;
+    if (event.startDate.compare(endDate) === 0) {
+      endDate.adjust(1, 0, 0, 0); // If the event has the same start and end date, correct the date range.
     }
+    endDate.adjust(-1, 0, 1, 0); // Needed due to iOS/Expo issues
   }
 
   const ret: Partial<NativeEvent> & NativeBase = {
