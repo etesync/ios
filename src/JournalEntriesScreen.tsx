@@ -27,14 +27,10 @@ const listIcons = {
 const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const navigation = useNavigation();
   const syncGate = useSyncGate();
-  const { syncStateEntries, journalEntries, syncInfoCollections, syncInfoEntries } = useSelector(
-    (state: StoreState) => ({
-      syncStateEntries: state.sync.stateEntries,
-      journalEntries: state.cache.entries,
-      syncInfoCollections: state.cache.syncInfoCollection,
-      syncInfoEntries: state.cache.syncInfoItem,
-    })
-  );
+  const syncStateEntries = useSelector((state: StoreState) => state.sync.stateEntries);
+  const journalEntries = useSelector((state: StoreState) => state.cache.entries);
+  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
+  const syncInfoEntries = useSelector((state: StoreState) => state.cache.syncInfoItem);
 
   if (syncGate) {
     return syncGate;
