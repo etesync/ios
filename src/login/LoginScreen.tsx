@@ -10,7 +10,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Container from '../widgets/Container';
 import LoginForm from '../components/LoginForm';
 // import EncryptionLoginForm from './components/EncryptionLoginForm';
-const EncryptionLoginForm = (props: any) => <Text>EncryptionLoginForm</Text>;
+const EncryptionLoginForm = (_props: any) => <Text>EncryptionLoginForm</Text>;
 
 import { login, deriveKey } from '../store/actions';
 
@@ -60,12 +60,12 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
       <Container>
         <Headline>Encryption Password</Headline>
         <Paragraph>
-          You are logged in as <Text style={{fontWeight: 'bold'}}>{credentials.credentials.email}</Text>.
+          You are logged in as <Text style={{ fontWeight: 'bold' }}>{credentials.credentials.email}</Text>.
           Please enter your encryption password to continue, or log out from the side menu.
         </Paragraph>
-      <EncryptionLoginForm
-        onSubmit={onEncryptionFormSubmit}
-      />
+        <EncryptionLoginForm
+          onSubmit={onEncryptionFormSubmit}
+        />
       </Container>
     );
   }

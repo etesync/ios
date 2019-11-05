@@ -81,17 +81,17 @@ class LoginForm extends React.PureComponent {
     }
 
     if (Object.keys(errors).length) {
-      this.setState({errors});
+      this.setState({ errors });
       return;
     } else {
-      this.setState({errors: {}});
+      this.setState({ errors: {} });
     }
 
     this.props.onSubmit(username, password, encryptionPassword, server);
   }
 
   public toggleAdvancedSettings() {
-    this.setState({showAdvanced: !this.state.showAdvanced});
+    this.setState({ showAdvanced: !this.state.showAdvanced });
   }
 
   public render() {
@@ -182,9 +182,9 @@ class LoginForm extends React.PureComponent {
               this.setState((state: any) => ({
                 showAdvanced: !state.showAdvanced,
               }))
-              }
+            }
           >
-            <Row style={{paddingVertical: 8, justifyContent: 'space-between'}}>
+            <Row style={{ paddingVertical: 8, justifyContent: 'space-between' }}>
               <Paragraph>Advanced settings</Paragraph>
               <View pointerEvents="none">
                 <Switch value={this.state.showAdvanced} />

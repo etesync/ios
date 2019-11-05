@@ -87,7 +87,7 @@ export function useFocusState() {
   function handleEvt(e: NavigationEventPayload) {
     const newState = focusStateOfEvent(e.type);
     if (newState) {
-        setFocusState(newState);
+      setFocusState(newState);
     }
   }
   useNavigationEvents(handleEvt);

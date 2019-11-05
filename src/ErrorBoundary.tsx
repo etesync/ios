@@ -21,12 +21,16 @@ function ErrorBoundaryInner(props: any) {
   return props.children;
 }
 
-class ErrorBoundary extends React.Component {
+interface PropsType {
+  children: React.ReactNode | React.ReactNode[];
+}
+
+class ErrorBoundary extends React.Component<PropsType> {
   public state: {
     error?: Error;
   };
 
-  constructor(props: any) {
+  constructor(props: PropsType) {
     super(props);
     this.state = { };
   }

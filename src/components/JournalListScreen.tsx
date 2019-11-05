@@ -74,10 +74,10 @@ export default function JournalListScreen() {
       const rightIcon = (props: any) => (
         <View {...props} style={{ flexDirection: 'row' }}>
           {shared &&
-            <Avatar.Icon icon="account-multiple" size={36} style={{backgroundColor: '#ffffff'}} />
+            <Avatar.Icon icon="account-multiple" size={36} style={{ backgroundColor: '#ffffff' }} />
           }
           {journal.readOnly &&
-            <Avatar.Icon icon="eye" size={36} style={{backgroundColor: '#ffffff'}} />
+            <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: '#ffffff' }} />
           }
           {colorBox}
         </View>
@@ -140,7 +140,7 @@ export default function JournalListScreen() {
             titleStyle={{ color: 'white' }}
             style={{ ...shadowStyle, backgroundColor: backgroundPrimary }}
             left={(props) => <Avatar.Icon color="white" theme={{ colors: { primary: backgroundPrimary } }} {...props} icon={card.icon} />}
-            right={(props) => (
+            right={() => (
               <JournalsMoreMenu journalType={card.lookup} />
             )}
           />

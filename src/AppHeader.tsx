@@ -10,8 +10,8 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
 
   const backAction = (showMenuButton) ? (
     <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
-    ) : (
-    <Appbar.BackAction onPress={() => { navigation.goBack(); }} />
+  ) : (
+    <Appbar.BackAction onPress={() => { navigation.goBack() }} />
   );
 
   const rightAction = getScreenOption(props.scene, 'rightAction');

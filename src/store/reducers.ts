@@ -48,17 +48,17 @@ export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo
 
 export const encryptionKeyReducer = handleActions(
   {
-    [actions.deriveKey.toString()]: (state: {key: string | null}, action: any) => (
-      {key: action.payload}
+    [actions.deriveKey.toString()]: (_state: {key: string | null}, action: any) => (
+      { key: action.payload }
     ),
-    [actions.resetKey.toString()]: (state: {key: string | null}, action: any) => (
-      {key: null}
+    [actions.resetKey.toString()]: (_state: {key: string | null}, _action: any) => (
+      { key: null }
     ),
-    [actions.logout.toString()]: (state: {key: string | null}, action: any) => {
-      return {out: true, key: null};
+    [actions.logout.toString()]: (_state: {key: string | null}, _action: any) => {
+      return { out: true, key: null };
     },
   },
-  {key: null}
+  { key: null }
 );
 
 export const credentials = handleActions(
@@ -77,7 +77,7 @@ export const credentials = handleActions(
         return payload;
       }
     },
-    [actions.logout.toString()]: (state: CredentialsDataRemote, action: any) => {
+    [actions.logout.toString()]: (_state: CredentialsDataRemote, _action: any) => {
       return {};
     },
   },
@@ -85,7 +85,7 @@ export const credentials = handleActions(
 );
 
 function entriesListSetExtend(
-  state: List<any> | undefined, action: Action<EteSync.Entry[]>, extend: boolean = false) {
+  state: List<any> | undefined, action: Action<EteSync.Entry[]>, extend = false) {
   state = state ?? List([]);
 
   if (action.error) {
@@ -110,9 +110,9 @@ function entriesListSetExtend(
 
 function fetchCreateEntriesReducer(state: EntriesData, action: any) {
   const prevState = state.get(action.meta.journal);
-  const extend = action.meta.prevUid != null;
+  const extend = action.meta.prevUid !== null;
   return state.set(action.meta.journal,
-                   entriesListSetExtend(prevState, action, extend));
+    entriesListSetExtend(prevState, action, extend));
 }
 
 export const entries = handleActions(
@@ -339,7 +339,7 @@ export const errorsReducer = handleActions(
 
       return state;
     },
-    [actions.clearErros.toString()]: (state: List<Error>, action: Action<any>) => {
+    [actions.clearErros.toString()]: (state: List<Error>, _action: Action<any>) => {
       return state.clear();
     },
   },
@@ -365,8 +365,8 @@ export interface SettingsType {
 
 export const settingsReducer = handleActions(
   {
-    [actions.setSettings.toString()]: (state: {[key: string]: string | null}, action: any) => (
-      {...action.payload}
+    [actions.setSettings.toString()]: (_state: {[key: string]: string | null}, action: any) => (
+      { ...action.payload }
     ),
   },
   { locale: 'en-gb' }

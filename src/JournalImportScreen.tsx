@@ -27,7 +27,7 @@ interface ImportCollection {
 function cleanCalendrItemForWriting(event: Calendar.Event | Calendar.Reminder) {
   const readOnlyKeys = ['id', 'calendarId', 'creationDate', 'lastModifiedDate', 'originalStartDate', 'isDetached'];
   for (const key in event) {
-    if (event.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(event, key)) {
       if ((event[key] === null) || (key in readOnlyKeys)) {
         delete event[key];
       }
@@ -150,7 +150,6 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
           <Paragraph>Importing this collection type is not currently supported.</Paragraph>
         </ConfirmationDialog>
       );
-      break;
     }
   }
 
@@ -172,7 +171,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
           </Container>
           <Divider />
         </>
-        ) : null
+      ) : null
       }
       <ScrollView style={{ flex: 1 }}>
         { deviceCollections.map(
@@ -188,7 +187,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
                 description={collection.description}
                 onPress={() => setSelectedCollection(collection)}
               />
-          )
+            )
         )}
       </ScrollView>
       <ConfirmationDialog

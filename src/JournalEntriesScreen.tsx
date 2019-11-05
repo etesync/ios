@@ -42,7 +42,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const syncEntries = syncInfoEntries.get(journalUid)!;
   const itemCount = syncStateEntries.has(journalUid) ?
       syncStateEntries.get(journalUid)!.count() :
-      -1;
+    -1;
 
   function renderEntry(param: { item: EteSync.Entry }) {
     const syncEntry = syncEntries.get(param.item.uid)!;
@@ -77,7 +77,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
         left={icon}
         title={name}
         description={uid}
-        onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: syncEntry.uid }); }}
+        onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: syncEntry.uid }) }}
       />
     );
   }
@@ -87,7 +87,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
     case 'CALENDAR':
     case 'TASKS':
       collectionColorBox = (
-        <ColorBox  size={36} color={colorIntToHtml(collection.color)} />
+        <ColorBox size={36} color={colorIntToHtml(collection.color)} />
       );
       break;
   }

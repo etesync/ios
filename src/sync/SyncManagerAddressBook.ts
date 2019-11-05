@@ -67,7 +67,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     let syncStateEntry = syncStateEntries.get(contact.uid);
     switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
-      case EteSync.SyncEntryAction.Change:
+      case EteSync.SyncEntryAction.Change: {
         let contactExists = false;
         try {
           if (syncStateEntry) {
@@ -96,7 +96,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         syncStateEntry.lastHash = entryNativeHashCalc(createdContact);
 
         break;
-      case EteSync.SyncEntryAction.Delete:
+      }
+      case EteSync.SyncEntryAction.Delete: {
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
           await Contacts.removeContactAsync(syncStateEntry.localId);
@@ -108,6 +109,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
           };
         }
         break;
+      }
     }
 
     return syncStateEntry;

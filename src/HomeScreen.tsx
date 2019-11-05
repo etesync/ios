@@ -101,7 +101,7 @@ function RefreshIcon() {
   );
 }
 
-HomeScreen.navigationOptions = ({ navigation }) => ({
+HomeScreen.navigationOptions = () => ({
   rightAction: (
     <RefreshIcon />
   ),

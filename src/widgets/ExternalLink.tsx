@@ -13,7 +13,7 @@ class ExternalLink extends React.PureComponent<PropsType> {
       <Button {...props} onPress={() => Linking.openURL(href)}>
         {children}
       </Button>
-      );
+    );
   }
 }
 

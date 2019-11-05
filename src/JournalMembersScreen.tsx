@@ -76,9 +76,9 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
               key={member.user}
               title={member.user}
               right={(props: any) => (
-                <View {...props} style={{flexDirection: 'row'}}>
+                <View {...props} style={{ flexDirection: 'row' }}>
                   {member.readOnly &&
-                    <Avatar.Icon icon="eye" size={36} style={{backgroundColor: '#ffffff'}} />
+                    <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: '#ffffff' }} />
                   }
                 </View>
               )}
@@ -218,7 +218,7 @@ function RightAction() {
             <Checkbox
               title="Read only?"
               status={readOnly}
-              onPress={() => { setReadOnly(!readOnly); }}
+              onPress={() => { setReadOnly(!readOnly) }}
             />
           </>
         </ConfirmationDialog>

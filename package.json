@@ -6,6 +6,7 @@
     "ios": "expo start --ios",
     "test": "jest --watch",
     "check-types": "tsc",
+    "lint": "eslint --ext js,ts,tsx --ignore-pattern '*.d.ts' src",
     "eject": "expo eject"
   },
   "dependencies": {
@@ -53,11 +54,14 @@
     "@types/sjcl": "^1.0.28",
     "@types/urijs": "^1.15.38",
     "@types/uuid": "^3.4.4",
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "@typescript-eslint/typescript-estree": "^2.6.1",
     "babel-preset-expo": "^7.0.0",
+    "eslint": "^6.6.0",
+    "eslint-plugin-react": "^7.16.0",
     "jest-expo": "^35.0.0",
     "react-test-renderer": "^16.8.6",
-    "tslint": "^5.12.1",
-    "tslint-react": "^3.6.0",
     "typescript": "^3.7.1-rc"
   },
   "jest": {

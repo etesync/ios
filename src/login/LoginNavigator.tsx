@@ -16,7 +16,7 @@ const AuthStack = createStackNavigator(
     Login: LoginScreen,
   },
   {
-    defaultNavigationOptions: ({ navigation }) => ({
+    defaultNavigationOptions: () => ({
       header: (props: HeaderProps) => {
         return (<AppHeader {...props} />);
       },

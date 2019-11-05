@@ -286,7 +286,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         lastHash: currentHash,
       };
 
-      return {syncEntry, syncStateEntry};
+      return { syncEntry, syncStateEntry };
     }
 
     return null;
@@ -306,7 +306,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const pimItem = this.syncEntryToVobject(entry);
       if (pimItem.uid === syncStateEntry.uid) {
         syncEntry.content = pimItem.toIcal();
-        return {syncEntry, syncStateEntry};
+        return { syncEntry, syncStateEntry };
       }
     }
 

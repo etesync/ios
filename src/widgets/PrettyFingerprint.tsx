@@ -10,7 +10,7 @@ function byteArray4ToNumber(bytes: byte[], offset: number) {
   return (
     ((bytes[offset + 0] & 0xff) * (1 << 24)) +
     ((bytes[offset + 1] & 0xff) * (1 << 16)) +
-    ((bytes[offset + 2] & 0xff) * (1 << 8))  +
+    ((bytes[offset + 2] & 0xff) * (1 << 8)) +
     ((bytes[offset + 3] & 0xff))
   );
 }
@@ -42,7 +42,7 @@ class PrettyFingerprint extends React.PureComponent<PropsType> {
       getEncodedChunk(fingerprint, 28);
 
     return (
-      <Paragraph style={{fontVariant: ['tabular-nums']}}>{prettyPublicKey}</Paragraph>
+      <Paragraph style={{ fontVariant: ['tabular-nums'] }}>{prettyPublicKey}</Paragraph>
     );
   }
 }

@@ -147,15 +147,15 @@ function Drawer() {
           }
         </Container>
       </SafeAreaView>
-      <ScrollView style={{ flex: 1}}>
+      <ScrollView style={{ flex: 1 }}>
         <>
           { menuItems.map((menuItem) => (
-              <List.Item
-                key={menuItem.title}
-                title={menuItem.title}
-                onPress={() => { navigation.navigate(menuItem.path); }}
-                left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
-              />
+            <List.Item
+              key={menuItem.title}
+              title={menuItem.title}
+              onPress={() => { navigation.navigate(menuItem.path) }}
+              left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
+            />
           )) }
           { etesync &&
             <>
@@ -177,12 +177,12 @@ function Drawer() {
         <Divider />
         <List.Section title="External links">
           { externalMenuItems.map((menuItem) => (
-              <List.Item
-                key={menuItem.title}
-                title={menuItem.title}
-                onPress={() => { Linking.openURL(menuItem.link); }}
-                left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
-              />
+            <List.Item
+              key={menuItem.title}
+              title={menuItem.title}
+              onPress={() => { Linking.openURL(menuItem.link) }}
+              left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
+            />
           )) }
         </List.Section>
       </ScrollView>

@@ -27,8 +27,8 @@ export interface StoreState {
     entries: EntriesData;
     userInfo: UserInfoData;
 
-    syncInfoCollection: SyncInfoCollectionData,
-    syncInfoItem: SyncInfoItemData,
+    syncInfoCollection: SyncInfoCollectionData;
+    syncInfoItem: SyncInfoItemData;
   };
   errors: List<Error>;
 }
@@ -53,7 +53,7 @@ const journalsSerialize = (state: JournalsData) => {
     return null;
   }
 
-  return state.map((x, uid) => x.serialize()).toJS();
+  return state.map((x, _uid) => x.serialize()).toJS();
 };
 
 const journalsDeserialize = (state: []) => {
@@ -163,7 +163,7 @@ const cachePersistConfig = {
   version: 1,
   storage: AsyncStorage,
   transforms: [createTransform(cacheSerialize, cacheDeserialize)],
-  migrate: createMigrate(cacheMigrations, { debug: false}),
+  migrate: createMigrate(cacheMigrations, { debug: false }),
 };
 
 const syncSerialize = (state: any, key: string) => {

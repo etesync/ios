@@ -110,7 +110,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     let syncStateEntry = syncStateEntries.get(task.uid);
     switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
-      case EteSync.SyncEntryAction.Change:
+      case EteSync.SyncEntryAction.Change: {
         let existingReminder: Calendar.Reminder | undefined;
         try {
           if (syncStateEntry) {
@@ -134,7 +134,8 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         syncStateEntry.lastHash = entryNativeHashCalc(createdReminder);
 
         break;
-      case EteSync.SyncEntryAction.Delete:
+      }
+      case EteSync.SyncEntryAction.Delete: {
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
           await Calendar.deleteReminderAsync(syncStateEntry.localId);
@@ -146,6 +147,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
           };
         }
         break;
+      }
     }
 
     return syncStateEntry;

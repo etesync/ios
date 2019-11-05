@@ -76,7 +76,7 @@ export const addJournal = createAction(
 
     return journalManager.create(journal);
   },
-  (etesync: CredentialsData, journal: EteSync.Journal) => {
+  (_etesync: CredentialsData, journal: EteSync.Journal) => {
     return { item: journal };
   }
 );
@@ -90,7 +90,7 @@ export const updateJournal = createAction(
 
     return journalManager.update(journal);
   },
-  (etesync: CredentialsData, journal: EteSync.Journal) => {
+  (_etesync: CredentialsData, journal: EteSync.Journal) => {
     return { item: journal };
   }
 );
@@ -104,7 +104,7 @@ export const deleteJournal = createAction(
 
     return journalManager.delete(journal);
   },
-  (etesync: CredentialsData, journal: EteSync.Journal) => {
+  (_etesync: CredentialsData, journal: EteSync.Journal) => {
     return { item: journal };
   }
 );
@@ -118,7 +118,7 @@ export const fetchEntries = createAction(
 
     return entryManager.list(prevUid);
   },
-  (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
+  (_etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
     return { journal: journalUid, prevUid };
   }
 );
@@ -133,8 +133,8 @@ export const addEntries = createAction(
     await entryManager.create(newEntries, prevUid);
     return newEntries;
   },
-  (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
-    return {journal: journalUid, entries: newEntries, prevUid};
+  (_etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
+    return { journal: journalUid, entries: newEntries, prevUid };
   }
 );
 
@@ -158,7 +158,7 @@ export const createUserInfo = createAction(
 
     return userInfoManager.create(userInfo);
   },
-  (etesync: CredentialsData, userInfo: UserInfo) => {
+  (_etesync: CredentialsData, userInfo: UserInfo) => {
     return { userInfo };
   }
 );
@@ -172,34 +172,34 @@ export const performSync = createAction(
 
 export const setSyncStateJournal = createAction(
   'SET_SYNC_STATE_JOURNAL',
-  (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
+  (_etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
     return { ...syncStateJournal };
   }
 );
 
 export const unsetSyncStateJournal = createAction(
   'UNSET_SYNC_STATE_JOURNAL',
-  (etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
+  (_etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
     return { ...syncStateJournal };
   }
 );
 
 export const setSyncStateEntry = createAction(
   'SET_SYNC_STATE_ENTRY',
-  (etesync: CredentialsData, journalUid: string, syncStateEntry: SyncStateEntry) => {
+  (_etesync: CredentialsData, _journalUid: string, syncStateEntry: SyncStateEntry) => {
     return { ...syncStateEntry };
   },
-  (etesync: CredentialsData, journalUid: string, syncStateEntry: SyncStateEntry) => {
+  (_etesync: CredentialsData, journalUid: string, _syncStateEntry: SyncStateEntry) => {
     return journalUid;
   }
 );
 
 export const unsetSyncStateEntry = createAction(
   'UNSET_SYNC_STATE_ENTRY',
-  (etesync: CredentialsData, journalUid: string, syncStateEntry: SyncStateEntry) => {
+  (_etesync: CredentialsData, _journalUid: string, syncStateEntry: SyncStateEntry) => {
     return { ...syncStateEntry };
   },
-  (etesync: CredentialsData, journalUid: string, syncStateEntry: SyncStateEntry) => {
+  (_etesync: CredentialsData, journalUid: string, _syncStateEntry: SyncStateEntry) => {
     return journalUid;
   }
 );
@@ -207,14 +207,14 @@ export const unsetSyncStateEntry = createAction(
 
 export const setSyncInfoCollection = createAction(
   'SET_SYNC_INFO_COLLECTION',
-  (etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
+  (_etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
     return { ...syncInfoCollection };
   }
 );
 
 export const unsetSyncInfoCollection = createAction(
   'UNSET_SYNC_INFO_COLLECTION',
-  (etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
+  (_etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
     return { ...syncInfoCollection };
   }
 );
@@ -222,27 +222,27 @@ export const unsetSyncInfoCollection = createAction(
 
 export const setSyncInfoItem = createAction(
   'SET_SYNC_INFO_ITEM',
-  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData, _journalUid: string, syncInfoItem: SyncInfoItem) => {
     return { ...syncInfoItem };
   },
-  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData, journalUid: string, _syncInfoItem: SyncInfoItem) => {
     return journalUid;
   }
 );
 
 export const unsetSyncInfoItem = createAction(
   'UNSET_SYNC_INFO_ITEM',
-  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData, _journalUid: string, syncInfoItem: SyncInfoItem) => {
     return { ...syncInfoItem };
   },
-  (etesync: CredentialsData, journalUid: string, syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData, journalUid: string, _syncInfoItem: SyncInfoItem) => {
     return journalUid;
   }
 );
 
 export const clearErros = createAction(
   'CLEAR_ERRORS',
-  (etesync: CredentialsData) => {
+  (_etesync: CredentialsData) => {
     return true;
   }
 );
@@ -282,6 +282,6 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) 
 export const setSettings = createAction(
   'SET_SETTINGS',
   (settings: SettingsType) => {
-    return {...settings};
+    return { ...settings };
   }
 );

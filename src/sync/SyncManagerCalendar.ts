@@ -176,7 +176,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     let syncStateEntry = syncStateEntries.get(event.uid);
     switch (syncEntry.action) {
       case EteSync.SyncEntryAction.Add:
-      case EteSync.SyncEntryAction.Change:
+      case EteSync.SyncEntryAction.Change: {
         let existingEvent: Calendar.Event | undefined;
         try {
           if (syncStateEntry) {
@@ -200,7 +200,8 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         syncStateEntry.lastHash = entryNativeHashCalc(createdEvent);
 
         break;
-      case EteSync.SyncEntryAction.Delete:
+      }
+      case EteSync.SyncEntryAction.Delete: {
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
           await Calendar.deleteEventAsync(syncStateEntry.localId);
@@ -212,6 +213,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           };
         }
         break;
+      }
     }
 
     return syncStateEntry;

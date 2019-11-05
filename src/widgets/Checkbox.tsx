@@ -15,7 +15,7 @@ export default function Checkbox(props: PropsType) {
       onPress={props.onPress}
       style={props.style}
     >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 16 }}>
         <Paragraph>{props.title}</Paragraph>
         <View pointerEvents="none">
           <PaperCheckbox.Android
