@@ -90,7 +90,7 @@ export default function JournalListScreen() {
         <List.Item
           key={info.uid}
           onPress={journalClicked}
-          title={`${info.displayName} (${info.uid.slice(0, 5)})`}
+          title={info.displayName}
           right={rightIcon}
         />
       );
