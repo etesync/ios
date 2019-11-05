@@ -9,6 +9,7 @@ import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 import { StoreState } from './store';
 
+import Checkbox from './widgets/Checkbox';
 import PrettyFingerprint from './widgets/PrettyFingerprint';
 import Container from './widgets/Container';
 import LoadingIndicator from './widgets/LoadingIndicator';
@@ -108,6 +109,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
 function RightAction() {
   const [memberDialogVisible, setMemberDialogVisible] = React.useState(false);
   const [username, setUsername] = React.useState('');
+  const [readOnly, setReadOnly] = React.useState(false);
   const [publicKey, setPublicKey] = React.useState('');
   const [errorUsername, setErrorUsername] = React.useState<string | null>(null);
   const navigation = useNavigation();
@@ -132,7 +134,7 @@ function RightAction() {
     const encryptedKey = sjcl.codec.base64.fromBits(sjcl.codec.bytes.toBits(cryptoManager.getEncryptedKey(keyPair, pubkeyBytes)));
 
     const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journal.uid);
-    journalMembersManager.create({ user: username, key: encryptedKey }).then(() => {
+    journalMembersManager.create({ user: username, key: encryptedKey, readOnly }).then(() => {
       navigation.goBack();
     }).catch((e) => {
       setErrorUsername(e.toString());
@@ -206,6 +208,11 @@ function RightAction() {
             >
               {errorUsername}
             </HelperText>
+            <Checkbox
+              title="Read only?"
+              status={readOnly}
+              onPress={() => { setReadOnly(!readOnly); }}
+            />
           </>
         </ConfirmationDialog>
       }
