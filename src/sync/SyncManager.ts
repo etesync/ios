@@ -13,7 +13,7 @@ import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } fro
 import { SyncManagerCalendar } from './SyncManagerCalendar';
 import { SyncManagerTaskList } from './SyncManagerTaskList';
 
-import * as sjcl from 'sjcl';
+import sjcl from 'sjcl';
 import * as Random from 'expo-random';
 
 async function prngAddEntropy() {

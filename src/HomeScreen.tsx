@@ -5,7 +5,7 @@ import { Appbar, Text } from 'react-native-paper';
 
 import * as Permissions from 'expo-permissions';
 
-import * as moment from 'moment';
+import moment from 'moment';
 import 'moment/locale/en-gb';
 
 import { SyncManager } from './sync/SyncManager';

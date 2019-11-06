@@ -1,7 +1,7 @@
 import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';
-import * as sjcl from 'sjcl';
+import sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';

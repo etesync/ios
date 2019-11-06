@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as sjcl from 'sjcl';
+import sjcl from 'sjcl';
 
 import { Paragraph } from 'react-native-paper';
 

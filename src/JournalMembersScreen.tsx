@@ -17,7 +17,7 @@ import ConfirmationDialog from './widgets/ConfirmationDialog';
 import ErrorDialog from './widgets/ErrorDialog';
 
 import * as EteSync from './api/EteSync';
-import * as sjcl from 'sjcl';
+import sjcl from 'sjcl';
 
 const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {
   const [members, setMembers] = React.useState<EteSync.JournalMemberJson[] | undefined>(undefined);
