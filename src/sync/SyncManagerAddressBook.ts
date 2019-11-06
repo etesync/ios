@@ -57,7 +57,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
   }
 
-  protected nativeToVobject(nativeItem: NativeContact) {
+  protected nativeToVobject(_nativeItem: NativeContact) {
     return {} as ContactType;
   }
 
