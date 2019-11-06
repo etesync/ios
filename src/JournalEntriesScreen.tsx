@@ -41,7 +41,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const entries = journalEntries.get(journalUid)!;
   const syncEntries = syncInfoEntries.get(journalUid)!;
   const itemCount = syncStateEntries.has(journalUid) ?
-      syncStateEntries.get(journalUid)!.count() :
+    syncStateEntries.get(journalUid)!.count() :
     -1;
 
   function renderEntry(param: { item: EteSync.Entry }) {
