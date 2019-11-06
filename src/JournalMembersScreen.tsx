@@ -141,7 +141,7 @@ function RightAction() {
     const encryptedKey = sjcl.codec.base64.fromBits(sjcl.codec.bytes.toBits(cryptoManager.getEncryptedKey(keyPair, pubkeyBytes)));
 
     const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journal.uid);
-    journalMembersManager.create({ user: username, key: encryptedKey, readOnly }).then(() => {
+    await journalMembersManager.create({ user: username, key: encryptedKey, readOnly }).then(() => {
       navigation.goBack();
     }).catch((e) => {
       setErrorUsername(e.toString());
