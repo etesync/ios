@@ -79,7 +79,7 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
         <Paragraph>
           Your security fingerprint is:
         </Paragraph>
-        { publicKey &&
+        {publicKey &&
           <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
             <PrettyFingerprint publicKey={publicKey} />
           </View>
@@ -142,22 +142,22 @@ function Drawer() {
             source={require('./images/icon.png')}
           />
           <Subheading style={{ color: 'white' }}>{C.appName}</Subheading>
-          { etesync &&
+          {etesync &&
             <Text style={{ color: 'white' }}>{etesync.credentials.email}</Text>
           }
         </Container>
       </SafeAreaView>
       <ScrollView style={{ flex: 1 }}>
         <>
-          { menuItems.map((menuItem) => (
+          {menuItems.map((menuItem) => (
             <List.Item
               key={menuItem.title}
               title={menuItem.title}
               onPress={() => { navigation.navigate(menuItem.path) }}
               left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
             />
-          )) }
-          { etesync &&
+          ))}
+          {etesync &&
             <>
               <List.Item
                 title="Show Fingerprint"
@@ -176,14 +176,14 @@ function Drawer() {
         </>
         <Divider />
         <List.Section title="External links">
-          { externalMenuItems.map((menuItem) => (
+          {externalMenuItems.map((menuItem) => (
             <List.Item
               key={menuItem.title}
               title={menuItem.title}
               onPress={() => { Linking.openURL(menuItem.link) }}
               left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
             />
-          )) }
+          ))}
         </List.Section>
       </ScrollView>
 

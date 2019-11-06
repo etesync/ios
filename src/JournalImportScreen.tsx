@@ -162,7 +162,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
 
   return (
     <React.Fragment>
-      { (showDisclaimer) ? (
+      {(showDisclaimer) ? (
         <>
           <Container>
             <Paragraph>
@@ -174,16 +174,16 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
       ) : null
       }
       <ScrollView style={{ flex: 1 }}>
-        { deviceCollections.map(
+        {deviceCollections.map(
           (collection) => (collection.id === syncStateJournal.localId) ?
             null : (
               <List.Item
                 key={collection.id}
                 title={collection.title}
-                right={() => (collection.color) ?
+                right={() => ((collection.color) ?
                   <ColorBox size={36} color={collection.color} /> :
                   null
-                }
+                )}
                 description={collection.description}
                 onPress={() => setSelectedCollection(collection)}
               />

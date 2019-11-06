@@ -70,7 +70,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
   return (
     <ScrollView>
       <Container>
-        { (members.length > 0) ?
+        {(members.length > 0) ?
           members.map((member) => (
             <List.Item
               key={member.user}
@@ -178,14 +178,14 @@ function RightAction() {
           <Paragraph>
             Verify {username}'s security fingerprint to ensure the encryption is secure.
           </Paragraph>
-          { publicKey &&
+          {publicKey &&
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
               <PrettyFingerprint publicKey={publicKey} />
             </View>
           }
         </>
       </ConfirmationDialog>
-      { memberDialogVisible &&
+      {memberDialogVisible &&
         <ConfirmationDialog
           title="Add Member"
           visible={memberDialogVisible && !publicKey}
@@ -200,7 +200,7 @@ function RightAction() {
         >
           <>
             <TextInput
-              keyboardType={'email-address'}
+              keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoFocus

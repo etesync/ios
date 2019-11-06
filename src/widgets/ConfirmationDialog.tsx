@@ -43,7 +43,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
       >
         <Dialog.Title>{props.title}</Dialog.Title>
         <Dialog.Content>
-          { (loading) ?
+          {(loading) ?
             <>
               <Paragraph>{loadingText}</Paragraph>
               <ProgressBar indeterminate />
