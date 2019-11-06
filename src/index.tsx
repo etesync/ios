@@ -6,10 +6,6 @@ import App from './App';
 import { store, persistor } from './store';
 
 class Index extends React.Component {
-  constructor(props: any) {
-    super(props);
-  }
-
   public render() {
     return (
       <Provider store={store}>
