@@ -173,13 +173,13 @@ function alarmNativeToVobject(alarm: Calendar.Alarm, description: string) {
 }
 
 function rruleNativeToVobject(rrule: Calendar.RecurrenceRule) {
-  const value = {
-    frequency: rrule.frequency.toUpperCase(),
+  const value: ICAL.Recur = {
+    freq: rrule.frequency.toUpperCase() as ICAL.FrequencyValues,
     interval: rrule.interval || 1,
-  } as any;
+  };
 
   if (rrule.endDate) {
-    value.until = rrule.endDate;
+    value.until = ICAL.Time.fromString(rrule.endDate);
   }
   if (rrule.occurrence) {
     value.count = rrule.occurrence;
@@ -202,8 +202,12 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
     ret.completionDate = timeNativeToVobject(new Date(task.completionDate), false);
   }
   ret.status = (task.completed) ? TaskStatusType.Completed : TaskStatusType.InProcess;
-  ret.location = task.location ?? '';
-  ret.description = task.notes ?? '';
+  if (task.location) {
+    ret.location = task.location;
+  }
+  if (task.notes) {
+    ret.description = task.notes;
+  }
   if (task.alarms) {
     task.alarms.forEach((alarm) => {
       const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
@@ -239,8 +243,12 @@ export function eventNativeToVobject(event: NativeEvent): EventType {
   ret.summary = event.title ?? '';
   ret.startDate = startDate;
   ret.endDate = endDate;
-  ret.location = event.location ?? '';
-  ret.description = event.notes ?? '';
+  if (event.location) {
+    ret.location = event.location;
+  }
+  if (event.notes) {
+    ret.description = event.notes;
+  }
   if (event.alarms) {
     event.alarms.forEach((alarm) => {
       const alarmComponent = alarmNativeToVobject(alarm, ret.summary);
