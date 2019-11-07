@@ -30,7 +30,7 @@ export function entryNativeHashCalc(entry: {uid: string}) {
       return;
     }
     sha.update(key);
-    sha.update(entry[key]);
+    sha.update(entry[key].toString());
   });
   return sjcl.codec.hex.fromBits(sha.finalize());
 }
