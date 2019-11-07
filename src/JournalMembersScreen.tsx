@@ -91,12 +91,11 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
       <ConfirmationDialog
         title="Remove member"
         visible={!!revokeUser}
-        onOk={() => {
+        onOk={async () => {
           const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journalUid);
-          return journalMembersManager.delete(revokeUser!).then(() => {
-            setRevokeUser(undefined);
-            navigation.goBack();
-          });
+          await journalMembersManager.delete((revokeUser!));
+          setRevokeUser(undefined);
+          navigation.goBack();
         }}
         onCancel={() => {
           setRevokeUser(undefined);
