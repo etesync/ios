@@ -306,7 +306,7 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
-  const birthdays: Contacts.Date[] = contactFieldToNative<Contacts.Date>(contact, 'bday', (fieldType: string, value: ICAL.Time) => {
+  const birthdays: Contacts.Date[] = contactFieldToNative<Contacts.Date>(contact, 'bday', (_fieldType: string, value: ICAL.Time) => {
     const date = value.toJSDate();
     return {
       id: 'bday',
@@ -318,11 +318,11 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
-  const notes: string[] = contactFieldToNative<string>(contact, 'note', (fieldType: string, value: string) => {
+  const notes: string[] = contactFieldToNative<string>(contact, 'note', (_fieldType: string, value: string) => {
     return value;
   });
 
-  const titles: string[] = contactFieldToNative<string>(contact, 'note', (fieldType: string, value: string) => {
+  const titles: string[] = contactFieldToNative<string>(contact, 'note', (_fieldType: string, value: string) => {
     return value;
   });
   const jobTitle = titles.length > 0 ? titles[0] : undefined;

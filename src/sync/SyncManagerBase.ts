@@ -258,7 +258,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
+  protected syncPushHandleAddChange(_syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
     let syncEntryAction: EteSync.SyncEntryAction | undefined;
     const currentHash = entryNativeHashCalc(nativeItem);
 
