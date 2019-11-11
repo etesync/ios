@@ -61,6 +61,10 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return {} as ContactType;
   }
 
+  protected nativeHashCalc(contact: NativeContact) {
+    return entryNativeHashCalc(contact);
+  }
+
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const contact = this.syncEntryToVobject(syncEntry);
     const nativeContact = contactVobjectToNative(contact);
@@ -93,7 +97,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         }
 
         const createdContact = { ...(await Contacts.getContactsAsync({ id: syncStateEntry.localId })).data[0], uid: nativeContact.uid };
-        syncStateEntry.lastHash = entryNativeHashCalc(createdContact);
+        syncStateEntry.lastHash = this.nativeHashCalc(createdContact);
 
         break;
       }

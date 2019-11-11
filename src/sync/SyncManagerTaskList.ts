@@ -104,6 +104,10 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     return taskNativeToVobject(nativeItem);
   }
 
+  protected nativeHashCalc(task: NativeTask) {
+    return entryNativeHashCalc(task);
+  }
+
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const task = this.syncEntryToVobject(syncEntry);
     const nativeReminder = taskVobjectToNative(task);
@@ -131,7 +135,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         }
 
         const createdReminder = { ...await Calendar.getReminderAsync(syncStateEntry.localId), uid: nativeReminder.uid };
-        syncStateEntry.lastHash = entryNativeHashCalc(createdReminder);
+        syncStateEntry.lastHash = this.nativeHashCalc(createdReminder);
 
         break;
       }

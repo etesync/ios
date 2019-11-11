@@ -170,6 +170,10 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     return eventNativeToVobject(nativeItem);
   }
 
+  protected nativeHashCalc(event: NativeEvent) {
+    return entryNativeHashCalc(event);
+  }
+
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const event = this.syncEntryToVobject(syncEntry);
     const nativeEvent = eventVobjectToNative(event);
@@ -197,7 +201,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         }
 
         const createdEvent = { ...await Calendar.getEventAsync(syncStateEntry.localId), uid: nativeEvent.uid };
-        syncStateEntry.lastHash = entryNativeHashCalc(createdEvent);
+        syncStateEntry.lastHash = this.nativeHashCalc(createdEvent);
 
         break;
       }

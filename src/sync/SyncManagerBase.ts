@@ -6,7 +6,7 @@ import { logger } from '../logging';
 import { PimType } from '../pim-types';
 import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
-import { NativeBase, entryNativeHashCalc } from './helpers';
+import { NativeBase } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 
 export const CHUNK_PULL = 30;
@@ -260,7 +260,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   protected syncPushHandleAddChange(_syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
     let syncEntryAction: EteSync.SyncEntryAction | undefined;
-    const currentHash = entryNativeHashCalc(nativeItem);
+    const currentHash = this.nativeHashCalc(nativeItem);
 
     if (syncStateEntry === undefined) {
       // New
@@ -320,6 +320,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
   protected abstract nativeToVobject(nativeItem: N): T;
+  protected abstract nativeHashCalc(entry: N): string;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 }
