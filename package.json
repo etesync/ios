@@ -38,8 +38,7 @@
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
     "sjcl": "git+https://github.com/etesync/sjcl",
-    "urijs": "^1.19.1",
-    "uuid": "^3.3.2"
+    "urijs": "^1.19.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.5",
