@@ -6,7 +6,7 @@ import { logger } from '../logging';
 
 import { store, SyncStateJournalEntryData } from '../store';
 
-import { NativeTask, taskVobjectToNative, taskNativeToVobject } from './helpers';
+import { NativeTask, taskVobjectToNative, taskNativeToVobject, entryNativeHashCalc } from './helpers';
 import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
@@ -105,7 +105,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
   }
 
   protected nativeHashCalc(task: NativeTask) {
-    return task.lastModifiedDate?.toString() ?? 'ERROR: NO lastModifiedDate';
+    return entryNativeHashCalc(task);
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {

@@ -35,6 +35,22 @@ export function entryNativeHashCalc(entry: {uid: string}) {
   return sjcl.codec.hex.fromBits(sha.finalize());
 }
 
+export function eventNativeHashCalc(inEvent: NativeEvent) {
+  let event: NativeEvent;
+  if (inEvent.allDay) {
+    event = {
+      ...inEvent,
+      originalStartDate: timeNativeToVobject(new Date(inEvent.originalStartDate ?? inEvent.startDate), inEvent.allDay).toString(),
+      startDate: timeNativeToVobject(new Date(inEvent.startDate), inEvent.allDay).toString(),
+      endDate: timeNativeToVobject(new Date(inEvent.endDate), inEvent.allDay).toString(),
+    };
+  } else {
+    event = inEvent;
+  }
+
+  return entryNativeHashCalc(event);
+}
+
 function timeVobjectToNative(time: ICAL.Time | undefined) {
   if (!time) {
     return undefined;

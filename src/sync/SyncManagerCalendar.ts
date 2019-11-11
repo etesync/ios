@@ -7,7 +7,7 @@ import { logger } from '../logging';
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from './helpers';
+import { eventVobjectToNative, eventNativeToVobject, eventNativeHashCalc, NativeBase, NativeEvent } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
 
@@ -171,7 +171,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
   }
 
   protected nativeHashCalc(event: NativeEvent) {
-    return event.lastModifiedDate?.toString() ?? 'ERROR: NO lastModifiedDate';
+    return eventNativeHashCalc(event);
   }
 
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
