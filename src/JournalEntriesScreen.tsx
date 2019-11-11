@@ -13,7 +13,7 @@ import Container from './widgets/Container';
 
 import { TaskType, EventType, ContactType } from './pim-types';
 
-import * as EteSync from './api/EteSync';
+import * as EteSync from 'etesync';
 import { colorIntToHtml } from './helpers';
 
 import ColorBox from './widgets/ColorBox';

@@ -5,7 +5,7 @@ import { createMigrate, persistReducer, createTransform } from 'redux-persist';
 
 import { List, Map as ImmutableMap } from 'immutable';
 
-import * as EteSync from '../api/EteSync';
+import * as EteSync from 'etesync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,

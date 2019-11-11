@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
-import * as EteSync from './api/EteSync';
-import { byte } from './api/Helpers';
+import * as EteSync from 'etesync';
+import { byte } from 'etesync';
 
 import { store, JournalsData, EntriesData, CredentialsData, UserInfoData, SyncInfoItem } from './store';
 import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from './store/actions';

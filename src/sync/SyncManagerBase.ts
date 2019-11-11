@@ -1,4 +1,4 @@
-import * as EteSync from '../api/EteSync';
+import * as EteSync from 'etesync';
 import { Map as ImmutableMap } from 'immutable';
 
 import { logger } from '../logging';

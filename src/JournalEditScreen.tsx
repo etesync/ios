@@ -14,7 +14,7 @@ import { addJournal, updateJournal, deleteJournal, performSync } from './store/a
 import Container from './widgets/Container';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 
-import * as EteSync from './api/EteSync';
+import * as EteSync from 'etesync';
 
 interface FormErrors {
   displayName?: string;

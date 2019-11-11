@@ -3,7 +3,7 @@ import { shallowEqual } from 'react-redux';
 
 import { List, Map as ImmutableMap } from 'immutable';
 
-import * as EteSync from '../api/EteSync';
+import * as EteSync from 'etesync';
 
 import * as actions from './actions';
 

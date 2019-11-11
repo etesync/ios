@@ -1,9 +1,9 @@
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 
-import * as EteSync from '../api/EteSync';
+import * as EteSync from 'etesync';
 import { Action } from 'redux-actions';
 
-import { CURRENT_VERSION } from '../api/Constants';
+const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
 import { store, persistor, CredentialsData, JournalsData, UserInfoData, SyncStateJournalData, SyncStateEntryData } from '../store';

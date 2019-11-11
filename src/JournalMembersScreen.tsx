@@ -16,7 +16,7 @@ import LoadingIndicator from './widgets/LoadingIndicator';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import ErrorDialog from './widgets/ErrorDialog';
 
-import * as EteSync from './api/EteSync';
+import * as EteSync from 'etesync';
 import sjcl from 'sjcl';
 
 const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {

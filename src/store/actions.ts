@@ -1,7 +1,7 @@
 import { Action, createAction } from 'redux-actions';
 
-import * as EteSync from '../api/EteSync';
-import { UserInfo } from '../api/EteSync';
+import * as EteSync from 'etesync';
+import { UserInfo } from 'etesync';
 
 import { CredentialsData, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 

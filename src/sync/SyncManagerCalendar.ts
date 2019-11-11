@@ -1,4 +1,4 @@
-import * as EteSync from '../api/EteSync';
+import * as EteSync from 'etesync';
 import * as ICAL from 'ical.js';
 import * as Calendar from 'expo-calendar';
 
