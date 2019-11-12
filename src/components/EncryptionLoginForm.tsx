@@ -12,7 +12,7 @@ interface PropsType {
 }
 
 export default function _EncryptionLognForm(props: PropsType) {
-  const [errors, setErrors] = React.useState({} as FormErrors);
+  const [errors, setErrors] = React.useState<FormErrors>({});
   const [encryptionPassword, setEncryptionPassword] = React.useState<string>();
 
   function onSave() {
