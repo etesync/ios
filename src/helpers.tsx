@@ -53,9 +53,21 @@ function isFunction(f: any): f is Function {
   return f instanceof Function;
 }
 
+export function useIsMounted() {
+  const isMounted = React.useRef(false);
+  React.useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+  return isMounted;
+}
+
 type PromiseParam = Promise<any> | (() => Promise<any>) | undefined;
 
 export function useLoading(): [boolean, Error | undefined, (promise: PromiseParam) => void] {
+  const isMounted = useIsMounted();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error>();
 
@@ -68,9 +80,13 @@ export function useLoading(): [boolean, Error | undefined, (promise: PromisePara
 
       if (isPromise(promise)) {
         promise.catch((e) => {
-          setError(e);
+          if (isMounted.current) {
+            setError(e);
+          }
         }).finally(() => {
-          setLoading(false);
+          if (isMounted.current) {
+            setLoading(false);
+          }
         });
       } else {
         setLoading(false);

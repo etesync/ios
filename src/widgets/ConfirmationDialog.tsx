@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Keyboard } from 'react-native';
 import { Portal, Dialog, Button, ProgressBar, Paragraph } from 'react-native-paper';
 
-import { isPromise } from '../helpers';
+import { isPromise, useIsMounted } from '../helpers';
 
 interface PropsType {
   title: string;
@@ -18,6 +18,7 @@ interface PropsType {
 }
 
 export default React.memo(function ConfirmationDialog(props: PropsType) {
+  const isMounted = useIsMounted();
   const [loading, setLoading] = React.useState(props.loading ?? false);
   const [error, setError] = React.useState<string | undefined>(undefined);
   const labelCancel = props.labelCancel ?? 'Cancel';
@@ -34,9 +35,13 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
       // If it's a promise, we update the loading state based on it.
       setLoading(true);
       ret.catch((e) => {
-        setError(e.toString());
+        if (isMounted.current) {
+          setError(e.toString());
+        }
       }).finally(() => {
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       });
     }
   }
