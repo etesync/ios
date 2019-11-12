@@ -18,6 +18,7 @@ interface PropsType {
 
 export default React.memo(function ConfirmationDialog(props: PropsType) {
   const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | undefined>(undefined);
   const labelCancel = props.labelCancel ?? 'Cancel';
   const labelOk = props.labelOk ?? 'OK';
   const loadingText = props.loadingText ?? 'Loading...';
@@ -31,7 +32,28 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
     if (isPromise(ret)) {
       // If it's a promise, we update the loading state based on it.
       setLoading(true);
+      ret.catch((e) => {
+        setError(e.toString());
+      }).finally(() => {
+        setLoading(false);
+      });
     }
+  }
+
+  let content: React.ReactNode | React.ReactNode[];
+  if (error !== undefined) {
+    content = (
+      <Paragraph>Error: {error.toString()}</Paragraph>
+    );
+  } else if (loading) {
+    content = (
+      <>
+        <Paragraph>{loadingText}</Paragraph>
+        <ProgressBar indeterminate />
+      </>
+    );
+  } else {
+    content = props.children;
   }
 
   return (
@@ -43,19 +65,13 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
       >
         <Dialog.Title>{props.title}</Dialog.Title>
         <Dialog.Content>
-          {(loading) ?
-            <>
-              <Paragraph>{loadingText}</Paragraph>
-              <ProgressBar indeterminate />
-            </> :
-            props.children
-          }
+          {content}
         </Dialog.Content>
         <Dialog.Actions>
           {props.onCancel &&
             <Button disabled={loading} onPress={props.onCancel}>{labelCancel}</Button>
           }
-          {props.onOk &&
+          {!error && props.onOk &&
             <Button disabled={loading} onPress={onOk}>{labelOk}</Button>
           }
         </Dialog.Actions>
