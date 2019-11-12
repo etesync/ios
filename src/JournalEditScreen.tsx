@@ -13,8 +13,10 @@ import { addJournal, updateJournal, deleteJournal, performSync } from './store/a
 
 import Container from './widgets/Container';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
+import ErrorDialog from './widgets/ErrorDialog';
 
 import * as EteSync from 'etesync';
+import { useLoading } from './helpers';
 
 interface FormErrors {
   displayName?: string;
@@ -34,7 +36,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   const syncGate = useSyncGate();
   const navigation = useNavigation();
   const etesync = useCredentials()!;
-  const loading = false;
+  const [loading, error, setPromise] = useLoading();
 
   if (syncGate) {
     return syncGate;
@@ -51,42 +53,49 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   }
 
   function onSave() {
-    const saveErrors: FormErrors = {};
-    const fieldRequired = 'This field is required!';
+    setPromise(async () => {
+      const saveErrors: FormErrors = {};
+      const fieldRequired = 'This field is required!';
 
-    if (!displayName) {
-      saveErrors.displayName = fieldRequired;
-    }
+      if (!displayName) {
+        saveErrors.displayName = fieldRequired;
+      }
 
-    if (Object.keys(saveErrors).length > 0) {
-      setErrors(saveErrors);
-      return;
-    }
+      if (Object.keys(saveErrors).length > 0) {
+        setErrors(saveErrors);
+        return;
+      }
 
-    const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
-    const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: journalUid });
-    const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
-    const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
-    journal.setInfo(cryptoManager, info);
+      const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
+      const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: journalUid });
+      const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
+      const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
+      journal.setInfo(cryptoManager, info);
 
-    // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-    const syncManager = SyncManager.getManager(etesync);
-    if (journalUid) {
-      store.dispatch<any>(updateJournal(etesync, journal)).then(() => {
-        store.dispatch(performSync(syncManager.sync()));
-        navigation.goBack();
-      });
-    } else {
-      store.dispatch<any>(addJournal(etesync, journal)).then(() => {
-        store.dispatch(performSync(syncManager.sync()));
-        navigation.goBack();
-      });
-    }
+      if (journalUid) {
+        await store.dispatch(updateJournal(etesync, journal));
+      } else {
+        await store.dispatch(addJournal(etesync, journal));
+      }
+
+      // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
+      const syncManager = SyncManager.getManager(etesync);
+      store.dispatch(performSync(syncManager.sync()));
+      navigation.goBack();
+    });
   }
 
   return (
     <KeyboardAwareScrollView>
       <Container>
+        {error && (
+          <ErrorDialog
+            error={error.toString()}
+            onOk={() => {
+              setPromise(undefined);
+            }}
+          />
+        )}
         <TextInput
           autoFocus
           returnKeyType="next"
@@ -144,13 +153,12 @@ function RightAction() {
       <ConfirmationDialog
         title="Are you sure?"
         visible={confirmationVisible}
-        onOk={() => {
-          return store.dispatch<any>(deleteJournal(etesync, journal)).then(() => {
-            navigation.navigate('home');
-            // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-            const syncManager = SyncManager.getManager(etesync);
-            store.dispatch(performSync(syncManager.sync()));
-          });
+        onOk={async () => {
+          await store.dispatch(deleteJournal(etesync, journal));
+          navigation.navigate('home');
+          // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
+          const syncManager = SyncManager.getManager(etesync);
+          store.dispatch(performSync(syncManager.sync()));
         }}
         onCancel={() => {
           setConfirmationVisible(false);

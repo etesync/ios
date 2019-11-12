@@ -194,13 +194,12 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
         title="Import Confirmation"
         visible={!!selectedCollection}
         loadingText="Please wait, may take a while..."
-        onOk={() => {
-          return importCollection(selectedCollection!.id, syncStateJournal.localId).then(() => {
-            const syncManager = SyncManager.getManager(etesync);
-            store.dispatch(performSync(syncManager.sync()));
-            setSelectedCollection(null);
-            navigation.goBack();
-          });
+        onOk={async () => {
+          await importCollection(selectedCollection!.id, syncStateJournal.localId);
+          const syncManager = SyncManager.getManager(etesync);
+          store.dispatch(performSync(syncManager.sync())); // not awaiting on puprose
+          setSelectedCollection(null);
+          navigation.goBack();
         }}
         onCancel={() => {
           setSelectedCollection(null);
