@@ -26,6 +26,7 @@ The app is work-in-progress and incomplete. Here's a short list of things that a
 4. Address books are not currently synced to the device, you can only view the change log. This is due to [an expo bug](https://github.com/expo/expo/pull/6016) that we already fixed upstream, but are waiting for a release that includes it.
 5. Sync is only triggered when you open the app and when you manually click the sync button. It doesn't yet sync automatically in the background.
 6. The app may push changes of items that haven't actually changed. If you notice such changes, please report them!
+7. Recurring events and tasks are currently read-only and any changes to them won't sync back to other clients.
 
 # Setup
 
