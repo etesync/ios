@@ -8,11 +8,13 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import Container from '../widgets/Container';
+import ErrorOrLoadingDialog from '../widgets/ErrorOrLoadingDialog';
 import LoginForm from '../components/LoginForm';
 // import EncryptionLoginForm from './components/EncryptionLoginForm';
 const EncryptionLoginForm = (_props: any) => <Text>EncryptionLoginForm</Text>;
 
 import { login, deriveKey } from '../store/actions';
+import { useLoading } from '../helpers';
 
 import * as C from '../constants';
 
@@ -22,19 +24,13 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
   const credentials = useCredentials()!;
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [loginError, setLoginError] = React.useState<Error | undefined>(undefined);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, error, setPromise] = useLoading();
 
   function onFormSubmit(username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) {
     serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
-    setLoading(true);
-    dispatch<any>(login(username, password, encryptionPassword, serviceApiUrl)).then(() => {
+    setPromise(dispatch<any>(login(username, password, encryptionPassword, serviceApiUrl)).then(() => {
       navigation.navigate('App');
-    }).catch((e: any) => {
-      setLoginError(e);
-    }).finally(() => {
-      setLoading(false);
-    });
+    }));
   }
 
   function onEncryptionFormSubmit(encryptionPassword: string) {
@@ -50,8 +46,11 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
         <Headline>Please Log In</Headline>
         <LoginForm
           onSubmit={onFormSubmit}
-          error={loginError}
+        />
+        <ErrorOrLoadingDialog
           loading={loading}
+          error={error}
+          onDismiss={() => setPromise(undefined)}
         />
       </Container>
     );

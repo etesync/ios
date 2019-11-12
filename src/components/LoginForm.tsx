@@ -28,8 +28,6 @@ class LoginForm extends React.PureComponent {
 
   public props: {
     onSubmit: (username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) => void;
-    loading?: boolean;
-    error?: Error;
   };
 
   constructor(props: any) {
@@ -121,7 +119,6 @@ class LoginForm extends React.PureComponent {
 
     return (
       <>
-        {(this.props.error) && (<Text>Error! {this.props.error.message}</Text>)}
         <View>
           <TextInput
             keyboardType={this.state.showAdvanced ? 'default' : 'email-address'}
@@ -196,10 +193,9 @@ class LoginForm extends React.PureComponent {
 
           <Button
             mode="contained"
-            disabled={this.props.loading}
             onPress={this.generateEncryption}
           >
-            <Text>{this.props.loading ? 'Loading…' : 'Log In'}</Text>
+            <Text>Log In</Text>
           </Button>
         </View>
       </>
