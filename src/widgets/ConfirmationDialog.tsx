@@ -13,11 +13,12 @@ interface PropsType {
   onOk?: () => void | Promise<any>;
   labelCancel?: string;
   labelOk?: string;
+  loading?: boolean;
   loadingText?: string;
 }
 
 export default React.memo(function ConfirmationDialog(props: PropsType) {
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(props.loading ?? false);
   const [error, setError] = React.useState<string | undefined>(undefined);
   const labelCancel = props.labelCancel ?? 'Cancel';
   const labelOk = props.labelOk ?? 'OK';
