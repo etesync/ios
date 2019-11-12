@@ -15,7 +15,6 @@ const loadNavigationState = async () => {
 };
 
 export function getPersistenceFunctions() {
-  return undefined;
   return __DEV__ ? {
     persistNavigationState,
     loadNavigationState,
