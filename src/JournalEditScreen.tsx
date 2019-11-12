@@ -13,7 +13,7 @@ import { addJournal, updateJournal, deleteJournal, performSync } from './store/a
 
 import Container from './widgets/Container';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
-import ErrorDialog from './widgets/ErrorDialog';
+import ErrorOrLoadingDialog from './widgets/ErrorOrLoadingDialog';
 
 import * as EteSync from 'etesync';
 import { useLoading } from './helpers';
@@ -88,14 +88,11 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   return (
     <KeyboardAwareScrollView>
       <Container>
-        {error && (
-          <ErrorDialog
-            error={error.toString()}
-            onOk={() => {
-              setPromise(undefined);
-            }}
-          />
-        )}
+        <ErrorOrLoadingDialog
+          loading={loading}
+          error={error}
+          onDismiss={() => setPromise(undefined)}
+        />
         <TextInput
           autoFocus
           returnKeyType="next"
