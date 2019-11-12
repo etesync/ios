@@ -3,7 +3,7 @@ import { Action, createAction } from 'redux-actions';
 import * as EteSync from 'etesync';
 import { UserInfo } from 'etesync';
 
-import { CredentialsData, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
+import { CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 
 export const fetchCredentials = createAction(
   'FETCH_CREDENTIALS',
@@ -140,7 +140,7 @@ export const addEntries = createAction(
 
 export const fetchUserInfo = createAction(
   'FETCH_USER_INFO',
-  (etesync: CredentialsData, owner: string) => {
+  (etesync: CredentialsDataRemote, owner: string) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
     const userInfoManager = new EteSync.UserInfoManager(creds, apiBase);

@@ -11,7 +11,6 @@ import * as C from '../constants';
 interface FormErrors {
   errorEmail?: string;
   errorPassword?: string;
-  errorEncryptionPassword?: string;
   errorServer?: string;
 }
 
@@ -23,11 +22,10 @@ class LoginForm extends React.PureComponent {
     server: string;
     username: string;
     password: string;
-    encryptionPassword: string;
   };
 
   public props: {
-    onSubmit: (username: string, password: string, encryptionPassword: string, serviceApiUrl?: string) => void;
+    onSubmit: (username: string, password: string, serviceApiUrl?: string) => void;
   };
 
   constructor(props: any) {
@@ -38,7 +36,6 @@ class LoginForm extends React.PureComponent {
       server: '',
       username: '',
       password: '',
-      encryptionPassword: '',
     };
     this.generateEncryption = this.generateEncryption.bind(this);
     this.toggleAdvancedSettings = this.toggleAdvancedSettings.bind(this);
@@ -58,7 +55,6 @@ class LoginForm extends React.PureComponent {
 
     const username = this.state.username;
     const password = this.state.password;
-    const encryptionPassword = this.state.encryptionPassword;
 
     const errors: FormErrors = {};
     const fieldRequired = 'This field is required!';
@@ -67,9 +63,6 @@ class LoginForm extends React.PureComponent {
     }
     if (!password) {
       errors.errorPassword = fieldRequired;
-    }
-    if (!encryptionPassword) {
-      errors.errorEncryptionPassword = fieldRequired;
     }
 
     if (process.env.NODE_ENV !== 'development') {
@@ -85,7 +78,7 @@ class LoginForm extends React.PureComponent {
       this.setState({ errors: {} });
     }
 
-    this.props.onSubmit(username, password, encryptionPassword, server);
+    this.props.onSubmit(username, password, server);
   }
 
   public toggleAdvancedSettings() {
@@ -157,22 +150,6 @@ class LoginForm extends React.PureComponent {
           <ExternalLink href={C.forgotPassword}>
             <Text>Forget password?</Text>
           </ExternalLink>
-
-          <TextInput
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            error={!!this.state.errors.errorEncryptionPassword}
-            label="Encryption Password"
-            value={this.state.encryptionPassword}
-            onChangeText={this.handleInputChange('encryptionPassword')}
-          />
-          <HelperText
-            type="error"
-            // visible={!!this.state.errors.errorEncryptionPassword}
-          >
-            {this.state.errors.errorEncryptionPassword ?? 'Choose a new one if not already set'}
-          </HelperText>
 
           <TouchableRipple
             onPress={() =>
