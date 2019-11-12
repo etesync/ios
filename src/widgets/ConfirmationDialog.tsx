@@ -23,7 +23,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
   const labelOk = props.labelOk ?? 'OK';
   const loadingText = props.loadingText ?? 'Loading...';
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     Keyboard.dismiss();
   }, [props.visible]);
 
