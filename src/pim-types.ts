@@ -1,6 +1,8 @@
 import * as ICAL from 'ical.js';
 import * as zones from './data/zones.json';
 
+export const PRODID = '-//iCal.js EteSync iOS';
+
 export interface PimType {
   uid: string;
   toIcal(): string;
@@ -87,7 +89,7 @@ export class EventType extends ICAL.Event implements PimType {
 
   public toIcal() {
     const comp = new ICAL.Component(['vcalendar', [], []]);
-    comp.updatePropertyWithValue('prodid', '-//iCal.js EteSync iOS');
+    comp.updatePropertyWithValue('prodid', PRODID);
     comp.updatePropertyWithValue('version', '2.0');
 
     comp.addSubcomponent(this.component);

@@ -4,7 +4,7 @@ import * as ICAL from 'ical.js';
 import sjcl from 'sjcl';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-import { ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
+import { PRODID, ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
 import { isDefined } from '../helpers';
 
@@ -378,7 +378,17 @@ export function contactVobjectToNative(contact: ContactType) {
   return ret;
 }
 
-export function contactNativeToVobject(contact: NativeContact) {
-  // FIXME: Implement + set PRODID and version (take a look at web)
-  return contact;
+export function contactNativeToVobject(contact: NativeContact): ContactType {
+  const ret = new ContactType(new ICAL.Component(['vcard', [], []]));
+
+  const comp = ret.comp;
+  comp.updatePropertyWithValue('prodid', PRODID);
+  comp.updatePropertyWithValue('version', '4.0');
+  comp.updatePropertyWithValue('uid', contact.uid ?? contact.id);
+  comp.updatePropertyWithValue('rev', ICAL.Time.now());
+  if (contact.name) {
+    comp.updatePropertyWithValue('fn', contact.name);
+  }
+
+  return ret;
 }
