@@ -377,3 +377,8 @@ export function contactVobjectToNative(contact: ContactType) {
 
   return ret;
 }
+
+export function contactNativeToVobject(contact: NativeContact) {
+  // FIXME: Implement + set PRODID and version (take a look at web)
+  return contact;
+}

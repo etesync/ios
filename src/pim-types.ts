@@ -87,7 +87,7 @@ export class EventType extends ICAL.Event implements PimType {
 
   public toIcal() {
     const comp = new ICAL.Component(['vcalendar', [], []]);
-    comp.updatePropertyWithValue('prodid', '-//iCal.js EteSync Web');
+    comp.updatePropertyWithValue('prodid', '-//iCal.js EteSync iOS');
     comp.updatePropertyWithValue('version', '2.0');
 
     comp.addSubcomponent(this.component);
