@@ -39,7 +39,9 @@ Setup insturctions:
 
 After doing the above you can now just launch the EteSync app directly from the Projects tab of the expo app. That's it!
 
-Now you can just open the app and log in! Wait, it takes time. As long as the button is grey it's actually doing some work, so just wait. This will all be addressed before the final version is released.
+Now you can just open the app and log in! The initial sync may take a bit of time, so please keep the app open until it's done.
+
+**Note:** at this stage you may want to set EteSync as your default account. In order to do it, open the Settings app, scroll down to Calendars (or Reminders) and set one of the EteSync calendars as the default.
 
 ## Adding required accounts
 
