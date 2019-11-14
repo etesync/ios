@@ -34,13 +34,32 @@ The app is not yet on the app store so can't be installed directly, but we can u
 
 Setup insturctions:
 1. Install the [Expo Client](https://apps.apple.com/us/app/expo-client/id982107779) app on your iPhone.
-2. Add CalDAV and CarDAV accounts to your iPhone as explained in [this video](https://stosb.com/~tom/ios_add_accounts.mp4). The account description must be exactly `etesync` otherwise sync won't work.
+2. Add CalDAV and CardDAV accounts to your iPhone as explained in the [section below](user-content-adding-required-accounts).
 3. Click on the link in [this page](https://stosb.com/~tom/expo.html) on your iPhone to launch the EteSync app in expo.
 
 After doing the above you can now just launch the EteSync app directly from the Projects tab of the expo app. That's it!
 
 Now you can just open the app and log in! Wait, it takes time. As long as the button is grey it's actually doing some work, so just wait. This will all be addressed before the final version is released.
 
+## Adding required accounts
+
+Since iOS doesn't support creating accounts programatically, we need to create the accounts EteSync will use ourselves.
+
+You can either follow [this video](https://stosb.com/~tom/ios_add_accounts.mp4) or the textual step-by-step below. The account description must be exactly `etesync` otherwise sync won't work.
+
+1. Open the Settings app
+2. Scroll down and open "Passwords & Accounts"
+3. Click "Add Account", then "Other" and then "Add CalDAV Account".
+4. Enter the following into the form (this is a fake account so won't actually connect to anything):
+  * Server: localhost
+  * Username: aaaaa
+  * Password: aaaaa
+  * Description: etesync (needs to be exactly etesync!)
+5. Click "Save".
+6. You will now get a popup saying "Cannot Connect Using SSL", Click "Continue".
+7. You'll now get a popup about account verification failing. Click "OK".
+8. Click "Save" again until the account is saved.
+9. Follow the same instructions for CardDAV.
 
 # Thanks
 
