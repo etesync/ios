@@ -72,11 +72,9 @@ class LoginForm extends React.PureComponent {
       }
     }
 
-    if (Object.keys(errors).length) {
-      this.setState({ errors });
+    this.setState({ errors });
+    if (Object.keys(errors).length > 0) {
       return;
-    } else {
-      this.setState({ errors: {} });
     }
 
     this.props.onSubmit(username, password, server);
