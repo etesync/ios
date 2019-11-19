@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
-import { Text, TextInput, HelperText, Button } from 'react-native-paper';
+import { Text, HelperText, Button } from 'react-native-paper';
+import PasswordInput from '../widgets/PasswordInput';
 
 
 interface FormErrors {
@@ -33,11 +34,8 @@ export default function _EncryptionLognForm(props: PropsType) {
 
   return (
     <View>
-      <TextInput
+      <PasswordInput
         autoFocus
-        secureTextEntry
-        autoCapitalize="none"
-        autoCorrect={false}
         error={!!errors.encryptionPassword}
         label="Encryption Password"
         value={encryptionPassword}

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { Linking, ScrollView } from 'react-native';
-import { List, Paragraph, TextInput, HelperText } from 'react-native-paper';
+import { List, Paragraph, HelperText } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
 
 import { useNavigation } from './navigation/Hooks';
@@ -9,6 +9,7 @@ import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 
 import ConfirmationDialog from './widgets/ConfirmationDialog';
+import PasswordInput from './widgets/PasswordInput';
 
 import { fetchCredentials } from './store/actions';
 
@@ -50,10 +51,7 @@ function AuthenticationPasswordDialog(props: DialogPropsType) {
         <Paragraph>
           Please enter your authentication password:
         </Paragraph>
-        <TextInput
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
+        <PasswordInput
           error={!!error}
           label="Password"
           value={password}

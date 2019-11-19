@@ -7,6 +7,7 @@ import ExternalLink from '../widgets/ExternalLink';
 import Row from '../widgets/Row';
 
 import * as C from '../constants';
+import PasswordInput from '../widgets/PasswordInput';
 
 interface FormErrors {
   errorEmail?: string;
@@ -131,10 +132,7 @@ class LoginForm extends React.PureComponent {
             {this.state.errors.errorEmail}
           </HelperText>
 
-          <TextInput
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
+          <PasswordInput
             returnKeyType="next"
             error={!!this.state.errors.errorPassword}
             label="Password"
