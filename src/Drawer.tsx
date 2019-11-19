@@ -21,11 +21,6 @@ import * as C from './constants';
 
 const menuItems = [
   {
-    title: 'About',
-    path: 'About',
-    icon: 'information-outline',
-  },
-  {
     title: 'Settings',
     path: 'Settings',
     icon: 'settings',
@@ -153,7 +148,10 @@ function Drawer() {
             <List.Item
               key={menuItem.title}
               title={menuItem.title}
-              onPress={() => { navigation.navigate(menuItem.path) }}
+              onPress={() => {
+                navigation.closeDrawer();
+                navigation.navigate(menuItem.path);
+              }}
               left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
             />
           ))}

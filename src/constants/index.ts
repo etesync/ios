@@ -1,6 +1,7 @@
 export const appName = 'EteSync';
 export const homePage = 'https://www.etesync.com/';
 export const faq = homePage + 'faq/';
+export const dashboard = homePage + 'dashboard/';
 export const sourceCode = 'https://github.com/etesync/etesync-web';
 export const reportIssue = sourceCode + '/issues';
 
