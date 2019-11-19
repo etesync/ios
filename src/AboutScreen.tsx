@@ -1,10 +1,15 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { ScrollView } from 'react-native';
-import { Paragraph } from 'react-native-paper';
+import Markdown from 'react-native-markdown-display';
 
 import { useSyncGate } from './SyncGate';
 import Container from './widgets/Container';
+
+const markdownContent = `# EteSync
+
+This is the about page for this app.
+`;
 
 const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
   const syncGate = useSyncGate();
@@ -16,9 +21,9 @@ const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
       <Container>
-        <Paragraph>
-          About the app!
-        </Paragraph>
+        <Markdown>
+          {markdownContent}
+        </Markdown>
       </Container>
     </ScrollView>
   );
