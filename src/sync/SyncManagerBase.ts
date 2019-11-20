@@ -167,9 +167,9 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
       const syncInfoJournalItems = syncInfoItems.get(uid)!;
       const entries = journalsEntries.get(uid)!.map((entry) => syncInfoJournalItems.get(entry.uid)!);
-      const lastEntry: EteSync.SyncEntry = entries.last();
+      const lastEntry = entries.last(undefined);
       if (lastEntry?.uid !== syncStateJournal.lastSyncUid) {
-        logger.info(`Applying changes. Current uid: ${lastEntry.uid}, last one: ${syncStateJournal.lastSyncUid}`);
+        logger.info(`Applying changes. Current uid: ${lastEntry?.uid}, last one: ${syncStateJournal.lastSyncUid}`);
         const lastSyncUid = syncStateJournal.lastSyncUid;
 
         let firstEntry: number;
@@ -206,7 +206,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           }
 
           if (((i === entries.size - 1) || (i % CHUNK_PULL) === 0)) {
-            persistSyncJournal(etesync, syncStateJournal, lastEntry.uid!);
+            persistSyncJournal(etesync, syncStateJournal, lastEntry?.uid!);
           }
         }
 
