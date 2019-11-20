@@ -123,6 +123,7 @@ function Drawer() {
   const [showLogout, setShowLogout] = React.useState(false);
   const navigation = useNavigation();
   const etesync = useCredentials();
+  const syncCount = useSelector((state: StoreState) => state.syncCount);
 
   return (
     <>
@@ -163,6 +164,7 @@ function Drawer() {
               <List.Item
                 title="Logout"
                 onPress={() => setShowLogout(true)}
+                disabled={syncCount > 0}
                 left={(props) => <List.Icon {...props} icon="exit-to-app" />}
               />
             </>
