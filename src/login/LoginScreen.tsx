@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Action } from 'redux-actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '../navigation/Hooks';
 
@@ -7,6 +8,8 @@ import { Headline, Subheading, Paragraph, Text } from 'react-native-paper';
 import { NavigationScreenComponent } from 'react-navigation';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
+import * as EteSync from 'etesync';
 
 import Container from '../widgets/Container';
 import LoadingIndicator from '../widgets/LoadingIndicator';
@@ -22,15 +25,18 @@ import { useLoading, startTask } from '../helpers';
 import * as C from '../constants';
 
 
-function EncryptionPart(props: { onEncryptionFormSubmit: (encryptionPassword: string) => void }) {
-  const credentials = useSelector((state: StoreState) => state.credentials);
+function EncryptionPart() {
+  const credentials = useSelector((state: StoreState) => state.credentials)!;
   const [fetched, setFetched] = React.useState(false);
-  const [isNewUser, setIsNewUser] = React.useState(false);
+  const [userInfo, setUserInfo] = React.useState<EteSync.UserInfo>();
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const [loading, error, setPromise] = useLoading();
 
   React.useEffect(() => {
     // FIXME: verify the error is a 404
-    store.dispatch<any>(fetchUserInfo(credentials, credentials.credentials.email)).catch(() => {
-      setIsNewUser(true);
+    store.dispatch<any>(fetchUserInfo(credentials, credentials.credentials.email)).then((fetchedUserInfo: Action<EteSync.UserInfo>) => {
+      setUserInfo(fetchedUserInfo.payload);
     }).finally(() => {
       setFetched(true);
     });
@@ -40,6 +46,23 @@ function EncryptionPart(props: { onEncryptionFormSubmit: (encryptionPassword: st
     return <LoadingIndicator />;
   }
 
+  function onEncryptionFormSubmit(encryptionPassword: string) {
+    setPromise(startTask(() => {
+      const derivedAction = deriveKey(credentials.credentials.email, encryptionPassword);
+      if (userInfo) {
+        const userInfoCryptoManager = userInfo.getCryptoManager(derivedAction.payload);
+        try {
+          userInfo.verify(userInfoCryptoManager);
+        } catch (e) {
+          throw new EteSync.EncryptionPasswordError('Wrong encryption password');
+        }
+      }
+      dispatch(derivedAction);
+      navigation.navigate('App');
+    }));
+  }
+
+  const isNewUser = !userInfo;
 
   return (
     <Container>
@@ -59,7 +82,13 @@ function EncryptionPart(props: { onEncryptionFormSubmit: (encryptionPassword: st
       }
 
       <EncryptionLoginForm
-        onSubmit={props.onEncryptionFormSubmit}
+        onSubmit={onEncryptionFormSubmit}
+      />
+
+      <ErrorOrLoadingDialog
+        loading={loading}
+        error={error}
+        onDismiss={() => setPromise(undefined)}
       />
     </Container>
   );
@@ -69,19 +98,11 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
   const credentials = useSelector((state: StoreState) => state.credentials.credentials);
   const encryptionKey = useSelector((state: StoreState) => state.encryptionKey.key);
   const dispatch = useDispatch();
-  const navigation = useNavigation();
   const [loading, error, setPromise] = useLoading();
 
   function onFormSubmit(username: string, password: string, serviceApiUrl?: string) {
     serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
     setPromise(dispatch<any>(fetchCredentials(username, password, serviceApiUrl)));
-  }
-
-  function onEncryptionFormSubmit(encryptionPassword: string) {
-    setPromise(startTask(() => {
-      dispatch(deriveKey(credentials!.email, encryptionPassword));
-      navigation.navigate('App');
-    }));
   }
 
   let screenContent: React.ReactNode;
@@ -92,11 +113,16 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
         <LoginForm
           onSubmit={onFormSubmit}
         />
+        <ErrorOrLoadingDialog
+          loading={loading}
+          error={error}
+          onDismiss={() => setPromise(undefined)}
+        />
       </Container>
     );
   } else if (!encryptionKey) {
     screenContent = (
-      <EncryptionPart onEncryptionFormSubmit={onEncryptionFormSubmit} />
+      <EncryptionPart />
     );
   }
 
@@ -104,11 +130,6 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
     return (
       <KeyboardAwareScrollView>
         {screenContent}
-        <ErrorOrLoadingDialog
-          loading={loading}
-          error={error}
-          onDismiss={() => setPromise(undefined)}
-        />
       </KeyboardAwareScrollView>
     );
   }
