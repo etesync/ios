@@ -9,6 +9,7 @@ import sjcl from 'sjcl';
 
 import { logger } from './logging';
 
+import { SyncManager } from './sync/SyncManager';
 import { useNavigation } from './navigation/Hooks';
 import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
@@ -17,7 +18,7 @@ import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PasswordInput from './widgets/PasswordInput';
 
 import { StoreState } from './store';
-import { fetchCredentials, fetchUserInfo, updateUserInfo, deriveKey } from './store/actions';
+import { fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from './store/actions';
 
 import * as C from './constants';
 import { startTask } from './helpers';
@@ -132,7 +133,6 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
           continue;
         }
 
-
         // FIXME: Add a warning message like in Android + mention in it not to stop it
         const cryptoManager = journal.getCryptoManager(oldDerived, keyPair);
 
@@ -140,6 +140,7 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
         const encryptedKey = sjcl.codec.base64.fromBits(sjcl.codec.bytes.toBits(cryptoManager.getEncryptedKey(keyPair, pubkeyBytes)));
 
         const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journal.uid);
+        logger.info(`Updating journal ${journal.uid}`);
         try {
           await journalMembersManager.create({ user: me, key: encryptedKey, readOnly: false });
         } catch (e) {
@@ -148,20 +149,28 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
         }
       }
 
-      logger.info('Updating user info');
-      try {
-        const newCryptoManager = userInfo.getCryptoManager(newDerived);
-        userInfo.setKeyPair(newCryptoManager, keyPair);
+      // FIXME: the performSync is a hack to make sure we don't update any screens before we've update the store
+      await dispatch(performSync((async () => {
+        logger.info('Updating user info');
+        try {
+          const newCryptoManager = userInfo.getCryptoManager(newDerived);
+          userInfo.setKeyPair(newCryptoManager, keyPair);
 
-        await dispatch(updateUserInfo(etesync, userInfo));
-      } catch (e) {
-        setErrors({ newPassword: e.toString() });
-        return;
-      }
+          await dispatch(updateUserInfo(etesync, userInfo));
+        } catch (e) {
+          setErrors({ newPassword: e.toString() });
+          return false;
+        }
 
-      dispatch(newDerivedAction);
+        dispatch(newDerivedAction);
 
-      props.onDismiss();
+        const syncManager = SyncManager.getManager({ ...etesync, encryptionKey: newDerived });
+        await syncManager.sync();
+
+        props.onDismiss();
+
+        return true;
+      })()));
     });
   }
 
