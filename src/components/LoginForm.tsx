@@ -163,6 +163,10 @@ class LoginForm extends React.PureComponent {
           </TouchableRipple>
 
           {advancedSettings}
+          <HelperText
+            type="error"
+            visible={false}
+          />
 
           <Button
             mode="contained"

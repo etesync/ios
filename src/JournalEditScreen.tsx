@@ -109,6 +109,10 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
           label="Description (optional)"
           value={description}
         />
+        <HelperText
+          type="error"
+          visible={false}
+        />
 
         <Button
           mode="contained"
