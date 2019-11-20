@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Keyboard } from 'react-native';
-import { Portal, Dialog, Button, ProgressBar, Paragraph } from 'react-native-paper';
+import { Card, Portal, Modal, Button, ProgressBar, Paragraph } from 'react-native-paper';
 
 import { isPromise, useIsMounted } from '../helpers';
 
@@ -64,24 +64,26 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
 
   return (
     <Portal>
-      <Dialog
+      <Modal
         visible={props.visible}
         onDismiss={props.onCancel}
         dismissable={props.dismissable && !loading}
       >
-        <Dialog.Title>{props.title}</Dialog.Title>
-        <Dialog.Content>
-          {content}
-        </Dialog.Content>
-        <Dialog.Actions>
-          {props.onCancel &&
-            <Button disabled={loading} onPress={props.onCancel}>{labelCancel}</Button>
-          }
-          {!error && props.onOk &&
-            <Button disabled={loading} onPress={onOk}>{labelOk}</Button>
-          }
-        </Dialog.Actions>
-      </Dialog>
+        <Card>
+          <Card.Title title={props.title} />
+          <Card.Content>
+            {content}
+          </Card.Content>
+          <Card.Actions style={{ justifyContent: 'flex-end' }}>
+            {props.onCancel &&
+              <Button disabled={loading} onPress={props.onCancel}>{labelCancel}</Button>
+            }
+            {!error && props.onOk &&
+              <Button disabled={loading} onPress={onOk}>{labelOk}</Button>
+            }
+          </Card.Actions>
+        </Card>
+      </Modal>
     </Portal>
   );
 });
