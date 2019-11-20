@@ -4,6 +4,7 @@ export const faq = homePage + 'faq/';
 export const dashboard = homePage + 'dashboard/';
 export const sourceCode = 'https://github.com/etesync/etesync-web';
 export const reportIssue = sourceCode + '/issues';
+export const contactEmail = 'contact-ios@etesync.com';
 
 export const forgotPassword = 'https://www.etesync.com/accounts/password/reset/';
 

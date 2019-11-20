@@ -45,7 +45,7 @@ const externalMenuItems = [
   },
   {
     title: 'Contact developer',
-    link: '',
+    link: `mailto:${C.contactEmail}`,
     icon: 'email',
   },
 ];
