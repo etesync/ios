@@ -163,6 +163,20 @@ export const createUserInfo = createAction(
   }
 );
 
+export const updateUserInfo = createAction(
+  'UPDATE_USER_INFO',
+  (etesync: CredentialsData, userInfo: UserInfo) => {
+    const creds = etesync.credentials;
+    const apiBase = etesync.serviceApiUrl;
+    const userInfoManager = new EteSync.UserInfoManager(creds, apiBase);
+
+    return userInfoManager.update(userInfo);
+  },
+  (_etesync: CredentialsData, userInfo: UserInfo) => {
+    return { userInfo };
+  }
+);
+
 export const performSync = createAction(
   'PERFORM_SYNC',
   (syncPromise: Promise<any>) => {

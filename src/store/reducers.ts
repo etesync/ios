@@ -200,7 +200,8 @@ export const journals = handleActions(
 export const userInfo = handleAction(
   combineActions(
     actions.fetchUserInfo,
-    actions.createUserInfo
+    actions.createUserInfo,
+    actions.updateUserInfo
   ),
   (state: UserInfoData | null, action: any) => {
     if (action.error) {
