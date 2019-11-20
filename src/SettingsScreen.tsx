@@ -2,7 +2,12 @@ import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { Linking, ScrollView } from 'react-native';
 import { List, Paragraph, HelperText } from 'react-native-paper';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
+import * as EteSync from 'etesync';
+import sjcl from 'sjcl';
+
+import { logger } from './logging';
 
 import { useNavigation } from './navigation/Hooks';
 import { useSyncGate } from './SyncGate';
@@ -11,9 +16,11 @@ import { useCredentials } from './login';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PasswordInput from './widgets/PasswordInput';
 
-import { fetchCredentials } from './store/actions';
+import { StoreState } from './store';
+import { fetchCredentials, fetchUserInfo, updateUserInfo, deriveKey } from './store/actions';
 
 import * as C from './constants';
+import { startTask } from './helpers';
 
 interface DialogPropsType {
   visible: boolean;
@@ -68,12 +75,141 @@ function AuthenticationPasswordDialog(props: DialogPropsType) {
   );
 }
 
+interface EncryptionFormErrors {
+  oldPassword?: string;
+  newPassword?: string;
+}
+
+function EncryptionPasswordDialog(props: DialogPropsType) {
+  const etesync = useCredentials()!;
+  const dispatch = useDispatch();
+  const [errors, setErrors] = React.useState<EncryptionFormErrors>({});
+  const [oldPassword, setOldPassword] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const journals = useSelector((state: StoreState) => state.cache.journals);
+
+  async function onOk() {
+    const fieldNotEmpty = "Password can't be empty.";
+    const errors: EncryptionFormErrors = {};
+    if (!oldPassword) {
+      errors.oldPassword = fieldNotEmpty;
+    }
+    if (!newPassword) {
+      errors.newPassword = fieldNotEmpty;
+    }
+
+    setErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
+    await startTask(async () => {
+      // FIXME: update journal list or maybe fetch all?
+      logger.info('Changing encryption password');
+      const me = etesync.credentials.email;
+      logger.info('Deriving old key');
+      const oldDerivedAction = deriveKey(etesync.credentials.email, oldPassword);
+      const oldDerived = oldDerivedAction.payload;
+
+      if (oldDerived !== etesync.encryptionKey) {
+        setErrors({ oldPassword: 'Error: wrong encryption password.' });
+        return;
+      }
+
+      logger.info('Deriving new key');
+      const newDerivedAction = deriveKey(etesync.credentials.email, newPassword);
+      const newDerived = newDerivedAction.payload;
+      logger.info('Fetching user info');
+      const userInfoAction = await dispatch(fetchUserInfo(etesync, me));
+      const userInfo = await userInfoAction.payload;
+      const userInfoCryptoManager = userInfo.getCryptoManager(oldDerived);
+      const keyPair = userInfo.getKeyPair(userInfoCryptoManager);
+
+      logger.info('Updating journals');
+      for (const journal of journals.values()) {
+        if (journal.key) {
+          // Skip journals that already have a key (includes one we don't own)
+          continue;
+        }
+
+
+        // FIXME: Add a warning message like in Android + mention in it not to stop it
+        const cryptoManager = journal.getCryptoManager(oldDerived, keyPair);
+
+        const pubkeyBytes = keyPair.publicKey;
+        const encryptedKey = sjcl.codec.base64.fromBits(sjcl.codec.bytes.toBits(cryptoManager.getEncryptedKey(keyPair, pubkeyBytes)));
+
+        const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journal.uid);
+        try {
+          await journalMembersManager.create({ user: me, key: encryptedKey, readOnly: false });
+        } catch (e) {
+          setErrors({ newPassword: e.toString() });
+          return;
+        }
+      }
+
+      logger.info('Updating user info');
+      try {
+        const newCryptoManager = userInfo.getCryptoManager(newDerived);
+        userInfo.setKeyPair(newCryptoManager, keyPair);
+
+        await dispatch(updateUserInfo(etesync, userInfo));
+      } catch (e) {
+        setErrors({ newPassword: e.toString() });
+        return;
+      }
+
+      dispatch(newDerivedAction);
+
+      props.onDismiss();
+    });
+  }
+
+  return (
+    <ConfirmationDialog
+      title="Change Encryption Password"
+      visible={props.visible}
+      onOk={onOk}
+      onCancel={props.onDismiss}
+    >
+      <>
+        <PasswordInput
+          error={!!errors.oldPassword}
+          label="Current Password"
+          value={oldPassword}
+          onChangeText={setOldPassword}
+        />
+        <HelperText
+          type="error"
+          visible={!!errors.oldPassword}
+        >
+          {errors.oldPassword}
+        </HelperText>
+
+        <PasswordInput
+          error={!!errors.newPassword}
+          label="New Password"
+          value={newPassword}
+          onChangeText={setNewPassword}
+        />
+        <HelperText
+          type="error"
+          visible={!!errors.newPassword}
+        >
+          {errors.newPassword}
+        </HelperText>
+      </>
+    </ConfirmationDialog>
+  );
+}
+
 const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
   const etesync = useCredentials();
   const syncGate = useSyncGate();
   const navigation = useNavigation();
 
   const [showAuthDialog, setShowAuthDialog] = React.useState(false);
+  const [showEncryptionDialog, setShowEncryptionDialog] = React.useState(false);
 
   if (syncGate) {
     return syncGate;
@@ -100,8 +236,7 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
             <List.Item
               title="Encryption Password"
               description="Change your encryption password"
-              disabled
-              onPress={() => {}}
+              onPress={() => { setShowEncryptionDialog(true) }}
             />
           </List.Section>
         )}
@@ -119,6 +254,7 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
       </ScrollView>
 
       <AuthenticationPasswordDialog visible={showAuthDialog} onDismiss={() => setShowAuthDialog(false)} />
+      <EncryptionPasswordDialog visible={showEncryptionDialog} onDismiss={() => setShowEncryptionDialog(false)} />
     </>
   );
 };
