@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
-import { Linking, ScrollView } from 'react-native';
+import { Linking, ScrollView, TextInput as NativeTextInput } from 'react-native';
 import { List, Paragraph, HelperText } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -174,6 +174,8 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
     });
   }
 
+  const newPasswordRef = React.createRef<NativeTextInput>();
+
   return (
     <ConfirmationDialog
       title="Change Encryption Password"
@@ -183,6 +185,9 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
     >
       <>
         <PasswordInput
+          autoFocus
+          returnKeyType="next"
+          onSubmitEditing={() => newPasswordRef.current!.focus()}
           error={!!errors.oldPassword}
           label="Current Password"
           value={oldPassword}
@@ -196,6 +201,7 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
         </HelperText>
 
         <PasswordInput
+          ref={newPasswordRef}
           error={!!errors.newPassword}
           label="New Password"
           value={newPassword}
