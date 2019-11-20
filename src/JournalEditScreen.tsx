@@ -42,7 +42,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid');
+  const journalUid: string = navigation.getParam('journalUid') ?? '';
   let collection = syncInfoCollections.get(journalUid);
   const displayName = _displayName ?? collection?.displayName ?? '';
   const description = _description ?? collection?.description ?? '';
@@ -67,7 +67,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
       }
 
       const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
-      const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: journalUid });
+      const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: info.uid });
       const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
       const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
       journal.setInfo(cryptoManager, info);
