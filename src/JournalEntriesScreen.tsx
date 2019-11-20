@@ -36,9 +36,14 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid');
-  const collection = syncInfoCollections.get(journalUid)!;
-  const entries = journalEntries.get(journalUid)!;
+  const journalUid = navigation.getParam('journalUid') ?? '';
+  const collection = syncInfoCollections.get(journalUid);
+  const entries = journalEntries.get(journalUid);
+
+  if (!collection || !entries) {
+    return <Text>Error</Text>;
+  }
+
   const syncEntries = syncInfoEntries.get(journalUid)!;
   const itemCount = syncStateEntries.has(journalUid) ?
     syncStateEntries.get(journalUid)!.count() :
