@@ -51,11 +51,7 @@ const externalMenuItems = [
 ];
 
 function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
-  const { userInfo } = useSelector(
-    (state: StoreState) => ({
-      userInfo: state.cache.userInfo,
-    })
-  );
+  const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
 
   if (!userInfo) {
     return null;

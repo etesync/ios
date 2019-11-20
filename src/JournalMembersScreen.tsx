@@ -22,11 +22,7 @@ import sjcl from 'sjcl';
 const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {
   const [members, setMembers] = React.useState<EteSync.JournalMemberJson[] | undefined>(undefined);
   const [revokeUser, setRevokeUser] = React.useState<EteSync.JournalMemberJson | undefined>(undefined);
-  const { journals } = useSelector(
-    (state: StoreState) => ({
-      journals: state.cache.journals,
-    })
-  );
+  const journals = useSelector((state: StoreState) => state.cache.journals);
   const syncGate = useSyncGate();
   const navigation = useNavigation();
   const etesync = useCredentials()!;
@@ -120,12 +116,8 @@ function RightAction() {
   const [errorUsername, setErrorUsername] = React.useState<string | null>(null);
   const navigation = useNavigation();
   const etesync = useCredentials()!;
-  const { journals, userInfo } = useSelector(
-    (state: StoreState) => ({
-      journals: state.cache.journals,
-      userInfo: state.cache.userInfo,
-    })
-  );
+  const journals = useSelector((state: StoreState) => state.cache.journals);
+  const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
 
   const journalUid = navigation.getParam('journalUid');
   const journal = journals.get(journalUid)!;

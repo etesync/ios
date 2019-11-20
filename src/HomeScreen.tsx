@@ -84,12 +84,8 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 function RefreshIcon() {
   const etesync = useCredentials()!;
   const dispatch = useDispatch();
-  const { fetchCount, syncCount } = useSelector(
-    (state: StoreState) => ({
-      fetchCount: state.fetchCount,
-      syncCount: state.syncCount,
-    })
-  );
+  const fetchCount = useSelector((state: StoreState) => state.fetchCount);
+  const syncCount = useSelector((state: StoreState) => state.syncCount);
 
   function refresh() {
     const syncManager = SyncManager.getManager(etesync);

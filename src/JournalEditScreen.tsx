@@ -26,13 +26,9 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [_displayName, setDisplayName] = React.useState<string | null>(null);
   const [_description, setDescription] = React.useState<string | null>(null);
-  const { syncInfoCollections, journals, userInfo } = useSelector(
-    (state: StoreState) => ({
-      journals: state.cache.journals,
-      syncInfoCollections: state.cache.syncInfoCollection,
-      userInfo: state.cache.userInfo,
-    })
-  );
+  const journals = useSelector((state: StoreState) => state.cache.journals);
+  const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
+  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
   const syncGate = useSyncGate();
   const navigation = useNavigation();
   const etesync = useCredentials()!;
@@ -130,11 +126,7 @@ function RightAction() {
   const [confirmationVisible, setConfirmationVisible] = React.useState(false);
   const navigation = useNavigation();
   const etesync = useCredentials()!;
-  const { journals } = useSelector(
-    (state: StoreState) => ({
-      journals: state.cache.journals,
-    })
-  );
+  const journals = useSelector((state: StoreState) => state.cache.journals);
 
   const journalUid = navigation.getParam('journalUid');
   const journal = journals.get(journalUid)!;

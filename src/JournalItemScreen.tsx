@@ -13,11 +13,7 @@ import Container from './widgets/Container';
 const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen() {
   const navigation = useNavigation();
   const syncGate = useSyncGate();
-  const { syncInfoEntries } = useSelector(
-    (state: StoreState) => ({
-      syncInfoEntries: state.cache.syncInfoItem,
-    })
-  );
+  const syncInfoEntries = useSelector((state: StoreState) => state.cache.syncInfoItem);
 
   if (syncGate) {
     return syncGate;

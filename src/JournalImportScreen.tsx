@@ -105,12 +105,8 @@ async function tasksImport(localId: string, toLocalId: string) {
 const JournalImportScreen: NavigationScreenComponent = function _JournalImportScreen() {
   const [deviceCollections, setDeviceCollections] = React.useState<ImportCollection[] | undefined>(undefined);
   const [selectedCollection, setSelectedCollection] = React.useState<ImportCollection | null>(null);
-  const { syncStateJournals, syncInfoCollections } = useSelector(
-    (state: StoreState) => ({
-      syncStateJournals: state.sync.stateJournals,
-      syncInfoCollections: state.cache.syncInfoCollection,
-    })
-  );
+  const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
+  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
   const syncGate = useSyncGate();
   const etesync = useCredentials()!;
   const navigation = useNavigation();
