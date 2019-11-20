@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Text, View } from 'react-native';
+import { Text, View, TextInput as NativeTextInput } from 'react-native';
 import { Switch, Button, HelperText, Paragraph, TextInput, TouchableRipple } from 'react-native-paper';
 
 import ExternalLink from '../widgets/ExternalLink';
@@ -29,6 +29,8 @@ class LoginForm extends React.PureComponent {
     onSubmit: (username: string, password: string, serviceApiUrl?: string) => void;
   };
 
+  private formRefs: React.RefObject<NativeTextInput>[];
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -41,6 +43,8 @@ class LoginForm extends React.PureComponent {
     this.generateEncryption = this.generateEncryption.bind(this);
     this.toggleAdvancedSettings = this.toggleAdvancedSettings.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+
+    this.formRefs = [React.createRef<NativeTextInput>(), React.createRef<NativeTextInput>(), React.createRef<NativeTextInput>()];
   }
 
   public handleInputChange(name: string) {
@@ -98,6 +102,7 @@ class LoginForm extends React.PureComponent {
             label="Custom Server"
             value={this.state.server}
             onChangeText={this.handleInputChange('server')}
+            ref={this.formRefs[2]}
           />
           <HelperText
             type="error"
@@ -118,6 +123,8 @@ class LoginForm extends React.PureComponent {
             autoCorrect={false}
             autoFocus
             returnKeyType="next"
+            onSubmitEditing={() => this.formRefs[1].current!.focus()}
+            ref={this.formRefs[0]}
             error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange('username')}
             label="Username"
@@ -131,7 +138,9 @@ class LoginForm extends React.PureComponent {
           </HelperText>
 
           <PasswordInput
-            returnKeyType="next"
+            returnKeyType={this.state.showAdvanced ? 'next' : undefined}
+            onSubmitEditing={this.state.showAdvanced ? (() => this.formRefs[2].current!.focus()) : undefined}
+            ref={this.formRefs[1]}
             error={!!this.state.errors.errorPassword}
             label="Password"
             value={this.state.password}
