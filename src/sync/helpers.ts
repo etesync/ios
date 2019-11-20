@@ -121,7 +121,8 @@ export function eventVobjectToNative(event: EventType) {
     if (event.startDate.compare(endDate) === 0) {
       endDate.adjust(1, 0, 0, 0); // If the event has the same start and end date, correct the date range.
     }
-    endDate.adjust(-1, 0, 1, 0); // Needed due to iOS/Expo issues
+    endDate.adjust(0, 0, -1, 0); // Expo requires the end date to be on the end day
+    endDate.isDate = true;
   }
 
   const ret: Partial<NativeEvent> & NativeBase = {
@@ -134,7 +135,7 @@ export function eventVobjectToNative(event: EventType) {
     notes: event.description ?? '',
     alarms: event.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(event),
-    timeZone: event.timezone ?? '',
+    timeZone: event.timezone || undefined,
   };
 
   return ret;
@@ -152,7 +153,7 @@ export function taskVobjectToNative(task: TaskType) {
     notes: task.description ?? '',
     alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(task),
-    timeZone: task.timezone ?? '',
+    timeZone: task.timezone || undefined,
   };
 
   return ret;
