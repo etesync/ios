@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { IconButton, TextInput } from 'react-native-paper';
 
-const PasswordInput = React.memo(function _PasswordInput(inProps: React.ComponentPropsWithoutRef<typeof TextInput>) {
+const PasswordInput = React.memo(React.forwardRef(function _PasswordInput(inProps: React.ComponentPropsWithoutRef<typeof TextInput>, ref) {
   const [isPassword, setIsPassword] = React.useState(true);
   const {
     style,
@@ -15,6 +15,7 @@ const PasswordInput = React.memo(function _PasswordInput(inProps: React.Componen
         secureTextEntry={isPassword}
         autoCapitalize="none"
         autoCorrect={false}
+        ref={ref as any}
         {...props}
       />
       <IconButton
@@ -24,6 +25,6 @@ const PasswordInput = React.memo(function _PasswordInput(inProps: React.Componen
       />
     </View>
   );
-});
+}));
 
 export default PasswordInput;
