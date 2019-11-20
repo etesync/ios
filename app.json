@@ -2,7 +2,7 @@
   "expo": {
     "name": "EteSync",
     "description": "Secure, end-to-end encrypted, and privacy respecting sync for your contacts, calendars and tasks.",
-    "slug": "ios",
+    "slug": "etesync-ios",
     "privacy": "public",
     "sdkVersion": "35.0.0",
     "platforms": [
@@ -24,7 +24,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+          "NSContactsUsageDescription": "Access to your contacts is needed in order to compare your local contacts with your EteSync contacts.",
+          "NSCalendarsUsageDescription": "Access to your calendars is needed in order to compare your local calendars with your EteSync calendars.",
+          "NSRemindersUsageDescription": "Access to your reminders is needed in order to compare your local reminders with your EteSync reminders."
+      }
     }
   }
 }
