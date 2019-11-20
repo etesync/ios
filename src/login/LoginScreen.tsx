@@ -81,6 +81,8 @@ function EncryptionPart() {
         </Paragraph>
       }
 
+      <View style={{ marginTop: 20 }} />
+
       <EncryptionLoginForm
         onSubmit={onEncryptionFormSubmit}
       />
