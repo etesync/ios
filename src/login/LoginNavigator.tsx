@@ -4,6 +4,7 @@ import { createSwitchNavigator, createStackNavigator, NavigationScreenProp, Head
 import LoginScreen from './LoginScreen';
 
 import RootNavigator from '../RootNavigator';
+import SettingsNavigator from '../SettingsNavigator';
 
 import { useCredentials } from './';
 
@@ -49,6 +50,7 @@ export default createSwitchNavigator(
     AuthLoading: AuthLoadingScreen,
     App: RootNavigator,
     Auth: AuthStack,
+    SettingsNavigator: SettingsNavigator,
   },
   {
     initialRouteName: 'AuthLoading',

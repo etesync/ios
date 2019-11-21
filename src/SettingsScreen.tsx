@@ -270,6 +270,7 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
 
 SettingsScreen.navigationOptions = {
   title: 'Settings',
+  backIsToInitial: true,
 };
 
 export default SettingsScreen;

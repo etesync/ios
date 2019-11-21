@@ -7,11 +7,12 @@ type PropsType = HeaderProps;
 const AppHeader = React.memo(function _AppHeader(props: PropsType) {
   const { navigation } = props;
   const showMenuButton = getScreenOption(props.scene, 'showMenuButton');
+  const backIsToInitial = getScreenOption(props.scene, 'backIsToInitial');
 
   const backAction = (showMenuButton) ? (
     <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
   ) : (
-    <Appbar.BackAction onPress={() => { navigation.goBack() }} />
+    <Appbar.BackAction onPress={(backIsToInitial) ? () => { navigation.navigate('AuthLoading') } : () => { navigation.goBack() }} />
   );
 
   const rightAction = getScreenOption(props.scene, 'rightAction');
