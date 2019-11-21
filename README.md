@@ -3,8 +3,6 @@
   <h1 align="center">EteSync - Secure Data Sync</h1>
 </p>
 
-**IMPORTANT:** this app is under heavy development and is still work in progress. To make sure you don't miss any updates updates: [follow our blog or social media accounts](https://www.etesync.com/#news) or alternatively, [register for email updates](http://eepurl.com/dafYZv).
-
 Secure, end-to-end encrypted, and privacy respecting sync for your contacts, calendars and tasks (iOS client).
 
 ![GitHub tag](https://img.shields.io/github/tag/etesync/ios.svg)
@@ -16,12 +14,12 @@ Please see the [EteSync website](https://www.etesync.com) for more information.
 
 EteSync is licensed under the [GPLv3 License](LICENSE).
 
-# App is under heavy development
+# App is currently in beta
 
-The app is work-in-progress and incomplete. Here's a short list of things that are less than optimal but will improve as we go along:
+The app is still missing a few features to be ready for release. Here's a short list of things that are less than optimal but will improve as we go along:
 
 1. Setup is a bit clunky and requires manually adding an account to the device.
-2. The app is quite slow and potentially buggy. Hangs are to be expected, and initial sync can even take a few minutes. Just wait.
+2. Some operations are a bit slow so initial sync can even take a few minutes. Just wait. Don't interrupt it.
 3. Address books are not currently synced to the device, you can only view the change log. This is due to [an expo bug](https://github.com/expo/expo/pull/6016) that we already fixed upstream, but are waiting for a release that includes it.
 4. Sync is only triggered when you open the app and when you manually click the sync button. It doesn't yet sync automatically in the background.
 5. Recurring events and tasks are currently read-only and any changes to them won't sync back to other clients.
