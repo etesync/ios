@@ -2,13 +2,14 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { View, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { Avatar, List, Appbar, Paragraph, TextInput, HelperText, useTheme } from 'react-native-paper';
 
 import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 import { StoreState } from './store';
 
+import ScrollView from './widgets/ScrollView';
 import Checkbox from './widgets/Checkbox';
 import PrettyFingerprint from './widgets/PrettyFingerprint';
 import Container from './widgets/Container';

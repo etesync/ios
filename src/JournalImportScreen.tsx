@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import * as Calendar from 'expo-calendar';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView } from 'react-native';
 import { Divider, List, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
@@ -12,6 +11,7 @@ import { useSyncGate } from './SyncGate';
 import { store, StoreState } from './store';
 import { performSync } from './store/actions';
 
+import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 import ColorBox from './widgets/ColorBox';
 import LoadingIndicator from './widgets/LoadingIndicator';

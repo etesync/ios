@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
-import { ScrollView, Linking, FlatList } from 'react-native';
+import { Linking, FlatList } from 'react-native';
 import { Title, Text, List, TouchableRipple, useTheme } from 'react-native-paper';
 
+import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 import Markdown from './widgets/Markdown';
 

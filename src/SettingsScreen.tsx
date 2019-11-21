@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
-import { Linking, ScrollView, TextInput as NativeTextInput } from 'react-native';
+import { Linking, TextInput as NativeTextInput } from 'react-native';
 import { List, Paragraph, HelperText } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -13,6 +13,7 @@ import { SyncManager } from './sync/SyncManager';
 import { useNavigation } from './navigation/Hooks';
 import { useCredentials } from './login';
 
+import ScrollView from './widgets/ScrollView';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PasswordInput from './widgets/PasswordInput';
 

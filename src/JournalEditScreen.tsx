@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
@@ -11,6 +10,7 @@ import { useCredentials } from './login';
 import { store, StoreState } from './store';
 import { addJournal, updateJournal, deleteJournal, performSync } from './store/actions';
 
+import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import ErrorOrLoadingDialog from './widgets/ErrorOrLoadingDialog';
@@ -82,7 +82,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   }
 
   return (
-    <KeyboardAwareScrollView>
+    <ScrollView keyboardAware>
       <Container>
         <ErrorOrLoadingDialog
           loading={loading}
@@ -122,7 +122,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
           <Text>{loading ? 'Loading…' : 'Save'}</Text>
         </Button>
       </Container>
-    </KeyboardAwareScrollView>
+    </ScrollView>
   );
 };
 

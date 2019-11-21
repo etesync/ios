@@ -7,10 +7,9 @@ import { View } from 'react-native';
 import { Headline, Subheading, Paragraph, Text } from 'react-native-paper';
 import { NavigationScreenComponent } from 'react-navigation';
 
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
 import * as EteSync from 'etesync';
 
+import ScrollView from '../widgets/ScrollView';
 import Container from '../widgets/Container';
 import LoadingIndicator from '../widgets/LoadingIndicator';
 import ErrorOrLoadingDialog from '../widgets/ErrorOrLoadingDialog';
@@ -130,9 +129,9 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
 
   if (screenContent) {
     return (
-      <KeyboardAwareScrollView>
+      <ScrollView keyboardAware>
         {screenContent}
-      </KeyboardAwareScrollView>
+      </ScrollView>
     );
   }
 

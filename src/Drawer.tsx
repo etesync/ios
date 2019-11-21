@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { ScrollView, Image, Linking, View } from 'react-native';
+import { Image, Linking, View } from 'react-native';
 import { Subheading, Divider, List, Text, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
@@ -11,6 +11,7 @@ import { logout } from './store/actions';
 
 import { SyncManager } from './sync/SyncManager';
 
+import ScrollView from './widgets/ScrollView';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PrettyFingerprint from './widgets/PrettyFingerprint';
 

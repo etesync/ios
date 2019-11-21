@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { Avatar, IconButton, Card, Menu, List, Colors, useTheme } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 
 import { colorIntToHtml } from '../helpers';
 
+import ScrollView from '../widgets/ScrollView';
 import ColorBox from '../widgets/ColorBox';
 import { useCredentials } from '../login';
 import { useSyncGate } from '../SyncGate';

@@ -2,13 +2,14 @@ import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
-import { FlatList, View, ScrollView } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
 
 import * as ICAL from 'ical.js';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
+import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 
 import { TaskType, EventType, ContactType } from './pim-types';

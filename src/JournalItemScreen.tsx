@@ -3,11 +3,11 @@ import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { Text } from 'react-native-paper';
-import { ScrollView } from 'react-native';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
 
+import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 
 const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen() {
