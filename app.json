@@ -24,6 +24,7 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.etesync.ios",
       "supportsTablet": true,
       "infoPlist": {
           "NSContactsUsageDescription": "Access to your contacts is needed in order to compare your local contacts with your EteSync contacts.",
