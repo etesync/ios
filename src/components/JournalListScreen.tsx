@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View } from 'react-native';
-import { Avatar, IconButton, Card, Menu, List, Colors, useTheme } from 'react-native-paper';
+import { Avatar, IconButton, Card, Menu, List, Colors } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
 
 import { colorIntToHtml } from '../helpers';
@@ -41,7 +41,6 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
 
 export default function JournalListScreen() {
   const etesync = useCredentials()!;
-  const theme = useTheme();
   const navigation = useNavigation();
   const syncGate = useSyncGate();
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
@@ -76,10 +75,10 @@ export default function JournalListScreen() {
       const rightIcon = (props: any) => (
         <View {...props} style={{ flexDirection: 'row' }}>
           {shared &&
-            <Avatar.Icon icon="account-multiple" size={36} style={{ backgroundColor: theme.colors.surface }} />
+            <Avatar.Icon icon="account-multiple" size={36} style={{ backgroundColor: 'transparent' }} />
           }
           {journal.readOnly &&
-            <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: theme.colors.surface }} />
+            <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: 'transparent' }} />
           }
           {colorBox}
         </View>
