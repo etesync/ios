@@ -181,9 +181,18 @@ function RightAction() {
           title="Add Member"
           visible={memberDialogVisible && !publicKey}
           onOk={async () => {
-            const ret = await memberPubkeyGet();
-            setPublicKey(ret);
-            return ret;
+            try {
+              const ret = await memberPubkeyGet();
+              setErrorUsername('');
+              setPublicKey(ret);
+            } catch (e) {
+              let message = e.toString();
+              // FIXME: Hack for handling user not found. Needs to be fixed in the library.
+              if (e instanceof EteSync.HTTPError && message.includes('HTTPError: Not found')) {
+                message = 'User not found, or has journal sharing disabled';
+              }
+              setErrorUsername(message);
+            }
           }}
           onCancel={() => {
             setMemberDialogVisible(false);
