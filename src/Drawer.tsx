@@ -128,7 +128,7 @@ function Drawer() {
   return (
     <>
       <SafeAreaView style={{ backgroundColor: '#424242' }}>
-        <Container>
+        <Container style={{ backgroundColor: 'transparent' }}>
           <Image
             style={{ width: 48, height: 48, marginBottom: 15 }}
             source={require('./images/icon.png')}
