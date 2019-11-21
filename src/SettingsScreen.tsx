@@ -257,10 +257,10 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
         )}
 
         <List.Section>
-          <List.Subheader>About</List.Subheader>
+          <List.Subheader>General</List.Subheader>
           <List.Item
             title="About"
-            description="About the app"
+            description="About and open source licenses"
             onPress={() => {
               navigation.navigate('About');
             }}
