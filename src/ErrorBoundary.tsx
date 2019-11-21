@@ -6,12 +6,13 @@ import { StoreState } from './store';
 
 import PrettyError from './PrettyError';
 
+import { logger } from './logging';
+
 function ErrorBoundaryInner(props: any) {
   const errors = useSelector((state: StoreState) => state.errors);
   const error = props.error ?? errors.first(null);
   if (error) {
-    // tslint:disable-next-line:no-console
-    console.error(error);
+    logger.critical(error);
     return (
       <ScrollView>
         <PrettyError error={error} />
