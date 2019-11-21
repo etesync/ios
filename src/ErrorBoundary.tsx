@@ -34,11 +34,11 @@ function ErrorBoundaryInner(props: any) {
       <ScrollView>
         <Container>
           <Title>Something went wrong!</Title>
-          <Text selectable>{props.error.message}</Text>
           <View style={{ marginVertical: 20, flexDirection: 'row', justifyContent: 'space-evenly' }}>
             <Button mode="contained" onPress={() => emailDevelopers(error)}>Report Bug</Button>
             <Button mode="contained" onPress={() => Updates.reloadFromCache()}>Reload App</Button>
           </View>
+          <Text selectable>{props.error.message}</Text>
           <Text selectable>{props.error.stack}</Text>
         </Container>
       </ScrollView>
