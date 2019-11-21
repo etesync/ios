@@ -1,16 +1,12 @@
 import * as React from 'react';
 import { ViewProps, View } from 'react-native';
 
-class Container extends React.Component<ViewProps> {
-  public render() {
-    const { children, style } = this.props;
+export default function Container(props: React.PropsWithChildren<ViewProps>) {
+  const { children, style } = props;
 
-    return (
-      <View style={{ padding: 15, ...(style as any) }}>
-        {children}
-      </View>
-    );
-  }
+  return (
+    <View style={{ padding: 15, ...(style as any) }}>
+      {children}
+    </View>
+  );
 }
-
-export default Container;
