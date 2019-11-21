@@ -1,17 +1,21 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
-import { ScrollView } from 'react-native';
-import Markdown from 'react-native-markdown-display';
+import { ScrollView, Linking } from 'react-native';
+import { Title, Text, TouchableRipple, useTheme } from 'react-native-paper';
 
 import { useSyncGate } from './SyncGate';
 import Container from './widgets/Container';
+import Markdown from './widgets/Markdown';
 
-const markdownContent = `# EteSync
+import { expo } from '../app.json';
+import * as C from './constants';
 
-This is the about page for this app.
+const markdownContent = `
+This app is made possible with financial support from [NLnet Foundation](https://nlnet.nl/), courtesy of [NGI0 Discovery](https://nlnet.nl/discovery) and the [European Commission](https://ec.europa.eu) [DG CNECT](https://ec.europa.eu/info/departments/communications-networks-content-and-technology_en)'s [Next Generation Internet](https://ngi.eu) programme.
 `;
 
 const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
+  const theme = useTheme();
   const syncGate = useSyncGate();
 
   if (syncGate) {
@@ -21,9 +25,11 @@ const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
       <Container>
-        <Markdown>
-          {markdownContent}
-        </Markdown>
+        <Title style={{ textAlign: 'center' }}>EteSync {expo.version}</Title>
+        <TouchableRipple onPress={() => { Linking.openURL(C.homePage) }}>
+          <Text style={{ textAlign: 'center', color: theme.colors.accent, textDecorationLine: 'underline', margin: 10 }}>{C.homePage}</Text>
+        </TouchableRipple>
+        <Markdown content={markdownContent} />
       </Container>
     </ScrollView>
   );
