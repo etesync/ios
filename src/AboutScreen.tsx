@@ -3,7 +3,6 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { ScrollView, Linking, FlatList } from 'react-native';
 import { Title, Text, List, TouchableRipple, useTheme } from 'react-native-paper';
 
-import { useSyncGate } from './SyncGate';
 import Container from './widgets/Container';
 import Markdown from './widgets/Markdown';
 
@@ -37,11 +36,6 @@ This app is made possible with financial support from [NLnet Foundation](https:/
 
 const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
   const theme = useTheme();
-  const syncGate = useSyncGate();
-
-  if (syncGate) {
-    return syncGate;
-  }
 
   return (
     <ScrollView style={{ flex: 1 }}>

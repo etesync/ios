@@ -11,7 +11,6 @@ import { logger } from './logging';
 
 import { SyncManager } from './sync/SyncManager';
 import { useNavigation } from './navigation/Hooks';
-import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
 
 import ConfirmationDialog from './widgets/ConfirmationDialog';
@@ -220,15 +219,10 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 
 const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
   const etesync = useCredentials();
-  const syncGate = useSyncGate();
   const navigation = useNavigation();
 
   const [showAuthDialog, setShowAuthDialog] = React.useState(false);
   const [showEncryptionDialog, setShowEncryptionDialog] = React.useState(false);
-
-  if (syncGate) {
-    return syncGate;
-  }
 
   const loggedIn = etesync && etesync.credentials && etesync.encryptionKey;
 
