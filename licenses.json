@@ -1,0 +1,233 @@
+{
+  "dependencies": {
+    "@expo/vector-icons": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/vector-icons",
+      "publisher": "Brent Vatne"
+    },
+    "assert": {
+      "licenses": "MIT",
+      "repository": "https://github.com/browserify/commonjs-assert"
+    },
+    "buffer": {
+      "licenses": "MIT",
+      "repository": "https://github.com/feross/buffer",
+      "publisher": "Feross Aboukhadijeh",
+      "url": "http://feross.org"
+    },
+    "constants": {
+      "licenses": "MIT",
+      "repository": "https://github.com/dominicbarnes/node-constants",
+      "publisher": "Dominic Barnes"
+    },
+    "etesync": {
+      "licenses": "LGPL-3.0-only",
+      "publisher": "Tom Hacohen",
+      "url": "https://stosb.com"
+    },
+    "expo-calendar": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "650 Industries, Inc."
+    },
+    "expo-contacts": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "650 Industries, Inc."
+    },
+    "expo-random": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "650 Industries, Inc."
+    },
+    "expo": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "Expo"
+    },
+    "ical.js": {
+      "licenses": "MPL-2.0",
+      "repository": "https://github.com/mozilla-comm/ical.js",
+      "publisher": "Philipp Kewisch"
+    },
+    "immutable": {
+      "licenses": "MIT",
+      "repository": "https://github.com/facebook/immutable-js",
+      "publisher": "Lee Byron",
+      "url": "https://github.com/leebyron"
+    },
+    "libphonenumber-js": {
+      "licenses": "MIT",
+      "repository": "https://github.com/catamphetamine/libphonenumber-js",
+      "publisher": "catamphetamine"
+    },
+    "moment": {
+      "licenses": "MIT",
+      "repository": "https://github.com/moment/moment",
+      "publisher": "Iskren Ivov Chernev",
+      "url": "https://github.com/ichernev"
+    },
+    "react-native-gesture-handler": {
+      "licenses": "MIT",
+      "repository": "https://github.com/kmagiera/react-native-gesture-handler",
+      "publisher": "Krzysztof Magiera"
+    },
+    "react-native-keyboard-aware-scroll-view": {
+      "licenses": "MIT",
+      "repository": "https://github.com/APSL/react-native-keyboard-aware-scroll-view",
+      "publisher": "Alvaro Medina Ballester"
+    },
+    "react-native-markdown-display": {
+      "licenses": "MIT",
+      "repository": "https://github.com/iamacup/react-native-markdown-display",
+      "publisher": "Mient-jan Stelling and Tom Pickard + others from the community"
+    },
+    "react-native-paper": {
+      "licenses": "MIT",
+      "repository": "https://github.com/callstack/react-native-paper"
+    },
+    "react-native-vector-icons": {
+      "licenses": "MIT",
+      "repository": "https://github.com/oblador/react-native-vector-icons",
+      "publisher": "Joel Arvidsson"
+    },
+    "react-native": {
+      "licenses": "MIT",
+      "repository": "https://github.com/facebook/react-native"
+    },
+    "react-navigation": {
+      "licenses": "BSD-2-Clause",
+      "repository": "https://github.com/react-navigation/react-navigation",
+      "publisher": "Adam Miskiewicz"
+    },
+    "react-redux": {
+      "licenses": "MIT",
+      "repository": "https://github.com/reduxjs/react-redux",
+      "publisher": "Dan Abramov",
+      "url": "https://github.com/gaearon"
+    },
+    "react": {
+      "licenses": "MIT",
+      "repository": "https://github.com/facebook/react"
+    },
+    "redux-actions": {
+      "licenses": "MIT",
+      "repository": "https://github.com/redux-utilities/redux-actions",
+      "publisher": "Andrew Clark"
+    },
+    "redux-logger": {
+      "licenses": "MIT",
+      "repository": "https://github.com/theaqua/redux-logger",
+      "publisher": "Eugene Rodionov",
+      "url": "https://github.com/theaqua"
+    },
+    "redux-persist": {
+      "licenses": "MIT",
+      "repository": "https://github.com/rt2zz/redux-persist"
+    },
+    "redux-thunk": {
+      "licenses": "MIT",
+      "repository": "https://github.com/reduxjs/redux-thunk",
+      "publisher": "Dan Abramov"
+    },
+    "redux": {
+      "licenses": "MIT",
+      "repository": "https://github.com/reduxjs/redux"
+    }
+  },
+  "devDependencies": {
+    "@types/jest": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/node-rsa": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/node": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/react-native": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/react-redux": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/react": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/redux-actions": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/redux-logger": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/redux": {
+      "licenses": "MIT",
+      "repository": "https://github.com/reactjs/redux"
+    },
+    "@types/sjcl": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@types/urijs": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+    },
+    "@types/uuid": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
+    "@typescript-eslint/eslint-plugin": {
+      "licenses": "MIT",
+      "repository": "https://github.com/typescript-eslint/typescript-eslint"
+    },
+    "@typescript-eslint/parser": {
+      "licenses": "BSD-2-Clause",
+      "repository": "https://github.com/typescript-eslint/typescript-eslint"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "licenses": "BSD-2-Clause",
+      "repository": "https://github.com/typescript-eslint/typescript-eslint"
+    },
+    "babel-preset-expo": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "Expo"
+    },
+    "eslint-plugin-react": {
+      "licenses": "MIT",
+      "repository": "https://github.com/yannickcr/eslint-plugin-react",
+      "publisher": "Yannick Croissant"
+    },
+    "eslint": {
+      "licenses": "MIT",
+      "repository": "https://github.com/eslint/eslint",
+      "publisher": "Nicholas C. Zakas"
+    },
+    "jest-expo": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo"
+    },
+    "license-checker": {
+      "licenses": "BSD-3-Clause",
+      "repository": "https://github.com/davglass/license-checker",
+      "publisher": "Dav Glass"
+    },
+    "react-test-renderer": {
+      "licenses": "MIT",
+      "repository": "https://github.com/facebook/react"
+    },
+    "typescript": {
+      "licenses": "Apache-2.0",
+      "repository": "https://github.com/Microsoft/TypeScript",
+      "publisher": "Microsoft Corp."
+    }
+  }
+}
