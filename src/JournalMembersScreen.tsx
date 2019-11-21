@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { View, ScrollView } from 'react-native';
-import { Avatar, List, Appbar, Paragraph, TextInput, HelperText } from 'react-native-paper';
+import { Avatar, List, Appbar, Paragraph, TextInput, HelperText, useTheme } from 'react-native-paper';
 
 import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
@@ -26,6 +26,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
   const syncGate = useSyncGate();
   const navigation = useNavigation();
   const etesync = useCredentials()!;
+  const theme = useTheme();
 
   if (syncGate) {
     return syncGate;
@@ -74,7 +75,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
               right={(props: any) => (
                 <View {...props} style={{ flexDirection: 'row' }}>
                   {member.readOnly &&
-                    <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: '#ffffff' }} />
+                    <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: theme.colors.surface }} />
                   }
                 </View>
               )}
