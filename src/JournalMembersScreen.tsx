@@ -188,7 +188,7 @@ function RightAction() {
             } catch (e) {
               let message = e.toString();
               // FIXME: Hack for handling user not found. Needs to be fixed in the library.
-              if (e instanceof EteSync.HTTPError && message.includes('HTTPError: Not found')) {
+              if (e instanceof EteSync.HTTPError && message.includes(': Not found')) {
                 message = 'User not found, or has journal sharing disabled';
               }
               setErrorUsername(message);
