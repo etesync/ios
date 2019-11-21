@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { DefaultTheme, Provider as PaperProvider, Colors } from 'react-native-paper';
+import { DarkTheme, DefaultTheme, Provider as PaperProvider, Theme, Colors } from 'react-native-paper';
+
+import { AppearanceProvider, useColorScheme } from 'react-native-appearance';
 
 import { createAppContainer, createDrawerNavigator } from 'react-navigation';
 import RootNavigator from './login/LoginNavigator';
@@ -12,14 +14,29 @@ import { getPersistenceFunctions } from './navigation/persistance';
 import { useScreens } from 'react-native-screens';
 useScreens();
 
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: Colors.amber500,
-    accent: Colors.lightBlueA400,
-  },
-};
+function InnerApp() {
+  const colorScheme = useColorScheme();
+
+  const baseTheme = (colorScheme === 'dark') ? DarkTheme : DefaultTheme;
+
+  const theme: Theme = {
+    ...baseTheme,
+    mode: 'exact',
+    colors: {
+      ...baseTheme.colors,
+      primary: Colors.amber500,
+      accent: Colors.lightBlueA400,
+    },
+  };
+
+  return (
+    <PaperProvider theme={theme}>
+      <ErrorBoundary>
+        <AppNavigator {...getPersistenceFunctions()} />
+      </ErrorBoundary>
+    </PaperProvider>
+  );
+}
 
 const AppNavigator = createAppContainer(createDrawerNavigator(
   { home: RootNavigator },
@@ -32,11 +49,9 @@ const AppNavigator = createAppContainer(createDrawerNavigator(
 class App extends React.Component {
   public render() {
     return (
-      <PaperProvider theme={theme}>
-        <ErrorBoundary>
-          <AppNavigator {...getPersistenceFunctions()} />
-        </ErrorBoundary>
-      </PaperProvider>
+      <AppearanceProvider>
+        <InnerApp />
+      </AppearanceProvider>
     );
   }
 }
