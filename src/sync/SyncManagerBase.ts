@@ -188,6 +188,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i)!;
+          logger.debug(`Proccessing ${syncEntry.uid}`);
           const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
           switch (syncEntry.action) {
             case EteSync.SyncEntryAction.Add:
