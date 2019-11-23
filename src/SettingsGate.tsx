@@ -7,10 +7,12 @@ import 'moment/locale/en-gb';
 import { StoreState } from './store';
 import { setLogLevel } from './logging';
 
-export default function SettingsGate(props: React.PropsWithChildren<{}>) {
+export default React.memo(function SettingsGate(props: React.PropsWithChildren<{}>) {
   const settings = useSelector((state: StoreState) => state.settings);
 
-  setLogLevel(settings.logLevel);
+  React.useEffect(() => {
+    setLogLevel(settings.logLevel);
+  }, [settings.logLevel]);
 
   React.useEffect(() => {
     moment.locale(settings.locale);
@@ -19,4 +21,4 @@ export default function SettingsGate(props: React.PropsWithChildren<{}>) {
   return (
     <>{props.children}</>
   );
-}
+});
