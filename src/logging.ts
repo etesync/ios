@@ -40,7 +40,7 @@ function logToBuffer(messageLevel: LogLevel, message: any) {
     return;
   }
 
-  AsyncStorage.setItem(`${logIdentifier}${new Date()}`, `${messageLevel}: ${message}`);
+  AsyncStorage.setItem(`${logIdentifier}${new Date()}`, `[${LogLevel[messageLevel].substr(0, 1)}] ${message}`);
 }
 
 async function getLogKeys() {
