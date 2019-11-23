@@ -3,6 +3,7 @@ import { createStackNavigator, HeaderProps } from 'react-navigation';
 
 import SettingsScreen from './SettingsScreen';
 import AboutScreen from './AboutScreen';
+import DebugLogsScreen from './DebugLogsScreen';
 import AppHeader from './AppHeader';
 
 import * as C from './constants';
@@ -11,6 +12,7 @@ const SettingsNavigator = createStackNavigator(
   {
     Settings: SettingsScreen,
     About: AboutScreen,
+    DebugLogs: DebugLogsScreen,
   },
   {
     initialRouteName: 'Settings',

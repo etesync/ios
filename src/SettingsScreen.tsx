@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { Linking, TextInput as NativeTextInput } from 'react-native';
-import { List, Paragraph, HelperText } from 'react-native-paper';
+import { List, Paragraph, HelperText, Switch, useTheme } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 
 import * as EteSync from 'etesync';
 import sjcl from 'sjcl';
 
-import { logger } from './logging';
+import { logger, LogLevel } from './logging';
 
 import { SyncManager } from './sync/SyncManager';
 import { useNavigation } from './navigation/Hooks';
@@ -18,7 +18,7 @@ import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PasswordInput from './widgets/PasswordInput';
 
 import { StoreState } from './store';
-import { fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from './store/actions';
+import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from './store/actions';
 
 import * as C from './constants';
 import { startTask } from './helpers';
@@ -221,6 +221,9 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
   const etesync = useCredentials();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const settings = useSelector((state: StoreState) => state.settings);
 
   const [showAuthDialog, setShowAuthDialog] = React.useState(false);
   const [showEncryptionDialog, setShowEncryptionDialog] = React.useState(false);
@@ -258,6 +261,31 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
             description="About and open source licenses"
             onPress={() => {
               navigation.navigate('About');
+            }}
+          />
+        </List.Section>
+
+        <List.Section>
+          <List.Subheader>Debugging</List.Subheader>
+          <List.Item
+            title="Enable Logging"
+            description={(settings.logLevel === LogLevel.Off) ? 'Click to enable debug logging' : 'Click to disable debug logging'}
+            right={(props) =>
+              <Switch
+                {...props}
+                color={theme.colors.accent}
+                value={settings.logLevel !== LogLevel.Off}
+                onValueChange={(value) => {
+                  dispatch(setSettings({ logLevel: (value) ? LogLevel.Debug : LogLevel.Off }));
+                }}
+              />
+            }
+          />
+          <List.Item
+            title="View Logs"
+            description="View previously collected debug logs"
+            onPress={() => {
+              navigation.navigate('DebugLogs');
             }}
           />
         </List.Section>
