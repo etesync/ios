@@ -6,6 +6,7 @@ import { List, Map as ImmutableMap } from 'immutable';
 import * as EteSync from 'etesync';
 
 import * as actions from './actions';
+import { LogLevel } from '../logging';
 
 export interface CredentialsDataRemote {
   serviceApiUrl: string;
@@ -362,13 +363,14 @@ export const syncCount = handleAction(
 // FIXME Move all the below (potentially the fetchCount ones too) to their own file
 export interface SettingsType {
   locale: string;
+  logLevel: LogLevel;
 }
 
 export const settingsReducer = handleActions(
   {
-    [actions.setSettings.toString()]: (_state: {[key: string]: string | null}, action: any) => (
-      { ...action.payload }
+    [actions.setSettings.toString()]: (state: SettingsType, action: any) => (
+      { ...state, ...action.payload }
     ),
   },
-  { locale: 'en-gb' }
+  { locale: 'en-gb', logLevel: LogLevel.Off }
 );
