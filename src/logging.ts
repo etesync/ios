@@ -33,19 +33,19 @@ function logPrint(messageLevel: LogLevel, message: any) {
   }
 }
 
-const logIdentifier = '__logging_';
+const logPrefix = '__logging_';
 
 function logToBuffer(messageLevel: LogLevel, message: any) {
   if (!shouldLog(messageLevel)) {
     return;
   }
 
-  AsyncStorage.setItem(`${logIdentifier}${new Date()}`, `[${LogLevel[messageLevel].substr(0, 1)}] ${message}`);
+  AsyncStorage.setItem(`${logPrefix}${new Date().toISOString()}`, `[${LogLevel[messageLevel].substr(0, 1)}] ${message}`);
 }
 
 async function getLogKeys() {
   const keys = await AsyncStorage.getAllKeys();
-  return keys.filter((key) => key.startsWith(logIdentifier));
+  return keys.filter((key) => key.startsWith(logPrefix));
 }
 
 export async function getLogs() {
@@ -55,7 +55,11 @@ export async function getLogs() {
   }
 
   const wantedItems = await AsyncStorage.multiGet(wantedKeys);
-  return wantedItems.map(([_key, value]) => value);
+  return wantedItems.sort(([a], [b]) => {
+    const idxA = parseInt(a.substring(a.lastIndexOf('_') + 1, a.length));
+    const idxB = parseInt(b.substring(b.lastIndexOf('_') + 1, b.length));
+    return idxA - idxB;
+  }).map(([_key, value]) => value);
 }
 
 export async function clearLogs() {
