@@ -5,9 +5,6 @@ import { Appbar, Text } from 'react-native-paper';
 
 import * as Permissions from 'expo-permissions';
 
-import moment from 'moment';
-import 'moment/locale/en-gb';
-
 import { SyncManager } from './sync/SyncManager';
 
 import JournalListScreen from './components/JournalListScreen';
@@ -50,7 +47,6 @@ function usePermissions() {
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
   const dispatch = useDispatch();
   const etesync = useCredentials()!;
-  const settings = useSelector((state: StoreState) => state.settings);
   const SyncGate = useSyncGate();
   const permissionsStatus = usePermissions();
 
@@ -60,10 +56,6 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
       dispatch(performSync(syncManager.sync()));
     }
   }, [etesync]);
-
-  React.useEffect(() => {
-    moment.locale(settings.locale);
-  }, [settings.locale]);
 
   if (permissionsStatus) {
     return (

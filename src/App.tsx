@@ -8,6 +8,7 @@ import RootNavigator from './login/LoginNavigator';
 
 import ErrorBoundary from './ErrorBoundary';
 import Drawer from './Drawer';
+import SettingsGate from './SettingsGate';
 
 import { getPersistenceFunctions } from './navigation/persistance';
 
@@ -32,7 +33,9 @@ function InnerApp() {
   return (
     <PaperProvider theme={theme}>
       <ErrorBoundary>
-        <AppNavigator {...getPersistenceFunctions()} />
+        <SettingsGate>
+          <AppNavigator {...getPersistenceFunctions()} />
+        </SettingsGate>
       </ErrorBoundary>
     </PaperProvider>
   );
