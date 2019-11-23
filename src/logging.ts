@@ -11,7 +11,9 @@ export enum LogLevel {
 let logLevel = (__DEV__) ? LogLevel.Debug : LogLevel.Off;
 
 export function setLogLevel(level: LogLevel) {
-  logLevel = level;
+  if (!__DEV__) {
+    logLevel = level;
+  }
 }
 
 function shouldLog(messageLevel: LogLevel) {
