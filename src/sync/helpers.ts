@@ -105,7 +105,7 @@ function rruleVobjectToNative(event: EventType) {
   const ret: Calendar.RecurrenceRule = {
     frequency,
     interval: rrule.interval || undefined,
-    endDate: rrule.until || undefined,
+    endDate: timeVobjectToNative(rrule.until)?.toISOString(),
     occurrence: rrule.count || undefined,
   };
 
