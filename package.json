@@ -62,7 +62,7 @@
     "jest-expo": "^35.0.0",
     "license-checker": "^25.0.1",
     "react-test-renderer": "^16.8.6",
-    "typescript": "^3.7.1-rc"
+    "typescript": "^3.7.2"
   },
   "jest": {
     "preset": "jest-expo"
