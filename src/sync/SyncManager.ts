@@ -6,7 +6,7 @@ import { Action } from 'redux-actions';
 const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, persistor, CredentialsData, JournalsData, UserInfoData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { logger } from '../logging';
@@ -103,7 +103,7 @@ export class SyncManager {
 
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
-      const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
+      const userInfo = storeState.cache.userInfo!;
       syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
       // FIXME: make the sync parallel
@@ -132,7 +132,7 @@ export class SyncManager {
 
   public async clearDeviceCollections() {
     const storeState = store.getState();
-    const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
+    const userInfo = storeState.cache.userInfo!;
 
     for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
       await syncManager.init();
