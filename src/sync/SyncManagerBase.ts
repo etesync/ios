@@ -194,7 +194,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             }
           }
 
-          if (((i === entries.size - 1) || (i % CHUNK_PULL) === 0)) {
+          if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
             persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
           }
         }
