@@ -5,6 +5,7 @@ import { UserInfo } from 'etesync';
 
 import { CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 import { ConnectionInfo } from 'react-native';
+import { startTask } from '../helpers';
 
 export const fetchCredentials = createAction(
   'FETCH_CREDENTIALS',
@@ -39,7 +40,9 @@ export const logout = createAction(
 export const deriveKey = createAction(
   'DERIVE_KEY',
   (username: string, encryptionPassword: string) => {
-    return EteSync.deriveKey(username, encryptionPassword);
+    return startTask(() => {
+      return EteSync.deriveKey(username, encryptionPassword);
+    });
   }
 );
 

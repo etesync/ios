@@ -109,8 +109,8 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
       logger.info('Changing encryption password');
       const me = etesync.credentials.email;
       logger.info('Deriving old key');
-      const oldDerivedAction = deriveKey(etesync.credentials.email, oldPassword);
-      const oldDerived = oldDerivedAction.payload;
+      const oldDerivedAction = await deriveKey(etesync.credentials.email, oldPassword);
+      const oldDerived = await oldDerivedAction.payload;
 
       if (oldDerived !== etesync.encryptionKey) {
         setErrors({ oldPassword: 'Error: wrong encryption password.' });
@@ -118,8 +118,8 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
       }
 
       logger.info('Deriving new key');
-      const newDerivedAction = deriveKey(etesync.credentials.email, newPassword);
-      const newDerived = newDerivedAction.payload;
+      const newDerivedAction = await deriveKey(etesync.credentials.email, newPassword);
+      const newDerived = await newDerivedAction.payload;
       logger.info('Fetching user info');
       const userInfoAction = await dispatch(fetchUserInfo(etesync, me));
       const userInfo = await userInfoAction.payload;

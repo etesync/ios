@@ -50,14 +50,20 @@ export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo
 
 export const encryptionKeyReducer = handleActions(
   {
-    [actions.deriveKey.toString()]: (_state: {key: string | null}, action: any) => (
-      { key: action.payload }
-    ),
+    [actions.deriveKey.toString()]: (state: {key: string | null}, action: any) => {
+      if (action.error) {
+        return state;
+      } else if (action.payload === undefined) {
+        return state;
+      }
+
+      return { key: action.payload };
+    },
     [actions.resetKey.toString()]: (_state: {key: string | null}, _action: any) => (
       { key: null }
     ),
     [actions.logout.toString()]: (_state: {key: string | null}, _action: any) => {
-      return { out: true, key: null };
+      return { key: null };
     },
   },
   { key: null }

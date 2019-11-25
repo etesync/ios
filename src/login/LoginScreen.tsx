@@ -19,7 +19,7 @@ import EncryptionLoginForm from '../components/EncryptionLoginForm';
 import { store, StoreState } from '../store';
 
 import { fetchUserInfo, deriveKey, fetchCredentials } from '../store/actions';
-import { useLoading, startTask } from '../helpers';
+import { useLoading } from '../helpers';
 
 import * as C from '../constants';
 
@@ -46,10 +46,10 @@ function EncryptionPart() {
   }
 
   function onEncryptionFormSubmit(encryptionPassword: string) {
-    setPromise(startTask(() => {
-      const derivedAction = deriveKey(credentials.credentials.email, encryptionPassword);
+    setPromise(async () => {
+      const derivedAction = await deriveKey(credentials.credentials.email, encryptionPassword);
       if (userInfo) {
-        const userInfoCryptoManager = userInfo.getCryptoManager(derivedAction.payload);
+        const userInfoCryptoManager = userInfo.getCryptoManager(await derivedAction.payload);
         try {
           userInfo.verify(userInfoCryptoManager);
         } catch (e) {
@@ -58,7 +58,7 @@ function EncryptionPart() {
       }
       dispatch(derivedAction);
       navigation.navigate('App');
-    }));
+    });
   }
 
   const isNewUser = !userInfo;
