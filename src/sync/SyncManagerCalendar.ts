@@ -202,7 +202,9 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
       case EteSync.SyncEntryAction.Delete: {
         if (syncStateEntry) {
           // FIXME: Shouldn't have this if, it should just work
-          await Calendar.deleteEventAsync(syncStateEntry.localId);
+          await Calendar.deleteEventAsync(syncStateEntry.localId, {
+            futureEvents: true,
+          });
         } else {
           syncStateEntry = {
             uid: nativeEvent.uid,
