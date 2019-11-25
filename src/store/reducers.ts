@@ -298,6 +298,15 @@ export const syncStateJournalReducer = handleActions(
 export const syncStateEntryReducer = handleActions(
   {
     ...simpleMapMapReducer<SyncStateEntryData, SyncStateEntry>('SyncStateEntry'),
+    [actions.setSyncStateJournal.toString()]: (state: SyncStateEntryData, _action: Action<any>) => {
+      const action: Action<SyncStateJournal> = _action; // Required because for some reason the typing fails if not the case.
+      const syncStateJournal = action.payload;
+      if (!state.has(syncStateJournal.uid)) {
+        return state.set(syncStateJournal.uid, ImmutableMap({}));
+      } else {
+        return state;
+      }
+    },
     [actions.unsetSyncStateJournal.toString()]: (state: SyncStateEntryData, _action: Action<any>) => {
       const action: Action<SyncStateJournal> = _action; // Required because for some reason the typing fails if not the case.
       const syncStateJournal = action.payload;
