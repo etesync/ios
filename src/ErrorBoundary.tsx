@@ -5,21 +5,23 @@ import { Button, Title, Text } from 'react-native-paper';
 
 import { Updates } from 'expo';
 
-import { StoreState } from './store';
+import { StoreState, persistor, store } from './store';
 
 import ScrollView from './widgets/ScrollView';
-import { logger } from './logging';
+import { logger, LogLevel, getLogs } from './logging';
 import Container from './widgets/Container';
 import { expo } from '../app.json';
 import * as C from './constants';
+import { setSettings } from './store/actions';
 
-function emailDevelopers(error: Error) {
+function emailDevelopers(error: Error, logs: string | undefined) {
   const subject = encodeURIComponent('EteSync iOS: Crash Report');
   const bodyJson = {
     version: expo.version,
     error: {
       message: error.message,
       stack: error.stack?.toString(),
+      logs,
     },
   };
   const body = encodeURIComponent(JSON.stringify(bodyJson));
@@ -29,18 +31,31 @@ function emailDevelopers(error: Error) {
 function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | undefined }>) {
   const errors = useSelector((state: StoreState) => state.errors);
   const error = props.error ?? errors.first(null);
+  const [logs, setLogs] = React.useState<string>();
+
+  React.useEffect(() => {
+    getLogs().then((value) => setLogs(value.join('\n')));
+  }, []);
+
+  const buttonStyle = { marginVertical: 5 };
   if (error) {
     logger.critical(error);
     return (
       <ScrollView>
         <Container>
           <Title>Something went wrong!</Title>
-          <View style={{ marginVertical: 20, flexDirection: 'row', justifyContent: 'space-evenly' }}>
-            <Button mode="contained" onPress={() => emailDevelopers(error)}>Report Bug</Button>
-            <Button mode="contained" onPress={() => Updates.reloadFromCache()}>Reload App</Button>
+          <View style={{ marginVertical: 15, flexDirection: 'row', justifyContent: 'space-evenly', flexWrap: 'wrap' }}>
+            <Button mode="contained" style={buttonStyle} onPress={() => emailDevelopers(error, logs)}>Report Bug</Button>
+            <Button mode="contained" style={buttonStyle} onPress={() => Updates.reloadFromCache()}>Reload App</Button>
+            <Button mode="contained" style={buttonStyle} onPress={async () => {
+              store.dispatch(setSettings({ logLevel: LogLevel.Debug }));
+              persistor.persist();
+              Updates.reloadFromCache();
+            }}>Enable Logging &amp; Reload</Button>
           </View>
           <Text selectable>{error.message}</Text>
           <Text selectable>{error.stack}</Text>
+          <Text selectable>{logs}</Text>
         </Container>
       </ScrollView>
     );
