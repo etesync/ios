@@ -22,8 +22,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
   public async clearDeviceCollections() {
     const etesync = this.etesync;
-    const syncStateJournals = this.syncStateJournals.asMutable();
-    const syncStateEntries = this.syncStateEntries.asMutable();
+    const storeState = store.getState();
+    const syncStateJournals = storeState.sync.stateJournals;
 
     const contacts = (await Contacts.getContactsAsync()).data;
     for (const contact of contacts) {
@@ -39,14 +39,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       } catch (e) {
         logger.warn(e);
       }
-      syncStateJournals.delete(journal.uid);
-
-      // Deletion from the store happens automatically
-      syncStateEntries.delete(journal.uid);
     }));
-
-    this.syncStateJournals = syncStateJournals.asImmutable();
-    this.syncStateEntries = syncStateEntries.asImmutable();
   }
 
   protected async syncPush() {

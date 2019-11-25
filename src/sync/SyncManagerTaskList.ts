@@ -17,9 +17,10 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
   protected entityType = Calendar.EntityTypes.REMINDER;
 
   protected async syncPush() {
-    const syncStateJournals = this.syncStateJournals;
     const storeState = store.getState();
     const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const syncStateJournals = storeState.sync.stateJournals;
+    const syncStateEntries = storeState.sync.stateEntries;
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
@@ -33,7 +34,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
       const handled = {};
       logger.info(`Pushing ${uid}`);
 
-      const syncStateEntriesReverse = this.syncStateEntries.get(uid)!.mapEntries((_entry) => {
+      const syncStateEntriesReverse = syncStateEntries.get(uid)!.mapEntries((_entry) => {
         const entry = _entry[1];
         return [entry.localId, entry];
       }).asMutable();

@@ -4,7 +4,7 @@ import { Map as ImmutableMap } from 'immutable';
 import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
-import { store, persistor, CredentialsData, SyncStateJournalData, SyncStateEntryData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
 import { NativeBase } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
@@ -49,8 +49,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   protected etesync: CredentialsData;
   protected userInfo: EteSync.UserInfo;
   protected collectionType: string;
-  protected syncStateJournals: SyncStateJournalData;
-  protected syncStateEntries: SyncStateEntryData;
 
   constructor(etesync: CredentialsData, userInfo: EteSync.UserInfo) {
     this.etesync = etesync;
@@ -62,9 +60,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   }
 
   // FIXME: Remove these parameters, we should just get them inside.
-  public async sync(syncStateJournals: SyncStateJournalData, syncStateEntries: SyncStateEntryData) {
-    this.syncStateJournals = syncStateJournals;
-    this.syncStateEntries = syncStateEntries;
+  public async sync() {
 
     if (__DEV__) {
       // await this.clearDeviceCollections();
@@ -83,8 +79,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   protected async syncJournalList() {
     const etesync = this.etesync;
-    const syncStateJournals = this.syncStateJournals.asMutable();
     const storeState = store.getState();
+    const syncStateJournals = storeState.sync.stateJournals.asMutable();
     const syncInfoCollections = storeState.cache.syncInfoCollection;
     const currentJournals = [] as SyncStateJournal[];
     const notOurs = new Map<string, boolean>();
@@ -130,14 +126,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       }
       return true;
     }));
-
-    syncStateJournals.clear();
-
-    currentJournals.forEach((syncStateJournal) => {
-      syncStateJournals.set(syncStateJournal.uid, syncStateJournal);
-    });
-
-    this.syncStateJournals = syncStateJournals.asImmutable();
   }
 
   protected async syncPull() {
@@ -145,11 +133,11 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const journalsEntries = storeState.cache.entries;
     const syncInfoCollections = storeState.cache.syncInfoCollection;
     const syncInfoItems = storeState.cache.syncInfoItem;
+    const syncStateJournals = storeState.sync.stateJournals;
+    const syncStateEntriesAll = storeState.sync.stateEntries;
     // FIXME: Sholud alert beforehand if local is not enable and only iCloud is and let people know, and if that the case, use iCloud if there's no local.
     // See notes for more info
     const etesync = this.etesync;
-    const syncStateJournals = this.syncStateJournals;
-    const syncStateEntriesAll = this.syncStateEntries.asMutable();
 
     for (const collection of syncInfoCollections.values()) {
       const uid = collection.uid;
@@ -210,12 +198,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
           }
         }
-
-        syncStateEntriesAll.set(uid, journalSyncEntries.asImmutable());
       }
     }
-
-    this.syncStateEntries = syncStateEntriesAll.asImmutable();
   }
 
   protected async pushJournalEntries(pSyncStateJournal: SyncStateJournal, pushEntries: PushEntry[]) {

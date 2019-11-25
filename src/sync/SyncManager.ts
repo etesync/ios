@@ -97,14 +97,12 @@ export class SyncManager {
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
       const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
-      const syncStateJournals = storeState.sync.stateJournals;
-      const syncStateEntries = storeState.sync.stateEntries;
       syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
 
       // FIXME: make the sync parallel
       for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
         await syncManager.init();
-        await syncManager.sync(syncStateJournals, syncStateEntries);
+        await syncManager.sync();
       }
 
       // We do it again here so we decrypt the newly added items too

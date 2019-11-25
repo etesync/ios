@@ -30,8 +30,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     const storeState = store.getState();
     const etesync = this.etesync;
     const localSource = this.localSource;
-    const syncStateJournals = storeState.sync.stateJournals.asMutable();
-    const syncStateEntries = storeState.sync.stateEntries.asMutable();
+    const syncStateJournals = storeState.sync.stateJournals;
 
     const calendars = await Calendar.getCalendarsAsync(this.entityType);
     for (const calendar of calendars) {
@@ -43,12 +42,6 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
     syncStateJournals.forEach((journal) => {
       store.dispatch(unsetSyncStateJournal(etesync, journal));
-      syncStateJournals.delete(journal.uid);
-
-      // Deletion from the store happens automatically
-      syncStateEntries.delete(journal.uid);
-
-      return true;
     });
   }
 
@@ -84,9 +77,10 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
   protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush() {
-    const syncStateJournals = this.syncStateJournals;
     const storeState = store.getState();
     const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const syncStateJournals = storeState.sync.stateJournals;
+    const syncStateEntries = storeState.sync.stateEntries;
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
@@ -100,7 +94,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
       const handled = {};
       logger.info(`Pushing ${uid}`);
 
-      const syncStateEntriesReverse = this.syncStateEntries.get(uid)!.mapEntries((_entry) => {
+      const syncStateEntriesReverse = syncStateEntries.get(uid)!.mapEntries((_entry) => {
         const entry = _entry[1];
         return [entry.localId, entry];
       }).asMutable();
