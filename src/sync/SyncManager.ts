@@ -89,9 +89,8 @@ export class SyncManager {
 
   public async sync() {
     const keepAwakeTag = 'SyncManager';
-    const storeState = store.getState();
 
-    if (storeState.connection?.type === 'none') {
+    if (store.getState().connection?.type === 'none') {
       logger.info('Disconnected, aborting sync');
       return false;
     }
@@ -101,6 +100,7 @@ export class SyncManager {
       prngAddEntropy();
       await this.fetchAllJournals();
 
+      const storeState = store.getState();
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
       const userInfo = storeState.cache.userInfo!;
