@@ -8,7 +8,7 @@ const credentialsSelector = createSelector(
   (state: store.StoreState) => state.credentials.serviceApiUrl,
   (state: store.StoreState) => state.encryptionKey.key,
   (credentials, serviceApiUrl, encryptionKey) => {
-    if (!credentials) {
+    if (!credentials || !encryptionKey) {
       return null;
     }
 

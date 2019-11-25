@@ -35,7 +35,7 @@ const AuthLoadingScreen = React.memo(function _AuthLoadingScreen(props: AuthProp
   const { navigation } = props;
 
   React.useEffect(() => {
-    if (credentials === null || !credentials.credentials || !credentials.encryptionKey) {
+    if (credentials === null) {
       navigation.navigate('Auth');
     } else {
       navigation.navigate('App');
