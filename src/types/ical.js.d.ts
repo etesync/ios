@@ -161,5 +161,14 @@ declare module 'ical.js' {
     public wkst?: WeekDay;
     public until?: Time;
     public count?: number;
+    public bysecond?: number[];
+    public byminute?: number[];
+    public byhour?: number[];
+    public byday?: number[];
+    public bymonthday?: number[];
+    public byyearday?: number[];
+    public byweekno?: number[];
+    public bymonth?: number[];
+    public bysetpos?: number[];
   }
 }
