@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage, ConnectionType } from 'react-native';
 
 import { combineReducers } from 'redux';
 import { createMigrate, persistReducer, createTransform } from 'redux-persist';
@@ -9,7 +9,7 @@ import * as EteSync from 'etesync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
-  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, errorsReducer,
+  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, connectionReducer, errorsReducer,
 } from './reducers';
 
 export interface StoreState {
@@ -30,6 +30,7 @@ export interface StoreState {
     syncInfoCollection: SyncInfoCollectionData;
     syncInfoItem: SyncInfoItemData;
   };
+  connection: ConnectionType | null;
   errors: List<Error>;
 }
 
@@ -210,6 +211,7 @@ const reducers = combineReducers({
     syncInfoCollection: syncInfoCollectionReducer,
     syncInfoItem: syncInfoItemReducer,
   })),
+  connection: connectionReducer,
   errors: errorsReducer,
 });
 

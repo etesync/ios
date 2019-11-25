@@ -4,6 +4,7 @@ import * as EteSync from 'etesync';
 import { UserInfo } from 'etesync';
 
 import { CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
+import { ConnectionInfo } from 'react-native';
 
 export const fetchCredentials = createAction(
   'FETCH_CREDENTIALS',
@@ -251,6 +252,13 @@ export const unsetSyncInfoItem = createAction(
   },
   (_etesync: CredentialsData, journalUid: string, _syncInfoItem: SyncInfoItem) => {
     return journalUid;
+  }
+);
+
+export const setConnectionInfo = createAction(
+  'SET_CONNECTION_INFO',
+  (connectionInfo: ConnectionInfo) => {
+    return { ...connectionInfo };
   }
 );
 
