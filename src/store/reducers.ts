@@ -125,6 +125,9 @@ export const entries = handleActions(
       const journal = action.meta.item.uid;
       return state.set(journal, List([]));
     },
+    [actions.logout.toString()]: (state: EntriesData, _action: any) => {
+      return state.clear();
+    },
   },
   ImmutableMap({})
 );
@@ -195,34 +198,41 @@ export const journals = handleActions(
     [actions.addJournal.toString()]: addEditMapModelReducer,
     [actions.updateJournal.toString()]: addEditMapModelReducer,
     [actions.deleteJournal.toString()]: deleteMapModelReducer,
+    [actions.logout.toString()]: (state: JournalsData, _action: any) => {
+      return state.clear();
+    },
   },
   ImmutableMap({})
 );
 
-export const userInfo = handleAction(
-  combineActions(
-    actions.fetchUserInfo,
-    actions.createUserInfo,
-    actions.updateUserInfo
-  ),
-  (state: UserInfoData | null, action: any) => {
-    if (action.error) {
-      return state;
-    } else {
-      let payload = action.payload ?? null;
+export const userInfo = handleActions(
+  {
+    [combineActions(
+      actions.fetchUserInfo,
+      actions.createUserInfo,
+      actions.updateUserInfo
+    ).toString()]: (state: UserInfoData | null, action: any) => {
+      if (action.error) {
+        return state;
+      } else {
+        let payload = action.payload ?? null;
 
-      if (payload === null) {
+        if (payload === null) {
+          return state;
+        }
+
+        payload = action.meta?.userInfo ?? payload;
+
+        if (!state || !shallowEqual(state.serialize(), payload.serialize())) {
+          return payload;
+        }
+
         return state;
       }
-
-      payload = action.meta?.userInfo ?? payload;
-
-      if (!state || !shallowEqual(state.serialize(), payload.serialize())) {
-        return payload;
-      }
-
-      return state;
-    }
+    },
+    [actions.logout.toString()]: (_state: any, _action: any) => {
+      return null;
+    },
   },
   null
 );
@@ -243,6 +253,9 @@ function simpleMapReducer<TypeData extends ImmutableMap<string, TypeItem>, TypeI
       const syncStateJournal = action.payload;
       return state.remove(syncStateJournal.uid);
     },
+    [actions.logout.toString()]: (state: TypeData, _action: any) => {
+      return state.clear();
+    },
   };
 }
 
@@ -261,6 +274,9 @@ function simpleMapMapReducer<TypeData extends ImmutableMap<string, ImmutableMap<
       const syncStateEntry = action.payload;
       const mainKey = (action as any).meta as string;
       return state.deleteIn([mainKey, syncStateEntry.uid]);
+    },
+    [actions.logout.toString()]: (state: TypeData, _action: any) => {
+      return state.clear();
     },
   };
 }
@@ -335,7 +351,7 @@ export const fetchCount = handleAction(
 
 export const errorsReducer = handleActions(
   {
-    [combineActions(actions.performSync) as any]: (state: List<Error>, action: Action<any>) => {
+    [combineActions(actions.performSync).toString()]: (state: List<Error>, action: Action<any>) => {
       if (action.error) {
         return state.push(action.payload);
       }
@@ -343,6 +359,9 @@ export const errorsReducer = handleActions(
       return state;
     },
     [actions.clearErros.toString()]: (state: List<Error>, _action: Action<any>) => {
+      return state.clear();
+    },
+    [actions.logout.toString()]: (state: List<Error>, _action: any) => {
       return state.clear();
     },
   },

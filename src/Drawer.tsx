@@ -99,11 +99,10 @@ function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
         await syncManager.clearDeviceCollections();
 
         dispatch(logout());
-
-        // FIXME: we are purging to make sure all the data is clean.
-        // We probably don't want to clear everything though.
-        await persistor.purge();
+        navigation.closeDrawer();
         navigation.navigate('Auth');
+
+        persistor.persist();
 
         props.onDismiss();
       }}

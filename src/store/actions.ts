@@ -33,7 +33,7 @@ export const fetchCredentials = createAction(
 
 export const logout = createAction(
   'LOGOUT',
-  () => undefined
+  () => true
 );
 
 export const deriveKey = createAction(
