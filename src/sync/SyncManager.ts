@@ -114,6 +114,12 @@ export class SyncManager {
 
       // We do it again here so we decrypt the newly added items too
       syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+    } catch (e) {
+      if (e instanceof EteSync.NetworkError) {
+        // Ignore network errors
+        return false;
+      }
+      throw e;
     } finally {
       deactivateKeepAwake(keepAwakeTag);
     }

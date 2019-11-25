@@ -15,7 +15,7 @@
     "buffer": "^5.2.1",
     "constants": "^0.0.2",
     "crypto": "git+https://github.com/etesync/expo-crypto",
-    "etesync": "^0.1.2",
+    "etesync": "^0.1.3",
     "expo": "^35.0.0",
     "expo-calendar": "~7.0.0",
     "expo-contacts": "~7.0.0",
