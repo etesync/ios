@@ -9,6 +9,8 @@ import { syncInfoSelector } from '../SyncHandler';
 import { store, persistor, CredentialsData, JournalsData, UserInfoData, SyncStateJournalData, SyncStateEntryData } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
+import { logger } from '../logging';
+
 // import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
 import { SyncManagerTaskList } from './SyncManagerTaskList';
@@ -87,13 +89,18 @@ export class SyncManager {
 
   public async sync() {
     const keepAwakeTag = 'SyncManager';
+    const storeState = store.getState();
+
+    if (storeState.connection?.type === 'none') {
+      logger.info('Disconnected, aborting sync');
+      return false;
+    }
 
     try {
       activateKeepAwake(keepAwakeTag);
       prngAddEntropy();
       await this.fetchAllJournals();
 
-      const storeState = store.getState();
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
       const userInfo = storeState.cache.userInfo as UserInfoData; // FIXME: same with this caste
