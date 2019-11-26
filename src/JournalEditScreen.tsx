@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
+import { TextInput as NativeTextInput } from 'react-native';
 import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
@@ -81,6 +82,8 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
     });
   }
 
+  const descriptionRef = React.createRef<NativeTextInput>();
+
   return (
     <ScrollView keyboardAware>
       <Container>
@@ -92,6 +95,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
         <TextInput
           autoFocus
           returnKeyType="next"
+          onSubmitEditing={() => descriptionRef.current!.focus()}
           error={!!errors.displayName}
           onChangeText={setDisplayName}
           label="Display name (title)"
@@ -105,6 +109,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
         </HelperText>
 
         <TextInput
+          ref={descriptionRef}
           onChangeText={setDescription}
           label="Description (optional)"
           value={description}
