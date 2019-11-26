@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { TextInput as NativeTextInput } from 'react-native';
+import { View, TextInput as NativeTextInput } from 'react-native';
 import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
@@ -17,16 +17,21 @@ import ConfirmationDialog from './widgets/ConfirmationDialog';
 import ErrorOrLoadingDialog from './widgets/ErrorOrLoadingDialog';
 
 import * as EteSync from 'etesync';
-import { useLoading } from './helpers';
+import { useLoading, colorHtmlToInt, colorIntToHtml, defaultColor } from './helpers';
+
+import ColorBox from './widgets/ColorBox';
 
 interface FormErrors {
   displayName?: string;
+  color?: string;
 }
 
 const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen() {
   const [errors, setErrors] = React.useState({} as FormErrors);
-  const [_displayName, setDisplayName] = React.useState<string | null>(null);
-  const [_description, setDescription] = React.useState<string | null>(null);
+  const [journalType, setJournalType] = React.useState<string>();
+  const [displayName, setDisplayName] = React.useState<string>('');
+  const [description, setDescription] = React.useState<string>('');
+  const [color, setColor] = React.useState<string>('');
   const journals = useSelector((state: StoreState) => state.cache.journals);
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
@@ -35,18 +40,32 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   const etesync = useCredentials()!;
   const [loading, error, setPromise] = useLoading();
 
+  const journalUid: string = navigation.getParam('journalUid') ?? '';
+  React.useMemo(() => {
+    if (syncGate) {
+      return;
+    }
+
+    const passedCollection = syncInfoCollections.get(journalUid);
+    if (passedCollection) {
+      setJournalType(passedCollection.type);
+      setDisplayName(passedCollection.displayName);
+      setDescription(passedCollection.description);
+      if (passedCollection.color !== undefined) {
+        setColor(colorIntToHtml(passedCollection.color));
+      }
+    } else {
+      setJournalType(navigation.getParam('journalType'));
+    }
+
+  }, [syncGate, syncInfoCollections, journalUid]);
+
   if (syncGate) {
     return syncGate;
   }
 
-  const journalUid: string = navigation.getParam('journalUid') ?? '';
-  let collection = syncInfoCollections.get(journalUid);
-  const displayName = _displayName ?? collection?.displayName ?? '';
-  const description = _description ?? collection?.description ?? '';
-  if (!collection) {
-    collection = new EteSync.CollectionInfo();
-    collection.uid = EteSync.genUid();
-    collection.type = navigation.getParam('journalType');
+  if (!journalType) {
+    return <React.Fragment />;
   }
 
   function onSave() {
@@ -58,12 +77,21 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
         saveErrors.displayName = fieldRequired;
       }
 
+      if (color && !colorHtmlToInt(color)) {
+        saveErrors.color = 'Must be of the form #RRGGBB or #RRGGBBAA or empty';
+      }
+
       if (Object.keys(saveErrors).length > 0) {
         setErrors(saveErrors);
         return;
       }
 
-      const info = new EteSync.CollectionInfo({ ...collection, displayName, description });
+      const passedCollection = syncInfoCollections.get(journalUid);
+      const uid = passedCollection?.uid ?? EteSync.genUid();
+
+      const computedColor = (color) ? colorHtmlToInt(color) : undefined;
+
+      const info = new EteSync.CollectionInfo({ ...passedCollection, uid, type: journalType, displayName, description, color: computedColor });
       const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: info.uid });
       const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
       const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
@@ -83,6 +111,36 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   }
 
   const descriptionRef = React.createRef<NativeTextInput>();
+  const colorRef = React.createRef<NativeTextInput>();
+
+  let collectionColorBox: React.ReactNode;
+  switch (journalType) {
+    case 'CALENDAR':
+    case 'TASKS':
+      collectionColorBox = (
+        <>
+          <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row' }}>
+            <ColorBox size={36} color={(color && colorHtmlToInt(color)) ? color : defaultColor} />
+            <TextInput
+              ref={colorRef}
+              style={{ marginLeft: 10, flex: 1 }}
+              error={!!errors.color}
+              onChangeText={setColor}
+              placeholder="E.g. #aabbcc"
+              label="Color (optional)"
+              value={color}
+            />
+          </View>
+          <HelperText
+            type="error"
+            visible={!!errors.color}
+          >
+            {errors.color}
+          </HelperText>
+        </>
+      );
+      break;
+  }
 
   return (
     <ScrollView keyboardAware>
@@ -110,6 +168,8 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
 
         <TextInput
           ref={descriptionRef}
+          returnKeyType={(collectionColorBox) ? 'next' : undefined}
+          onSubmitEditing={(collectionColorBox) ? () => colorRef.current!.focus() : undefined}
           onChangeText={setDescription}
           label="Description (optional)"
           value={description}
@@ -118,6 +178,8 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
           type="error"
           visible={false}
         />
+
+        {collectionColorBox}
 
         <Button
           mode="contained"
