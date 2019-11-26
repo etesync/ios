@@ -184,7 +184,9 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           // Skip
         }
         if (syncStateEntry && existingEvent) {
-          await Calendar.updateEventAsync(syncStateEntry.localId, nativeEvent);
+          await Calendar.updateEventAsync(syncStateEntry.localId, nativeEvent, {
+            futureEvents: true,
+          });
         } else {
           const localEntryId = await Calendar.createEventAsync(containerLocalId, nativeEvent);
           syncStateEntry = {
