@@ -116,11 +116,6 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
 
           const syncStateEntry = syncStateEntriesReverse.get(_event.id);
 
-          // FIXME: ignore recurring events at the moment as they seem to be broken with Expo
-          if (_event.recurrenceRule) {
-            return;
-          }
-
           const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
           const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event);
           if (pushEntry) {

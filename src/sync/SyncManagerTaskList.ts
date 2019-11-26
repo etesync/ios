@@ -57,11 +57,6 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
           const syncStateEntry = syncStateEntriesReverse.get(_reminder.id!);
 
-          // FIXME: ignore recurring reminders at the moment as they seem to be broken with Expo
-          if (_reminder.recurrenceRule) {
-            return;
-          }
-
           const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
           const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder);
           if (syncEntry) {
