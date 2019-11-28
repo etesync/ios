@@ -57,9 +57,18 @@ export class SyncManager {
     const etesync = this.etesync;
     const me = etesync.credentials.email;
 
-    const userInfoAction = await store.dispatch(fetchUserInfo(etesync, me));
-    let userInfo = await userInfoAction.payload;
-    if (userInfoAction.error || !userInfoAction.payload) {
+    let userInfoAction;
+    try {
+      userInfoAction = await store.dispatch(fetchUserInfo(etesync, me));
+    } catch (e) {
+      // 404 menas we don't have a user info.
+      if (!((e instanceof EteSync.HTTPError) && (e.status === 404))) {
+        throw e;
+      }
+    }
+
+    let userInfo;
+    if (!userInfoAction || userInfoAction.error || !userInfoAction.payload) {
       userInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
       const keyPair = EteSync.AsymmetricCryptoManager.generateKeyPair();
       const cryptoManager = userInfo.getCryptoManager(etesync.encryptionKey);
@@ -67,6 +76,8 @@ export class SyncManager {
       userInfo.setKeyPair(cryptoManager, keyPair);
 
       await store.dispatch(createUserInfo(etesync, userInfo));
+    } else {
+      userInfo = await userInfoAction.payload;
     }
 
     const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries));
