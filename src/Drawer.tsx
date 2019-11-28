@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { persistor, StoreState } from './store';
 import { logout } from './store/actions';
 
-import { SyncManager } from './sync/SyncManager';
+import { unregisterSyncTask, SyncManager } from './sync/SyncManager';
 
 import ScrollView from './widgets/ScrollView';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
@@ -101,6 +101,7 @@ function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
         dispatch(logout());
         navigation.closeDrawer();
         navigation.navigate('Auth');
+        unregisterSyncTask(etesync.credentials.email);
 
         persistor.persist();
 

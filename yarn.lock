@@ -3370,6 +3370,13 @@ expo-asset@~7.0.0:
     path-browserify "^1.0.0"
     url-parse "^1.4.4"
 
+expo-background-fetch@~7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/expo-background-fetch/-/expo-background-fetch-7.0.0.tgz#498e73d39dcb6ec8d456e3f5531a256bd2595455"
+  integrity sha512-YXrCZtrJ7IruxOG08bmC3cSC1cGT6MXwZWsFeNWJnjnhvYDCgWugDil8sD6zsNWR+0kVBykur/vEVDrYfQs3qg==
+  dependencies:
+    expo-task-manager "~7.0.0"
+
 expo-calendar@~7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/expo-calendar/-/expo-calendar-7.0.0.tgz#6155c94b38dcd340ff09ea0ef1337442b3439a82"
@@ -3440,6 +3447,11 @@ expo-sqlite@~7.0.0:
     "@expo/websql" "^1.0.1"
     "@types/websql" "^0.0.27"
     lodash "^4.17.15"
+
+expo-task-manager@~7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/expo-task-manager/-/expo-task-manager-7.0.0.tgz#51dea794db2bfa195dc2fbb51b01d393a79049ae"
+  integrity sha512-BlftMltCFI9ygXDfeKPHNSTPleg+soOOjSoogEB4wdZB8ZzxvdEWdPPLvWbX6ci+04E+VWpjM10GqpFRfOip4w==
 
 expo-web-browser@~7.0.0:
   version "7.0.1"
@@ -7795,9 +7807,9 @@ sisteransi@^1.0.3:
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.3.tgz#98168d62b79e3a5e758e27ae63c4a053d748f4eb"
   integrity sha512-SbEG75TzH8G7eVXFSN5f9EExILKfly7SUvVY5DhhYLvfhKqhDFY0OzevWa/zwak0RLRfWS5AvfMWpd9gJvr5Yg==
 
-"sjcl@git+https://github.com/etesync/sjcl.git":
+"sjcl@git+https://github.com/etesync/sjcl":
   version "1.0.7"
-  resolved "git+https://github.com/etesync/sjcl.git#f259515e3c5cf8f437cdfa99c1cf0a8ad7321556"
+  resolved "git+https://github.com/etesync/sjcl#f259515e3c5cf8f437cdfa99c1cf0a8ad7321556"
 
 slash@^1.0.0:
   version "1.0.0"

@@ -19,6 +19,7 @@ import EncryptionLoginForm from '../components/EncryptionLoginForm';
 import { store, StoreState } from '../store';
 
 import { fetchUserInfo, deriveKey, fetchCredentials } from '../store/actions';
+import { registerSyncTask } from '../sync/SyncManager';
 import { useLoading } from '../helpers';
 
 import * as C from '../constants';
@@ -57,6 +58,7 @@ function EncryptionPart() {
         }
       }
       dispatch(derivedAction);
+      registerSyncTask(credentials.credentials.email);
       navigation.navigate('App');
     });
   }

@@ -3,7 +3,7 @@ import { createSelector } from 'reselect';
 
 import * as store from '../store';
 
-const credentialsSelector = createSelector(
+export const credentialsSelector = createSelector(
   (state: store.StoreState) => state.credentials.credentials,
   (state: store.StoreState) => state.credentials.serviceApiUrl,
   (state: store.StoreState) => state.encryptionKey.key,

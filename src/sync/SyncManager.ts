@@ -1,4 +1,6 @@
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
 
 import * as EteSync from 'etesync';
 import { Action } from 'redux-actions';
@@ -6,7 +8,7 @@ import { Action } from 'redux-actions';
 const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData } from '../store';
+import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData, StoreState } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { logger } from '../logging';
@@ -17,6 +19,7 @@ import { SyncManagerTaskList } from './SyncManagerTaskList';
 
 import sjcl from 'sjcl';
 import * as Random from 'expo-random';
+import { credentialsSelector } from '../login';
 
 async function prngAddEntropy() {
   const entropyBits = 1024;
@@ -139,4 +142,40 @@ export class SyncManager {
       await syncManager.clearDeviceCollections();
     }
   }
+}
+
+const BACKGROUND_SYNC_TASK_NAME = 'SYNCMANAGER_SYNC';
+
+TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
+  try {
+    const beforeState = store.getState() as StoreState;
+    const etesync = credentialsSelector(beforeState);
+
+    if (!etesync) {
+      return BackgroundFetch.Result.Failed;
+    }
+
+    const syncManager = SyncManager.getManager(etesync);
+    await syncManager.fetchAllJournals();
+    const afterState = store.getState();
+
+    const receivedNewData =
+      (beforeState.cache.journals !== afterState.cache.journals) ||
+      (beforeState.cache.entries !== afterState.cache.entries) ||
+      (beforeState.cache.userInfo !== afterState.cache.userInfo);
+
+    return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
+  } catch (error) {
+    return BackgroundFetch.Result.Failed;
+  }
+});
+
+export function registerSyncTask(_username: string) {
+  return BackgroundFetch.registerTaskAsync(BACKGROUND_SYNC_TASK_NAME, {
+    minimumInterval: 4 * 60 * 60, // 4 hours
+  });
+}
+
+export function unregisterSyncTask(_username: string) {
+  return BackgroundFetch.unregisterTaskAsync(BACKGROUND_SYNC_TASK_NAME);
 }
