@@ -21,8 +21,7 @@ import sjcl from 'sjcl';
 import * as Random from 'expo-random';
 import { credentialsSelector } from '../login';
 
-async function prngAddEntropy() {
-  const entropyBits = 1024;
+async function prngAddEntropy(entropyBits = 1024) {
   const bytes = await Random.getRandomBytesAsync(entropyBits / 8);
   const buf = new Uint32Array(new Uint8Array(bytes).buffer);
   sjcl.random.addEntropy(buf as any, entropyBits, 'Random.getRandomBytesAsync');
@@ -70,6 +69,7 @@ export class SyncManager {
     let userInfo;
     if (!userInfoAction || userInfoAction.error || !userInfoAction.payload) {
       userInfo = new EteSync.UserInfo(me, CURRENT_VERSION);
+      await prngAddEntropy(4096); // Generating keypair needs a lot of entropy. Make sure to generate enough.
       const keyPair = EteSync.AsymmetricCryptoManager.generateKeyPair();
       const cryptoManager = userInfo.getCryptoManager(etesync.encryptionKey);
 
