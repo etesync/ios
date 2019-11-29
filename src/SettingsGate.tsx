@@ -27,7 +27,6 @@ export default React.memo(function SettingsGate(props: React.PropsWithChildren<{
 
   // Not really settings but the app's general state.
   React.useEffect(() => {
-    NetInfo.getConnectionInfo().then(handleConnectivityChange);
     NetInfo.addEventListener('connectionChange', handleConnectivityChange as any);
     return () => NetInfo.removeEventListener('connectionChange', handleConnectivityChange as any);
   }, []);
