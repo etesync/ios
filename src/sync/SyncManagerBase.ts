@@ -49,10 +49,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   protected etesync: CredentialsData;
   protected userInfo: EteSync.UserInfo;
   protected collectionType: string;
+  public canSync: boolean;
 
   constructor(etesync: CredentialsData, userInfo: EteSync.UserInfo) {
     this.etesync = etesync;
     this.userInfo = userInfo;
+    this.canSync = false;
   }
 
   public async init() {

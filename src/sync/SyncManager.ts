@@ -123,6 +123,9 @@ export class SyncManager {
       // FIXME: make the sync parallel
       for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
         await syncManager.init();
+        if (!syncManager.canSync) {
+          continue;
+        }
         await syncManager.sync();
       }
 
@@ -150,6 +153,9 @@ export class SyncManager {
 
     for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
       await syncManager.init();
+      if (!syncManager.canSync) {
+        continue;
+      }
       await syncManager.clearDeviceCollections();
     }
   }
