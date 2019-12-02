@@ -17,6 +17,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   private containerId: string;
 
   public async init() {
+    super.init();
     this.containerId = await Contacts.getDefaultContainerIdAsync();
   }
 

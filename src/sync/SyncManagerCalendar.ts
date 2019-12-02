@@ -22,7 +22,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
   protected localSource: Calendar.Source;
 
   public async init() {
-    // FIXME: handle source not found.
+    super.init();
     this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name.toLowerCase() === ACCOUNT_NAME))!;
   }
 
