@@ -46,9 +46,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   }
 
   const syncEntries = syncInfoEntries.get(journalUid)!;
-  const itemCount = syncStateEntries.has(journalUid) ?
-    syncStateEntries.get(journalUid)!.count() :
-    -1;
+  const itemCount = syncStateEntries.get(journalUid)?.count();
 
   function renderEntry(param: { item: EteSync.Entry }) {
     const syncEntry = syncEntries.get(param.item.uid)!;
@@ -103,7 +101,10 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       <Container style={{ flexDirection: 'row' }}>
         <View style={{ marginRight: 'auto' }}>
           <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
-          <Text>Items: {itemCount}, Entry items: {entries.count()}</Text>
+          <Text>
+            {itemCount && `Items: ${itemCount}, `}
+            Log entries: {entries.count()}
+          </Text>
         </View>
         {collectionColorBox}
       </Container>
