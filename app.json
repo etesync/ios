@@ -28,9 +28,9 @@
       "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
-          "NSContactsUsageDescription": "Access to your contacts is needed in order to compare your local contacts with your EteSync contacts.",
-          "NSCalendarsUsageDescription": "Access to your calendars is needed in order to compare your local calendars with your EteSync calendars.",
-          "NSRemindersUsageDescription": "Access to your reminders is needed in order to compare your local reminders with your EteSync reminders.",
+          "NSContactsUsageDescription": "Access to your contacts is needed in order to load and save EteSync contacts.",
+          "NSCalendarsUsageDescription": "Access to your calendars is needed in order to load and save EteSync calendars.",
+          "NSRemindersUsageDescription": "Access to your reminders is needed in order to load and save EteSync reminders.",
           "UIBackgroundModes": [
               "fetch"
           ]
