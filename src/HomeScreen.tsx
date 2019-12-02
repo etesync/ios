@@ -30,7 +30,7 @@ function usePermissions() {
       const { status } = await Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS);
       logger.info(`Permissions status: ${status}`);
       setHasPermissions(status === 'granted');
-      await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+      // await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
     })();
   }
 
