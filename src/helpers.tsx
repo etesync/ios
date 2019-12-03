@@ -1,4 +1,6 @@
 import * as React from 'react';
+import * as ICAL from 'ical.js';
+import moment from 'moment';
 
 export const defaultColor = '#8BC34A';
 
@@ -40,6 +42,57 @@ export function colorHtmlToInt(color?: string) {
   const a = (match[4]) ? parseInt(match[4], 16) : 0xFF;
 
   return (b | (g << 8) | (r << 16) | (a << 24)) >>> 0;
+}
+
+const allDayFormat = 'dddd, LL';
+const fullFormat = 'LLLL';
+
+export function formatDate(date: ICAL.Time) {
+  const mDate = moment(date.toJSDate());
+  if (date.isDate) {
+    return mDate.format(allDayFormat);
+  } else {
+    return mDate.format(fullFormat);
+  }
+}
+
+export function formatDateRange(start: ICAL.Time, end: ICAL.Time) {
+  const mStart = moment(start.toJSDate());
+  const mEnd = moment(end.toJSDate());
+  let strStart;
+  let strEnd;
+
+  // All day
+  if (start.isDate) {
+    if (mEnd.diff(mStart, 'days', true) === 1) {
+      return mStart.format(allDayFormat);
+    } else {
+      strStart = mStart.format(allDayFormat);
+      strEnd = mEnd.clone().subtract(1, 'day').format(allDayFormat);
+    }
+  } else if (mStart.isSame(mEnd, 'day')) {
+    strStart = mStart.format(fullFormat);
+    strEnd = mEnd.format('LT');
+
+    if (mStart.isSame(mEnd)) {
+      return strStart;
+    }
+  } else {
+    strStart = mStart.format(fullFormat);
+    strEnd = mEnd.format(fullFormat);
+  }
+
+  return strStart + ' - ' + strEnd;
+}
+
+export function formatOurTimezoneOffset() {
+  let offset = new Date().getTimezoneOffset();
+  const prefix = (offset > 0) ? '-' : '+';
+  offset = Math.abs(offset);
+  const hours = Math.floor(offset / 60);
+  const minutes = offset % 60;
+
+  return `GMT${prefix}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 }
 
 export function isPromise(x: any): x is Promise<any> {
