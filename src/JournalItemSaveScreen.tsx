@@ -78,6 +78,7 @@ async function saveTask(localId: string, content: string) {
 
 const JournalItemSaveScreen: NavigationScreenComponent = function _JournalItemSaveScreen() {
   const [deviceCollections, setDeviceCollections] = React.useState<ImportCollection[] | undefined>(undefined);
+  const permissions = useSelector((state: StoreState) => state.permissions);
   const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
   const syncInfoEntries = useSelector((state: StoreState) => state.cache.syncInfoItem);
@@ -92,6 +93,20 @@ const JournalItemSaveScreen: NavigationScreenComponent = function _JournalItemSa
   const collectionType = syncInfoCollections.get(journalUid)!.type;
   const entryUid = navigation.getParam('entryUid');
   const entry = syncInfoEntries.get(journalUid)!.get(entryUid)!;
+
+  if (!permissions.get(collectionType)) {
+    return (
+      <ConfirmationDialog
+        title="Permision Denied"
+        visible
+        onOk={() => {
+          navigation.goBack();
+        }}
+      >
+        <Paragraph>Please give the app the appropriate permissions from the system's Settings app.</Paragraph>
+      </ConfirmationDialog>
+    );
+  }
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let saveItem: typeof saveEvent;

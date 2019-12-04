@@ -105,6 +105,7 @@ async function tasksImport(localId: string, toLocalId: string) {
 const JournalImportScreen: NavigationScreenComponent = function _JournalImportScreen() {
   const [deviceCollections, setDeviceCollections] = React.useState<ImportCollection[] | undefined>(undefined);
   const [selectedCollection, setSelectedCollection] = React.useState<ImportCollection | null>(null);
+  const permissions = useSelector((state: StoreState) => state.permissions);
   const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
   const syncGate = useSyncGate();
@@ -117,6 +118,20 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
 
   const journalUid = navigation.getParam('journalUid');
   const collectionType = syncInfoCollections.get(journalUid)!.type;
+
+  if (!permissions.get(collectionType)) {
+    return (
+      <ConfirmationDialog
+        title="Permision Denied"
+        visible
+        onOk={() => {
+          navigation.goBack();
+        }}
+      >
+        <Paragraph>Please give the app the appropriate permissions from the system's Settings app.</Paragraph>
+      </ConfirmationDialog>
+    );
+  }
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let importCollection: typeof eventsImport;
