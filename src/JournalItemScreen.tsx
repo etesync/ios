@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
 import { StyleSheet } from 'react-native';
-import { Text, FAB } from 'react-native-paper';
+import { Text, FAB, Appbar } from 'react-native-paper';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
@@ -81,8 +81,22 @@ const styles = StyleSheet.create({
   },
 });
 
+function RightAction() {
+  const navigation = useNavigation();
+
+  const journalUid = navigation.getParam('journalUid');
+  const entryUid = navigation.getParam('entryUid');
+
+  return (
+    <Appbar.Action icon="export" onPress={() => { navigation.navigate('JournalItemSave', { journalUid, entryUid }) }} />
+  );
+}
+
 JournalItemScreen.navigationOptions = {
   title: 'Journal Item',
+  rightAction: (
+    <RightAction />
+  ),
 };
 
 export default JournalItemScreen;
