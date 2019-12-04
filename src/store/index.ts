@@ -47,7 +47,7 @@ if (__DEV__) {
     predicate,
     logger,
     stateTransformer: () => 'state',
-    actionTransformer: ({ type, error, payload }) => ({ type, error, payload: !!payload }),
+    actionTransformer: ({ type, error, payload }) => ({ type, error, payload: (payload !== undefined) }),
     titleFormatter: (action: { type: string, error: any, payload: boolean }, time: string, took: number) => {
       let prefix = '->';
       if (action.error) {
