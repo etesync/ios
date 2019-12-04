@@ -67,7 +67,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
   protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
     const localSource = this.localSource;
 
-    Calendar.updateCalendarAsync(containerLocalId, {
+    await Calendar.updateCalendarAsync(containerLocalId, {
       sourceId: localSource.id,
       title: collection.displayName,
       color: colorIntToHtml(collection.color),
