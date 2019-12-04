@@ -392,6 +392,15 @@ export const connectionReducer = handleActions(
   null
 );
 
+export const permissionsReducer = handleActions(
+  {
+    [actions.setPermission.toString()]: (state: ImmutableMap<string, boolean>, action: ActionMeta<boolean, string>) => {
+      return state.set(action.meta, action.payload);
+    },
+  },
+  ImmutableMap({})
+);
+
 export const syncCount = handleAction(
   actions.performSync,
   (state: number, action: any) => {

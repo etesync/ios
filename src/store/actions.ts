@@ -1,4 +1,5 @@
 import { Action, createAction } from 'redux-actions';
+import * as Permissions from 'expo-permissions';
 
 import * as EteSync from 'etesync';
 import { UserInfo } from 'etesync';
@@ -262,6 +263,21 @@ export const setConnectionInfo = createAction(
   'SET_CONNECTION_INFO',
   (connectionInfo: ConnectionInfo) => {
     return { ...connectionInfo };
+  }
+);
+
+export const setPermission = createAction(
+  'SET_PERMISSION',
+  (_type: string, value: boolean) => {
+    return value;
+  },
+  (type: string, _value: boolean) => {
+    const mapping = {
+      [Permissions.CALENDAR]: 'CALENDAR',
+      [Permissions.REMINDERS]: 'TASKS',
+      [Permissions.CONTACTS]: 'ADDRESS_BOOK',
+    };
+    return mapping[type] ?? type;
   }
 );
 

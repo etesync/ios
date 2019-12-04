@@ -12,7 +12,7 @@ import LoadingIndicator from './widgets/LoadingIndicator';
 import Container from './widgets/Container';
 
 import { StoreState } from './store';
-import { performSync } from './store/actions';
+import { performSync, setPermission } from './store/actions';
 
 import { useCredentials } from './login';
 import { useSyncGate } from './SyncGate';
@@ -22,15 +22,25 @@ import { logger } from './logging';
 
 function usePermissions() {
   const wantedPermissions: Permissions.PermissionType[] = [Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS];
+  const dispatch = useDispatch();
   const [shouldAsk, setShouldAsk] = React.useState<null | boolean>(null);
   const [asked, setAsked] = React.useState(false);
 
   if (!asked) {
     setAsked(true);
     (async () => {
-      const { status } = await Permissions.getAsync(...wantedPermissions);
-      logger.info(`Permissions status: ${status}`);
-      setShouldAsk(status === Permissions.PermissionStatus.UNDETERMINED);
+      for (const permission of wantedPermissions) {
+        const { status } = await Permissions.getAsync(permission);
+        logger.info(`Permissions status for ${permission}: ${status}`);
+        if (status === Permissions.PermissionStatus.UNDETERMINED) {
+          setShouldAsk(true);
+          return;
+        } else {
+          dispatch(setPermission(permission, status === Permissions.PermissionStatus.GRANTED));
+        }
+      }
+
+      setShouldAsk(false);
     })();
   }
 
@@ -42,8 +52,15 @@ function usePermissions() {
         <Title>Permissions</Title>
         <Paragraph>EteSync requires access to your contacts, calendars and reminders in order to be able save them to your device. You can either give EteSync access now or do it later from the device Settings.</Paragraph>
         <Button mode="contained" style={{ marginTop: 20 }} onPress={() => {
-          Permissions.askAsync(...wantedPermissions).finally(() => setShouldAsk(false));
-          // await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+          (async () => {
+            for (const permission of wantedPermissions) {
+              const { status } = await Permissions.askAsync(permission);
+              logger.info(`Permissions status for ${permission}: ${status}`);
+              dispatch(setPermission(permission, status === Permissions.PermissionStatus.GRANTED));
+            }
+            setShouldAsk(false);
+            // await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+          })();
         }}>
           Ask for Permissions
         </Button>
