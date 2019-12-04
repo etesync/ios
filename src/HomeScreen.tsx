@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
-import { Appbar, Text } from 'react-native-paper';
+import { Appbar, Button, Paragraph, Title } from 'react-native-paper';
 
 import * as Permissions from 'expo-permissions';
 
@@ -21,24 +21,34 @@ import { logger } from './logging';
 
 
 function usePermissions() {
-  const [hasPermissions, setHasPermissions] = React.useState<null | boolean>(null);
+  const wantedPermissions: Permissions.PermissionType[] = [Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS];
+  const [shouldAsk, setShouldAsk] = React.useState<null | boolean>(null);
   const [asked, setAsked] = React.useState(false);
 
   if (!asked) {
     setAsked(true);
     (async () => {
-      const { status } = await Permissions.askAsync(Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS);
+      const { status } = await Permissions.getAsync(...wantedPermissions);
       logger.info(`Permissions status: ${status}`);
-      setHasPermissions(status === 'granted');
-      // await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+      setShouldAsk(status === Permissions.PermissionStatus.UNDETERMINED);
     })();
   }
 
-  if (hasPermissions === null) {
+  if (shouldAsk === null) {
     return (<LoadingIndicator />);
-  } else if (hasPermissions === false) {
-    // FIXME: show an error message + a button to give permissions
-    return (<Text>Please give this app permissions to access your contacts, calendars and tasks from the system settings app.</Text>);
+  } else if (shouldAsk) {
+    return (
+      <Container style={{ flex: 1 }}>
+        <Title>Permissions</Title>
+        <Paragraph>EteSync requires access to your contacts, calendars and reminders in order to be able save them to your device. You can either give EteSync access now or do it later from the device Settings.</Paragraph>
+        <Button mode="contained" style={{ marginTop: 20 }} onPress={() => {
+          Permissions.askAsync(...wantedPermissions).finally(() => setShouldAsk(false));
+          // await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+        }}>
+          Ask for Permissions
+        </Button>
+      </Container>
+    );
   } else {
     return null;
   }
@@ -58,11 +68,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   }, [etesync]);
 
   if (permissionsStatus) {
-    return (
-      <Container>
-        {permissionsStatus}
-      </Container>
-    );
+    return permissionsStatus;
   }
 
   if (SyncGate) {
