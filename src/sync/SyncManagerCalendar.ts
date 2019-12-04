@@ -23,8 +23,12 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
   public async init() {
     super.init();
-    this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name.toLowerCase() === ACCOUNT_NAME))!;
-    this.canSync = !!this.localSource;
+    const storeState = store.getState();
+    if (storeState.permissions.get(this.collectionType)) {
+      this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name.toLowerCase() === ACCOUNT_NAME))!;
+      this.canSync = !!this.localSource;
+    }
+
     if (!this.canSync) {
       logger.info(`Could not find local account for ${this.collectionType}`);
     }

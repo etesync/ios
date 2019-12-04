@@ -18,8 +18,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
   public async init() {
     super.init();
-    this.containerId = await Contacts.getDefaultContainerIdAsync();
-    this.canSync = !!this.containerId;
+    const storeState = store.getState();
+    if (storeState.permissions.get(this.collectionType)) {
+      this.containerId = await Contacts.getDefaultContainerIdAsync();
+      this.canSync = !!this.containerId;
+    }
+
     if (!this.canSync) {
       logger.info(`Could not find local account for ${this.collectionType}`);
     }
