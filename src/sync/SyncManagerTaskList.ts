@@ -1,6 +1,7 @@
 import * as EteSync from 'etesync';
 import * as ICAL from 'ical.js';
 import * as Calendar from 'expo-calendar';
+import * as Permissions from 'expo-permissions';
 
 import { logger } from '../logging';
 
@@ -15,6 +16,10 @@ import { PushEntry } from './SyncManagerBase';
 export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
   protected collectionType = 'TASKS';
   protected entityType = Calendar.EntityTypes.REMINDER;
+
+  protected async hasPermission() {
+    return (await Permissions.getAsync(Permissions.REMINDERS)).status === Permissions.PermissionStatus.GRANTED;
+  }
 
   protected async syncPush() {
     const storeState = store.getState();

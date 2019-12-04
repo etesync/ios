@@ -1,6 +1,7 @@
 import * as EteSync from 'etesync';
 import * as ICAL from 'ical.js';
 import * as Contacts from 'expo-contacts';
+import * as Permissions from 'expo-permissions';
 
 import { logger } from '../logging';
 
@@ -18,11 +19,18 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
   public async init() {
     super.init();
-    this.containerId = await Contacts.getDefaultContainerIdAsync();
-    this.canSync = !!this.containerId;
+    if (await this.hasPermission()) {
+      this.containerId = await Contacts.getDefaultContainerIdAsync();
+      this.canSync = !!this.containerId;
+    }
+
     if (!this.canSync) {
       logger.info(`Could not find local account for ${this.collectionType}`);
     }
+  }
+
+  protected async hasPermission() {
+    return (await Permissions.getAsync(Permissions.CONTACTS)).status === Permissions.PermissionStatus.GRANTED;
   }
 
   public async clearDeviceCollections() {

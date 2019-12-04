@@ -1,6 +1,7 @@
 import * as EteSync from 'etesync';
 import * as ICAL from 'ical.js';
 import * as Calendar from 'expo-calendar';
+import * as Permissions from 'expo-permissions';
 
 import { logger } from '../logging';
 
@@ -23,11 +24,18 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
   public async init() {
     super.init();
-    this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name.toLowerCase() === ACCOUNT_NAME))!;
-    this.canSync = !!this.localSource;
+    if (await this.hasPermission()) {
+      this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source.name.toLowerCase() === ACCOUNT_NAME))!;
+      this.canSync = !!this.localSource;
+    }
+
     if (!this.canSync) {
       logger.info(`Could not find local account for ${this.collectionType}`);
     }
+  }
+
+  protected async hasPermission() {
+    return (await Permissions.getAsync(Permissions.CALENDAR)).status === Permissions.PermissionStatus.GRANTED;
   }
 
   public async clearDeviceCollections() {

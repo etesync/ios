@@ -302,6 +302,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     return null;
   }
 
+  protected abstract async hasPermission(): Promise<boolean>;
   protected abstract async createJournal(collection: EteSync.CollectionInfo): Promise<string>;
   protected abstract async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
