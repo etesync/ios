@@ -16,7 +16,6 @@ import { SyncManagerBase, PushEntry } from './SyncManagerBase';
 const ACCOUNT_NAME = 'etesync';
 
 export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
-  protected abstract collectionType: string;
   protected abstract entityType: string;
 
   protected localSource: Calendar.Source;
