@@ -8,6 +8,7 @@ import { Headline, Subheading, Paragraph, Text } from 'react-native-paper';
 import { NavigationScreenComponent } from 'react-navigation';
 
 import * as EteSync from 'etesync';
+import sjcl from 'sjcl';
 
 import ScrollView from '../widgets/ScrollView';
 import Container from '../widgets/Container';
@@ -15,19 +16,56 @@ import LoadingIndicator from '../widgets/LoadingIndicator';
 import ErrorOrLoadingDialog from '../widgets/ErrorOrLoadingDialog';
 import LoginForm from '../components/LoginForm';
 import EncryptionLoginForm from '../components/EncryptionLoginForm';
+import WebviewKeygen from '../components/WebviewKeygen';
 
 import { store, StoreState } from '../store';
 
-import { fetchUserInfo, deriveKey, fetchCredentials } from '../store/actions';
+import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo } from '../store/actions';
 import { registerSyncTask } from '../sync/SyncManager';
-import { useLoading } from '../helpers';
+import { useLoading, startTask } from '../helpers';
 
 import * as C from '../constants';
 
+function b64ToBa(b64: string) {
+  return sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(b64));
+}
+
+interface KeyGenPropsType {
+  derived: string;
+  onFinish: () => void;
+}
+
+function KeyGen(props: KeyGenPropsType) {
+  const credentials = useSelector((state: StoreState) => state.credentials)!;
+  const derived = props.derived;
+
+  return (
+    <>
+      <LoadingIndicator />
+      <WebviewKeygen
+        onFinish={async (keys) => {
+          if (keys.error) {
+            throw new Error(keys.error);
+          } else {
+            const userInfo = new EteSync.UserInfo(credentials.credentials.email, EteSync.CURRENT_VERSION);
+            const keyPair = new EteSync.AsymmetricKeyPair(b64ToBa(keys.publicKey), b64ToBa(keys.privateKey));
+            const cryptoManager = userInfo.getCryptoManager(derived);
+
+            userInfo.setKeyPair(cryptoManager, keyPair);
+
+            await store.dispatch(createUserInfo({ ...credentials, encryptionKey: derived }, userInfo));
+            props.onFinish();
+          }
+        }}
+      />
+    </>
+  );
+}
 
 function EncryptionPart() {
   const credentials = useSelector((state: StoreState) => state.credentials)!;
   const [fetched, setFetched] = React.useState(false);
+  const [derived, setDerived] = React.useState<Action<string>>();
   const [userInfo, setUserInfo] = React.useState<EteSync.UserInfo>();
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -46,9 +84,25 @@ function EncryptionPart() {
     return <LoadingIndicator />;
   }
 
+  if (derived) {
+    const done = () => {
+      dispatch(derived);
+      navigation.navigate('App');
+    };
+
+    if (userInfo) {
+      startTask(done);
+      return <React.Fragment />;
+    } else {
+      return (
+        <KeyGen derived={derived.payload} onFinish={done} />
+      );
+    }
+  }
+
   function onEncryptionFormSubmit(encryptionPassword: string) {
     setPromise(async () => {
-      const derivedAction = await deriveKey(credentials.credentials.email, encryptionPassword);
+      const derivedAction = deriveKey(credentials.credentials.email, encryptionPassword);
       if (userInfo) {
         const userInfoCryptoManager = userInfo.getCryptoManager(await derivedAction.payload);
         try {
@@ -57,9 +111,9 @@ function EncryptionPart() {
           throw new EteSync.EncryptionPasswordError('Wrong encryption password');
         }
       }
-      dispatch(derivedAction);
+
+      setDerived({ ...derivedAction, payload: await derivedAction.payload } as any);
       registerSyncTask(credentials.credentials.email);
-      navigation.navigate('App');
     });
   }
 
