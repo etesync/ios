@@ -8,6 +8,7 @@ import { store, persistor, CredentialsData, SyncStateJournal, SyncStateJournalEn
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
 import { NativeBase } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
+import { arrayToChunkIterator } from '../helpers';
 
 export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
@@ -15,12 +16,6 @@ export const CHUNK_PUSH = 30;
 export interface PushEntry {
   syncEntry: EteSync.SyncEntry;
   syncStateEntry: SyncStateEntry;
-}
-
-function* arrayToChunkIterator<T extends any[]>(arr: T, size: number) {
-  for (let i = 0 ; i < arr.length ; i += size) {
-    yield arr.slice(i, i + size);
-  }
 }
 
 function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | null) {

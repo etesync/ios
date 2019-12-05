@@ -95,6 +95,12 @@ export function formatOurTimezoneOffset() {
   return `GMT${prefix}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 }
 
+export function* arrayToChunkIterator<T extends any[]>(arr: T, size: number) {
+  for (let i = 0 ; i < arr.length ; i += size) {
+    yield arr.slice(i, i + size);
+  }
+}
+
 export function isPromise(x: any): x is Promise<any> {
   return x && typeof x.then === 'function';
 }
