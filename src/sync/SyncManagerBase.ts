@@ -24,10 +24,7 @@ function* arrayToChunkIterator<T extends any[]>(arr: T, size: number) {
 }
 
 function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | null) {
-  if (lastUid) {
-    syncStateJournal.lastSyncUid = lastUid;
-  }
-  store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
+  store.dispatch(setSyncStateJournal(etesync, { ...syncStateJournal, lastSyncUid: lastUid }));
 
   persistor.persist();
 }
