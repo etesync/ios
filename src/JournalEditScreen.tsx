@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useNavigation } from './navigation/Hooks';
-import { View, TextInput as NativeTextInput } from 'react-native';
+import { TextInput as NativeTextInput } from 'react-native';
 import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
 
 import { SyncManager } from './sync/SyncManager';
@@ -19,7 +19,7 @@ import ErrorOrLoadingDialog from './widgets/ErrorOrLoadingDialog';
 import * as EteSync from 'etesync';
 import { useLoading, colorHtmlToInt, colorIntToHtml, defaultColor } from './helpers';
 
-import ColorBox from './widgets/ColorBox';
+import ColorPicker from './widgets/ColorPicker';
 
 interface FormErrors {
   displayName?: string;
@@ -111,7 +111,6 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   }
 
   const descriptionRef = React.createRef<NativeTextInput>();
-  const colorRef = React.createRef<NativeTextInput>();
 
   let collectionColorBox: React.ReactNode;
   switch (journalType) {
@@ -119,18 +118,12 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
     case 'TASKS':
       collectionColorBox = (
         <>
-          <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row' }}>
-            <ColorBox size={36} color={(color && colorHtmlToInt(color)) ? color : defaultColor} />
-            <TextInput
-              ref={colorRef}
-              style={{ marginLeft: 10, flex: 1 }}
-              error={!!errors.color}
-              onChangeText={setColor}
-              placeholder="E.g. #aabbcc"
-              label="Color (optional)"
-              value={color}
-            />
-          </View>
+          <ColorPicker
+            error={!!errors.color}
+            defaultColor={defaultColor}
+            color={color}
+            onChange={setColor}
+          />
           <HelperText
             type="error"
             visible={!!errors.color}
@@ -168,8 +161,6 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
 
         <TextInput
           ref={descriptionRef}
-          returnKeyType={(collectionColorBox) ? 'next' : undefined}
-          onSubmitEditing={(collectionColorBox) ? () => colorRef.current!.focus() : undefined}
           onChangeText={setDescription}
           label="Description (optional)"
           value={description}
