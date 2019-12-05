@@ -236,11 +236,13 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
         {loggedIn && (
           <List.Section>
             <List.Subheader>Account</List.Subheader>
-            <List.Item
-              title="Account Dashboard"
-              description="Change your payment info, plan and other account settings"
-              onPress={() => { Linking.openURL(C.dashboard) }}
-            />
+            {!C.genericMode &&
+              <List.Item
+                title="Account Dashboard"
+                description="Change your payment info, plan and other account settings"
+                onPress={() => { Linking.openURL(C.dashboard) }}
+              />
+            }
             <List.Item
               title="Authentication Password"
               description="Use a different authentication password"

@@ -30,11 +30,6 @@ const menuItems = [
 
 const externalMenuItems = [
   {
-    title: 'Web site',
-    link: C.homePage,
-    icon: 'home',
-  },
-  {
     title: 'FAQ',
     link: C.faq,
     icon: 'forum',
@@ -50,6 +45,16 @@ const externalMenuItems = [
     icon: 'email',
   },
 ];
+
+if (!C.genericMode) {
+  externalMenuItems.unshift(
+    {
+      title: 'Web site',
+      link: C.homePage,
+      icon: 'home',
+    }
+  );
+}
 
 function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);

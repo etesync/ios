@@ -89,30 +89,28 @@ class LoginForm extends React.PureComponent {
   }
 
   public render() {
-    let advancedSettings = null;
-    if (this.state.showAdvanced) {
-      advancedSettings = (
-        <>
-          <TextInput
-            keyboardType="url"
-            textContentType="URL"
-            autoCapitalize="none"
-            autoCorrect={false}
-            error={!!this.state.errors.errorServer}
-            label="Custom Server"
-            value={this.state.server}
-            onChangeText={this.handleInputChange('server')}
-            ref={this.formRefs[2]}
-          />
-          <HelperText
-            type="error"
-            visible={!!this.state.errors.errorServer}
-          >
-            {this.state.errors.errorServer}
-          </HelperText>
-        </>
-      );
-    }
+    const advancedSettings = (
+      <>
+        <TextInput
+          keyboardType="url"
+          textContentType="URL"
+          autoCapitalize="none"
+          autoCorrect={false}
+          error={!!this.state.errors.errorServer}
+          label="Server URL"
+          value={this.state.server}
+          placeholder="E.g. https://etesync.example.com"
+          onChangeText={this.handleInputChange('server')}
+          ref={this.formRefs[2]}
+        />
+        <HelperText
+          type="error"
+          visible={!!this.state.errors.errorServer}
+        >
+          {this.state.errors.errorServer}
+        </HelperText>
+      </>
+    );
 
     return (
       <>
@@ -152,26 +150,30 @@ class LoginForm extends React.PureComponent {
           >
             {this.state.errors.errorPassword}
           </HelperText>
-          <ExternalLink href={C.forgotPassword}>
-            <Text>Forget password?</Text>
-          </ExternalLink>
+          {!C.genericMode && (
+            <>
+              <ExternalLink href={C.forgotPassword}>
+                <Text>Forget password?</Text>
+              </ExternalLink>
 
-          <TouchableRipple
-            onPress={() =>
-              this.setState((state: any) => ({
-                showAdvanced: !state.showAdvanced,
-              }))
-            }
-          >
-            <Row style={{ paddingVertical: 8, justifyContent: 'space-between' }}>
-              <Paragraph>Advanced settings</Paragraph>
-              <View pointerEvents="none">
-                <Switch value={this.state.showAdvanced} />
-              </View>
-            </Row>
-          </TouchableRipple>
+              <TouchableRipple
+                onPress={() =>
+                  this.setState((state: any) => ({
+                    showAdvanced: !state.showAdvanced,
+                  }))
+                }
+              >
+                <Row style={{ paddingVertical: 8, justifyContent: 'space-between' }}>
+                  <Paragraph>Advanced settings</Paragraph>
+                  <View pointerEvents="none">
+                    <Switch value={this.state.showAdvanced} />
+                  </View>
+                </Row>
+              </TouchableRipple>
+            </>
+          )}
 
-          {advancedSettings}
+          {(C.genericMode || this.state.showAdvanced) && advancedSettings}
           <HelperText
             type="error"
             visible={false}
