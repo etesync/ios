@@ -165,6 +165,7 @@ const BACKGROUND_SYNC_TASK_NAME = 'SYNCMANAGER_SYNC';
 
 TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
   try {
+    // FIXME: need to get the persistor to load first...
     const beforeState = store.getState() as StoreState;
     const etesync = credentialsSelector(beforeState);
 
