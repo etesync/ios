@@ -123,6 +123,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
 
 function RightAction() {
   const [showMenu, setShowMenu] = React.useState(false);
+  const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
   const navigation = useNavigation();
 
   const journalUid = navigation.getParam('journalUid');
@@ -137,7 +138,9 @@ function RightAction() {
     >
       <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="pencil" title="Edit" />
       <Menu.Item onPress={() => navigation.navigate('JournalMembers', { journalUid })} icon="account-multiple" title="Members" />
-      <Menu.Item onPress={() => navigation.navigate('JournalImport', { journalUid })} icon="import" title="Import" />
+      {syncStateJournals.has(journalUid) &&
+        <Menu.Item onPress={() => navigation.navigate('JournalImport', { journalUid })} icon="import" title="Import" />
+      }
     </Menu>
   );
 }

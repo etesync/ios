@@ -16,6 +16,7 @@ import Container from './widgets/Container';
 import ColorBox from './widgets/ColorBox';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
+import ErrorDialog from './widgets/ErrorDialog';
 
 interface ImportCollection {
   id: string;
@@ -151,15 +152,13 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
     }
     default: {
       return (
-        <ConfirmationDialog
+        <ErrorDialog
           title="Not Supported"
-          visible
+          error="Importing this collection type is not currently supported."
           onOk={() => {
             navigation.goBack();
           }}
-        >
-          <Paragraph>Importing this collection type is not currently supported.</Paragraph>
-        </ConfirmationDialog>
+        />
       );
     }
   }
@@ -169,7 +168,18 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
     return (<LoadingIndicator />);
   }
 
-  const syncStateJournal = syncStateJournals.get(journalUid)!;
+  const syncStateJournal = syncStateJournals.get(journalUid);
+
+  if (!syncStateJournal) {
+    return (
+      <ErrorDialog
+        error="Could not find local collection to import to. Please contact developers."
+        onOk={() => {
+          navigation.goBack();
+        }}
+      />
+    );
+  }
 
   return (
     <React.Fragment>
