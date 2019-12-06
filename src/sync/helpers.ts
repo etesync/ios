@@ -307,6 +307,15 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
+  const instantMessageAddresses = contactFieldToNative<Contacts.InstantMessageAddress>(contact, 'impp', (fieldType: string, value: string) => {
+    return {
+      username: value,
+      id: value,
+      label: fieldType,
+      service: fieldType,
+    };
+  });
+
   const birthdays: Contacts.Date[] = contactFieldToNative<Contacts.Date>(contact, 'bday', (_fieldType: string, value: ICAL.Time) => {
     const date = value.toJSDate();
     return {
@@ -323,7 +332,7 @@ export function contactVobjectToNative(contact: ContactType) {
     return value;
   });
 
-  const titles: string[] = contactFieldToNative<string>(contact, 'note', (_fieldType: string, value: string) => {
+  const titles: string[] = contactFieldToNative<string>(contact, 'title', (_fieldType: string, value: string) => {
     return value;
   });
   const jobTitle = titles.length > 0 ? titles[0] : undefined;
@@ -341,6 +350,7 @@ export function contactVobjectToNative(contact: ContactType) {
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
     phoneNumbers,
     emails,
+    instantMessageAddresses,
   };
 
   const nField = contact.comp.getFirstProperty('n');
@@ -363,6 +373,19 @@ export function contactVobjectToNative(contact: ContactType) {
   return ret;
 }
 
+function addProperty(comp: ICAL.Component, fieldName: string, subType: string | null, value: string | string[]) {
+  const prop = new ICAL.Property(fieldName, comp);
+  if (subType) {
+    prop.setParameter('type', subType);
+  }
+  if (typeof value === 'string') {
+    prop.setValue(value);
+  } else {
+    prop.setValues(value);
+  }
+  comp.addProperty(prop);
+}
+
 export function contactNativeToVobject(contact: NativeContact): ContactType {
   const ret = new ContactType(new ICAL.Component(['vcard', [], []]));
 
@@ -373,6 +396,58 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   comp.updatePropertyWithValue('rev', ICAL.Time.now());
   if (contact.name) {
     comp.updatePropertyWithValue('fn', contact.name);
+  }
+  const name = [contact.lastName, contact.firstName, contact.middleName, contact.namePrefix, contact.nameSuffix];
+  if (name.some((x) => !!x)) {
+    addProperty(comp, 'n', null, name.map((x) => x ?? ''));
+  }
+  if (contact.nickname) {
+    comp.updatePropertyWithValue('nickname', contact.nickname);
+  }
+  if (contact.phoneNumbers) {
+    for (const phoneNumber of contact.phoneNumbers) {
+      addProperty(comp, 'tel', phoneNumber.label, phoneNumber.number!);
+    }
+  }
+  if (contact.emails) {
+    for (const email of contact.emails) {
+      addProperty(comp, 'email', email.label, email.email!);
+    }
+  }
+  if (contact.instantMessageAddresses) {
+    for (const impp of contact.instantMessageAddresses) {
+      addProperty(comp, 'impp', impp.label, impp.username!);
+    }
+  }
+  if (contact.birthday) {
+    let bday = '';
+    bday += (contact.birthday.year) ? contact.birthday.year.toString().padStart(2, '0') : '--';
+    if (contact.birthday.month) {
+      bday += contact.birthday.month.toString().padStart(2, '0');
+    }
+    if (contact.birthday.day) {
+      bday += contact.birthday.day.toString().padStart(2, '0');
+    }
+    comp.updatePropertyWithValue('bday', bday);
+  }
+
+  if (contact.addresses) {
+    /* FIXME: implement
+    for (const address of contact.addresses) {
+      addProperty(comp, 'adr', address.label, address.);
+    }
+    */
+  }
+  if (contact.jobTitle) {
+    comp.updatePropertyWithValue('title', contact.jobTitle);
+  }
+  const org = [contact.company, contact.department, ''];
+  if (org.some((x) => !!x)) {
+    addProperty(comp, 'org', null, org.map((x) => x ?? ''));
+  }
+
+  if (contact.note) {
+    comp.updatePropertyWithValue('note', contact.note);
   }
 
   return ret;

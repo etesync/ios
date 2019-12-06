@@ -60,6 +60,7 @@ declare module 'ical.js' {
 
     public setParameter(name: string, value: string | string[]): void;
     public setValue(value: string | object): void;
+    public setValues(values: (string | object)[]): void;
     public toJSON(): any;
   }
 
