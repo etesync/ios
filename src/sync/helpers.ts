@@ -76,12 +76,12 @@ function alarmVobjectToNative(alarm: ICAL.Component) {
 }
 
 function rruleVobjectToNative(event: EventType) {
-  const rrule = event.component.getFirstPropertyValue('rrule');
+  const rrule = event.component.getFirstPropertyValue<ICAL.Recur>('rrule');
   if (!rrule) {
     return undefined;
   }
 
-  const frequency = Calendar.Frequency[rrule.freq];
+  const frequency = rrule.freq && Calendar.Frequency[rrule.freq];
   if (!frequency) {
     return undefined;
   }

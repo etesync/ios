@@ -17,7 +17,7 @@ declare module 'ical.js' {
     public getFirstSubcomponent(name?: string): Component | null;
     public getAllSubcomponents(name?: string): Component[];
 
-    public getFirstPropertyValue(name?: string): any;
+    public getFirstPropertyValue<T = any>(name?: string): T;
 
     public getFirstProperty(name?: string): Property;
     public getAllProperties(name?: string): Property[];
@@ -55,8 +55,8 @@ declare module 'ical.js' {
 
     constructor(jCal: any[] | string, parent?: Component);
 
-    public getFirstValue(): any;
-    public getValues(): any[];
+    public getFirstValue<T = any>(): T;
+    public getValues<T = any>(): T[];
 
     public setParameter(name: string, value: string | string[]): void;
     public setValue(value: string | object): void;
