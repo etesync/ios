@@ -4,7 +4,7 @@
     "description": "Secure, end-to-end encrypted, and privacy respecting sync for your contacts, calendars and tasks.",
     "slug": "etesync-ios",
     "privacy": "public",
-    "sdkVersion": "35.0.0",
+    "sdkVersion": "36.0.0",
     "platforms": [
       "ios"
     ],
@@ -28,12 +28,12 @@
       "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
-          "NSContactsUsageDescription": "Access to your contacts is needed in order to load and save EteSync contacts.",
-          "NSCalendarsUsageDescription": "Access to your calendars is needed in order to load and save EteSync calendars.",
-          "NSRemindersUsageDescription": "Access to your reminders is needed in order to load and save EteSync reminders.",
-          "UIBackgroundModes": [
-              "fetch"
-          ]
+        "NSContactsUsageDescription": "Access to your contacts is needed in order to load and save EteSync contacts.",
+        "NSCalendarsUsageDescription": "Access to your calendars is needed in order to load and save EteSync calendars.",
+        "NSRemindersUsageDescription": "Access to your reminders is needed in order to load and save EteSync reminders.",
+        "UIBackgroundModes": [
+          "fetch"
+        ]
       }
     }
   }
