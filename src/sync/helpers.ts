@@ -85,12 +85,28 @@ function rruleVobjectToNative(event: EventType) {
   if (!frequency) {
     return undefined;
   }
-
+  let daysOfTheWeek;
+  if (rrule.byday) {
+    daysOfTheWeek = rrule.byday.map((x) => {
+      const weekNo = x.slice(0, -2);
+      const day = x.slice(-2);
+      return {
+        dayOfTheWeek: ICAL.Recur[day],
+        weekNumber: (weekNo) ? parseInt(weekNo) : undefined,
+      };
+    });
+  }
   const ret: Calendar.RecurrenceRule = {
     frequency,
     interval: rrule.interval || undefined,
     endDate: timeVobjectToNative(rrule.until)?.toISOString(),
     occurrence: rrule.count || undefined,
+    daysOfTheWeek,
+    daysOfTheMonth: rrule.bymonthday,
+    daysOfTheYear: rrule.byyearday,
+    weeksOfTheYear: rrule.byweekno,
+    monthsOfTheYear: rrule.bymonth,
+    setPositions: rrule.bysetpos,
   };
 
   return ret;
@@ -184,6 +200,30 @@ function rruleNativeToVobject(rrule: Calendar.RecurrenceRule) {
   }
   if (rrule.occurrence) {
     value.count = rrule.occurrence;
+  }
+  if (rrule.daysOfTheWeek) {
+    value.byday = rrule.daysOfTheWeek.map((x) => {
+      let weekNo = '';
+      if (x.weekNumber) {
+        weekNo = `${(x.weekNumber > 0) ? '+' : '-'}${Math.abs(x.weekNumber)}`;
+      }
+      return weekNo + ICAL.WeekDay[x.dayOfTheWeek];
+    });
+  }
+  if (rrule.daysOfTheMonth) {
+    value.bymonthday = rrule.daysOfTheMonth;
+  }
+  if (rrule.daysOfTheYear) {
+    value.byyearday = rrule.daysOfTheYear;
+  }
+  if (rrule.weeksOfTheYear) {
+    value.byweekno = rrule.weeksOfTheYear;
+  }
+  if (rrule.monthsOfTheYear) {
+    value.bymonth = rrule.monthsOfTheYear;
+  }
+  if (rrule.setPositions) {
+    value.bysetpos = rrule.setPositions;
   }
 
   return value;

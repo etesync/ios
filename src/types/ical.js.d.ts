@@ -147,13 +147,13 @@ declare module 'ical.js' {
   export type FrequencyValues = 'YEARLY' | 'MONTHLY' | 'WEEKLY' | 'DAILY' | 'HOURLY' | 'MINUTELY' | 'SECONDLY';
 
   export enum WeekDay {
-    SUNDAY = 1,
-    MONDAY,
-    TUESDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-    SATURDAY,
+    SU = 1,
+    MO,
+    TU,
+    WE,
+    TH,
+    FR,
+    SA,
   }
 
   export class Recur {
@@ -165,7 +165,7 @@ declare module 'ical.js' {
     public bysecond?: number[];
     public byminute?: number[];
     public byhour?: number[];
-    public byday?: number[];
+    public byday?: string[];
     public bymonthday?: number[];
     public byyearday?: number[];
     public byweekno?: number[];
