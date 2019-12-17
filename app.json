@@ -25,6 +25,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.etesync.ios",
+      "buildNumber": "1.0.0",
       "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
