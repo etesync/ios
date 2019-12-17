@@ -110,7 +110,7 @@ class LoginForm extends React.PureComponent {
       <>
         <View>
           <TextInput
-            keyboardType={this.state.showAdvanced ? 'default' : 'email-address'}
+            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
             autoFocus
