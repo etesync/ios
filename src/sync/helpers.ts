@@ -6,6 +6,7 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { PRODID, ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
+import { logger } from '../logging';
 import { isDefined } from '../helpers';
 
 export interface NativeBase {
@@ -125,6 +126,12 @@ export function eventVobjectToNative(event: EventType) {
     endDate.isDate = true;
   }
 
+  let timeZone = event.timezone ?? undefined;
+  if (event.timezone && !timezoneLoadFromName(event.timezone)) {
+    timeZone = undefined;
+    logger.warn(`Ignoring invalid timezone: ${event.timezone}`);
+  }
+
   const ret: Partial<NativeEvent> & NativeBase = {
     uid: event.uid,
     title: event.title ?? '',
@@ -135,13 +142,19 @@ export function eventVobjectToNative(event: EventType) {
     notes: event.description ?? '',
     alarms: event.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(event),
-    timeZone: event.timezone || undefined,
+    timeZone,
   };
 
   return ret;
 }
 
 export function taskVobjectToNative(task: TaskType) {
+  let timeZone = task.timezone ?? undefined;
+  if (task.timezone && !timezoneLoadFromName(task.timezone)) {
+    timeZone = undefined;
+    logger.warn(`Ignoring invalid timezone: ${task.timezone}`);
+  }
+
   const ret: NativeTask = {
     uid: task.uid,
     title: task.title ?? '',
@@ -153,7 +166,7 @@ export function taskVobjectToNative(task: TaskType) {
     notes: task.description ?? '',
     alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(task),
-    timeZone: task.timezone || undefined,
+    timeZone,
   };
 
   return ret;
