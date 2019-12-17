@@ -35,6 +35,9 @@
         "UIBackgroundModes": [
           "fetch"
         ]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     }
   }
