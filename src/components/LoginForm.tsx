@@ -34,7 +34,7 @@ class LoginForm extends React.PureComponent {
   constructor(props: any) {
     super(props);
     this.state = {
-      showAdvanced: false,
+      showAdvanced: C.genericMode, // We always want to show advanced in generic mode.
       errors: {},
       server: '',
       username: '',
@@ -167,7 +167,7 @@ class LoginForm extends React.PureComponent {
             </>
           )}
 
-          {(C.genericMode || this.state.showAdvanced) && advancedSettings}
+          {this.state.showAdvanced && advancedSettings}
           <HelperText
             type="error"
             visible={false}
