@@ -70,12 +70,6 @@ class LoginForm extends React.PureComponent {
       errors.errorPassword = fieldRequired;
     }
 
-    if (process.env.NODE_ENV !== 'development') {
-      if (this.state.showAdvanced && !this.state.server.startsWith('https://')) {
-        errors.errorServer = 'Server URI must start with https://';
-      }
-    }
-
     this.setState({ errors });
     if (Object.keys(errors).length > 0) {
       return;
