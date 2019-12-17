@@ -4,8 +4,7 @@ import * as Permissions from 'expo-permissions';
 import * as EteSync from 'etesync';
 import { UserInfo } from 'etesync';
 
-import { CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
-import { ConnectionInfo } from 'react-native';
+import { ConnectionInfo, CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
 import { startTask } from '../helpers';
 
 export const fetchCredentials = createAction(

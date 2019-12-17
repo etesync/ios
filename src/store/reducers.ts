@@ -7,7 +7,6 @@ import * as EteSync from 'etesync';
 
 import * as actions from './actions';
 import { LogLevel } from '../logging';
-import { ConnectionInfo } from 'react-native';
 
 export interface CredentialsDataRemote {
   serviceApiUrl: string;
@@ -382,6 +381,11 @@ export const errorsReducer = handleActions(
   },
   List([])
 );
+
+export interface ConnectionInfo {
+  type: string;
+  isConnected: boolean;
+}
 
 export const connectionReducer = handleActions(
   {

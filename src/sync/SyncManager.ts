@@ -104,7 +104,7 @@ export class SyncManager {
   public async sync() {
     const keepAwakeTag = 'SyncManager';
 
-    if (store.getState().connection?.type === 'none') {
+    if (!store.getState().connection?.isConnected) {
       logger.info('Disconnected, aborting sync');
       return false;
     }
