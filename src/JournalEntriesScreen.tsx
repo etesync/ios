@@ -3,13 +3,12 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { FlatList, View } from 'react-native';
-import { Menu, Divider, Appbar, Title, Text, List } from 'react-native-paper';
+import { Menu, Divider, Appbar, Title, Text, List, useTheme } from 'react-native-paper';
 
 import * as ICAL from 'ical.js';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
-import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 
 import { TaskType, EventType, ContactType } from './pim-types';
@@ -28,6 +27,7 @@ const listIcons = {
 const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
   const navigation = useNavigation();
   const syncGate = useSyncGate();
+  const theme = useTheme();
   const syncStateEntries = useSelector((state: StoreState) => state.sync.stateEntries);
   const journalEntries = useSelector((state: StoreState) => state.cache.entries);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
@@ -109,14 +109,13 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
         {collectionColorBox}
       </Container>
       <Divider />
-      <ScrollView style={{ flex: 1 }}>
-        <FlatList
-          data={entries.reverse().toJS()}
-          keyExtractor={(_item, idx) => idx.toString()}
-          renderItem={renderEntry}
-          maxToRenderPerBatch={10}
-        />
-      </ScrollView>
+      <FlatList
+        style={[{ backgroundColor: theme.colors.background }, { flex: 1 }]}
+        data={entries.reverse().toJS()}
+        keyExtractor={(_item, idx) => idx.toString()}
+        renderItem={renderEntry}
+        maxToRenderPerBatch={10}
+      />
     </>
   );
 };
