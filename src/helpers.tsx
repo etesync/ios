@@ -109,7 +109,7 @@ export function isDefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
-export function startTask<T = any>(func: () => Promise<T> | T): Promise<T> {
+export function startTask<T = any>(func: () => Promise<T> | T, delay = 0): Promise<T> {
   return new Promise((resolve, reject) => {
     setTimeout(
       () => {
@@ -125,7 +125,7 @@ export function startTask<T = any>(func: () => Promise<T> | T): Promise<T> {
           reject(e);
         }
       },
-      0);
+      delay);
   });
 }
 
