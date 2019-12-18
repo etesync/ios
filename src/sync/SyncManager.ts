@@ -161,11 +161,28 @@ export class SyncManager {
   }
 }
 
+function persistorLoaded() {
+  return new Promise((resolve, _reject) => {
+    const subscription = {} as { unsubscribe: () => void };
+    subscription.unsubscribe = persistor.subscribe(() => {
+      const { bootstrapped } = persistor.getState();
+      if (bootstrapped) {
+        resolve(true);
+        subscription.unsubscribe();
+      }
+    });
+    if (persistor.getState().bootstrapped) {
+      resolve(true);
+      subscription.unsubscribe();
+    }
+  });
+}
+
 const BACKGROUND_SYNC_TASK_NAME = 'SYNCMANAGER_SYNC';
 
 TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
   try {
-    // FIXME: need to get the persistor to load first...
+    await persistorLoaded();
     const beforeState = store.getState() as StoreState;
     const etesync = credentialsSelector(beforeState);
 
