@@ -78,11 +78,11 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   const permissionsStatus = usePermissions();
 
   React.useEffect(() => {
-    if (etesync) {
+    if (etesync && !permissionsStatus) {
       const syncManager = SyncManager.getManager(etesync);
       dispatch(performSync(syncManager.sync()));
     }
-  }, [etesync]);
+  }, [etesync, !permissionsStatus]);
 
   if (permissionsStatus) {
     return permissionsStatus;
