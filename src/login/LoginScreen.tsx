@@ -21,7 +21,6 @@ import WebviewKeygen from '../components/WebviewKeygen';
 import { store, StoreState } from '../store';
 
 import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo } from '../store/actions';
-import { registerSyncTask } from '../sync/SyncManager';
 import { useLoading, startTask } from '../helpers';
 
 import * as C from '../constants';
@@ -113,7 +112,6 @@ function EncryptionPart() {
       }
 
       setDerived({ ...derivedAction, payload: await derivedAction.payload } as any);
-      registerSyncTask(credentials.credentials.email);
     });
   }
 

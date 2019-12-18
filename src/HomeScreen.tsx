@@ -16,6 +16,7 @@ import { performSync, setPermission } from './store/actions';
 
 import { useCredentials } from './login';
 import { useSyncGate } from './SyncGate';
+import { registerSyncTask } from './sync/SyncManager';
 
 import { logger } from './logging';
 
@@ -79,6 +80,7 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
 
   React.useEffect(() => {
     if (etesync && !permissionsStatus) {
+      registerSyncTask(etesync.credentials.email);
       const syncManager = SyncManager.getManager(etesync);
       dispatch(performSync(syncManager.sync()));
     }
