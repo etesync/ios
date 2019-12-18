@@ -173,25 +173,30 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i)!;
           logger.debug(`Proccessing ${syncEntry.uid}`);
-          const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
-          switch (syncEntry.action) {
-            case EteSync.SyncEntryAction.Add:
-            case EteSync.SyncEntryAction.Change: {
-              journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
-              store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
-              break;
-            }
-            case EteSync.SyncEntryAction.Delete: {
-              if (syncStateEntry) {
-                journalSyncEntries.delete(syncStateEntry.uid);
-                store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
+          try {
+            const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
+            switch (syncEntry.action) {
+              case EteSync.SyncEntryAction.Add:
+              case EteSync.SyncEntryAction.Change: {
+                journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+                store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
+                break;
               }
-              break;
+              case EteSync.SyncEntryAction.Delete: {
+                if (syncStateEntry) {
+                  journalSyncEntries.delete(syncStateEntry.uid);
+                  store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
+                }
+                break;
+              }
             }
-          }
 
-          if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
-            persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
+            if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
+              persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
+            }
+          } catch (e) {
+            logger.warn(`Failed processing: ${syncEntry.content}`);
+            throw e;
           }
         }
       }
@@ -259,7 +264,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const vobjectEvent = this.nativeToVobject(nativeItem);
       const syncEntry = new EteSync.SyncEntry();
       syncEntry.action = syncEntryAction;
-      syncEntry.content = vobjectEvent.toIcal();
+      try {
+        syncEntry.content = vobjectEvent.toIcal();
+      } catch (e) {
+        logger.warn(`Failed pushing update: ${nativeItem}`);
+        throw e;
+      }
 
       syncStateEntry = {
         uid: nativeItem.uid,
@@ -286,7 +296,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     for (const entry of syncInfoJournalItems.values()) {
       const pimItem = this.syncEntryToVobject(entry);
       if (pimItem.uid === syncStateEntry.uid) {
-        syncEntry.content = pimItem.toIcal();
+        try {
+          syncEntry.content = pimItem.toIcal();
+        } catch (e) {
+          logger.warn(`Failed push deletion: ${entry.content}`);
+          throw e;
+        }
         return { syncEntry, syncStateEntry };
       }
     }
