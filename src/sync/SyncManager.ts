@@ -1,6 +1,8 @@
+import { Notifications } from 'expo';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
+import * as Permissions from 'expo-permissions';
 
 import * as EteSync from 'etesync';
 import { Action } from 'redux-actions';
@@ -198,6 +200,16 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
       (beforeState.cache.journals !== afterState.cache.journals) ||
       (beforeState.cache.entries !== afterState.cache.entries) ||
       (beforeState.cache.userInfo !== afterState.cache.userInfo);
+
+    if (receivedNewData) {
+      const { status } = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
+      if (status === Permissions.PermissionStatus.GRANTED) {
+        Notifications.presentLocalNotificationAsync({
+          title: 'New Data Available',
+          body: 'Click here to sync!',
+        });
+      }
+    }
 
     return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
   } catch (error) {
