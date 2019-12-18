@@ -267,7 +267,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       try {
         syncEntry.content = vobjectEvent.toIcal();
       } catch (e) {
-        logger.warn(`Failed pushing update: ${nativeItem}`);
+        logger.warn(`Failed pushing update: ${JSON.stringify(nativeItem)}`);
         throw e;
       }
 
