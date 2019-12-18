@@ -21,7 +21,7 @@ import { logger } from './logging';
 
 
 function usePermissions() {
-  const wantedPermissions: Permissions.PermissionType[] = [Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS];
+  const wantedPermissions: Permissions.PermissionType[] = [Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS, Permissions.USER_FACING_NOTIFICATIONS];
   const dispatch = useDispatch();
   const [shouldAsk, setShouldAsk] = React.useState<null | boolean>(null);
   const [asked, setAsked] = React.useState(false);
@@ -51,6 +51,7 @@ function usePermissions() {
       <Container style={{ flex: 1 }}>
         <Title>Permissions</Title>
         <Paragraph>EteSync requires access to your contacts, calendars and reminders in order to be able save them to your device. You can either give EteSync access now or do it later from the device Settings.</Paragraph>
+        <Paragraph>EteSync requires the notifications permissions in order for automatic sync to work.</Paragraph>
         <Button mode="contained" style={{ marginTop: 20 }} onPress={() => {
           (async () => {
             for (const permission of wantedPermissions) {
@@ -59,7 +60,6 @@ function usePermissions() {
               dispatch(setPermission(permission, status === Permissions.PermissionStatus.GRANTED));
             }
             setShouldAsk(false);
-            // await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
           })();
         }}>
           Ask for Permissions
