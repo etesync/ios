@@ -194,6 +194,9 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     await syncManager.fetchAllJournals();
     const afterState = store.getState();
 
+    // Force flusing the store to disk
+    persistor.persist();
+
     const receivedNewData =
       (beforeState.cache.journals !== afterState.cache.journals) ||
       (beforeState.cache.entries !== afterState.cache.entries) ||
