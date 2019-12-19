@@ -26,38 +26,7 @@ The app is still missing a few features to be ready for release. Here's a short 
 
 # Setup
 
-The app is not yet on the app store so can't be installed directly, but we can use Expo Client to launch it and even sync!
-
-Setup insturctions:
-1. Install the [Expo Client](https://apps.apple.com/us/app/expo-client/id982107779) app on your iPhone.
-2. Add CalDAV and CardDAV accounts to your iPhone as explained in the [section below](#adding-required-accounts).
-3. Click on the link in [this page](https://stosb.com/~tom/expo.html) on your iPhone to launch the EteSync app in expo.
-
-After doing the above you can now just launch the EteSync app directly from the Projects tab of the expo app. That's it!
-
-Now you can just open the app and log in! The initial sync may take a bit of time, so please keep the app open until it's done.
-
-**Note:** at this stage you may want to set EteSync as your default account. In order to do it, open the Settings app, scroll down to Calendars (or Reminders) and set one of the EteSync calendars as the default.
-
-## Adding required accounts
-
-Since iOS doesn't support creating accounts programatically, we need to create the accounts EteSync will use ourselves.
-
-You can either follow [this video](https://stosb.com/~tom/ios_add_accounts.mp4) or the textual step-by-step below. The account description must be exactly `etesync` otherwise sync won't work.
-
-1. Open the Settings app
-2. Scroll down and open "Passwords & Accounts"
-3. Click "Add Account", then "Other" and then "Add CalDAV Account".
-4. Enter the following into the form (this is a fake account so won't actually connect to anything):
-  * Server: localhost
-  * Username: aaaaa
-  * Password: aaaaa
-  * Description: etesync (needs to be exactly etesync!)
-5. Click "Save".
-6. You will now get a popup saying "Cannot Connect Using SSL", Click "Continue".
-7. You'll now get a popup about account verification failing. Click "OK".
-8. Click "Save" again until the account is saved.
-9. Follow the same instructions for CardDAV.
+For setup instructions please take a look at the [user guide](https://www.etesync.com/user-guide/ios/).
 
 # Thanks
 
