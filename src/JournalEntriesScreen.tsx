@@ -14,7 +14,7 @@ import Container from './widgets/Container';
 import { TaskType, EventType, ContactType } from './pim-types';
 
 import * as EteSync from 'etesync';
-import { colorIntToHtml } from './helpers';
+import { isDefined, colorIntToHtml } from './helpers';
 
 import ColorBox from './widgets/ColorBox';
 
@@ -102,7 +102,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
         <View style={{ marginRight: 'auto' }}>
           <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
           <Text>
-            {itemCount && `Items: ${itemCount}, `}
+            {isDefined(itemCount) && `Items: ${itemCount}, `}
             Log entries: {entries.count()}
           </Text>
         </View>
