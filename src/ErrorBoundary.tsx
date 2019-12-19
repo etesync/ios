@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { View, Linking } from 'react-native';
+import { View, Linking, Clipboard } from 'react-native';
 import { Button, Title, Text } from 'react-native-paper';
 
 import { Updates } from 'expo';
@@ -40,12 +40,14 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
   const buttonStyle = { marginVertical: 5 };
   if (error) {
     logger.critical(error);
+    const content = `${error.message}\n${error.stack}\n${logs}`;
     return (
       <ScrollView>
         <Container>
           <Title>Something went wrong!</Title>
           <View style={{ marginVertical: 15, flexDirection: 'row', justifyContent: 'space-evenly', flexWrap: 'wrap' }}>
             <Button mode="contained" style={buttonStyle} onPress={() => emailDevelopers(error, logs)}>Report Bug</Button>
+            <Button mode="contained" style={buttonStyle} onPress={() => Clipboard.setString(content)}>Copy Text</Button>
             <Button mode="contained" style={buttonStyle} onPress={() => Updates.reloadFromCache()}>Reload App</Button>
             <Button mode="contained" style={buttonStyle} onPress={async () => {
               store.dispatch(setSettings({ logLevel: LogLevel.Debug }));
@@ -53,9 +55,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
               Updates.reloadFromCache();
             }}>Enable Logging &amp; Reload</Button>
           </View>
-          <Text selectable>{error.message}</Text>
-          <Text selectable>{error.stack}</Text>
-          <Text selectable>{logs}</Text>
+          <Text selectable>{content}</Text>
         </Container>
       </ScrollView>
     );
