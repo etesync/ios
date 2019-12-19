@@ -162,7 +162,7 @@ export function taskVobjectToNative(task: TaskType) {
     dueDate: timeVobjectToNative(task.dueDate),
     completed: task.finished,
     completionDate: timeVobjectToNative(task.completionDate),
-    location: task.location ?? '',
+    // XXX: doesn't work with accounts created with mobileconfig (and not supported on iOS anyway) location: task.location ?? undefined,
     notes: task.description ?? '',
     alarms: task.component.getAllSubcomponents('valarm').map(alarmVobjectToNative).filter(isDefined),
     recurrenceRule: rruleVobjectToNative(task),
