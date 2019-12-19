@@ -202,14 +202,14 @@ function alarmNativeToVobject(alarm: Calendar.Alarm, description: string) {
   return alarmComponent;
 }
 
-function rruleNativeToVobject(rrule: Calendar.RecurrenceRule) {
-  const value: ICAL.Recur = {
+function rruleNativeToVobject(rrule: Calendar.RecurrenceRule, allDay: boolean) {
+  const value: ICAL.RecurData = {
     freq: rrule.frequency.toUpperCase() as ICAL.FrequencyValues,
     interval: rrule.interval || 1,
   };
 
   if (rrule.endDate) {
-    value.until = ICAL.Time.fromString(rrule.endDate);
+    value.until = timeNativeToVobject(new Date(rrule.endDate), allDay);
   }
   if (rrule.occurrence) {
     value.count = rrule.occurrence;
@@ -239,7 +239,7 @@ function rruleNativeToVobject(rrule: Calendar.RecurrenceRule) {
     value.bysetpos = rrule.setPositions;
   }
 
-  return value;
+  return new ICAL.Recur(value);
 }
 
 export function taskNativeToVobject(task: NativeTask): TaskType {
@@ -272,7 +272,7 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
   }
 
   if (task.recurrenceRule) {
-    const value = rruleNativeToVobject(task.recurrenceRule);
+    const value = rruleNativeToVobject(task.recurrenceRule, false);
     ret.component.addPropertyWithValue('rrule', value);
   }
 
@@ -313,7 +313,7 @@ export function eventNativeToVobject(event: NativeEvent): EventType {
   }
 
   if (event.recurrenceRule) {
-    const value = rruleNativeToVobject(event.recurrenceRule);
+    const value = rruleNativeToVobject(event.recurrenceRule, event.allDay);
     ret.component.addPropertyWithValue('rrule', value);
   }
 

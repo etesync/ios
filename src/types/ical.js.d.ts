@@ -156,7 +156,7 @@ declare module 'ical.js' {
     SA,
   }
 
-  export class Recur {
+  export class RecurData {
     public freq?: FrequencyValues;
     public interval?: number;
     public wkst?: WeekDay;
@@ -171,5 +171,9 @@ declare module 'ical.js' {
     public byweekno?: number[];
     public bymonth?: number[];
     public bysetpos?: number[];
+  }
+
+  export class Recur extends RecurData {
+    constructor(data?: RecurData);
   }
 }
