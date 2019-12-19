@@ -15,9 +15,10 @@ export function useSyncGate() {
   const entries = useSelector((state: StoreState) => state.cache.entries);
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
   const syncCount = useSelector((state: StoreState) => state.syncCount);
+  const syncStatus = useSelector((state: StoreState) => state.syncStatus);
 
   if ((syncCount > 0) || !etesync || !journals || !entries || !userInfo) {
-    return (<LoadingIndicator />);
+    return (<LoadingIndicator status={syncStatus} />);
   }
 
   syncInfoSelector({ etesync, entries, journals, userInfo });

@@ -5,7 +5,7 @@ import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
 import { store, persistor, CredentialsData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries } from '../store/actions';
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus } from '../store/actions';
 import { NativeBase } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 import { arrayToChunkIterator } from '../helpers';
@@ -22,6 +22,13 @@ function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStat
   store.dispatch(setSyncStateJournal(etesync, { ...syncStateJournal, lastSyncUid: lastUid }));
 
   persistor.persist();
+}
+
+function syncUpdate(status: string | null) {
+  store.dispatch(setSyncStatus(status));
+  if (status) {
+    logger.info(status);
+  }
 }
 
 /*
@@ -59,14 +66,14 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     if (__DEV__) {
       // await this.clearDeviceCollections();
     }
-    logger.info(`Starting sync: ${this.collectionType}`);
-    logger.info('Syncing journal list');
+    syncUpdate(`Starting sync (${this.collectionType})`);
+    syncUpdate(`Syncing journal list (${this.collectionType})`);
     await this.syncJournalList();
-    logger.info('Pulling changes');
+    syncUpdate(`Pulling changes (${this.collectionType})`);
     await this.syncPull();
-    logger.info('Pushing changes');
+    syncUpdate(`Pushing changes (${this.collectionType})`);
     await this.syncPush();
-    logger.info(`Finished sync: ${this.collectionType}`);
+    syncUpdate(`Finished sync (${this.collectionType})`);
   }
 
   public abstract async clearDeviceCollections(): Promise<void>;

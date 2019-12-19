@@ -9,12 +9,13 @@ import * as EteSync from 'etesync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
-  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, connectionReducer, permissionsReducer, errorsReducer,
+  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, connectionReducer, permissionsReducer, errorsReducer,
 } from './reducers';
 
 export interface StoreState {
   fetchCount: number;
   syncCount: number;
+  syncStatus: string | null;
   credentials: CredentialsDataRemote;
   settings: SettingsType;
   encryptionKey: {key: string};
@@ -197,6 +198,7 @@ const syncPersistConfig = {
 const reducers = combineReducers({
   fetchCount,
   syncCount,
+  syncStatus: syncStatusReducer,
   settings: persistReducer(settingsPersistConfig, settingsReducer),
   credentials: persistReducer(credentialsPersistConfig, credentials),
   encryptionKey: persistReducer(encryptionKeyPersistConfig, encryptionKeyReducer),

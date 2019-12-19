@@ -280,6 +280,13 @@ export const setPermission = createAction(
   }
 );
 
+export const setSyncStatus = createAction(
+  'SET_SYNC_STATUS',
+  (status: string | null) => {
+    return status;
+  }
+);
+
 export const clearErros = createAction(
   'CLEAR_ERRORS',
   (_etesync: CredentialsData) => {

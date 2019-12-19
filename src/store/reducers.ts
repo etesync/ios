@@ -405,6 +405,21 @@ export const permissionsReducer = handleActions(
   ImmutableMap({})
 );
 
+export const syncStatusReducer = handleActions(
+  {
+    [actions.setSyncStatus.toString()]: (_state: string | null, action: Action<string | null>) => {
+      return action.payload;
+    },
+    [actions.performSync.toString()]: (_state: string | null, _action: Action<any>) => {
+      if (_action.payload === undefined) {
+        return 'Started sync';
+      }
+      return null;
+    },
+  },
+  null
+);
+
 export const syncCount = handleAction(
   actions.performSync,
   (state: number, action: any) => {
