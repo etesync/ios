@@ -296,12 +296,7 @@ export const clearErros = createAction(
 
 export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesData, journal: EteSync.Journal) {
   return (dispatch: any) => {
-    let prevUid: string | null = null;
-    const entries = currentEntries.get(journal.uid);
-    if (entries && entries) {
-      const last = entries.last() as EteSync.Entry;
-      prevUid = last?.uid ?? null;
-    }
+    const prevUid = currentEntries.get(journal.uid)?.last(undefined)?.uid ?? null;
 
     return dispatch(fetchEntries(etesync, journal.uid, prevUid));
   };
