@@ -294,14 +294,6 @@ export const clearErros = createAction(
   }
 );
 
-export function fetchJournalEntries(etesync: CredentialsData, currentEntries: EntriesData, journal: EteSync.Journal) {
-  return (dispatch: any) => {
-    const prevUid = currentEntries.get(journal.uid)?.last(undefined)?.uid ?? null;
-
-    return dispatch(fetchEntries(etesync, journal.uid, prevUid));
-  };
-}
-
 
 export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) {
   return (dispatch: any) => {
@@ -312,9 +304,10 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) 
           resolve(false);
         }
 
-        Promise.all(journals.map((journal) => (
-          dispatch(fetchJournalEntries(etesync, currentEntries, journal))
-        ))).then(() => resolve(true)).catch(reject);
+        Promise.all(journals.map((journal) => {
+          const prevUid = currentEntries.get(journal.uid)?.last(undefined)?.uid ?? null;
+          return dispatch(fetchEntries(etesync, journal.uid, prevUid));
+        })).then(() => resolve(true)).catch(reject);
       }).catch(reject);
     });
   };
