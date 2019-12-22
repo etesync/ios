@@ -10,6 +10,7 @@ import { SyncManager } from './sync/SyncManager';
 import JournalListScreen from './components/JournalListScreen';
 import LoadingIndicator from './widgets/LoadingIndicator';
 import Container from './widgets/Container';
+import ScrollView from './widgets/ScrollView';
 
 import { StoreState } from './store';
 import { performSync, setPermission } from './store/actions';
@@ -49,23 +50,25 @@ function usePermissions() {
     return (<LoadingIndicator />);
   } else if (shouldAsk) {
     return (
-      <Container style={{ flex: 1 }}>
-        <Title>Permissions</Title>
-        <Paragraph>EteSync requires access to your contacts, calendars and reminders in order to be able save them to your device. You can either give EteSync access now or do it later from the device Settings.</Paragraph>
-        <Paragraph>EteSync requires the notifications permissions in order for automatic sync to work.</Paragraph>
-        <Button mode="contained" style={{ marginTop: 20 }} onPress={() => {
-          (async () => {
-            for (const permission of wantedPermissions) {
-              const { status } = await Permissions.askAsync(permission);
-              logger.info(`Permissions status for ${permission}: ${status}`);
-              dispatch(setPermission(permission, status === Permissions.PermissionStatus.GRANTED));
-            }
-            setShouldAsk(false);
-          })();
-        }}>
-          Ask for Permissions
-        </Button>
-      </Container>
+      <ScrollView>
+        <Container style={{ flex: 1 }}>
+          <Title>Permissions</Title>
+          <Paragraph>EteSync requires access to your contacts, calendars and reminders in order to be able save them to your device. You can either give EteSync access now or do it later from the device Settings.</Paragraph>
+          <Paragraph>EteSync requires the notifications permissions in order for automatic sync to work.</Paragraph>
+          <Button mode="contained" style={{ marginTop: 20 }} onPress={() => {
+            (async () => {
+              for (const permission of wantedPermissions) {
+                const { status } = await Permissions.askAsync(permission);
+                logger.info(`Permissions status for ${permission}: ${status}`);
+                dispatch(setPermission(permission, status === Permissions.PermissionStatus.GRANTED));
+              }
+              setShouldAsk(false);
+            })();
+          }}>
+            Ask for Permissions
+          </Button>
+        </Container>
+      </ScrollView>
     );
   } else {
     return null;
