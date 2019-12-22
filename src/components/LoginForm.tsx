@@ -93,7 +93,7 @@ class LoginForm extends React.PureComponent {
           error={!!this.state.errors.errorServer}
           label="Server URL"
           value={this.state.server}
-          placeholder="E.g. https://etesync.example.com"
+          placeholder="E.g. https://api.etesync.com"
           onChangeText={this.handleInputChange('server')}
           ref={this.formRefs[2]}
         />
