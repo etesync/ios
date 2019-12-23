@@ -34,6 +34,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     const storeState = store.getState();
     const syncStateJournals = storeState.sync.stateJournals;
 
+    return;
+
     const contacts = (await Contacts.getContactsAsync({ containerId: this.containerId, rawContacts: true })).data;
     for (const contact of contacts) {
       logger.info(`Deleting ${contact.id}`);
