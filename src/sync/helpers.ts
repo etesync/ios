@@ -2,7 +2,6 @@ import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';
 import sjcl from 'sjcl';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { PRODID, ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
@@ -336,19 +335,12 @@ function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper
 
 export function contactVobjectToNative(contact: ContactType) {
   const phoneNumbers: Contacts.PhoneNumber[] = contactFieldToNative<Contacts.PhoneNumber>(contact, 'tel', (fieldType: string, value: string) => {
-    const phoneNumber = parsePhoneNumberFromString(value);
-    if (phoneNumber && phoneNumber.isValid()) {
-      return {
-        id: phoneNumber.formatInternational(),
-        number: phoneNumber.formatInternational(),
-        digits: phoneNumber.formatNational(),
-        countryCode: '+' + phoneNumber.countryCallingCode,
-        isPrimary: false,
-        label: fieldType,
-      };
-    } else {
-      return undefined;
-    }
+    return {
+      id: value,
+      number: value,
+      isPrimary: false,
+      label: fieldType,
+    };
   });
 
   const emails: Contacts.Email[] = contactFieldToNative<Contacts.Email>(contact, 'email', (fieldType: string, value: string) => {
