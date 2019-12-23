@@ -434,10 +434,6 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
-  const notes: string[] = contactFieldToNative<string>(contact, 'note', (_fieldType: string, value: string) => {
-    return value;
-  });
-
   const titles: string[] = contactFieldToNative<string>(contact, 'title', (_fieldType: string, value: string) => {
     return value;
   });
@@ -451,7 +447,6 @@ export function contactVobjectToNative(contact: ContactType) {
     name: contact.fn,
     nickname,
     jobTitle,
-    note: notes.length > 0 ? notes.join('\n') : undefined,
     birthday: birthdays.length > 0 ? birthdays[0] : undefined,
     dates,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
