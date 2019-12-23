@@ -410,8 +410,8 @@ export const syncStatusReducer = handleActions(
     [actions.setSyncStatus.toString()]: (_state: string | null, action: Action<string | null>) => {
       return action.payload;
     },
-    [actions.performSync.toString()]: (_state: string | null, _action: Action<any>) => {
-      if (_action.payload === undefined) {
+    [actions.performSync.toString()]: (_state: string | null, action: Action<any>) => {
+      if (action.payload === undefined) {
         return 'Started sync';
       }
       return null;
