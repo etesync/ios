@@ -213,6 +213,10 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
 
     return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
   } catch (error) {
+    Notifications.presentLocalNotificationAsync({
+      title: 'Sync Failed',
+      body: `Sync failed, please contact developers.\nError: ${error.message}`,
+    });
     return BackgroundFetch.Result.Failed;
   }
 });
