@@ -9,7 +9,7 @@ import * as EteSync from 'etesync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
-  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, connectionReducer, permissionsReducer, errorsReducer,
+  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer,
 } from './reducers';
 
 export interface StoreState {
@@ -22,6 +22,7 @@ export interface StoreState {
   sync: {
     stateJournals: SyncStateJournalData;
     stateEntries: SyncStateEntryData;
+    lastSync: Date | null;
   };
   cache: {
     journals: JournalsData;
@@ -205,6 +206,7 @@ const reducers = combineReducers({
   sync: persistReducer(syncPersistConfig, combineReducers({
     stateJournals: syncStateJournalReducer,
     stateEntries: syncStateEntryReducer,
+    lastSync: lastSyncReducer,
   })),
   cache: persistReducer(cachePersistConfig, combineReducers({
     entries,

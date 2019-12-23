@@ -420,6 +420,21 @@ export const syncStatusReducer = handleActions(
   null
 );
 
+export const lastSyncReducer = handleActions(
+  {
+    [actions.performSync.toString()]: (state: Date | null, action: Action<boolean | undefined>) => {
+      if (action.payload) {
+        return new Date();
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (_state: Date | null, _action: any) => {
+      return null;
+    },
+  },
+  null
+);
+
 export const syncCount = handleAction(
   actions.performSync,
   (state: number, action: any) => {

@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View } from 'react-native';
-import { Avatar, IconButton, Card, Menu, List, Colors } from 'react-native-paper';
+import { Avatar, IconButton, Card, Menu, List, Colors, Text } from 'react-native-paper';
 import { useNavigation } from '../navigation/Hooks';
+
+import moment from 'moment';
 
 import { colorIntToHtml } from '../helpers';
 
@@ -45,6 +47,7 @@ export default function JournalListScreen() {
   const syncGate = useSyncGate();
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
   const journals = useSelector((state: StoreState) => state.cache.journals);
+  const lastSync = useSelector((state: StoreState) => state.sync.lastSync);
 
   if (syncGate) {
     return syncGate;
@@ -134,6 +137,7 @@ export default function JournalListScreen() {
 
   return (
     <ScrollView style={{ flex: 1 }}>
+      <Text style={{ textAlign: 'center', marginTop: 15 }}>Last sync: {lastSync ? moment(lastSync).format('lll') : 'never'}</Text>
       {cards.map((card) => (
         <Card key={card.lookup} elevation={4} style={{ margin: 20 }}>
           <Card.Title
