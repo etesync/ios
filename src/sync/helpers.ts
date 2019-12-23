@@ -406,13 +406,16 @@ export function contactVobjectToNative(contact: ContactType) {
     ret.middleName = nFieldParts[2];
     ret.namePrefix = nFieldParts[3];
     ret.nameSuffix = nFieldParts[4];
+  } else if (ret.name) {
+    // Do our best deconstructing fn
+    ret.firstName = ret.name;
   }
 
   const orgField = contact.comp.getFirstProperty('org');
   if (orgField) {
-    const orgFieldParts = orgField.getValues()[0];
+    const orgFieldParts = orgField.getFirstValue();
     ret.company = orgFieldParts[0];
-    ret.department = `${orgFieldParts[1]} ${orgFieldParts[2]}`;
+    ret.department = orgFieldParts[1];
   }
 
   return ret;
@@ -488,7 +491,7 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   }
   const org = [contact.company, contact.department, ''];
   if (org.some((x) => !!x)) {
-    addProperty(comp, 'org', null, org.map((x) => x ?? ''));
+    addProperty(comp, 'org', null, org.map((x) => x?.replace(';', ',') ?? '').join(';'));
   }
 
   if (contact.note) {
