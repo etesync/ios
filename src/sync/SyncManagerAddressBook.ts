@@ -1,5 +1,4 @@
 import * as EteSync from 'etesync';
-import * as ICAL from 'ical.js';
 import * as Contacts from 'expo-contacts';
 
 import { logger } from '../logging';
@@ -118,7 +117,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   }
 
   protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
-    return new ContactType(new ICAL.Component(ICAL.parse(syncEntry.content)));
+    return ContactType.parse(syncEntry.content);
   }
 
   protected nativeToVobject(nativeItem: NativeContact) {

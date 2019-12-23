@@ -1,5 +1,4 @@
 import * as EteSync from 'etesync';
-import * as ICAL from 'ical.js';
 import * as Calendar from 'expo-calendar';
 
 import { logger } from '../logging';
@@ -93,7 +92,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
   }
 
   protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
-    return TaskType.fromVCalendar(new ICAL.Component(ICAL.parse(syncEntry.content)));
+    return TaskType.parse(syncEntry.content);
   }
 
   protected nativeToVobject(nativeItem: NativeTask) {

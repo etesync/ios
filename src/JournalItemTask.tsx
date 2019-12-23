@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ICAL from 'ical.js';
 import * as EteSync from 'etesync';
 
 import Color from 'color';
@@ -23,7 +22,7 @@ interface PropsType {
 
 export default React.memo(function JournalItemTask(props: PropsType) {
   const entry = props.entry;
-  const task = TaskType.fromVCalendar(new ICAL.Component(ICAL.parse(entry.content)));
+  const task = TaskType.parse(entry.content);
 
   const timezone = task.timezone;
 

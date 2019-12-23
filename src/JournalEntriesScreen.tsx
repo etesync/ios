@@ -5,13 +5,11 @@ import { useNavigation } from './navigation/Hooks';
 import { FlatList, View } from 'react-native';
 import { Menu, Divider, Appbar, Title, Text, List, useTheme } from 'react-native-paper';
 
-import * as ICAL from 'ical.js';
-
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
 import Container from './widgets/Container';
 
-import { TaskType, EventType, ContactType } from './pim-types';
+import { TaskType, EventType, ContactType, parseString } from './pim-types';
 
 import * as EteSync from 'etesync';
 import { isDefined, colorIntToHtml } from './helpers';
@@ -50,7 +48,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
 
   function renderEntry(param: { item: EteSync.Entry }) {
     const syncEntry = syncEntries.get(param.item.uid)!;
-    const comp = new ICAL.Component(ICAL.parse(syncEntry.content));
+    const comp = parseString(syncEntry.content);
 
     const icon = listIcons[syncEntry.action];
 

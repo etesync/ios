@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ICAL from 'ical.js';
 import moment from 'moment';
 import * as EteSync from 'etesync';
 
@@ -21,7 +20,7 @@ interface PropsType {
 
 export default React.memo(function JournalItemContact(props: PropsType) {
   const entry = props.entry;
-  const contact = new ContactType(new ICAL.Component(ICAL.parse(entry.content)));
+  const contact = ContactType.parse(entry.content);
 
   const revProp = contact.comp.getFirstProperty('rev');
   const lastModified = (revProp) ? moment(revProp.getFirstValue().toJSDate()).format('LLLL') : undefined;

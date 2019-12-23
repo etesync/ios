@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ICAL from 'ical.js';
 import { useSelector } from 'react-redux';
 import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
@@ -59,19 +58,19 @@ function tasksFetchDeviceCollections(setDeviceCollections: (collections: ImportC
 }
 
 async function saveContact(localId: string, content: string) {
-  const vcard = new ContactType(new ICAL.Component(ICAL.parse(content)));
+  const vcard = ContactType.parse(content);
   const contact = contactVobjectToNative(vcard);
   await Contacts.addContactAsync(contact, localId);
 }
 
 async function saveEvent(localId: string, content: string) {
-  const ical = EventType.fromVCalendar(new ICAL.Component(ICAL.parse(content)));
+  const ical = EventType.parse(content);
   const event = eventVobjectToNative(ical);
   await Calendar.createEventAsync(localId, event);
 }
 
 async function saveTask(localId: string, content: string) {
-  const ical = TaskType.fromVCalendar(new ICAL.Component(ICAL.parse(content)));
+  const ical = TaskType.parse(content);
   const task = taskVobjectToNative(ical);
   await Calendar.createReminderAsync(localId, task);
 }
