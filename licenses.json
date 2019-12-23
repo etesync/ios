@@ -5,6 +5,11 @@
       "repository": "https://github.com/expo/vector-icons",
       "publisher": "Brent Vatne"
     },
+    "@react-native-community/netinfo": {
+      "licenses": "MIT",
+      "repository": "https://github.com/react-native-community/react-native-netinfo",
+      "publisher": "Matt Oakes"
+    },
     "assert": {
       "licenses": "MIT",
       "repository": "https://github.com/browserify/commonjs-assert"
@@ -15,6 +20,10 @@
       "publisher": "Feross Aboukhadijeh",
       "url": "http://feross.org"
     },
+    "color": {
+      "licenses": "MIT",
+      "repository": "https://github.com/Qix-/color"
+    },
     "constants": {
       "licenses": "MIT",
       "repository": "https://github.com/dominicbarnes/node-constants",
@@ -22,8 +31,14 @@
     },
     "etesync": {
       "licenses": "LGPL-3.0-only",
+      "repository": "https://github.com/etesync/etesync-js",
       "publisher": "Tom Hacohen",
       "url": "https://stosb.com"
+    },
+    "expo-background-fetch": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "650 Industries, Inc."
     },
     "expo-calendar": {
       "licenses": "MIT",
@@ -36,6 +51,11 @@
       "publisher": "650 Industries, Inc."
     },
     "expo-random": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "650 Industries, Inc."
+    },
+    "expo-task-manager": {
       "licenses": "MIT",
       "repository": "https://github.com/expo/expo",
       "publisher": "650 Industries, Inc."
@@ -67,6 +87,11 @@
       "publisher": "Iskren Ivov Chernev",
       "url": "https://github.com/ichernev"
     },
+    "react-native-appearance": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/react-native-appearance",
+      "publisher": "Brent Vatne"
+    },
     "react-native-gesture-handler": {
       "licenses": "MIT",
       "repository": "https://github.com/kmagiera/react-native-gesture-handler",
@@ -90,6 +115,11 @@
       "licenses": "MIT",
       "repository": "https://github.com/oblador/react-native-vector-icons",
       "publisher": "Joel Arvidsson"
+    },
+    "react-native-webview": {
+      "licenses": "MIT",
+      "repository": "https://github.com/react-native-community/react-native-webview",
+      "publisher": "Jamon Holmgren"
     },
     "react-native": {
       "licenses": "MIT",
@@ -136,6 +166,10 @@
     }
   },
   "devDependencies": {
+    "@types/color": {
+      "licenses": "MIT",
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
+    },
     "@types/jest": {
       "licenses": "MIT",
       "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
