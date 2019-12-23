@@ -15,7 +15,7 @@ import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } fro
 
 import { logger } from '../logging';
 
-// import { SyncManagerAddressBook } from './SyncManagerAddressBook';
+import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
 import { SyncManagerTaskList } from './SyncManagerTaskList';
 
@@ -46,7 +46,7 @@ export class SyncManager {
   private managers = [
     SyncManagerCalendar,
     SyncManagerTaskList,
-    // SyncManagerAddressBook,
+    SyncManagerAddressBook,
   ];
 
   constructor(etesync: CredentialsData) {
