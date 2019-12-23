@@ -21,7 +21,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     const storeState = store.getState();
     if (storeState.permissions.get(this.collectionType)) {
       this.containerId = await Contacts.getDefaultContainerIdAsync();
-      this.canSync = !!this.containerId;
+      this.canSync = !!this.containerId && storeState.settings.syncContacts;
     }
 
     if (!this.canSync) {

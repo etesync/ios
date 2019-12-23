@@ -436,6 +436,7 @@ export const syncCount = handleAction(
 export interface SettingsType {
   locale: string;
   logLevel: LogLevel;
+  syncContacts: boolean;
 }
 
 export const settingsReducer = handleActions(
@@ -444,5 +445,5 @@ export const settingsReducer = handleActions(
       { ...state, ...action.payload }
     ),
   },
-  { locale: 'en-gb', logLevel: LogLevel.Off }
+  { locale: 'en-gb', logLevel: LogLevel.Off, syncContacts: false }
 );
