@@ -329,7 +329,8 @@ export function eventNativeToVobject(event: NativeEvent): EventType {
 
 function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper: (fieldType: string, value: any) => T | undefined) {
   return contact.comp.getAllProperties(fieldName).map((prop) => {
-    return mapper(prop.toJSON()[1].type, prop.getFirstValue());
+    const subType = prop.toJSON()[1].type;
+    return mapper((typeof subType === 'object') ? subType[0] : subType, prop.getFirstValue());
   }).filter(isDefined);
 }
 
@@ -361,15 +362,75 @@ export function contactVobjectToNative(contact: ContactType) {
     };
   });
 
-  const birthdays: Contacts.Date[] = contactFieldToNative<Contacts.Date>(contact, 'bday', (_fieldType: string, value: ICAL.Time) => {
-    const date = value.toJSDate();
+  const urlAddresses = contactFieldToNative<Contacts.UrlAddress>(contact, 'url', (fieldType: string, value: string) => {
+    return {
+      url: value,
+      id: value,
+      label: fieldType,
+    };
+  });
+
+  const addresses = contactFieldToNative<Contacts.Address>(contact, 'adr', (fieldType: string, value: string | string[]) => {
+    if (typeof value === 'string') {
+      value = value.split(';');
+    }
+    return {
+      id: fieldType,
+      label: fieldType,
+      poBox: value[0],
+      street: value[2],
+      city: value[3],
+      region: value[4],
+      postalCode: value[5],
+      country: value[6],
+    };
+  });
+
+  function parseDate(prop: ICAL.Property) {
+    const value = prop.getFirstValue();
+    if (value.day !== null) {
+      return {
+        day: value.day,
+        month: value.month,
+        year: value.year,
+      };
+    } else {
+      const time = prop.toJSON()[3];
+      if (time.length === 6 && time.startsWith('--')) {
+        return {
+          day: parseInt(time.slice(4, 6)),
+          month: parseInt(time.slice(2, 4)),
+          year: null,
+        };
+      }
+    }
+
+    return {};
+  }
+
+  const birthdays: Contacts.Date[] = contact.comp.getAllProperties('bday').map((prop) => {
+    const value = parseDate(prop);
+
     return {
       id: 'bday',
-      day: date.getDate(),
-      month: date.getMonth(),
-      year: date.getFullYear(),
+      day: value.day,
+      month: value.month,
+      year: value.year,
       format: Contacts.CalendarFormats.Gregorian,
       label: 'Birthday',
+    };
+  });
+
+  const dates: Contacts.Date[] = contact.comp.getAllProperties('anniversary').map((prop) => {
+    const value = parseDate(prop);
+
+    return {
+      id: 'anniversary',
+      day: value.day,
+      month: value.month,
+      year: value.year,
+      format: Contacts.CalendarFormats.Gregorian,
+      label: 'Anniversary',
     };
   });
 
@@ -392,15 +453,21 @@ export function contactVobjectToNative(contact: ContactType) {
     jobTitle,
     note: notes.length > 0 ? notes.join('\n') : undefined,
     birthday: birthdays.length > 0 ? birthdays[0] : undefined,
+    dates,
     contactType: contact.group ? Contacts.ContactTypes.Company : Contacts.ContactTypes.Person,
     phoneNumbers,
     emails,
+    addresses,
     instantMessageAddresses,
+    urlAddresses,
   };
 
   const nField = contact.comp.getFirstProperty('n');
   if (nField) {
-    const nFieldParts = nField.getValues()[0];
+    let nFieldParts = nField.getFirstValue();
+    if (typeof nFieldParts === 'string') {
+      nFieldParts = nFieldParts.split(';');
+    }
     ret.lastName = nFieldParts[0];
     ret.firstName = nFieldParts[1];
     ret.middleName = nFieldParts[2];
@@ -413,7 +480,10 @@ export function contactVobjectToNative(contact: ContactType) {
 
   const orgField = contact.comp.getFirstProperty('org');
   if (orgField) {
-    const orgFieldParts = orgField.getFirstValue();
+    let orgFieldParts = orgField.getFirstValue();
+    if (typeof orgFieldParts === 'string') {
+      orgFieldParts = orgFieldParts.split(';');
+    }
     ret.company = orgFieldParts[0];
     ret.department = orgFieldParts[1];
   }
@@ -467,24 +537,40 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
       addProperty(comp, 'impp', impp.label, impp.username!);
     }
   }
+  if (contact.urlAddresses) {
+    for (const url of contact.urlAddresses) {
+      if (url.url) {
+        addProperty(comp, 'url', url.label, url.url);
+      }
+    }
+  }
+  function formatDate(date: NonNullable<typeof contact.birthday>) {
+    let formattedDate = '';
+    formattedDate += (date.year) ? date.year.toString().padStart(2, '0') : '--';
+    if (date.month) {
+      formattedDate += date.month.toString().padStart(2, '0');
+    }
+    if (date.day) {
+      formattedDate += date.day.toString().padStart(2, '0');
+    }
+    return formattedDate;
+  }
+  if (contact.dates) {
+    for (const date of contact.dates) {
+      comp.updatePropertyWithValue('anniversary', formatDate(date));
+    }
+  }
   if (contact.birthday) {
-    let bday = '';
-    bday += (contact.birthday.year) ? contact.birthday.year.toString().padStart(2, '0') : '--';
-    if (contact.birthday.month) {
-      bday += contact.birthday.month.toString().padStart(2, '0');
-    }
-    if (contact.birthday.day) {
-      bday += contact.birthday.day.toString().padStart(2, '0');
-    }
-    comp.updatePropertyWithValue('bday', bday);
+    comp.updatePropertyWithValue('bday', formatDate(contact.birthday));
   }
 
   if (contact.addresses) {
-    /* FIXME: implement
     for (const address of contact.addresses) {
-      addProperty(comp, 'adr', address.label, address.);
+      const adr = [address.poBox, '', address.street, address.city, address.region, address.postalCode, address.country];
+      if (adr.some((x) => !!x)) {
+        addProperty(comp, 'adr', address.label, adr.map((x) => x?.replace(';', ',') ?? '').join(';'));
+      }
     }
-    */
   }
   if (contact.jobTitle) {
     comp.updatePropertyWithValue('title', contact.jobTitle);
