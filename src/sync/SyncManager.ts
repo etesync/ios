@@ -188,6 +188,8 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     const beforeState = store.getState() as StoreState;
     const etesync = credentialsSelector(beforeState);
 
+    const allowedNotifications = (await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS)).status === Permissions.PermissionStatus.GRANTED;
+
     if (!etesync) {
       return BackgroundFetch.Result.Failed;
     }
@@ -205,8 +207,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
       (beforeState.cache.userInfo !== afterState.cache.userInfo);
 
     if (receivedNewData) {
-      const { status } = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
-      if (status === Permissions.PermissionStatus.GRANTED) {
+      if (allowedNotifications) {
         Notifications.presentLocalNotificationAsync({
           title: 'New Data Available',
           body: 'Sync finished successfully and new data was found!',
