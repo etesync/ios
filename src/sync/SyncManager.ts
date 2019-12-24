@@ -11,7 +11,7 @@ const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
 import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData, StoreState } from '../store';
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
+import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, performSync } from '../store/actions';
 
 import { logger } from '../logging';
 
@@ -193,7 +193,10 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     }
 
     const syncManager = SyncManager.getManager(etesync);
-    await syncManager.fetchAllJournals();
+    const sync = syncManager.sync();
+    store.dispatch(performSync(sync));
+    await sync;
+
     const afterState = store.getState();
 
     const receivedNewData =
@@ -206,7 +209,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
       if (status === Permissions.PermissionStatus.GRANTED) {
         Notifications.presentLocalNotificationAsync({
           title: 'New Data Available',
-          body: 'Click here to sync!',
+          body: 'Sync finished successfully and new data was found!',
         });
       }
     }
