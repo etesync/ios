@@ -193,7 +193,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     const failedSyncNotificationId = (allowedNotifications) ? Notifications.scheduleLocalNotificationAsync(
       {
         title: 'Sync Timedout',
-        body: `Please contact developers and let them know what happened.`,
+        body: `Please contact us and let us know what happened.`,
       },
       {
         time: (new Date()).getTime() + 5 * 60 * 1000, // 5 minutes
@@ -234,7 +234,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     if (allowedNotifications) {
       Notifications.presentLocalNotificationAsync({
         title: 'Sync Failed',
-        body: `Sync failed, please contact developers.\nError: ${error.message}`,
+        body: `Sync failed, please contact us.\nError: ${error.message}`,
       });
     }
     return BackgroundFetch.Result.Failed;
