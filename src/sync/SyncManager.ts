@@ -22,6 +22,7 @@ import { SyncManagerTaskList } from './SyncManagerTaskList';
 import sjcl from 'sjcl';
 import * as Random from 'expo-random';
 import { credentialsSelector } from '../login';
+import { startTask } from '../helpers';
 
 async function prngAddEntropy(entropyBits = 1024) {
   const bytes = await Random.getRandomBytesAsync(entropyBits / 8);
@@ -183,22 +184,14 @@ function persistorLoaded() {
 const BACKGROUND_SYNC_TASK_NAME = 'SYNCMANAGER_SYNC';
 
 TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
-  const allowedNotifications = (await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS)).status === Permissions.PermissionStatus.GRANTED;
+  let timeoutDone = false;
+  const timeout = startTask(() => timeoutDone = true, 27 * 1000); // Background fetch is limited to 30 seconds.
+  const allowedNotifications = Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS).then(({ status }) => (status === Permissions.PermissionStatus.GRANTED));
 
   try {
     await persistorLoaded();
     const beforeState = store.getState() as StoreState;
     const etesync = credentialsSelector(beforeState);
-
-    const failedSyncNotificationId = (allowedNotifications) ? Notifications.scheduleLocalNotificationAsync(
-      {
-        title: 'Sync Timedout',
-        body: `Please contact us and let us know what happened.`,
-      },
-      {
-        time: (new Date()).getTime() + 5 * 60 * 1000, // 5 minutes
-      }
-    ) : undefined;
 
     if (!etesync) {
       return BackgroundFetch.Result.Failed;
@@ -207,7 +200,16 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     const syncManager = SyncManager.getManager(etesync);
     const sync = syncManager.sync();
     store.dispatch(performSync(sync));
-    await sync;
+    Promise.race([timeout, sync]);
+
+    if (timeoutDone) {
+      if (await allowedNotifications) {
+        Notifications.presentLocalNotificationAsync({
+          title: 'Sync Timedout',
+          body: `Please contact us and let us know what happened.`,
+        });
+      }
+    }
 
     const afterState = store.getState();
 
@@ -217,7 +219,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
       (beforeState.cache.userInfo !== afterState.cache.userInfo);
 
     if (receivedNewData) {
-      if (allowedNotifications) {
+      if (await allowedNotifications) {
         Notifications.presentLocalNotificationAsync({
           title: 'New Data Available',
           body: 'Sync finished successfully and new data was found!',
@@ -225,13 +227,9 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
       }
     }
 
-    if (failedSyncNotificationId) {
-      await Notifications.cancelScheduledNotificationAsync(await failedSyncNotificationId);
-    }
-
     return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
   } catch (error) {
-    if (allowedNotifications) {
+    if (await allowedNotifications) {
       Notifications.presentLocalNotificationAsync({
         title: 'Sync Failed',
         body: `Sync failed, please contact us.\nError: ${error.message}`,
