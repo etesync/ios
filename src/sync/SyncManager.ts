@@ -183,12 +183,12 @@ function persistorLoaded() {
 const BACKGROUND_SYNC_TASK_NAME = 'SYNCMANAGER_SYNC';
 
 TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
+  const allowedNotifications = (await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS)).status === Permissions.PermissionStatus.GRANTED;
+
   try {
     await persistorLoaded();
     const beforeState = store.getState() as StoreState;
     const etesync = credentialsSelector(beforeState);
-
-    const allowedNotifications = (await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS)).status === Permissions.PermissionStatus.GRANTED;
 
     const failedSyncNotificationId = (allowedNotifications) ? Notifications.scheduleLocalNotificationAsync(
       {
@@ -231,10 +231,12 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
 
     return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
   } catch (error) {
-    Notifications.presentLocalNotificationAsync({
-      title: 'Sync Failed',
-      body: `Sync failed, please contact developers.\nError: ${error.message}`,
-    });
+    if (allowedNotifications) {
+      Notifications.presentLocalNotificationAsync({
+        title: 'Sync Failed',
+        body: `Sync failed, please contact developers.\nError: ${error.message}`,
+      });
+    }
     return BackgroundFetch.Result.Failed;
   }
 });
