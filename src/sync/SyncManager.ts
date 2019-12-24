@@ -190,6 +190,16 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
 
     const allowedNotifications = (await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS)).status === Permissions.PermissionStatus.GRANTED;
 
+    const failedSyncNotificationId = (allowedNotifications) ? Notifications.scheduleLocalNotificationAsync(
+      {
+        title: 'Sync Timedout',
+        body: `Please contact developers and let them know what happened.`,
+      },
+      {
+        time: (new Date()).getTime() + 5 * 60 * 1000, // 5 minutes
+      }
+    ) : undefined;
+
     if (!etesync) {
       return BackgroundFetch.Result.Failed;
     }
@@ -213,6 +223,10 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
           body: 'Sync finished successfully and new data was found!',
         });
       }
+    }
+
+    if (failedSyncNotificationId) {
+      await Notifications.cancelScheduledNotificationAsync(await failedSyncNotificationId);
     }
 
     return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
