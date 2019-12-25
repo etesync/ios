@@ -20,8 +20,6 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     const syncInfoCollections = storeState.cache.syncInfoCollection;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
-    const now = new Date();
-    const dateYearRange = 4; // Maximum year range supported on iOS
 
     for (const collection of syncInfoCollections.values()) {
       const uid = collection.uid;
@@ -42,31 +40,25 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
-      for (let i = -2 ; i <= 1 ; i++) {
-        const remindersRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
-        const remindersRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
+      const existingReminders = await Calendar.getRemindersAsync([localId] as any, null, null as any, null as any);
+      existingReminders.forEach((_reminder) => {
+        if (handled[_reminder.id!]) {
+          return;
+        }
+        handled[_reminder.id!] = true;
 
-        const existingReminders = await Calendar.getRemindersAsync([localId] as any, null, remindersRangeStart, remindersRangeEnd);
+        const syncStateEntry = syncStateEntriesReverse.get(_reminder.id!);
 
-        existingReminders.forEach((_reminder) => {
-          if (handled[_reminder.id!]) {
-            return;
-          }
-          handled[_reminder.id!] = true;
+        const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
+        const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder);
+        if (syncEntry) {
+          syncEntries.push(syncEntry);
+        }
 
-          const syncStateEntry = syncStateEntriesReverse.get(_reminder.id!);
-
-          const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
-          const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder);
-          if (syncEntry) {
-            syncEntries.push(syncEntry);
-          }
-
-          if (syncStateEntry) {
-            syncStateEntriesReverse.delete(syncStateEntry.uid);
-          }
-        });
-      }
+        if (syncStateEntry) {
+          syncStateEntriesReverse.delete(syncStateEntry.uid);
+        }
+      });
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
