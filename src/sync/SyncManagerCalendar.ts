@@ -107,14 +107,18 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
 
       const pushEntries: PushEntry[] = [];
 
+      const existingEventsGroups = [];
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
       for (let i = -2 ; i <= 1 ; i++) {
         const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
         const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
 
-        const existingEvents = await Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd);
-        existingEvents.forEach((_event) => {
+        existingEventsGroups.push(Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd));
+      }
+
+      for (const existingEvents of existingEventsGroups) {
+        (await existingEvents).forEach((_event) => {
           if (handled[_event.id]) {
             return;
           }
