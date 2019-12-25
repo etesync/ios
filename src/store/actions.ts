@@ -306,6 +306,11 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) 
 
         Promise.all(journals.map((journal) => {
           const prevUid = currentEntries.get(journal.uid)?.last(undefined)?.uid ?? null;
+
+          // FIXME: expose it in a non-hacky way.
+          if (prevUid === (journal as any)._json.lastUid) {
+            return true;
+          }
           return dispatch(fetchEntries(etesync, journal.uid, prevUid));
         })).then(() => resolve(true)).catch(reject);
       }).catch(reject);
