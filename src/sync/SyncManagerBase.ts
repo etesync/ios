@@ -102,8 +102,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         localId = syncStateJournal.localId;
         await this.updateJournal(localId, collection);
         syncStateJournals.delete(uid);
-        // FIXME: remove this, we are just doing it here to fix it for people with malformed syncStateEntries. Can remove after a bit of time.
-        store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
       } else {
         logger.info(`Creating ${uid}`);
         localId = await this.createJournal(collection);
