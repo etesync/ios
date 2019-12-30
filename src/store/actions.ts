@@ -302,6 +302,7 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) 
         const journals = journalsAction.payload;
         if (!journals || (journals.length === 0)) {
           resolve(false);
+          return;
         }
 
         Promise.all(journals.map((journal) => {
