@@ -1,12 +1,14 @@
 import * as EteSync from 'etesync';
 import * as Contacts from 'expo-contacts';
 
+import { calculateHashesForContacts, hashContact } from '../EteSyncNative';
+
 import { logger } from '../logging';
 
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { contactVobjectToNative, entryNativeHashCalc, NativeContact, contactNativeToVobject } from './helpers';
+import { contactVobjectToNative, NativeContact, contactNativeToVobject } from './helpers';
 import { ContactType } from '../pim-types';
 
 import { SyncManagerBase, PushEntry } from './SyncManagerBase';
@@ -78,20 +80,23 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       // FIXME: add new contacts to the default address book (group)
       // const localId = syncStateJournal.localId;
 
-      const existingContacts = (await Contacts.getContactsAsync({ containerId: this.containerId, rawContacts: true })).data;
-      existingContacts.forEach((_contact) => {
-        const syncStateEntry = syncStateEntriesReverse.get(_contact.id);
+      const existingContacts = await calculateHashesForContacts(this.containerId);
+      for (const [contactId, contactHash] of existingContacts) {
+        const syncStateEntry = syncStateEntriesReverse.get(contactId);
 
-        const contact = { ..._contact, id: _contact.id, uid: (syncStateEntry) ? syncStateEntry.uid : _contact.id };
-        const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact);
-        if (pushEntry) {
-          pushEntries.push(pushEntry);
+        if (syncStateEntry?.lastHash !== contactHash) {
+          const _contact = await Contacts.getContactByIdAsync(contactId);
+          const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId };
+          const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
+          if (pushEntry) {
+            pushEntries.push(pushEntry);
+          }
         }
 
         if (syncStateEntry) {
           syncStateEntriesReverse.delete(syncStateEntry.uid);
         }
-      });
+      }
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
@@ -124,10 +129,6 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return contactNativeToVobject(nativeItem);
   }
 
-  protected nativeHashCalc(contact: NativeContact) {
-    return entryNativeHashCalc(contact);
-  }
-
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const contact = this.syncEntryToVobject(syncEntry);
     const nativeContact = contactVobjectToNative(contact);
@@ -157,8 +158,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
           await Contacts.addExistingContactToGroupAsync(localEntryId, containerLocalId);
         }
 
-        const createdContact = { ...(await Contacts.getContactByIdAsync(syncStateEntry.localId))!, uid: nativeContact.uid };
-        syncStateEntry.lastHash = this.nativeHashCalc(createdContact);
+        syncStateEntry.lastHash = await hashContact(syncStateEntry.localId);
 
         break;
       }
