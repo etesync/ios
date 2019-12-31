@@ -55,6 +55,14 @@ class Sha256 {
     }
 }
 
+private func sortMessagePackArray(arr: [MessagePackValue]) -> [MessagePackValue] {
+    return arr.sorted{
+        let a = pack($0).base64EncodedString()
+        let b = pack($1).base64EncodedString()
+        return a < b
+    }
+}
+
 private func stringOrNull(str: String?) -> MessagePackValue {
     if let string = str {
         return .string(string)
@@ -77,7 +85,7 @@ private func dateComponentsOrNull(dateComponents: DateComponents?) -> MessagePac
 
 private func numberArrayOrNull(array: [NSNumber]?) -> MessagePackValue {
     if let arr = array {
-        return .array(arr.map{ .int($0.int64Value) })
+        return .array(sortMessagePackArray(arr: arr.map{ .int($0.int64Value) }))
     } else {
         return .nil
     }
@@ -85,12 +93,12 @@ private func numberArrayOrNull(array: [NSNumber]?) -> MessagePackValue {
 
 private func weekdaysArrayOrNull(weekdays: [EKRecurrenceDayOfWeek]?) -> MessagePackValue {
     if let arr = weekdays {
-        return .array(arr.map{
+        return .array(sortMessagePackArray(arr: arr.map{
             .array([
                 .int(Int64($0.dayOfTheWeek.rawValue)),
                 .int(Int64($0.weekNumber)),
             ])
-        })
+        }))
     } else {
         return .nil
     }
@@ -126,29 +134,29 @@ private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
     }
     
     if item.hasAttendees, let attendees = item.attendees {
-        msg.append(.array(attendees.map {
+        msg.append(.array(sortMessagePackArray(arr: attendees.map {
             .array([
                 stringOrNull(str: $0.name),
                 .string($0.url.absoluteString)
             ])
-        }))
+        })))
     } else {
         msg.append(.nil)
     }
     
     if item.hasAlarms, let alarms = item.alarms {
-        msg.append(.array(alarms.map {
+        msg.append(.array(sortMessagePackArray(arr: alarms.map {
             .array([
                 .double($0.relativeOffset),
                 .double($0.absoluteDate?.timeIntervalSince1970 ?? 0)
             ])
-        }))
+        })))
     } else {
         msg.append(.nil)
     }
     
     if item.hasRecurrenceRules, let recurrenceRules = item.recurrenceRules {
-        msg.append(.array(recurrenceRules.map {
+        msg.append(.array(sortMessagePackArray(arr: recurrenceRules.map {
             .array([
                 .int(Int64($0.frequency.rawValue)),
                 .int(Int64($0.interval)),
@@ -161,7 +169,7 @@ private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
                 .int(Int64($0.recurrenceEnd?.occurrenceCount ?? 0)),
                 .double($0.recurrenceEnd?.endDate?.timeIntervalSince1970 ?? 0),
             ])
-        }))
+        })))
     } else {
         msg.append(.nil)
     }
