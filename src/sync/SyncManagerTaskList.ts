@@ -1,11 +1,13 @@
 import * as EteSync from 'etesync';
 import * as Calendar from 'expo-calendar';
 
+import { calculateHashesForReminders, hashReminder } from '../EteSyncNative';
+
 import { logger } from '../logging';
 
 import { store, SyncStateJournalEntryData } from '../store';
 
-import { NativeTask, taskVobjectToNative, taskNativeToVobject, entryNativeHashCalc } from './helpers';
+import { NativeTask, taskVobjectToNative, taskNativeToVobject } from './helpers';
 import { TaskType } from '../pim-types';
 
 import { SyncManagerCalendarBase } from './SyncManagerCalendar';
@@ -28,7 +30,6 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         continue;
       }
 
-      const handled = {};
       logger.info(`Pushing ${uid}`);
 
       const syncStateEntriesReverse = syncStateEntries.get(uid)!.mapEntries((_entry) => {
@@ -40,25 +41,23 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
-      const existingReminders = await Calendar.getRemindersAsync([localId] as any, null, null as any, null as any);
-      existingReminders.forEach((_reminder) => {
-        if (handled[_reminder.id!]) {
-          return;
-        }
-        handled[_reminder.id!] = true;
+      const existingReminders = await calculateHashesForReminders(localId);
+      for (const [reminderId, reminderHash] of existingReminders) {
+        const syncStateEntry = syncStateEntriesReverse.get(reminderId!);
 
-        const syncStateEntry = syncStateEntriesReverse.get(_reminder.id!);
-
-        const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
-        const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder);
-        if (syncEntry) {
-          syncEntries.push(syncEntry);
+        if (syncStateEntry?.lastHash !== reminderHash) {
+          const _reminder = await Calendar.getReminderAsync(reminderId);
+          const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
+          const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder, reminderHash);
+          if (syncEntry) {
+            syncEntries.push(syncEntry);
+          }
         }
 
         if (syncStateEntry) {
           syncStateEntriesReverse.delete(syncStateEntry.uid);
         }
-      });
+      }
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
         // Deleted
@@ -91,10 +90,6 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     return taskNativeToVobject(nativeItem);
   }
 
-  protected nativeHashCalc(task: NativeTask) {
-    return entryNativeHashCalc(task);
-  }
-
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const task = this.syncEntryToVobject(syncEntry);
     const nativeReminder = taskVobjectToNative(task);
@@ -121,8 +116,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
           };
         }
 
-        const createdReminder = { ...await Calendar.getReminderAsync(syncStateEntry.localId), uid: nativeReminder.uid };
-        syncStateEntry.lastHash = this.nativeHashCalc(createdReminder);
+        syncStateEntry.lastHash = await hashReminder(syncStateEntry.localId);
 
         break;
       }
