@@ -86,7 +86,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
         if (syncStateEntry?.lastHash !== contactHash) {
           const _contact = await Contacts.getContactByIdAsync(contactId);
-          const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId };
+          const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(':')[0] };
           const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
           if (pushEntry) {
             pushEntries.push(pushEntry);
