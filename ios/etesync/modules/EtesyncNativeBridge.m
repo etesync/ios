@@ -11,4 +11,7 @@ RCT_EXTERN_METHOD(calculateHashesForReminders:(NSString *)calendarId resolve:(RC
 RCT_EXTERN_METHOD(hashContact:(NSString *)contactId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(calculateHashesForContacts:(NSString *)containerId resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(beginBackgroundTask:(NSString *)name resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(endBackgroundTask:(nonnull NSNumber *)taskId)
+
 @end

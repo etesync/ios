@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import EventKit
 import Contacts
 
@@ -165,5 +166,21 @@ class EteSyncNative: NSObject {
             
             resolve(ret)
         }
+    }
+
+    @objc(beginBackgroundTask:resolve:reject:)
+    func beginBackgroundTask(name: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        var backgroundTaskId: [UIBackgroundTaskIdentifier] = []
+        backgroundTaskId.append(UIApplication.shared.beginBackgroundTask (withName: name) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskId.first!)
+            backgroundTaskId[0] = UIBackgroundTaskIdentifier.invalid
+        })
+        
+        resolve(backgroundTaskId[0].rawValue)
+    }
+    
+    @objc(endBackgroundTask:)
+    func endBackgroundTask(taskId: NSNumber) {
+        UIApplication.shared.endBackgroundTask(UIBackgroundTaskIdentifier(rawValue: taskId.intValue))
     }
 }
