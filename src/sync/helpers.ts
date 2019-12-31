@@ -378,7 +378,7 @@ export function contactVobjectToNative(contact: ContactType) {
       return {
         day: value.day,
         month: value.month,
-        year: value.year,
+        year: value.year ?? undefined,
       };
     } else {
       const time = prop.toJSON()[3];
@@ -386,7 +386,6 @@ export function contactVobjectToNative(contact: ContactType) {
         return {
           day: parseInt(time.slice(4, 6)),
           month: parseInt(time.slice(2, 4)),
-          year: null,
         };
       }
     }
