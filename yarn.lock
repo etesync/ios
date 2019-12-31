@@ -7620,6 +7620,11 @@ react-native-paper@^3.4.0:
     color "^3.1.2"
     react-native-safe-area-view "^0.14.6"
 
+react-native-rsa-native@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/react-native-rsa-native/-/react-native-rsa-native-1.1.3.tgz#25ab6f4c4069e7d15aef5444e0ce589e4411c07e"
+  integrity sha512-jdnJbqa6hABBmRDAT6Xib0m81s+YWu1ZoYNx5SR2QJn2FRMbDw84nUxi93HGOVyzWh5BX/CFe/A4CNF+OB3eeA==
+
 react-native-safe-area-view@^0.14.1:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/react-native-safe-area-view/-/react-native-safe-area-view-0.14.5.tgz#eeded66bbeb0807f0a7f5f449e7fb2871f7ecf76"
