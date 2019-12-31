@@ -249,9 +249,9 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected syncPushHandleAddChange(_syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
+  protected syncPushHandleAddChange(_syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
     let syncEntryAction: EteSync.SyncEntryAction | undefined;
-    const currentHash = this.nativeHashCalc(nativeItem);
+    const currentHash = itemHash;
 
     if (syncStateEntry === undefined) {
       // New
@@ -321,7 +321,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
   protected abstract nativeToVobject(nativeItem: N): T;
-  protected abstract nativeHashCalc(entry: N): string;
 
   protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
 }

@@ -1,12 +1,14 @@
 import * as EteSync from 'etesync';
 import * as Calendar from 'expo-calendar';
 
+import { calculateHashesForEvents, hashEvent } from '../EteSyncNative';
+
 import { logger } from '../logging';
 
 import { store, SyncStateJournalEntryData } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
-import { eventVobjectToNative, eventNativeToVobject, entryNativeHashCalc, NativeBase, NativeEvent } from './helpers';
+import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from './helpers';
 import { colorIntToHtml } from '../helpers';
 import { PimType, EventType } from '../pim-types';
 
@@ -114,28 +116,31 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         const eventsRangeStart = new Date(new Date().setFullYear(now.getFullYear() + (i * dateYearRange)));
         const eventsRangeEnd = new Date(new Date().setFullYear(now.getFullYear() + ((i + 1) * dateYearRange)));
 
-        existingEventsGroups.push(Calendar.getEventsAsync([localId], eventsRangeStart, eventsRangeEnd));
+        existingEventsGroups.push(calculateHashesForEvents(localId, eventsRangeStart, eventsRangeEnd));
       }
 
       for (const existingEvents of existingEventsGroups) {
-        (await existingEvents).forEach((_event) => {
-          if (handled[_event.id]) {
-            return;
+        for (const [eventId, eventHash] of await existingEvents) {
+          if (handled[eventId]) {
+            continue;
           }
-          handled[_event.id] = true;
+          handled[eventId] = true;
 
-          const syncStateEntry = syncStateEntriesReverse.get(_event.id);
+          const syncStateEntry = syncStateEntriesReverse.get(eventId);
 
-          const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
-          const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event);
-          if (pushEntry) {
-            pushEntries.push(pushEntry);
+          if (syncStateEntry?.lastHash !== eventHash) {
+            const _event = await Calendar.getEventAsync(eventId);
+            const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
+            const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event, eventHash);
+            if (pushEntry) {
+              pushEntries.push(pushEntry);
+            }
           }
 
           if (syncStateEntry) {
-            syncStateEntriesReverse.delete(syncStateEntry.uid);
+            syncStateEntriesReverse.delete(eventId);
           }
-        });
+        }
       }
 
       for (const syncStateEntry of syncStateEntriesReverse.values()) {
@@ -169,10 +174,6 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     return eventNativeToVobject(nativeItem);
   }
 
-  protected nativeHashCalc(event: NativeEvent) {
-    return entryNativeHashCalc(event);
-  }
-
   protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
     const event = this.syncEntryToVobject(syncEntry);
     const nativeEvent = eventVobjectToNative(event);
@@ -201,8 +202,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           };
         }
 
-        const createdEvent = { ...await Calendar.getEventAsync(syncStateEntry.localId), uid: nativeEvent.uid };
-        syncStateEntry.lastHash = this.nativeHashCalc(createdEvent);
+        syncStateEntry.lastHash = await hashEvent(syncStateEntry.localId);
 
         break;
       }
