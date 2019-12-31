@@ -49,4 +49,41 @@ class EteSyncNative: NSObject {
             resolve(ret)
         }
     }
+    
+    @objc(hashReminder:resolve:reject:)
+    func hashReminder(reminderId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        let store = EKEventStore()
+        if let reminder = store.calendarItem(withIdentifier: reminderId) as! EKReminder? {
+            resolve(etesync.hashReminder(reminder: reminder))
+        } else {
+            reject("no_reminder", String(format: "Reminder with identifier %@ not found", reminderId), nil)
+        }
+    }
+    
+    @objc(calculateHashesForReminders:resolve:reject:)
+    func calculateHashesForReminders(calendarId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        taskQueue.async {
+            let store = EKEventStore()
+            guard let cal = store.calendar(withIdentifier: calendarId) else {
+                reject("no_calendar", String(format: "Calendar with identifier %@ not found", calendarId), nil)
+                return
+            }
+            
+            let predicate = store.predicateForReminders(in: [cal])
+            
+            store.fetchReminders(matching: predicate, completion: { reminders in
+                if (reminders == nil) {
+                    resolve([])
+                    return
+                }
+
+                resolve(reminders!.map{ reminder in
+                    [
+                        reminder.calendarItemIdentifier,
+                        etesync.hashReminder(reminder: reminder)
+                    ]
+                })
+            })
+        }
+    }
 }
