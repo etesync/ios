@@ -8,6 +8,7 @@
 
 import Foundation
 import EventKit
+import Contacts
 import CommonCrypto
 import MessagePack
 
@@ -211,3 +212,98 @@ func hashReminder(reminder: EKReminder) -> String {
     
     return sha.finalize()
 }
+
+func hashContact(contact: CNContact) -> String {
+    var msg = [MessagePackValue](repeating: 0, count: 0)
+
+    msg.append(dateComponentsOrNull(dateComponents: contact.birthday))
+    msg.append(.string(contact.departmentName))
+    msg.append(.string(contact.familyName))
+    msg.append(.string(contact.givenName))
+    msg.append(.string(contact.jobTitle))
+    msg.append(.string(contact.middleName))
+    msg.append(.string(contact.namePrefix))
+    msg.append(.string(contact.nameSuffix))
+    msg.append(.string(contact.nickname))
+    msg.append(.string(contact.organizationName))
+    msg.append(.string(contact.previousFamilyName))
+    
+    msg.append(.array(sortMessagePackArray(arr: contact.dates.map{
+        var dateComponents = DateComponents()
+        dateComponents.year = $0.value.year
+        dateComponents.month = $0.value.month
+        dateComponents.day = $0.value.day
+        
+        return [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            dateComponentsOrNull(dateComponents: dateComponents)
+        ]
+    })))
+    
+    msg.append(.array(sortMessagePackArray(arr: contact.emailAddresses.map{
+        [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            .string(String($0.value))
+        ]
+    })))
+    
+    msg.append(.array(sortMessagePackArray(arr: contact.instantMessageAddresses.map{
+        [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            .string($0.value.service),
+            .string($0.value.username)
+        ]
+    })))
+    
+    msg.append(.array(sortMessagePackArray(arr: contact.phoneNumbers.map{
+        [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            .string($0.value.stringValue),
+        ]
+    })))
+    
+    msg.append(.array(sortMessagePackArray(arr: contact.postalAddresses.map{
+        [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            .string($0.value.city),
+            .string($0.value.country),
+            .string($0.value.postalCode),
+            .string($0.value.state),
+            .string($0.value.street),
+        ]
+    })))
+
+    msg.append(.array(sortMessagePackArray(arr: contact.urlAddresses.map{
+        [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            .string(String($0.value))
+        ]
+    })))
+    
+    msg.append(.array(sortMessagePackArray(arr: contact.contactRelations.map{
+        [
+            .string($0.identifier),
+            stringOrNull(str: $0.label),
+            .string(String($0.value.name))
+        ]
+    })))
+    
+    if contact.imageDataAvailable, let imageData = contact.thumbnailImageData {
+        msg.append(.binary(imageData))
+    } else {
+        msg.append(nil)
+    }
+    
+    // Needs a special entitlement: msg.append(.string(contact.note))
+    
+    let sha = Sha256()
+    
+    sha.update(data: pack(.array(msg)))
+    
+    return sha.finalize()}

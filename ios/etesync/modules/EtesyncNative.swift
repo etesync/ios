@@ -1,5 +1,6 @@
 import Foundation
 import EventKit
+import Contacts
 
 @objc(EteSyncNative)
 class EteSyncNative: NSObject {
@@ -84,6 +85,85 @@ class EteSyncNative: NSObject {
                     ]
                 })
             })
+        }
+    }
+    
+    static let keysToFetch = [
+        CNContactIdentifierKey,
+        CNContactTypeKey,
+        CNContactPropertyAttribute,
+        CNContactNamePrefixKey,
+        CNContactGivenNameKey,
+        CNContactMiddleNameKey,
+        CNContactFamilyNameKey,
+        CNContactPreviousFamilyNameKey,
+        CNContactNameSuffixKey,
+        CNContactNicknameKey,
+        CNContactJobTitleKey,
+        CNContactDepartmentNameKey,
+        CNContactOrganizationNameKey,
+        CNContactPostalAddressesKey,
+        CNContactEmailAddressesKey,
+        CNContactUrlAddressesKey,
+        CNContactInstantMessageAddressesKey,
+        CNContactPhoneNumbersKey,
+        CNContactBirthdayKey,
+        CNContactDatesKey,
+        // CNContactNoteKey,
+        CNContactImageDataAvailableKey,
+        CNContactThumbnailImageDataKey,
+        CNContactRelationsKey,
+        CNContactInstantMessageAddressesKey,
+    ] as [CNKeyDescriptor]
+
+    @objc(hashContact:resolve:reject:)
+    func hashContact(contactId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        let store = CNContactStore()
+        let predicate = CNContact.predicateForContacts(withIdentifiers: [contactId])
+        let fetchRequest = CNContactFetchRequest(keysToFetch: EteSyncNative.keysToFetch)
+        fetchRequest.unifyResults = false
+        fetchRequest.predicate = predicate
+        
+        var ret: String? = nil
+        do {
+            try store.enumerateContacts(with: fetchRequest, usingBlock: { (contact, _) in
+                ret = etesync.hashContact(contact: contact)
+            })
+        } catch {
+            reject("fetch_failed", "Failed fethcing contact", error)
+            return
+        }
+        
+        if (ret == nil) {
+            reject("not_found", String(format: "Contact with id %@ not found", contactId), nil)
+        }
+        
+        resolve(ret)
+    }
+    
+    @objc(calculateHashesForContacts:resolve:reject:)
+    func calculateHashesForContacts(containerId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        taskQueue.async {
+            let store = CNContactStore()
+            let predicate = CNContact.predicateForContactsInContainer(withIdentifier: containerId)
+            let fetchRequest = CNContactFetchRequest(keysToFetch: EteSyncNative.keysToFetch)
+            fetchRequest.unifyResults = false
+            fetchRequest.predicate = predicate
+            
+            var ret: [[String]] = []
+            do {
+                try store.enumerateContacts(with: fetchRequest, usingBlock: { (contact, _) in
+                    ret.append([
+                        contact.identifier,
+                        etesync.hashContact(contact: contact)
+                    ])
+                })
+            } catch {
+                reject("fetch_failed", "Failed fethcing contacts", error)
+                return
+            }
+            
+            resolve(ret)
         }
     }
 }
