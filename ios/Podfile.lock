@@ -110,6 +110,7 @@ PODS:
     - GoogleMaps/Base
   - JKBigInteger2 (0.0.5)
   - lottie-ios (2.5.3)
+  - MessagePack.swift (3.0.1)
   - RCTRequired (0.61.4)
   - RCTTypeSafety (0.61.4):
     - FBLazyVector (= 0.61.4)
@@ -350,6 +351,7 @@ DEPENDENCIES:
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - MessagePack.swift (~> 3.0)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -398,6 +400,7 @@ SPEC REPOS:
     - GoogleMaps
     - JKBigInteger2
     - lottie-ios
+    - MessagePack.swift
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -577,6 +580,7 @@ SPEC CHECKSUMS:
   GoogleMaps: 82f8fe307193bb4de6ef6bf9e88f1d624b718f9d
   JKBigInteger2: e91672035c42328c48b7dd015b66812ddf40ca9b
   lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
+  MessagePack.swift: 3c5eec2a66cf3c8236cb416abb5d1a8a1b52f5a6
   RCTRequired: f3b3fb6f4723e8e52facb229d0c75fdc76773849
   RCTTypeSafety: 2ec60de6abb1db050b56ecc4b60188026078fd10
   React: 10e0130b57e55a7cd8c3dee37c1261102ce295f4
@@ -611,6 +615,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: a98e37a576a5220bf43b8faf33cfdc129d2f441d
   Yoga: ba3d99dbee6c15ea6bbe3783d1f0cb1ffb79af0f
 
-PODFILE CHECKSUM: aa61baeb0af85827b6d8ca48f608ac8edabc4848
+PODFILE CHECKSUM: e12259144247d12c9bf5f236ab8674226d838258
 
 COCOAPODS: 1.8.4
