@@ -5,7 +5,7 @@ import { calculateHashesForContacts, hashContact } from '../EteSyncNative';
 
 import { logger } from '../logging';
 
-import { store, SyncStateJournalEntryData } from '../store';
+import { store, SyncStateJournalEntryData, SyncStateEntry } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
 import { contactVobjectToNative, NativeContact, contactNativeToVobject } from './helpers';
@@ -60,6 +60,11 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
 
+    const syncStateEntriesReverseAll = new Map<string, { collectionUid: string, syncStateEntry: SyncStateEntry }>();
+
+    const pushEntries = new Map<string, PushEntry[]>();
+
+    // First collect all of the sync entries
     for (const collection of syncInfoCollections.values()) {
       const uid = collection.uid;
 
@@ -67,57 +72,65 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         continue;
       }
 
-      logger.info(`Pushing ${uid}`);
+      syncStateEntries.get(uid)!.forEach((entry) => {
+        syncStateEntriesReverseAll.set(entry.localId, { collectionUid: uid, syncStateEntry: entry });
+      });
 
-      const syncStateEntriesReverse = syncStateEntries.get(uid)!.mapEntries((_entry) => {
-        const entry = _entry[1];
-        return [entry.localId, entry];
-      }).asMutable();
+      pushEntries.set(uid, []);
+    }
 
-      const pushEntries: PushEntry[] = [];
+    logger.info(`Preparing pushing of ${this.collectionType}`);
 
-      const syncStateJournal = syncStateJournals.get(uid)!;
-      // FIXME: add new contacts to the default address book (group)
-      // const localId = syncStateJournal.localId;
+    // FIXME: add new contacts to the default address book (group)
+    // const localId = syncStateJournal.localId;
+    const defaultCollectionUid = Array.from(pushEntries.keys())[0];
 
-      const existingContacts = await calculateHashesForContacts(this.containerId);
-      for (const [contactId, contactHash] of existingContacts) {
-        const syncStateEntry = syncStateEntriesReverse.get(contactId);
+    const existingContacts = await calculateHashesForContacts(this.containerId);
+    for (const [contactId, contactHash] of existingContacts) {
+      const reverseEntry = syncStateEntriesReverseAll.get(contactId);
+      const syncStateEntry = reverseEntry?.syncStateEntry;
 
-        if (syncStateEntry?.lastHash !== contactHash) {
-          const _contact = await Contacts.getContactByIdAsync(contactId);
-          const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(':')[0] };
-          const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
-          if (pushEntry) {
-            pushEntries.push(pushEntry);
-          }
-        }
-
-        if (syncStateEntry) {
-          syncStateEntriesReverse.delete(syncStateEntry.uid);
+      if (syncStateEntry?.lastHash !== contactHash) {
+        const collectionUid = reverseEntry?.collectionUid ?? defaultCollectionUid;
+        const syncStateJournal = syncStateJournals.get(collectionUid)!;
+        const _contact = await Contacts.getContactByIdAsync(contactId);
+        const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(':')[0] };
+        const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
+        if (pushEntry) {
+          pushEntries.get(collectionUid)!.push(pushEntry);
         }
       }
 
-      for (const syncStateEntry of syncStateEntriesReverse.values()) {
-        // Deleted
-        let existingContact: Contacts.Contact | undefined;
-        try {
-          existingContact = await Contacts.getContactByIdAsync(syncStateEntry.localId);
-        } catch (e) {
-          // Skip
-        }
+      if (syncStateEntry) {
+        syncStateEntriesReverseAll.delete(syncStateEntry.uid);
+      }
+    }
 
-        // FIXME: handle the case of the contact still existing for some reason.
-        if (!existingContact) {
-          // If the event still exists it means it's not deleted.
-          const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
-          if (pushEntry) {
-            pushEntries.push(pushEntry);
-          }
-        }
+    for (const reverseEntry of syncStateEntriesReverseAll.values()) {
+      const syncStateEntry = reverseEntry.syncStateEntry;
+      // Deleted
+      let existingContact: Contacts.Contact | undefined;
+      try {
+        existingContact = await Contacts.getContactByIdAsync(syncStateEntry.localId);
+      } catch (e) {
+        // Skip
       }
 
-      await this.pushJournalEntries(syncStateJournal, pushEntries);
+      // FIXME: handle the case of the contact still existing for some reason.
+      if (!existingContact) {
+        // If the event still exists it means it's not deleted.
+        const syncStateJournal = syncStateJournals.get(reverseEntry.collectionUid)!;
+        const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+        if (pushEntry) {
+          pushEntries.get(reverseEntry.collectionUid)!.push(pushEntry);
+        }
+      }
+    }
+
+    for (const [collectionUid, journalPushEntries] of pushEntries.entries()) {
+      logger.info(`Pushing ${collectionUid}`);
+      const syncStateJournal = syncStateJournals.get(collectionUid)!;
+      await this.pushJournalEntries(syncStateJournal, journalPushEntries);
     }
   }
 
