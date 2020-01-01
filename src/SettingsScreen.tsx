@@ -329,10 +329,10 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
       >
         <>
           <Paragraph>
-            Contact sync is not on by default because unlike the calendar sync, it syncs to your existing address book. So for example, if you have iCloud sync turned on, all of your EteSync contacts will sync to your iCloud account and vice-versa!
+            Contact sync is not on by default because unlike the calendar sync, it syncs to your local address book instead of a special account.
           </Paragraph>
           <Paragraph>
-            It's therefore recommended to turn iCloud contacts sync off from the phone's Settings app before proceeding.
+            This means that there is no separation, and once your turn this on, all of your local contacts will be automatically merged with your EteSync contacts.
           </Paragraph>
         </>
       </ConfirmationDialog>
