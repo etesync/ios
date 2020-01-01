@@ -7,7 +7,7 @@ interface EteSyncNativeModule {
   calculateHashesForEvents(calendarId: string, from: number, to: number): Promise<HashesForItem[]>;
   hashReminder(eventId: string): Promise<string>;
   calculateHashesForReminders(calendarId: string): Promise<HashesForItem[]>;
-  hashContact(contactIdd: string): Promise<string>;
+  hashContact(contactId: string): Promise<string>;
   calculateHashesForContacts(containerId: string): Promise<HashesForItem[]>;
 }
 
