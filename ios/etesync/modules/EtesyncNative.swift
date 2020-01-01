@@ -171,6 +171,88 @@ class EteSyncNative: NSObject {
         }
     }
     
+    @objc(processContactsChanges:changes:resolve:reject:)
+    func processContactsChanges(containerId: String, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        taskQueue.async {
+            let ActionAdd = 1
+            let ActionChange = 2
+            let ActionDelete = 3
+
+            let store = CNContactStore()
+            
+            var fetchedContacts = Dictionary<String, CNMutableContact>()
+            var fetchContactsIds: [String] = []
+            
+            for change in changes {
+                let action = change[0] as! Int
+                let item = change[1] as! Dictionary<String, Any>
+                
+                if (action == ActionChange || action == ActionDelete) {
+                    let identifier = item["id"] as! String
+                    fetchContactsIds.append(identifier)
+                }
+            }
+            
+            if (!fetchContactsIds.isEmpty) {
+                let predicate = CNContact.predicateForContacts(withIdentifiers: fetchContactsIds)
+                let fetchRequest = EteSyncNative.getFetchRequest(predicate: predicate)
+                fetchRequest.mutableObjects = true
+                
+                do {
+                    try store.enumerateContacts(with: fetchRequest, usingBlock: { (contact, _) in
+                        fetchedContacts[contact.identifier] = (contact as! CNMutableContact)
+                    })
+                } catch {
+                    reject("fetch_failed", "Failed fethcing contacts", error)
+                    return
+                }
+            }
+            
+            var addChangeContacts: [CNMutableContact] = []
+            var ret: [[String]] = []
+            
+            let saveRequest = CNSaveRequest()
+            
+            for change in changes {
+                let action = change[0] as! Int
+                let item = change[1] as! Dictionary<String, Any>
+                let identifier = item["id"] as! String? ?? "NOTFOUND"
+                let contact = fetchedContacts[identifier] ?? CNMutableContact()
+                mutateContact(contact: contact, data: item)
+                
+                switch (action) {
+                case ActionAdd:
+                    saveRequest.add(contact, toContainerWithIdentifier: containerId)
+                    addChangeContacts.append(contact)
+                case ActionChange:
+                    saveRequest.update(contact)
+                    addChangeContacts.append(contact)
+                case ActionDelete:
+                    saveRequest.delete(contact)
+                default:
+                    reject("unrecognized_action", "Failed processing unrecognized action", nil)
+                    return
+                }
+            }
+
+            do {
+                try store.execute(saveRequest)
+            } catch {
+                reject("failed_poccessing_changes", "Failed processing contacts changes", error)
+                return
+            }
+            
+            for contact in addChangeContacts {
+                ret.append([
+                    contact.identifier,
+                    etesync.hashContact(contact: contact)
+                ])
+            }
+
+            resolve(ret)
+        }
+    }
+    
     @objc(deleteContactGroupAndMembers:resolve:reject:)
     func deleteContactGroupAndMembers(groupId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
