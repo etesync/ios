@@ -14,4 +14,5 @@ RCT_EXTERN_METHOD(calculateHashesForContacts:(NSString *)containerId resolve:(RC
 RCT_EXTERN_METHOD(beginBackgroundTask:(NSString *)name resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(endBackgroundTask:(nonnull NSNumber *)taskId)
 
+RCT_EXTERN_METHOD(playground)
 @end

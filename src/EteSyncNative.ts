@@ -12,6 +12,8 @@ interface EteSyncNativeModule {
 
   beginBackgroundTask(name: string): Promise<number>;
   endBackgroundTask(taskId: number): void;
+
+  playground(): void;
 }
 
 const EteSyncNative = NativeModules.EteSyncNative as EteSyncNativeModule;
@@ -35,3 +37,6 @@ export function calculateHashesForContacts(containerId: string): Promise<HashesF
 export const hashContact = EteSyncNative.hashContact;
 
 export const { beginBackgroundTask, endBackgroundTask } = EteSyncNative;
+
+
+export const playground = EteSyncNative.playground;
