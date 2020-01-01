@@ -1,7 +1,7 @@
 import * as EteSync from 'etesync';
 import * as Contacts from 'expo-contacts';
 
-import { calculateHashesForContacts, hashContact } from '../EteSyncNative';
+import { deleteContactGroupAndMembers, calculateHashesForContacts, hashContact } from '../EteSyncNative';
 
 import { logger } from '../logging';
 
@@ -35,19 +35,10 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     const storeState = store.getState();
     const syncStateJournals = storeState.sync.stateJournals;
 
-    return;
-
-    const contacts = (await Contacts.getContactsAsync({ containerId: this.containerId, rawContacts: true })).data;
-    for (const contact of contacts) {
-      logger.info(`Deleting ${contact.id}`);
-      await Contacts.removeContactAsync(contact.id);
-    }
-
     await Promise.all(syncStateJournals.map(async (journal) => {
       store.dispatch(unsetSyncStateJournal(etesync, journal));
       try {
-        await Contacts.getGroupsAsync({ groupId: journal.localId });
-        await Contacts.removeGroupAsync(journal.localId);
+        await deleteContactGroupAndMembers(journal.localId);
       } catch (e) {
         logger.warn(e);
       }
