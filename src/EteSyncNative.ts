@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import * as Contacts from 'expo-contacts';
 
 export type HashesForItem = [string, string];
 
@@ -10,6 +11,7 @@ interface EteSyncNativeModule {
   hashContact(contactId: string): Promise<string>;
   calculateHashesForContacts(containerId: string): Promise<HashesForItem[]>;
   deleteContactGroupAndMembers(groupId: string): Promise<number>;
+  getContainers(): Promise<(Contacts.Container & { default: boolean })[]>;
 
   beginBackgroundTask(name: string): Promise<number>;
   endBackgroundTask(taskId: number): void;
@@ -37,6 +39,7 @@ export function calculateHashesForContacts(containerId: string): Promise<HashesF
 
 export const hashContact = EteSyncNative.hashContact;
 export const deleteContactGroupAndMembers = EteSyncNative.deleteContactGroupAndMembers;
+export const getContainers = EteSyncNative.getContainers;
 
 export const { beginBackgroundTask, endBackgroundTask } = EteSyncNative;
 

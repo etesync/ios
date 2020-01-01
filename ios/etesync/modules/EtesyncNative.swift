@@ -215,6 +215,40 @@ class EteSyncNative: NSObject {
             resolve(count)
         }
     }
+    
+    @objc(getContainers:reject:)
+    func getContainers(resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        let store = CNContactStore()
+        do {
+            let containers = try store.containers(matching: nil)
+            let defaultContainerId = store.defaultContainerIdentifier()
+            var ret: [Any] = []
+            
+            for container in containers {
+                var typeStr: String
+                switch (container.type) {
+                case .cardDAV:
+                    typeStr = "cardDAV"
+                case .exchange:
+                    typeStr = "exchange"
+                case .local:
+                    typeStr = "local"
+                default:
+                    typeStr = "unassigned"
+                }
+                ret.append([
+                    "name": container.name,
+                    "id": container.identifier,
+                    "type": typeStr,
+                    "default": container.identifier == defaultContainerId
+                ])
+            }
+            
+            resolve(ret)
+        } catch {
+            reject("default_container_load_error", "Could not load default container.", error)
+        }
+    }
 
     @objc(beginBackgroundTask:resolve:reject:)
     func beginBackgroundTask(name: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
