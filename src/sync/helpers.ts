@@ -2,6 +2,8 @@ import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';
 
+import { getContainers } from '../EteSyncNative';
+
 import { PRODID, ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
 import { logger } from '../logging';
@@ -565,4 +567,9 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   }
 
   return ret;
+}
+
+export async function getLocalContainer() {
+  const containers = (await getContainers()).filter((cont) => (cont.type === Contacts.ContainerTypes.Local));
+  return (containers.length > 0) ? containers[0] : null;
 }
