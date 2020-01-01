@@ -9,6 +9,7 @@ interface EteSyncNativeModule {
   calculateHashesForReminders(calendarId: string): Promise<HashesForItem[]>;
   hashContact(contactId: string): Promise<string>;
   calculateHashesForContacts(containerId: string): Promise<HashesForItem[]>;
+  deleteContactGroupAndMembers(groupId: string): Promise<number>;
 
   beginBackgroundTask(name: string): Promise<number>;
   endBackgroundTask(taskId: number): void;
@@ -35,6 +36,7 @@ export function calculateHashesForContacts(containerId: string): Promise<HashesF
 }
 
 export const hashContact = EteSyncNative.hashContact;
+export const deleteContactGroupAndMembers = EteSyncNative.deleteContactGroupAndMembers;
 
 export const { beginBackgroundTask, endBackgroundTask } = EteSyncNative;
 

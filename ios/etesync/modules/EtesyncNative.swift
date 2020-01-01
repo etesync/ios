@@ -167,6 +167,54 @@ class EteSyncNative: NSObject {
             resolve(ret)
         }
     }
+    
+    @objc(deleteContactGroupAndMembers:resolve:reject:)
+    func deleteContactGroupAndMembers(groupId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        taskQueue.async {
+            var count = 0;
+            let store = CNContactStore()
+            var group: CNGroup;
+            do {
+                let groups = try store.groups(matching: CNGroup.predicateForGroups(withIdentifiers: [groupId]))
+                if let gr = groups.first {
+                    group = gr
+                } else {
+                    reject("fetch_group", "Failed fetching group", nil)
+                    return
+                }
+            } catch {
+                reject("fetch_group", "Failed fetching group", error)
+                return
+            }
+            let predicate = CNContact.predicateForContactsInGroup(withIdentifier: groupId)
+            let fetchRequest = CNContactFetchRequest(keysToFetch: [CNContactIdentifierKey] as [CNKeyDescriptor])
+            fetchRequest.unifyResults = false
+            fetchRequest.mutableObjects = true
+            fetchRequest.predicate = predicate
+            
+            let saveRequest = CNSaveRequest()
+            do {
+                try store.enumerateContacts(with: fetchRequest, usingBlock: { (contact, _) in
+                    saveRequest.delete(contact as! CNMutableContact)
+                    count += 1
+                })
+            } catch {
+                reject("fetch_deletion_failed", "Failed fethcing contacts for deletion", error)
+                return
+            }
+            
+            saveRequest.delete(group.mutableCopy() as! CNMutableGroup)
+            
+            do {
+                try store.execute(saveRequest)
+            } catch {
+                reject("failed_deletion", "Failed deleting contacts", error)
+                return
+            }
+            
+            resolve(count)
+        }
+    }
 
     @objc(beginBackgroundTask:resolve:reject:)
     func beginBackgroundTask(name: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
