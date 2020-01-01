@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C1BAD9C23BCF9FF007DD03B /* ContactSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C1BAD9B23BCF9FF007DD03B /* ContactSerializer.swift */; };
 		8C24C27623B4C0010092D9FD /* EtesyncNative.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C27523B4C0010092D9FD /* EtesyncNative.swift */; };
 		8C24C27823B4DCCD0092D9FD /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C27723B4DCCD0092D9FD /* Utils.swift */; };
 		8C24C28223B516D30092D9FD /* EteSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C24C28123B516D30092D9FD /* EteSyncTests.swift */; };
@@ -39,7 +40,7 @@
 
 /* Begin PBXFileReference section */
 		2C1548D9E4CB1AEFA5CCAE6D /* Pods-etesync.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-etesync.debug.xcconfig"; path = "Pods/Target Support Files/Pods-etesync/Pods-etesync.debug.xcconfig"; sourceTree = "<group>"; };
-		8C1BAD9D23BD1553007DD03B /* EXContactsExposed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EXContactsExposed.h; sourceTree = "<group>"; };
+		8C1BAD9B23BCF9FF007DD03B /* ContactSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactSerializer.swift; sourceTree = "<group>"; };
 		8C24C27423B4C0000092D9FD /* etesync-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "etesync-Bridging-Header.h"; sourceTree = "<group>"; };
 		8C24C27523B4C0010092D9FD /* EtesyncNative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtesyncNative.swift; sourceTree = "<group>"; };
 		8C24C27723B4DCCD0092D9FD /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -117,9 +118,9 @@
 				8CF157E423B4BBA000D4FF6F /* EtesyncNativeBridge.m */,
 				8C24C27523B4C0010092D9FD /* EtesyncNative.swift */,
 				8C24C27723B4DCCD0092D9FD /* Utils.swift */,
+				8C1BAD9B23BCF9FF007DD03B /* ContactSerializer.swift */,
 				8C24C27423B4C0000092D9FD /* etesync-Bridging-Header.h */,
 				8C24C27923B516180092D9FD /* EtesyncNativeTest.swift */,
-				8C1BAD9D23BD1553007DD03B /* EXContactsExposed.h */,
 			);
 			path = modules;
 			sourceTree = "<group>";
@@ -376,6 +377,7 @@
 			files = (
 				8C24C27823B4DCCD0092D9FD /* Utils.swift in Sources */,
 				B56386611DB96A5E00A0598C /* main.m in Sources */,
+				8C1BAD9C23BCF9FF007DD03B /* ContactSerializer.swift in Sources */,
 				B56386491DB9693800A0598C /* AppDelegate.m in Sources */,
 				8C24C27623B4C0010092D9FD /* EtesyncNative.swift in Sources */,
 				8CF157E523B4BBA000D4FF6F /* EtesyncNativeBridge.m in Sources */,

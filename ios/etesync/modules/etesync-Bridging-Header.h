@@ -3,4 +3,3 @@
 //
 
 #import <React/RCTBridgeModule.h>
-#import "EXContactsExposed.h"

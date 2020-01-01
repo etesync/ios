@@ -3,8 +3,6 @@ import UIKit
 import EventKit
 import Contacts
 
-let excontacts = EXContacts()
-
 @objc(EteSyncNative)
 class EteSyncNative: NSObject {
     let taskQueue = DispatchQueue(label: "com.etesync.DispatchQueue", attributes: .concurrent)
@@ -220,7 +218,7 @@ class EteSyncNative: NSObject {
                 let item = change[1] as! Dictionary<String, Any>
                 let identifier = item["id"] as! String? ?? "NOTFOUND"
                 let contact = fetchedContacts[identifier] ?? CNMutableContact()
-                excontacts._mutateContact(contact, withData: item, resolver: nil, rejecter: nil)
+                mutateContact(contact: contact, data: item)
                 
                 switch (action) {
                 case ActionAdd:
