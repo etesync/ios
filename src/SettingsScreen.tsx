@@ -268,27 +268,29 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
           />
         </List.Section>
 
-        <List.Section>
-          <List.Subheader>Advanced</List.Subheader>
-          <List.Item
-            title="Sync Contacts"
-            description="Sync contacts with default address book"
-            right={(props) =>
-              <Switch
-                {...props}
-                color={theme.colors.accent}
-                value={settings.syncContacts}
-                onValueChange={(value) => {
-                  if (value) {
-                    setShowSyncContactsWarning(true);
-                  } else {
-                    dispatch(setSettings({ syncContacts: false }));
-                  }
-                }}
-              />
-            }
-          />
-        </List.Section>
+        {(!C.genericMode) && (
+          <List.Section>
+            <List.Subheader>Advanced</List.Subheader>
+            <List.Item
+              title="Sync Contacts"
+              description="Sync contacts with default address book"
+              right={(props) =>
+                <Switch
+                  {...props}
+                  color={theme.colors.accent}
+                  value={settings.syncContacts}
+                  onValueChange={(value) => {
+                    if (value) {
+                      setShowSyncContactsWarning(true);
+                    } else {
+                      dispatch(setSettings({ syncContacts: false }));
+                    }
+                  }}
+                />
+              }
+            />
+          </List.Section>
+        )}
 
         <List.Section>
           <List.Subheader>Debugging</List.Subheader>
