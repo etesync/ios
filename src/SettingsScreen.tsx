@@ -22,6 +22,7 @@ import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSy
 
 import * as C from './constants';
 import { startTask } from './helpers';
+import { getLocalContainer } from './sync/helpers';
 
 interface DialogPropsType {
   visible: boolean;
@@ -218,6 +219,51 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
   );
 }
 
+function SyncContactsConfirmationDialog(props: DialogPropsType) {
+  const dispatch = useDispatch();
+  const container = getLocalContainer();
+
+  if (!container) {
+    return (
+      <ConfirmationDialog
+        title="Failed Enabling Sync"
+        visible={props.visible}
+        onCancel={props.onDismiss}
+      >
+        <>
+          <Paragraph>
+            Because of limitations in iOS, EteSync is only able to sync with your local (on device) address book, which is unfortunaetly turned off while iCloud contacts sync is enabled.
+          </Paragraph>
+          <Paragraph>
+            To enable contact sync you would therefore need to turn off iCloud contacts sync. You can do this by going to "Settings -> Passwords & Accounts -> iCloud" and uncheck "Contacts".
+          </Paragraph>
+        </>
+      </ConfirmationDialog>
+    );
+  }
+
+  return (
+    <ConfirmationDialog
+      title="Important!"
+      visible={props.visible}
+      onOk={() => {
+        dispatch(setSettings({ syncContacts: true }));
+        props.onDismiss();
+      }}
+      onCancel={props.onDismiss}
+    >
+      <>
+        <Paragraph>
+          Contact sync is not on by default because unlike the calendar sync, it syncs to your local address book instead of a special account.
+        </Paragraph>
+        <Paragraph>
+          This means that there is no separation, and once your turn this on, all of your local contacts will be automatically merged with your EteSync contacts.
+        </Paragraph>
+      </>
+    </ConfirmationDialog>
+  );
+}
+
 const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
   const etesync = useCredentials();
   const navigation = useNavigation();
@@ -320,24 +366,7 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
 
       <AuthenticationPasswordDialog visible={showAuthDialog} onDismiss={() => setShowAuthDialog(false)} />
       <EncryptionPasswordDialog visible={showEncryptionDialog} onDismiss={() => setShowEncryptionDialog(false)} />
-      <ConfirmationDialog
-        title="Important!"
-        visible={showSyncContactsWarning}
-        onOk={() => {
-          dispatch(setSettings({ syncContacts: true }));
-          setShowSyncContactsWarning(false);
-        }}
-        onCancel={() => setShowSyncContactsWarning(false)}
-      >
-        <>
-          <Paragraph>
-            Contact sync is not on by default because unlike the calendar sync, it syncs to your local address book instead of a special account.
-          </Paragraph>
-          <Paragraph>
-            This means that there is no separation, and once your turn this on, all of your local contacts will be automatically merged with your EteSync contacts.
-          </Paragraph>
-        </>
-      </ConfirmationDialog>
+      <SyncContactsConfirmationDialog visible={showSyncContactsWarning} onDismiss={() => setShowSyncContactsWarning(false)} />
     </>
   );
 };
