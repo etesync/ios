@@ -18,7 +18,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   private containerId: string;
 
   public async init() {
-    super.init();
+    await super.init();
     const storeState = store.getState();
     if (storeState.permissions.get(this.collectionType)) {
       const container = await getLocalContainer();
