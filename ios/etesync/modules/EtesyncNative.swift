@@ -116,14 +116,19 @@ class EteSyncNative: NSObject {
         CNContactRelationsKey,
         CNContactInstantMessageAddressesKey,
     ] as [CNKeyDescriptor]
+    
+    private class func getFetchRequest(predicate: NSPredicate) -> CNContactFetchRequest {
+        let fetchRequest = CNContactFetchRequest(keysToFetch: EteSyncNative.keysToFetch)
+        fetchRequest.unifyResults = false
+        fetchRequest.predicate = predicate
+        return fetchRequest
+    }
 
     @objc(hashContact:resolve:reject:)
     func hashContact(contactId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
         let store = CNContactStore()
         let predicate = CNContact.predicateForContacts(withIdentifiers: [contactId])
-        let fetchRequest = CNContactFetchRequest(keysToFetch: EteSyncNative.keysToFetch)
-        fetchRequest.unifyResults = false
-        fetchRequest.predicate = predicate
+        let fetchRequest = EteSyncNative.getFetchRequest(predicate: predicate)
         
         var ret: String? = nil
         do {
@@ -147,9 +152,7 @@ class EteSyncNative: NSObject {
         taskQueue.async {
             let store = CNContactStore()
             let predicate = CNContact.predicateForContactsInContainer(withIdentifier: containerId)
-            let fetchRequest = CNContactFetchRequest(keysToFetch: EteSyncNative.keysToFetch)
-            fetchRequest.unifyResults = false
-            fetchRequest.predicate = predicate
+            let fetchRequest = EteSyncNative.getFetchRequest(predicate: predicate)
             
             var ret: [[String]] = []
             do {
