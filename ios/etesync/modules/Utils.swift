@@ -178,6 +178,11 @@ private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
     return msg
 }
 
+func versionHash(hash: String) -> String {
+    let hashVersionTag = "1"
+    return String(format: "%@:%@", hashVersionTag, hash)
+}
+
 func hashEvent(event: EKEvent) -> String {
     var msg = hashCalendarItem(item: event)
     
@@ -193,8 +198,8 @@ func hashEvent(event: EKEvent) -> String {
     let sha = Sha256()
 
     sha.update(data: pack(.array(msg)))
-    
-    return sha.finalize()
+
+    return versionHash(hash: sha.finalize())
 }
 
 func hashReminder(reminder: EKReminder) -> String {
@@ -210,7 +215,7 @@ func hashReminder(reminder: EKReminder) -> String {
     
     sha.update(data: pack(.array(msg)))
     
-    return sha.finalize()
+    return versionHash(hash: sha.finalize())
 }
 
 func hashContact(contact: CNContact) -> String {
@@ -306,4 +311,5 @@ func hashContact(contact: CNContact) -> String {
     
     sha.update(data: pack(.array(msg)))
     
-    return sha.finalize()}
+    return versionHash(hash: sha.finalize())
+}
