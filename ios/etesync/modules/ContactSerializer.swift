@@ -48,14 +48,14 @@ func decodeDate(data: Dictionary<String, Any>?) -> DateComponents? {
         return nil
     }
     var ret = DateComponents()
-    if let day = date["day"] as! String? {
-        ret.day = Int(day)
+    if let day = date["day"] as? Int {
+        ret.day = day
     }
-    if let month = date["month"] as! String? {
-        ret.month = Int(month)! + 1
+    if let month = date["month"] as? Int {
+        ret.month = month + 1
     }
-    if let year = date["year"] as! String? {
-        ret.year = Int(year)
+    if let year = date["year"] as? Int {
+        ret.year = year
     }
     
     return ret
@@ -72,10 +72,10 @@ func mutateContact(contact: CNMutableContact, data: Dictionary<String, Any>) {
     contact.departmentName = data[EXContactsKeyDepartment] as! String? ?? ""
     contact.namePrefix = data[EXContactsKeyNamePrefix] as! String? ?? ""
     contact.nameSuffix = data[EXContactsKeyNameSuffix] as! String? ?? ""
-    contact.phoneticGivenName = data[EXContactsKeyPhoneticFirstName] as! String? ?? ""
-    contact.phoneticMiddleName = data[EXContactsKeyPhoneticMiddleName] as! String? ?? ""
-    contact.phoneticFamilyName = data[EXContactsKeyPhoneticLastName] as! String? ?? ""
-    contact.note = data[EXContactsKeyNote] as! String? ?? ""
+    // contact.phoneticGivenName = data[EXContactsKeyPhoneticFirstName] as! String? ?? ""
+    // contact.phoneticMiddleName = data[EXContactsKeyPhoneticMiddleName] as! String? ?? ""
+    // contact.phoneticFamilyName = data[EXContactsKeyPhoneticLastName] as! String? ?? ""
+    // contact.note = data[EXContactsKeyNote] as! String? ?? ""
     contact.birthday = decodeDate(data: data[EXContactsKeyBirthday] as! Dictionary<String, Any>?)
 
     if let phoneNumebrs = data[EXContactsKeyPhoneNumbers] {
