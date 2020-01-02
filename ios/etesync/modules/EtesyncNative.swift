@@ -263,13 +263,22 @@ class EteSyncNative: NSObject {
                     resolve([])
                     return
                 }
+                var handled = Set<String>()
+                var ret: [Any] = []
 
-                resolve(reminders!.map{ reminder in
-                    [
+                for reminder in reminders! {
+                    if handled.contains(reminder.calendarItemIdentifier) {
+                        continue
+                    }
+                    handled.insert(reminder.calendarItemIdentifier)
+
+                    ret.append([
                         reminder.calendarItemIdentifier,
                         etesync.hashReminder(reminder: reminder)
-                    ]
-                })
+                    ])
+                }
+                
+                resolve(ret)
             })
         }
     }
