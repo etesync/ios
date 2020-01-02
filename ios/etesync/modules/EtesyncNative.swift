@@ -3,6 +3,10 @@ import UIKit
 import EventKit
 import Contacts
 
+let ActionAdd = 1
+let ActionChange = 2
+let ActionDelete = 3
+
 @objc(EteSyncNative)
 class EteSyncNative: NSObject {
     let taskQueue = DispatchQueue(label: "com.etesync.DispatchQueue", attributes: .concurrent)
@@ -175,10 +179,6 @@ class EteSyncNative: NSObject {
     @objc(processContactsChanges:groupId:changes:resolve:reject:)
     func processContactsChanges(containerId: String, groupId: String?, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let ActionAdd = 1
-            let ActionChange = 2
-            let ActionDelete = 3
-
             let store = CNContactStore()
             var group: CNGroup? = nil
             if let gid = groupId {
