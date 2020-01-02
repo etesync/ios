@@ -155,6 +155,6 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   }
 
   protected async deleteJournal(containerLocalId: string) {
-    return Contacts.removeGroupAsync(containerLocalId);
+    await deleteContactGroupAndMembers(containerLocalId);
   }
 }
