@@ -6,7 +6,6 @@ import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, 
 import { logger } from '../logging';
 
 import { store, SyncStateEntry } from '../store';
-import { unsetSyncStateJournal } from '../store/actions';
 
 import { contactVobjectToNative, NativeContact, contactNativeToVobject, getLocalContainer } from './helpers';
 import { ContactType } from '../pim-types';
@@ -31,23 +30,6 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     if (!this.canSync) {
       logger.info(`Could not find local account for ${this.collectionType}`);
     }
-  }
-
-  public async clearDeviceCollections() {
-    const etesync = this.etesync;
-    const storeState = store.getState();
-    const syncStateJournals = storeState.sync.stateJournals;
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
-
-    await Promise.all(syncStateJournals.map(async (journal) => {
-      store.dispatch(unsetSyncStateJournal(etesync, journal));
-      try {
-        logger.info(`Deleting ${syncInfoCollections.get(journal.uid)?.displayName}`);
-        await deleteContactGroupAndMembers(journal.localId);
-      } catch (e) {
-        logger.warn(e);
-      }
-    }));
   }
 
   protected async syncPush() {

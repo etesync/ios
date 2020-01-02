@@ -6,7 +6,6 @@ import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictio
 import { logger } from '../logging';
 
 import { store } from '../store';
-import { unsetSyncStateJournal } from '../store/actions';
 
 import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from './helpers';
 import { colorIntToHtml } from '../helpers';
@@ -32,25 +31,6 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     if (!this.canSync) {
       logger.info(`Could not find local account for ${this.collectionType}`);
     }
-  }
-
-  public async clearDeviceCollections() {
-    const storeState = store.getState();
-    const etesync = this.etesync;
-    const localSource = this.localSource;
-    const syncStateJournals = storeState.sync.stateJournals;
-
-    const calendars = await Calendar.getCalendarsAsync(this.entityType);
-    for (const calendar of calendars) {
-      if (calendar.source.id === localSource.id) {
-        logger.info(`Deleting ${calendar.title}`);
-        await Calendar.deleteCalendarAsync(calendar.id);
-      }
-    }
-
-    syncStateJournals.forEach((journal) => {
-      store.dispatch(unsetSyncStateJournal(etesync, journal));
-    });
   }
 
   protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {

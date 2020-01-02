@@ -77,7 +77,29 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     syncUpdate(`Finished sync (${this.collectionType})`);
   }
 
-  public abstract async clearDeviceCollections(): Promise<void>;
+  public async clearDeviceCollections() {
+    const storeState = store.getState();
+    const etesync = this.etesync;
+    const syncStateJournals = storeState.sync.stateJournals;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
+
+    logger.info(`Clearing device collections for ${this.collectionType}`);
+
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
+        continue;
+      }
+
+      const journal = syncStateJournals.get(uid)!;
+
+      logger.info(`Deleting ${collection.displayName}`);
+      await this.deleteJournal(journal.localId);
+
+      store.dispatch(unsetSyncStateJournal(etesync, journal));
+    }
+  }
 
   protected async syncJournalList() {
     const etesync = this.etesync;
