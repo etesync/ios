@@ -26,7 +26,7 @@ interface EteSyncNativeModule {
   beginBackgroundTask(name: string): Promise<number>;
   endBackgroundTask(taskId: number): void;
 
-  playground(): void;
+  playground(param: {}): void;
 }
 
 const EteSyncNative = NativeModules.EteSyncNative as EteSyncNativeModule;

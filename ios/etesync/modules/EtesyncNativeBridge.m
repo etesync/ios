@@ -17,5 +17,5 @@ RCT_EXTERN_METHOD(getContainers:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
 RCT_EXTERN_METHOD(beginBackgroundTask:(NSString *)name resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(endBackgroundTask:(nonnull NSNumber *)taskId)
 
-RCT_EXTERN_METHOD(playground)
+RCT_EXTERN_METHOD(playground:(NSDictionary *)dictionary)
 @end

@@ -368,7 +368,7 @@ class EteSyncNative: NSObject {
         UIApplication.shared.endBackgroundTask(UIBackgroundTaskIdentifier(rawValue: taskId.intValue))
     }
     
-    @objc
-    func playground() {
+    @objc(playground:)
+    func playground(dict: Dictionary<String, Any>) {
     }
 }
