@@ -35,9 +35,9 @@ function timeVobjectToNative(time: ICAL.Time | undefined) {
     ret.setUTCDate(time.day);
     ret.setUTCHours(time.hour);
     ret.setUTCMinutes(time.minute);
-    return ret;
+    return ret.toISOString();
   } else {
-    return time.toJSDate();
+    return time.toJSDate().toISOString();
   }
 }
 
@@ -87,7 +87,7 @@ function rruleVobjectToNative(event: EventType) {
   const ret: Calendar.RecurrenceRule = {
     frequency,
     interval: rrule.interval || undefined,
-    endDate: timeVobjectToNative(rrule.until)?.toISOString(),
+    endDate: timeVobjectToNative(rrule.until),
     occurrence: rrule.count || undefined,
     daysOfTheWeek,
     daysOfTheMonth: rrule.bymonthday,
