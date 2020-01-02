@@ -77,63 +77,45 @@ func mutateContact(contact: CNMutableContact, data: Dictionary<String, Any>) {
     contact.phoneticFamilyName = data[EXContactsKeyPhoneticLastName] as! String? ?? ""
     contact.note = data[EXContactsKeyNote] as! String? ?? ""
     contact.birthday = decodeDate(data: data[EXContactsKeyBirthday] as! Dictionary<String, Any>?)
-    
-    if let phoneNumebrs = data[EXContactsKeyPhoneNumbers] as! Array<Dictionary<String, String>>? {
-        contact.phoneNumbers = phoneNumebrs.map{
-            let label = $0["label"]
-            let number = $0["number"]!
-            return CNLabeledValue(label: label, value: CNPhoneNumber(stringValue: number))
-        }
+
+    if let phoneNumebrs = data[EXContactsKeyPhoneNumbers] {
+        contact.phoneNumbers = EXContacts.decodePhoneNumbers(phoneNumebrs as? [Any]) as! [CNLabeledValue<CNPhoneNumber>]
     } else {
         contact.phoneNumbers = []
     }
     
-    if let postalAddresses = data[EXContactsKeyAddresses] as! Array<Dictionary<String, String>>? {
-        contact.postalAddresses = postalAddresses.map{
-            let label = $0["label"]
-            let value = CNMutablePostalAddress()
-            value.street = $0["street"] ?? ""
-            value.postalCode = $0["postalCode"] ?? ""
-            value.city = $0["city"] ?? ""
-            value.country = $0["country"] ?? ""
-            value.state = $0["region"] ?? ""
-            value.isoCountryCode = $0["isoCountryCode"] ?? ""
-            return CNLabeledValue(label: label, value: value)
-        }
+    if let postalAddresses = data[EXContactsKeyAddresses] {
+        contact.postalAddresses = EXContacts.decodeAddresses(postalAddresses as? [Any]) as! [CNLabeledValue<CNPostalAddress>]
     } else {
         contact.postalAddresses = []
     }
     
-    if let emailAddresses = data[EXContactsKeyEmails] as! Array<Dictionary<String, String>>? {
-        contact.emailAddresses = emailAddresses.map{
-            let label = $0["label"]
-            let value = $0["email"]!
-            return CNLabeledValue(label: label, value: value as NSString)
-        }
+    if let emailAddresses = data[EXContactsKeyEmails] {
+        contact.emailAddresses = EXContacts.decodeEmailAddresses(emailAddresses as? [Any]) as! [CNLabeledValue<NSString>]
     } else {
         contact.emailAddresses = []
     }
     
-    if let instantMessageAddresses = data[EXContactsKeyInstantMessageAddresses] as! Array<Dictionary<String, String>>? {
-        contact.instantMessageAddresses = EXContacts.decodeInstantMessageAddresses(instantMessageAddresses) as! [CNLabeledValue<CNInstantMessageAddress>]
+    if let instantMessageAddresses = data[EXContactsKeyInstantMessageAddresses] {
+        contact.instantMessageAddresses = EXContacts.decodeInstantMessageAddresses(instantMessageAddresses as? [Any]) as! [CNLabeledValue<CNInstantMessageAddress>]
     } else {
         contact.instantMessageAddresses = []
     }
     
-    if let urlAddresses = data[EXContactsKeyUrlAddresses] as! Array<Dictionary<String, String>>? {
-        contact.urlAddresses = EXContacts.decodeUrlAddresses(urlAddresses) as! [CNLabeledValue<NSString>]
+    if let urlAddresses = data[EXContactsKeyUrlAddresses] {
+        contact.urlAddresses = EXContacts.decodeUrlAddresses(urlAddresses as? [Any]) as! [CNLabeledValue<NSString>]
     } else {
         contact.urlAddresses = []
     }
     
-    if let dates = data[EXContactsKeyDates] as! Array<Dictionary<String, String>>? {
-        contact.dates = EXContacts.decodeDates(dates) as! [CNLabeledValue<NSDateComponents>]
+    if let dates = data[EXContactsKeyDates] {
+        contact.dates = EXContacts.decodeDates(dates as? [Any]) as! [CNLabeledValue<NSDateComponents>]
     } else {
         contact.dates = []
     }
     
-    if let relationships = data[EXContactsKeyRelationships] as! Array<Dictionary<String, String>>? {
-        contact.contactRelations = EXContacts.decodeRelationships(relationships) as! [CNLabeledValue<CNContactRelation>]
+    if let relationships = data[EXContactsKeyRelationships] {
+        contact.contactRelations = EXContacts.decodeRelationships(relationships as? [Any]) as! [CNLabeledValue<CNContactRelation>]
     } else {
         contact.contactRelations = []
     }
