@@ -145,6 +145,93 @@ class EteSyncNative: NSObject {
         }
     }
     
+    
+    @objc(processRemindersChanges:changes:resolve:reject:)
+    func processRemindersChanges(containerId: String, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        taskQueue.async {
+            let store = EKEventStore()
+            guard let calendar = store.calendar(withIdentifier: containerId) else {
+                reject("no_calendar", String(format: "Calendar with identifier %@ not found", containerId), nil)
+                return
+            }
+            
+            var fetchedItems = Dictionary<String, EKReminder>()
+            var fetchItemIds: [String] = []
+            
+            for change in changes {
+                let action = change[0] as! Int
+                let item = change[1] as! Dictionary<String, Any>
+                
+                if (action == ActionChange || action == ActionDelete) {
+                    let identifier = item["id"] as! String
+                    fetchItemIds.append(identifier)
+                }
+            }
+            
+            for eventId in fetchItemIds {
+                if let event = store.calendarItem(withIdentifier: eventId) {
+                    fetchedItems[event.calendarItemIdentifier] = (event as! EKReminder)
+                } else {
+                    reject("failed_fetching_event", String(format: "Failed fetching event with id %@", eventId), nil)
+                    return
+                }
+            }
+            
+            var addChangeItems: [EKReminder] = []
+            var localIdToUid = Dictionary<String, String>()
+            var ret = Dictionary<String, [String]>()
+            
+            for change in changes {
+                let action = change[0] as! Int
+                let item = change[1] as! Dictionary<String, Any>
+                let identifier = item["id"] as! String? ?? "NOTFOUND"
+                let reminder = fetchedItems[identifier] ?? EKReminder(eventStore: store)
+                let retval = excalendar.deserializeReminder(reminder, details: item, reject: reject)
+                if (retval == nil) {
+                    // We already rejected if we got here
+                    return
+                }
+                reminder.calendar = calendar
+                localIdToUid[reminder.calendarItemIdentifier] = item["uid"] as? String
+                
+                do {
+                    switch (action) {
+                    case ActionAdd:
+                        try store.save(reminder, commit: false)
+                        addChangeItems.append(reminder)
+                    case ActionChange:
+                        try store.save(reminder, commit: false)
+                        addChangeItems.append(reminder)
+                    case ActionDelete:
+                        try store.remove(reminder, commit: false)
+                    default:
+                        reject("unrecognized_action", "Failed processing unrecognized action", nil)
+                        return
+                    }
+                } catch {
+                    reject("failed_saving", "Failed saving reminder", error)
+                }
+            }
+            
+            do {
+                try store.commit()
+            } catch {
+                print(error)
+                reject("failed_poccessing_changes", "Failed processing reminder changes", error)
+                return
+            }
+            
+            for reminder in addChangeItems {
+                ret[localIdToUid[reminder.calendarItemIdentifier]!] = [
+                    reminder.calendarItemIdentifier,
+                    etesync.hashReminder(reminder: reminder)
+                ]
+            }
+            
+            resolve(ret)
+        }
+    }
+    
     @objc(hashReminder:resolve:reject:)
     func hashReminder(reminderId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
         let store = EKEventStore()
