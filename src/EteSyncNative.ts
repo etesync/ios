@@ -4,6 +4,8 @@ import { NativeContact } from './sync/helpers';
 
 export type HashesForItem = [string, string];
 
+export type HashDictionary = { [key: string]: HashesForItem };
+
 export enum BatchAction {
   Add = 1,
   Change = 2,
@@ -19,7 +21,7 @@ interface EteSyncNativeModule {
   calculateHashesForContacts(containerId: string): Promise<HashesForItem[]>;
   deleteContactGroupAndMembers(groupId: string): Promise<number>;
   getContainers(): Promise<(Contacts.Container & { default: boolean })[]>;
-  processContactsChanges(containerId: string, contacts: ([BatchAction, NativeContact])[]): Promise<HashesForItem[]>;
+  processContactsChanges(containerId: string, groupId: string | null, contacts: ([BatchAction, NativeContact])[]): Promise<HashDictionary>;
 
   beginBackgroundTask(name: string): Promise<number>;
   endBackgroundTask(taskId: number): void;

@@ -172,14 +172,24 @@ class EteSyncNative: NSObject {
         }
     }
     
-    @objc(processContactsChanges:changes:resolve:reject:)
-    func processContactsChanges(containerId: String, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+    @objc(processContactsChanges:groupId:changes:resolve:reject:)
+    func processContactsChanges(containerId: String, groupId: String?, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
             let ActionAdd = 1
             let ActionChange = 2
             let ActionDelete = 3
 
             let store = CNContactStore()
+            var group: CNGroup? = nil
+            if let gid = groupId {
+                do {
+                    let groups = try store.groups(matching: CNGroup.predicateForGroups(withIdentifiers: [gid]))
+                    group = groups.first
+                } catch {
+                    reject("fetch_group", "Failed fetching group", error)
+                    return
+                }
+            }
             
             var fetchedContacts = Dictionary<String, CNMutableContact>()
             var fetchContactsIds: [String] = []
@@ -210,7 +220,8 @@ class EteSyncNative: NSObject {
             }
             
             var addChangeContacts: [CNMutableContact] = []
-            var ret: [[String]] = []
+            var localIdToUid = Dictionary<String, String>()
+            var ret = Dictionary<String, [String]>()
             
             let saveRequest = CNSaveRequest()
             
@@ -220,10 +231,14 @@ class EteSyncNative: NSObject {
                 let identifier = item["id"] as! String? ?? "NOTFOUND"
                 let contact = fetchedContacts[identifier] ?? CNMutableContact()
                 mutateContact(contact: contact, data: item)
-                
+                localIdToUid[contact.identifier] = item["uid"] as? String
+
                 switch (action) {
                 case ActionAdd:
                     saveRequest.add(contact, toContainerWithIdentifier: containerId)
+                    if let gr = group {
+                        saveRequest.addMember(contact, to: gr)
+                    }
                     addChangeContacts.append(contact)
                 case ActionChange:
                     saveRequest.update(contact)
@@ -239,15 +254,16 @@ class EteSyncNative: NSObject {
             do {
                 try store.execute(saveRequest)
             } catch {
+                print(error)
                 reject("failed_poccessing_changes", "Failed processing contacts changes", error)
                 return
             }
             
             for contact in addChangeContacts {
-                ret.append([
+                ret[localIdToUid[contact.identifier]!] = [
                     contact.identifier,
                     etesync.hashContact(contact: contact)
-                ])
+                ]
             }
 
             resolve(ret)
