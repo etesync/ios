@@ -7,9 +7,98 @@ let ActionAdd = 1
 let ActionChange = 2
 let ActionDelete = 3
 
+let excalendar = EteEXCalendar()
+
 @objc(EteSyncNative)
 class EteSyncNative: NSObject {
     let taskQueue = DispatchQueue(label: "com.etesync.DispatchQueue", attributes: .concurrent)
+    
+    @objc(processEventsChanges:changes:resolve:reject:)
+    func processEventsChanges(containerId: String, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+        taskQueue.async {
+            let store = EKEventStore()
+            guard let calendar = store.calendar(withIdentifier: containerId) else {
+                reject("no_calendar", String(format: "Calendar with identifier %@ not found", containerId), nil)
+                return
+            }
+            
+            var fetchedItems = Dictionary<String, EKEvent>()
+            var fetchItemIds: [String] = []
+            
+            for change in changes {
+                let action = change[0] as! Int
+                let item = change[1] as! Dictionary<String, Any>
+                
+                if (action == ActionChange || action == ActionDelete) {
+                    let identifier = item["id"] as! String
+                    fetchItemIds.append(identifier)
+                }
+            }
+            
+            for eventId in fetchItemIds {
+                if let event = store.calendarItem(withIdentifier: eventId) {
+                    fetchedItems[event.calendarItemIdentifier] = (event as! EKEvent)
+                } else {
+                    reject("failed_fetching_event", String(format: "Failed fetching event with id %@", eventId), nil)
+                    return
+                }
+            }
+            
+            var addChangeEvents: [EKEvent] = []
+            var localIdToUid = Dictionary<String, String>()
+            var ret = Dictionary<String, [String]>()
+
+            for change in changes {
+                let action = change[0] as! Int
+                let item = change[1] as! Dictionary<String, Any>
+                let identifier = item["id"] as! String? ?? "NOTFOUND"
+                let event = fetchedItems[identifier] ?? EKEvent(eventStore: store)
+                let retval = excalendar.deserializeEvent(event, details: item, reject: reject)
+                if (retval == nil) {
+                    // We already rejected if we got here
+                    return
+                }
+                event.calendar = calendar
+                localIdToUid[event.calendarItemIdentifier] = item["uid"] as? String
+                
+                do {
+                    switch (action) {
+                    case ActionAdd:
+                        try store.save(event, span: .futureEvents, commit: false)
+                        addChangeEvents.append(event)
+                    case ActionChange:
+                        try store.save(event, span: .futureEvents, commit: false)
+                        addChangeEvents.append(event)
+                    case ActionDelete:
+                        try store.remove(event, span: .futureEvents, commit: false)
+                    default:
+                        reject("unrecognized_action", "Failed processing unrecognized action", nil)
+                        return
+                    }
+                } catch {
+                    reject("failed_saving", "Failed saving event", error)
+                }
+            }
+            
+            do {
+                try store.commit()
+            } catch {
+                print(error)
+                reject("failed_poccessing_changes", "Failed processing event changes", error)
+                return
+            }
+            
+            for event in addChangeEvents {
+                ret[localIdToUid[event.calendarItemIdentifier]!] = [
+                    event.calendarItemIdentifier,
+                    etesync.hashEvent(event: event)
+                ]
+            }
+            
+            resolve(ret)
+        }
+    }
+    
     
     @objc(hashEvent:resolve:reject:)
     func hashEvent(eventId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {

@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
 import * as Contacts from 'expo-contacts';
-import { NativeContact } from './sync/helpers';
+import { NativeContact, NativeEvent } from './sync/helpers';
 
 export type HashesForItem = [string, string];
 
@@ -15,6 +15,7 @@ export enum BatchAction {
 interface EteSyncNativeModule {
   hashEvent(eventId: string): Promise<string>;
   calculateHashesForEvents(calendarId: string, from: number, to: number): Promise<HashesForItem[]>;
+  processEventsChanges(containerId: string, events: ([BatchAction, NativeEvent])[]): Promise<HashDictionary>;
   hashReminder(eventId: string): Promise<string>;
   calculateHashesForReminders(calendarId: string): Promise<HashesForItem[]>;
   hashContact(contactId: string): Promise<string>;
@@ -40,6 +41,7 @@ export const hashEvent = EteSyncNative.hashEvent;
 export function calculateHashesForReminders(calendarId: string): Promise<HashesForItem[]> {
   return EteSyncNative.calculateHashesForReminders(calendarId);
 }
+export const processEventsChanges = EteSyncNative.processEventsChanges;
 
 export const hashReminder = EteSyncNative.hashReminder;
 
