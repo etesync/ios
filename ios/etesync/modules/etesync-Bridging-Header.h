@@ -3,3 +3,5 @@
 //
 
 #import <React/RCTBridgeModule.h>
+#import <EXContacts/EXContacts.h>
+#import <EXContacts/EXContacts+Serialization.h>

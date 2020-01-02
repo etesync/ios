@@ -114,29 +114,34 @@ func mutateContact(contact: CNMutableContact, data: Dictionary<String, Any>) {
         contact.emailAddresses = []
     }
     
-    /*
-    NSMutableArray *instantMessageAddresses = [EXContacts decodeInstantMessageAddresses:data[EXContactsKeyInstantMessageAddresses]];
-    if (instantMessageAddresses) contact.instantMessageAddresses = instantMessageAddresses;
-    
-    NSMutableArray *urlAddresses = [EXContacts decodeUrlAddresses:data[EXContactsKeyUrlAddresses]];
-    if (urlAddresses) contact.urlAddresses = urlAddresses;
-    
-    NSMutableArray *dates = [EXContacts decodeDates:data[EXContactsKeyDates]];
-    if (dates) contact.dates = dates;
-    
-    NSMutableArray *relationships = [EXContacts decodeRelationships:data[EXContactsKeyRelationships]];
-    if (relationships) contact.contactRelations = relationships;
-    
-    if (data[EXContactsKeyImage]) {
-        NSData *imageData;
-        if ([data[EXContactsKeyImage] isKindOfClass:[NSString class]]) {
-            imageData = [self _imageDataForPath:data[EXContactsKeyImage] rejecter:reject];
-        } else if ([data[EXContactsKeyImage] isKindOfClass:[NSDictionary class]]) {
-            imageData = [self _imageDataForPath:data[EXContactsKeyImage][@"uri"] rejecter:reject];
-        }
-        if (imageData) {
-            contact.imageData = imageData;
-        }
+    if let instantMessageAddresses = data[EXContactsKeyInstantMessageAddresses] as! Array<Dictionary<String, String>>? {
+        contact.instantMessageAddresses = EXContacts.decodeInstantMessageAddresses(instantMessageAddresses) as! [CNLabeledValue<CNInstantMessageAddress>]
+    } else {
+        contact.instantMessageAddresses = []
     }
-    */
+    
+    if let urlAddresses = data[EXContactsKeyUrlAddresses] as! Array<Dictionary<String, String>>? {
+        contact.urlAddresses = EXContacts.decodeUrlAddresses(urlAddresses) as! [CNLabeledValue<NSString>]
+    } else {
+        contact.urlAddresses = []
+    }
+    
+    if let dates = data[EXContactsKeyDates] as! Array<Dictionary<String, String>>? {
+        contact.dates = EXContacts.decodeDates(dates) as! [CNLabeledValue<NSDateComponents>]
+    } else {
+        contact.dates = []
+    }
+    
+    if let relationships = data[EXContactsKeyRelationships] as! Array<Dictionary<String, String>>? {
+        contact.contactRelations = EXContacts.decodeRelationships(relationships) as! [CNLabeledValue<CNContactRelation>]
+    } else {
+        contact.contactRelations = []
+    }
+    
+    if let image = data[EXContactsKeyImage] as! Dictionary<String, String>? {
+        let base64 = image["base64"]
+        contact.imageData = (base64 != nil) ? Data(base64Encoded: base64!) : nil
+    } else {
+        contact.imageData = nil
+    }
 }
