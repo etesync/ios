@@ -129,11 +129,16 @@ class EteSyncNative: NSObject {
             var handled = Set<String>()
             var ret: [Any] = []
             
-            for event in events {
+            for _event in events {
+                var event = _event
                 if (handled.contains(event.calendarItemIdentifier)) {
                     continue
                 }
                 handled.insert(event.calendarItemIdentifier)
+                
+                if (event.hasRecurrenceRules) {
+                    event = store.event(withIdentifier: event.eventIdentifier)!
+                }
                 
                 ret.append([
                     event.calendarItemIdentifier,
