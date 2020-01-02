@@ -4,11 +4,12 @@ import { Map as ImmutableMap } from 'immutable';
 import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
-import { store, persistor, CredentialsData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus } from '../store/actions';
 import { NativeBase } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 import { arrayToChunkIterator } from '../helpers';
+import { BatchAction, HashDictionary } from '../EteSyncNative';
 
 export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
@@ -175,32 +176,84 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           firstEntry = lastEntryPos + 1;
         }
 
+        let syncEntries: EteSync.SyncEntry[] = [];
+        let batch: [BatchAction, N][] = [];
+        const handledInBatch = new Map<string, boolean>();
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i)!;
           logger.debug(`Proccessing ${syncEntry.uid}`);
           try {
-            const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
+            const vobjectItem = this.syncEntryToVobject(syncEntry);
+            const nativeItem = this.vobjectToNative(vobjectItem);
+            const syncStateEntry = journalSyncEntries.get(nativeItem.uid);
+            if (handledInBatch.has(nativeItem.uid)) {
+              batch = batch.filter(([_action, item]) => (nativeItem.uid !== item.uid));
+            } else {
+              handledInBatch.set(nativeItem.uid, true);
+            }
             switch (syncEntry.action) {
               case EteSync.SyncEntryAction.Add:
               case EteSync.SyncEntryAction.Change: {
-                journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
-                store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
+                if (syncStateEntry?.localId) {
+                  batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }]);
+                } else {
+                  batch.push([BatchAction.Add, nativeItem]);
+                }
+
                 break;
               }
               case EteSync.SyncEntryAction.Delete: {
-                if (syncStateEntry) {
-                  journalSyncEntries.delete(syncStateEntry.uid);
-                  store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
+                if (syncStateEntry?.localId) {
+                  batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
                 }
+
                 break;
               }
             }
 
-            if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
-              persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
-            }
+            syncEntries.push(syncEntry);
           } catch (e) {
             logger.warn(`Failed processing: ${syncEntry.content}`);
+            throw e;
+          }
+
+          try {
+            if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
+              const hashes = await this.processSyncEntries(localId, batch);
+
+              for (const [action, nativeItem] of batch) {
+                // FIXME: do this all at once
+                const hash = hashes[nativeItem.uid];
+                const syncStateEntry: SyncStateEntry = {
+                  uid: nativeItem.uid,
+                  localId: hash?.[0],
+                  lastHash: hash?.[1],
+                };
+                switch (action) {
+                  case BatchAction.Add:
+                  case BatchAction.Change: {
+                    journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+                    store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
+                    break;
+                  }
+                  case BatchAction.Delete: {
+                    if (syncStateEntry) {
+                      journalSyncEntries.delete(syncStateEntry.uid);
+                      store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
+                    }
+                    break;
+                  }
+                }
+              }
+
+              persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
+
+              syncEntries = [];
+              batch = [];
+              handledInBatch.clear();
+            }
+          } catch (e) {
+            logger.warn('Failed batch saving contacts');
             throw e;
           }
         }
@@ -320,7 +373,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   protected abstract async syncPush(): Promise<void>;
 
   protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
+  protected abstract vobjectToNative(vobject: T): N;
   protected abstract nativeToVobject(nativeItem: N): T;
-
-  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
+  protected abstract async processSyncEntries(containerLocalId: string, batch: [BatchAction, N][]): Promise<HashDictionary>;
 }

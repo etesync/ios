@@ -1,11 +1,11 @@
 import * as EteSync from 'etesync';
 import * as Contacts from 'expo-contacts';
 
-import { deleteContactGroupAndMembers, calculateHashesForContacts, hashContact } from '../EteSyncNative';
+import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges } from '../EteSyncNative';
 
 import { logger } from '../logging';
 
-import { store, SyncStateJournalEntryData, SyncStateEntry } from '../store';
+import { store, SyncStateEntry } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
 import { contactVobjectToNative, NativeContact, contactNativeToVobject, getLocalContainer } from './helpers';
@@ -132,59 +132,16 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return ContactType.parse(syncEntry.content);
   }
 
+  protected vobjectToNative(vobject: ContactType) {
+    return contactVobjectToNative(vobject);
+  }
+
   protected nativeToVobject(nativeItem: NativeContact) {
     return contactNativeToVobject(nativeItem);
   }
 
-  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const contact = this.syncEntryToVobject(syncEntry);
-    const nativeContact = contactVobjectToNative(contact);
-    let syncStateEntry = syncStateEntries.get(contact.uid);
-    switch (syncEntry.action) {
-      case EteSync.SyncEntryAction.Add:
-      case EteSync.SyncEntryAction.Change: {
-        let contactExists = false;
-        try {
-          if (syncStateEntry) {
-            contactExists = !!(await Contacts.getContactByIdAsync(syncStateEntry.localId));
-          }
-        } catch (e) {
-          // Skip
-        }
-        if (syncStateEntry && contactExists) {
-          nativeContact.id = syncStateEntry.localId;
-          await Contacts.updateContactAsync(nativeContact);
-        } else {
-          const localEntryId = await Contacts.addContactAsync(nativeContact, this.containerId);
-          syncStateEntry = {
-            uid: nativeContact.uid,
-            localId: localEntryId,
-            lastHash: '',
-          };
-
-          await Contacts.addExistingContactToGroupAsync(localEntryId, containerLocalId);
-        }
-
-        syncStateEntry.lastHash = await hashContact(syncStateEntry.localId);
-
-        break;
-      }
-      case EteSync.SyncEntryAction.Delete: {
-        if (syncStateEntry) {
-          // FIXME: Shouldn't have this if, it should just work
-          await Contacts.removeContactAsync(syncStateEntry.localId);
-        } else {
-          syncStateEntry = {
-            uid: nativeContact.uid,
-            localId: '',
-            lastHash: '',
-          };
-        }
-        break;
-      }
-    }
-
-    return syncStateEntry;
+  protected processSyncEntries(containerLocalId: string, batch: [BatchAction, NativeContact][]): Promise<HashDictionary> {
+    return processContactsChanges(this.containerId, containerLocalId, batch);
   }
 
   protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
