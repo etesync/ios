@@ -1,11 +1,11 @@
 import * as EteSync from 'etesync';
 import * as Calendar from 'expo-calendar';
 
-import { calculateHashesForEvents, hashEvent } from '../EteSyncNative';
+import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictionary } from '../EteSyncNative';
 
 import { logger } from '../logging';
 
-import { store, SyncStateJournalEntryData } from '../store';
+import { store } from '../store';
 import { unsetSyncStateJournal } from '../store/actions';
 
 import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from './helpers';
@@ -170,59 +170,15 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     return EventType.parse(syncEntry.content);
   }
 
+  protected vobjectToNative(vobject: EventType) {
+    return eventVobjectToNative(vobject) as NativeEvent;
+  }
+
   protected nativeToVobject(nativeItem: NativeEvent) {
     return eventNativeToVobject(nativeItem);
   }
 
-  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const event = this.syncEntryToVobject(syncEntry);
-    const nativeEvent = eventVobjectToNative(event);
-    let syncStateEntry = syncStateEntries.get(event.uid);
-    switch (syncEntry.action) {
-      case EteSync.SyncEntryAction.Add:
-      case EteSync.SyncEntryAction.Change: {
-        let existingEvent: Calendar.Event | undefined;
-        try {
-          if (syncStateEntry) {
-            existingEvent = await Calendar.getEventAsync(syncStateEntry.localId);
-          }
-        } catch (e) {
-          // Skip
-        }
-        if (syncStateEntry && existingEvent) {
-          await Calendar.updateEventAsync(syncStateEntry.localId, nativeEvent, {
-            futureEvents: true,
-          });
-        } else {
-          const localEntryId = await Calendar.createEventAsync(containerLocalId, nativeEvent);
-          syncStateEntry = {
-            uid: nativeEvent.uid,
-            localId: localEntryId,
-            lastHash: '',
-          };
-        }
-
-        syncStateEntry.lastHash = await hashEvent(syncStateEntry.localId);
-
-        break;
-      }
-      case EteSync.SyncEntryAction.Delete: {
-        if (syncStateEntry) {
-          // FIXME: Shouldn't have this if, it should just work
-          await Calendar.deleteEventAsync(syncStateEntry.localId, {
-            futureEvents: true,
-          });
-        } else {
-          syncStateEntry = {
-            uid: nativeEvent.uid,
-            localId: '',
-            lastHash: '',
-          };
-        }
-        break;
-      }
-    }
-
-    return syncStateEntry;
+  protected processSyncEntries(containerLocalId: string, batch: [BatchAction, NativeEvent][]): Promise<HashDictionary> {
+    return processEventsChanges(containerLocalId, batch);
   }
 }
