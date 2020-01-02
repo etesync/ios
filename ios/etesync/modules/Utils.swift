@@ -84,6 +84,21 @@ private func dateComponentsOrNull(dateComponents: DateComponents?) -> MessagePac
     }
 }
 
+private func dateOrNull(date: Date?, isAllDay: Bool) -> MessagePackValue {
+    let dayInterval = 60 * 60 * 24
+    if var d = date {
+        if (isAllDay) {
+            d = d.addingTimeInterval(TimeInterval(dayInterval - 60)) // Add just shy of 24hrs
+            let adjustedDate = Int(d.timeIntervalSince1970) - (Int(d.timeIntervalSince1970) % dayInterval)
+            return .int(Int64(adjustedDate))
+        } else {
+            return .double(d.timeIntervalSince1970)
+        }
+    } else {
+        return (.nil)
+    }
+}
+
 private func numberArrayOrNull(array: [NSNumber]?) -> MessagePackValue {
     if let arr = array {
         return .array(sortMessagePackArray(arr: arr.map{ .int($0.int64Value) }))
@@ -104,7 +119,7 @@ private func weekdaysArrayOrNull(weekdays: [EKRecurrenceDayOfWeek]?) -> MessageP
         return .nil
     }
 }
-private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
+private func hashCalendarItem(item: EKCalendarItem, isAllDay: Bool) -> [MessagePackValue] {
     var msg = [MessagePackValue](repeating: 0, count: 0)
 
     /* Skip values that can't change (and last modified date which is redundant for our purposes)
@@ -149,7 +164,7 @@ private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
         msg.append(.array(sortMessagePackArray(arr: alarms.map {
             .array([
                 .double($0.relativeOffset),
-                .double($0.absoluteDate?.timeIntervalSince1970 ?? 0)
+                dateOrNull(date: $0.absoluteDate, isAllDay: false)
             ])
         })))
     } else {
@@ -168,7 +183,7 @@ private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
                 numberArrayOrNull(array: $0.monthsOfTheYear),
                 numberArrayOrNull(array: $0.setPositions),
                 .int(Int64($0.recurrenceEnd?.occurrenceCount ?? 0)),
-                .double($0.recurrenceEnd?.endDate?.timeIntervalSince1970 ?? 0),
+                dateOrNull(date: $0.recurrenceEnd?.endDate, isAllDay: isAllDay)
             ])
         })))
     } else {
@@ -184,14 +199,14 @@ func versionHash(hash: String) -> String {
 }
 
 func hashEvent(event: EKEvent) -> String {
-    var msg = hashCalendarItem(item: event)
+    var msg = hashCalendarItem(item: event, isAllDay: event.isAllDay)
     
     msg.append(.int(Int64(event.availability.rawValue)))
     msg.append(stringOrNull(str: event.organizer?.url.absoluteString))
-    msg.append(.double(event.startDate.timeIntervalSince1970))
-    msg.append(.double(event.endDate.timeIntervalSince1970))
+    msg.append(dateOrNull(date: event.startDate, isAllDay: event.isAllDay))
+    msg.append(dateOrNull(date: event.endDate, isAllDay: event.isAllDay))
+    msg.append(dateOrNull(date: event.occurrenceDate, isAllDay: event.isAllDay))
     msg.append(.bool(event.isAllDay))
-    msg.append(.double(event.occurrenceDate.timeIntervalSince1970))
     msg.append(.bool(event.isDetached))
     msg.append(.int(Int64(event.status.rawValue)))
 
@@ -203,12 +218,12 @@ func hashEvent(event: EKEvent) -> String {
 }
 
 func hashReminder(reminder: EKReminder) -> String {
-    var msg = hashCalendarItem(item: reminder)
+    var msg = hashCalendarItem(item: reminder, isAllDay: false)
     
     msg.append(dateComponentsOrNull(dateComponents: reminder.startDateComponents))
     msg.append(dateComponentsOrNull(dateComponents: reminder.dueDateComponents))
     msg.append(.bool(reminder.isCompleted))
-    msg.append(.double(reminder.completionDate?.timeIntervalSince1970 ?? 0))
+    msg.append(dateOrNull(date: reminder.completionDate, isAllDay: false))
     msg.append(.int(Int64(reminder.priority)))
     
     let sha = Sha256()
