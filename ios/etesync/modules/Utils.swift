@@ -123,7 +123,7 @@ private func hashCalendarItem(item: EKCalendarItem) -> [MessagePackValue] {
      }
      */
     
-    msg.append(.string(item.title))
+    msg.append(stringOrNull(str: item.title))
     msg.append(stringOrNull(str: item.location))
     msg.append(stringOrNull(str: item.timeZone?.identifier))
     msg.append(stringOrNull(str: item.url?.absoluteString))
