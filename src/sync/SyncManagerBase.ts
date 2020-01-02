@@ -92,12 +92,15 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         continue;
       }
 
-      const journal = syncStateJournals.get(uid)!;
+      const journal = syncStateJournals.get(uid);
 
-      logger.info(`Deleting ${collection.displayName}`);
-      await this.deleteJournal(journal.localId);
-
-      store.dispatch(unsetSyncStateJournal(etesync, journal));
+      if (journal) {
+        logger.info(`Deleting ${collection.displayName}`);
+        await this.deleteJournal(journal.localId);
+        store.dispatch(unsetSyncStateJournal(etesync, journal));
+      } else {
+        logger.warn(`Skipping deletion of ${uid}. Not found.`);
+      }
     }
   }
 
