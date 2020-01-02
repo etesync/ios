@@ -37,10 +37,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     const etesync = this.etesync;
     const storeState = store.getState();
     const syncStateJournals = storeState.sync.stateJournals;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
 
     await Promise.all(syncStateJournals.map(async (journal) => {
       store.dispatch(unsetSyncStateJournal(etesync, journal));
       try {
+        logger.info(`Deleting ${syncInfoCollections.get(journal.uid)?.displayName}`);
         await deleteContactGroupAndMembers(journal.localId);
       } catch (e) {
         logger.warn(e);
