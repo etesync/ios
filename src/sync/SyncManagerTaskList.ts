@@ -1,11 +1,11 @@
 import * as EteSync from 'etesync';
 import * as Calendar from 'expo-calendar';
 
-import { calculateHashesForReminders, hashReminder } from '../EteSyncNative';
+import { calculateHashesForReminders, BatchAction, HashDictionary, processRemindersChanges } from '../EteSyncNative';
 
 import { logger } from '../logging';
 
-import { store, SyncStateJournalEntryData } from '../store';
+import { store } from '../store';
 
 import { NativeTask, taskVobjectToNative, taskNativeToVobject } from './helpers';
 import { TaskType } from '../pim-types';
@@ -86,55 +86,15 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     return TaskType.parse(syncEntry.content);
   }
 
+  protected vobjectToNative(vobject: TaskType) {
+    return taskVobjectToNative(vobject);
+  }
+
   protected nativeToVobject(nativeItem: NativeTask) {
     return taskNativeToVobject(nativeItem);
   }
 
-  protected async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData) {
-    const task = this.syncEntryToVobject(syncEntry);
-    const nativeReminder = taskVobjectToNative(task);
-    let syncStateEntry = syncStateEntries.get(task.uid);
-    switch (syncEntry.action) {
-      case EteSync.SyncEntryAction.Add:
-      case EteSync.SyncEntryAction.Change: {
-        let existingReminder: Calendar.Reminder | undefined;
-        try {
-          if (syncStateEntry) {
-            existingReminder = await Calendar.getReminderAsync(syncStateEntry.localId);
-          }
-        } catch (e) {
-          // Skip
-        }
-        if (syncStateEntry && existingReminder) {
-          await Calendar.updateReminderAsync(syncStateEntry.localId, nativeReminder);
-        } else {
-          const localEntryId = await Calendar.createReminderAsync(containerLocalId, nativeReminder);
-          syncStateEntry = {
-            uid: nativeReminder.uid,
-            localId: localEntryId,
-            lastHash: '',
-          };
-        }
-
-        syncStateEntry.lastHash = await hashReminder(syncStateEntry.localId);
-
-        break;
-      }
-      case EteSync.SyncEntryAction.Delete: {
-        if (syncStateEntry) {
-          // FIXME: Shouldn't have this if, it should just work
-          await Calendar.deleteReminderAsync(syncStateEntry.localId);
-        } else {
-          syncStateEntry = {
-            uid: nativeReminder.uid,
-            localId: '',
-            lastHash: '',
-          };
-        }
-        break;
-      }
-    }
-
-    return syncStateEntry;
+  protected processSyncEntries(containerLocalId: string, batch: [BatchAction, NativeTask][]): Promise<HashDictionary> {
+    return processRemindersChanges(containerLocalId, batch);
   }
 }
