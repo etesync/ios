@@ -7,7 +7,7 @@
 	<key>isShell</key>
 	<true/>
 	<key>manifestUrl</key>
-	<string>exp://exp.host/@etesync/etesync-ios</string>
+	<string>https://expo.etesync.com/release/2</string>
 	<key>releaseChannel</key>
 	<string>default</string>
 </dict>
