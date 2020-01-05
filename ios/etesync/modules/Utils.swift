@@ -255,7 +255,6 @@ func hashContact(contact: CNContact) -> String {
         dateComponents.day = $0.value.day
         
         return [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             dateComponentsOrNull(dateComponents: dateComponents)
         ]
@@ -263,7 +262,6 @@ func hashContact(contact: CNContact) -> String {
     
     msg.append(.array(sortMessagePackArray(arr: contact.emailAddresses.map{
         [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             .string(String($0.value))
         ]
@@ -271,7 +269,6 @@ func hashContact(contact: CNContact) -> String {
     
     msg.append(.array(sortMessagePackArray(arr: contact.instantMessageAddresses.map{
         [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             .string($0.value.service),
             .string($0.value.username)
@@ -280,7 +277,6 @@ func hashContact(contact: CNContact) -> String {
     
     msg.append(.array(sortMessagePackArray(arr: contact.phoneNumbers.map{
         [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             .string($0.value.stringValue),
         ]
@@ -288,7 +284,6 @@ func hashContact(contact: CNContact) -> String {
     
     msg.append(.array(sortMessagePackArray(arr: contact.postalAddresses.map{
         [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             .string($0.value.city),
             .string($0.value.country),
@@ -300,7 +295,6 @@ func hashContact(contact: CNContact) -> String {
 
     msg.append(.array(sortMessagePackArray(arr: contact.urlAddresses.map{
         [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             .string(String($0.value))
         ]
@@ -308,7 +302,6 @@ func hashContact(contact: CNContact) -> String {
     
     msg.append(.array(sortMessagePackArray(arr: contact.contactRelations.map{
         [
-            .string($0.identifier),
             stringOrNull(str: $0.label),
             .string(String($0.value.name))
         ]
