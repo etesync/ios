@@ -1,6 +1,7 @@
 import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';
+import sjcl from 'sjcl';
 
 import { getContainers } from '../EteSyncNative';
 
@@ -21,6 +22,19 @@ export interface NativeTask extends Calendar.Reminder, NativeBase {
 }
 
 export interface NativeContact extends Omit<Contacts.Contact, 'id'>, NativeBase {
+}
+
+export function entryNativeHashCalc(entry: {uid: string}) {
+  const ignoreKeys = ['lastModifiedDate'];
+  const sha = new sjcl.hash.sha256();
+  Object.keys(entry).sort().forEach((key) => {
+    if (!entry[key] || ignoreKeys.includes(key)) {
+      return;
+    }
+    sha.update(key);
+    sha.update(entry[key].toString());
+  });
+  return sjcl.codec.hex.fromBits(sha.finalize());
 }
 
 function timeVobjectToNative(time: ICAL.Time | undefined) {
