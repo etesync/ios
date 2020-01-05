@@ -6,7 +6,7 @@ import { logger } from '../logging';
 import { PimType } from '../pim-types';
 import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus } from '../store/actions';
-import { NativeBase } from './helpers';
+import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 import { arrayToChunkIterator } from '../helpers';
 import { BatchAction, HashDictionary } from '../EteSyncNative';
@@ -327,7 +327,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected syncPushHandleAddChange(_syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
+  protected syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
     let syncEntryAction: EteSync.SyncEntryAction | undefined;
     const currentHash = itemHash;
 
@@ -338,8 +338,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     } else {
       if (currentHash !== syncStateEntry.lastHash) {
         // Changed
-        logger.info(`Changed entry ${nativeItem.uid}`);
-        syncEntryAction = EteSync.SyncEntryAction.Change;
+        if (this.handleLegacyHash(syncStateJournal.uid, syncStateEntry, nativeItem, itemHash)) {
+          logger.info(`Updated legacy hash for ${nativeItem.uid}`);
+        } else {
+          logger.info(`Changed entry ${nativeItem.uid}`);
+          syncEntryAction = EteSync.SyncEntryAction.Change;
+        }
       }
     }
 
@@ -390,6 +394,20 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
 
     return null;
+  }
+
+  protected handleLegacyHash(journalUid: string, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
+    if (syncStateEntry?.lastHash && syncStateEntry.lastHash.indexOf(':') === -1) {
+      // If the last hash was unversioned (no colon), try matching the legacy hash
+      const legacyHash = entryNativeHashCalc(nativeItem);
+      if (legacyHash === syncStateEntry.lastHash) {
+        // If the legacy hash is the same, there's nothing to do. Just update with the new hash and continue.
+        store.dispatch(setSyncStateEntry(this.etesync, journalUid, { ...syncStateEntry, lastHash: itemHash }));
+        return true;
+      }
+    }
+
+    return false;
   }
 
   protected abstract async createJournal(collection: EteSync.CollectionInfo): Promise<string>;
