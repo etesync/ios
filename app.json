@@ -22,7 +22,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.etesync.ios",
-      "buildNumber": "1.2.103",
+      "buildNumber": "1.2.104",
       "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
