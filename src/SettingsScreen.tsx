@@ -221,6 +221,10 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 
 function SyncContactsConfirmationDialog(props: DialogPropsType) {
   const dispatch = useDispatch();
+  if (!props.visible) {
+    return <React.Fragment />;
+  }
+
   const container = getLocalContainer();
 
   if (!container) {
