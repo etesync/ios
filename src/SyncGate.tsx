@@ -18,7 +18,7 @@ export function useSyncGate() {
   const syncStatus = useSelector((state: StoreState) => state.syncStatus);
 
   if ((syncCount > 0) || !etesync || !journals || !entries || !userInfo) {
-    return (<LoadingIndicator status={syncStatus} />);
+    return (<LoadingIndicator status={syncStatus} notice="* Please keep the app open while syncing" />);
   }
 
   syncInfoSelector({ etesync, entries, journals, userInfo });
