@@ -45,6 +45,7 @@ export class SyncManager {
   protected collectionType: string;
   protected syncStateJournals: SyncStateJournalData;
   protected syncStateEntries: SyncStateEntryData;
+  protected isSyncing: boolean;
 
   private managers = [
     SyncManagerCalendar,
@@ -115,6 +116,11 @@ export class SyncManager {
       return false;
     }
 
+    if (this.isSyncing) {
+      return false;
+    }
+    this.isSyncing = true;
+
     try {
       activateKeepAwake(keepAwakeTag);
       prngAddEntropy();
@@ -145,6 +151,7 @@ export class SyncManager {
       throw e;
     } finally {
       deactivateKeepAwake(keepAwakeTag);
+      this.isSyncing = true;
       endBackgroundTask(await taskId);
     }
 
