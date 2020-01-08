@@ -24,7 +24,11 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     await super.init();
     const storeState = store.getState();
     if (storeState.permissions.get(this.collectionType)) {
-      this.localSource = (await Calendar.getSourcesAsync()).find((source) => (source?.name?.toLowerCase() === ACCOUNT_NAME))!;
+      const sources = await Calendar.getSourcesAsync();
+      this.localSource = sources.find((source) => (source?.name?.toLowerCase() === ACCOUNT_NAME))!;
+      if (!this.localSource) {
+        this.localSource = sources.find((source) => (source?.type === Calendar.SourceType.LOCAL))!;
+      }
       this.canSync = !!this.localSource;
     }
 
