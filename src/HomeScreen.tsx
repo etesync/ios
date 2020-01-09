@@ -16,6 +16,7 @@ import { performSync, setSettings } from './store/actions';
 import { useCredentials } from './login';
 import { useSyncGate } from './SyncGate';
 import { registerSyncTask } from './sync/SyncManager';
+import SyncSettings from './sync/SyncSettings';
 
 const wizardPages = [
   (props: PagePropsType) => (
@@ -44,6 +45,7 @@ const wizardPages = [
       <Paragraph>
         iOS doesn't expose the "local" account unless iCloud sync is turned off for this particular sync type. Therefore, in order to only sync EteSync with your device, please first turn off iCloud sync for contacts, calendars and reminders from the device's Settings app.
       </Paragraph>
+      <SyncSettings />
       <WizardNavigationBar {...props} />
     </>
   ),
