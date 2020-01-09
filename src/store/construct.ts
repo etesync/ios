@@ -44,11 +44,17 @@ const settingsMigrations = {
       ranWizrd: true,
     };
   },
+  2: (state: any) => {
+    return {
+      ...state,
+      syncCalendars: true,
+    };
+  },
 };
 
 const settingsPersistConfig = {
   key: 'settings',
-  version: 1,
+  version: 2,
   storage: AsyncStorage,
   migrate: createMigrate(settingsMigrations, { debug: false }),
 };

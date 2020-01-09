@@ -29,7 +29,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
       if (!this.localSource) {
         this.localSource = sources.find((source) => (source?.type === Calendar.SourceType.LOCAL))!;
       }
-      this.canSync = !!this.localSource;
+      this.canSync = !!this.localSource && storeState.settings.syncCalendars;
     }
 
     if (!this.canSync) {

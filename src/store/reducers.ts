@@ -452,6 +452,7 @@ export interface SettingsType {
   locale: string;
   logLevel: LogLevel;
   syncContacts: boolean;
+  syncCalendars: boolean;
   ranWizrd: boolean;
 }
 
@@ -461,5 +462,5 @@ export const settingsReducer = handleActions(
       { ...state, ...action.payload }
     ),
   },
-  { locale: 'en-gb', logLevel: LogLevel.Off, syncContacts: false, ranWizrd: false }
+  { locale: 'en-gb', logLevel: LogLevel.Off, syncContacts: false, syncCalendars: false, ranWizrd: false }
 );
