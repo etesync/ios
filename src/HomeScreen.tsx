@@ -49,7 +49,7 @@ if (!C.genericMode) {
           EteSync syncs with your device's existing accounts, so you have to choose an account to sync with to before going forward. For example, if you choose the iCloud account, all of your EteSync data will sync with iCloud.
         </Paragraph>
         <Paragraph>
-          iOS doesn't expose the "local" account unless iCloud sync is turned off for this particular sync type. Therefore, in order to only sync EteSync with your device, please first turn off iCloud sync for contacts, calendars and reminders from the device's Settings app.
+          iOS doesn't expose the "local" account unless all other accounts are disabled. Therefore, in order to only sync EteSync with your device, please first turn off iCloud sync for contacts, calendars and reminders (or only some of them) from the device's Settings app.
         </Paragraph>
         <SyncSettings />
         <WizardNavigationBar {...props} />
