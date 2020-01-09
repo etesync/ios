@@ -54,7 +54,6 @@ function usePermissions() {
         <Container style={{ flex: 1 }}>
           <Title>Permissions</Title>
           <Paragraph>EteSync requires access to your contacts, calendars and reminders in order to be able save them to your device. You can either give EteSync access now or do it later from the device Settings.</Paragraph>
-          <Paragraph>EteSync requires the notifications permissions in order for automatic sync to work.</Paragraph>
           <Button mode="contained" style={{ marginTop: 20 }} onPress={() => {
             (async () => {
               for (const permission of wantedPermissions) {
