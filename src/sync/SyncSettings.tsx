@@ -58,10 +58,10 @@ function SyncContactsConfirmationDialog(props: DialogPropsType) {
     >
       <>
         <Paragraph>
-          Contact sync is not on by default because unlike the calendar sync, it syncs to your local address book instead of a special account.
+          Unlike the calendar sync, the contact sync has no separation between existing contacts and EteSync contacts.
         </Paragraph>
         <Paragraph>
-          This means that there is no separation, and once your turn this on, all of your local contacts will be automatically merged with your EteSync contacts.
+          This means that once your turn this on, all of your local contacts will be automatically merged with your EteSync contacts.
         </Paragraph>
       </>
     </ConfirmationDialog>
