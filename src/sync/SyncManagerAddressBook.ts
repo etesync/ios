@@ -7,7 +7,7 @@ import { logger } from '../logging';
 
 import { store, SyncStateEntry } from '../store';
 
-import { contactVobjectToNative, NativeContact, contactNativeToVobject, getLocalContainer } from './helpers';
+import { contactVobjectToNative, NativeContact, contactNativeToVobject } from './helpers';
 import { ContactType } from '../pim-types';
 
 import { SyncManagerBase, PushEntry } from './SyncManagerBase';
@@ -20,11 +20,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     await super.init();
     const storeState = store.getState();
     if (storeState.permissions.get(this.collectionType)) {
-      const container = await getLocalContainer();
-      if (container) {
-        this.containerId = container.id;
-        this.canSync = storeState.settings.syncContacts;
-      }
+      this.containerId = storeState.settings.syncContactsContainer!;
+      this.canSync = !!this.containerId;
     }
 
     if (!this.canSync) {

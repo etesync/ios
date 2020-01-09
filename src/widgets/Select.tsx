@@ -2,16 +2,20 @@ import * as React from 'react';
 import { ViewProps } from 'react-native';
 import { Menu } from 'react-native-paper';
 
-interface PropsType extends ViewProps {
+interface PropsType<T> extends ViewProps {
   visible: boolean;
   anchor: React.ReactNode;
-  options: string[];
-  onChange: (index: number) => void;
+  options: T[];
+  noneString?: string;
+  titleAccossor?: (item: T) => string;
+  onChange: (item: T | null) => void;
   onDismiss: () => void;
 }
 
-export default function Select(inProps: React.PropsWithChildren<PropsType>) {
-  const { visible, anchor, options, onDismiss, onChange, ...props } = inProps;
+export default function Select<T = string>(inProps: React.PropsWithChildren<PropsType<T>>) {
+  const { visible, anchor, options, onDismiss, noneString, titleAccossor, onChange, ...props } = inProps;
+
+  const getTitle = titleAccossor ?? ((item: T) => item);
 
   return (
     <Menu
@@ -20,8 +24,11 @@ export default function Select(inProps: React.PropsWithChildren<PropsType>) {
       anchor={anchor}
       {...props}
     >
+      {noneString && (
+        <Menu.Item onPress={() => onChange(null)} title={noneString} />
+      )}
       {options.map((item, idx) => (
-        <Menu.Item key={idx} onPress={() => onChange(idx)} title={item} />
+        <Menu.Item key={idx} onPress={() => onChange(item)} title={getTitle(item)} />
       ))}
     </Menu>
   );

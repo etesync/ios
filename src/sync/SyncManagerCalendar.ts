@@ -13,7 +13,6 @@ import { PimType, EventType } from '../pim-types';
 
 import { SyncManagerBase, PushEntry } from './SyncManagerBase';
 
-const ACCOUNT_NAME = 'etesync';
 
 export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
   protected abstract entityType: string;
@@ -25,11 +24,8 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     const storeState = store.getState();
     if (storeState.permissions.get(this.collectionType)) {
       const sources = await Calendar.getSourcesAsync();
-      this.localSource = sources.find((source) => (source?.name?.toLowerCase() === ACCOUNT_NAME))!;
-      if (!this.localSource) {
-        this.localSource = sources.find((source) => (source?.type === Calendar.SourceType.LOCAL))!;
-      }
-      this.canSync = !!this.localSource && storeState.settings.syncCalendars;
+      this.localSource = sources.find((source) => source.id === storeState.settings.syncCalendarsSource)!;
+      this.canSync = !!this.localSource;
     }
 
     if (!this.canSync) {

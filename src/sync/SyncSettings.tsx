@@ -5,17 +5,17 @@ import * as Contacts from 'expo-contacts';
 import { getContainers } from '../EteSyncNative';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { List, Paragraph, Switch, useTheme } from 'react-native-paper';
+import { List, Button, Paragraph, useTheme } from 'react-native-paper';
 
 import { StoreState } from '../store';
 import { setSettings } from '../store/actions';
 import ConfirmationDialog from '../widgets/ConfirmationDialog';
-
-const ACCOUNT_NAME = 'etesync';
+import Select from '../widgets/Select';
 
 interface DialogPropsType {
   visible: boolean;
   onDismiss: () => void;
+  container: Contacts.Container;
 }
 
 function SyncContactsConfirmationDialog(props: DialogPropsType) {
@@ -26,7 +26,7 @@ function SyncContactsConfirmationDialog(props: DialogPropsType) {
       title="Important!"
       visible={props.visible}
       onOk={() => {
-        dispatch(setSettings({ syncContacts: true }));
+        dispatch(setSettings({ syncContactsContainer: props.container.id }));
         props.onDismiss();
       }}
       onCancel={props.onDismiss}
@@ -43,70 +43,84 @@ function SyncContactsConfirmationDialog(props: DialogPropsType) {
   );
 }
 
+function titleAccessor(item: Contacts.Container | Calendar.Source | null) {
+  if (!item) {
+    return 'No sync';
+  }
+  return `${item.name || item.type} (${item.type})`;
+}
+
 export default function SyncSettings() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const settings = useSelector((state: StoreState) => state.settings);
-  const [showSyncContactsWarning, setShowSyncContactsWarning] = React.useState(false);
-  const [defaultContainer, setDefaultContainer] = React.useState<Contacts.Container>();
-  const [defaultSource, setDefaultSource] = React.useState<Calendar.Source>();
+  const [selectedContainer, setSelectedContainer] = React.useState<Contacts.Container>();
+  const [availableContainers, setAvailableContainers] = React.useState<Contacts.Container[]>();
+  const [availableSources, setAvailableSources] = React.useState<Calendar.Source[]>();
+  const [selectContainerOpen, setSelectContainerOpen] = React.useState(false);
+  const [selectSourceOpen, setSelectSourceOpen] = React.useState(false);
 
   React.useEffect(() => {
     getContainers().then((containers) => {
-      for (const container of containers) {
-        if ((container.type === Contacts.ContainerTypes.Local) || (container.name === 'iCloud')) {
-          setDefaultContainer(container);
-          break;
-        }
-      }
+      setAvailableContainers(containers.filter((container) => container.type !== Contacts.ContainerTypes.Unassigned));
     });
     Calendar.getSourcesAsync().then((sources) => {
-      for (const source of sources) {
-        if ((source.type === Calendar.SourceType.LOCAL) || (source.name === 'iCloud')) {
-          setDefaultSource(source);
-        } else if (source.name.toLowerCase() === ACCOUNT_NAME) {
-          setDefaultSource(source);
-          break;
-        }
-      }
+      const allowedTypes = [Calendar.SourceType.LOCAL, Calendar.SourceType.CALDAV, Calendar.SourceType.EXCHANGE];
+      setAvailableSources(sources.filter((source) => allowedTypes.includes(source.type)));
     });
   }, []);
+
+  const currentContainer = availableContainers?.find((container) => container.id === settings.syncContactsContainer);
+  const currentSource = availableSources?.find((source) => source.id === settings.syncCalendarsSource);
+  const currentContainerName = (availableContainers) ? titleAccessor(currentContainer ?? null) : 'Loading';
+  const currentSourceName = (availableSources) ? titleAccessor(currentSource ?? null) : 'Loading';
 
   return (
     <>
       <List.Item
         title="Sync Contacts"
-        description={`Sync contacts with account: "${(defaultContainer?.type === Contacts.ContainerTypes.Local) ? 'local' : defaultContainer?.name}"`}
         right={(props) =>
-          <Switch
+          <Select
             {...props}
-            color={theme.colors.accent}
-            value={settings.syncContacts}
-            onValueChange={(value) => {
-              if (value) {
-                setShowSyncContactsWarning(true);
-              } else {
-                dispatch(setSettings({ syncContacts: false }));
+            visible={selectContainerOpen}
+            noneString="No sync"
+            onDismiss={() => setSelectContainerOpen(false)}
+            options={availableContainers ?? []}
+            titleAccossor={titleAccessor}
+            onChange={(container) => {
+              setSelectContainerOpen(false);
+              setSelectedContainer(container ?? undefined);
+              if (!container) {
+                dispatch(setSettings({ syncContactsContainer: null }));
               }
             }}
+            anchor={(
+              <Button mode="contained" color={theme.colors.accent} onPress={() => setSelectContainerOpen(true)}>{currentContainerName}</Button>
+            )}
           />
         }
       />
       <List.Item
         title="Sync Calendars"
-        description={`Sync events and reminders with account: "${(defaultSource?.type === Calendar.SourceType.LOCAL) ? 'local' : defaultSource?.name}"`}
         right={(props) =>
-          <Switch
+          <Select
             {...props}
-            color={theme.colors.accent}
-            value={settings.syncCalendars}
-            onValueChange={(value) => {
-              dispatch(setSettings({ syncCalendars: value }));
+            visible={selectSourceOpen}
+            noneString="No sync"
+            onDismiss={() => setSelectSourceOpen(false)}
+            options={availableSources ?? []}
+            titleAccossor={titleAccessor}
+            onChange={(source) => {
+              setSelectSourceOpen(false);
+              dispatch(setSettings({ syncCalendarsSource: source?.id ?? null }));
             }}
+            anchor={(
+              <Button mode="contained" color={theme.colors.accent} onPress={() => setSelectSourceOpen(true)}>{currentSourceName}</Button>
+            )}
           />
         }
       />
-      <SyncContactsConfirmationDialog visible={showSyncContactsWarning} onDismiss={() => setShowSyncContactsWarning(false)} />
+      <SyncContactsConfirmationDialog visible={!!selectedContainer} container={selectedContainer!} onDismiss={() => setSelectedContainer(undefined)} />
     </>
   );
 }
