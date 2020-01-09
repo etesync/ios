@@ -7,7 +7,6 @@ import { getContainers } from '../EteSyncNative';
 import { useDispatch, useSelector } from 'react-redux';
 import { List, Paragraph, Switch, useTheme } from 'react-native-paper';
 
-import { getLocalContainer } from './helpers';
 import { StoreState } from '../store';
 import { setSettings } from '../store/actions';
 import ConfirmationDialog from '../widgets/ConfirmationDialog';
@@ -21,30 +20,6 @@ interface DialogPropsType {
 
 function SyncContactsConfirmationDialog(props: DialogPropsType) {
   const dispatch = useDispatch();
-  if (!props.visible) {
-    return <React.Fragment />;
-  }
-
-  const container = getLocalContainer();
-
-  if (!container) {
-    return (
-      <ConfirmationDialog
-        title="Failed Enabling Sync"
-        visible={props.visible}
-        onCancel={props.onDismiss}
-      >
-        <>
-          <Paragraph>
-            Because of limitations in iOS, EteSync is only able to sync with your local (on device) address book, which is unfortunaetly turned off while iCloud contacts sync is enabled.
-          </Paragraph>
-          <Paragraph>
-            To enable contact sync you would therefore need to turn off iCloud contacts sync. You can do this by going to "Settings -> Passwords & Accounts -> iCloud" and uncheck "Contacts".
-          </Paragraph>
-        </>
-      </ConfirmationDialog>
-    );
-  }
 
   return (
     <ConfirmationDialog
