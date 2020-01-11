@@ -3,6 +3,8 @@ import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';
 import sjcl from 'sjcl';
 
+import { getContainers } from '../EteSyncNative';
+
 import { PRODID, ContactType, EventType, TaskType, TaskStatusType, timezoneLoadFromName } from '../pim-types';
 
 import { logger } from '../logging';
@@ -47,9 +49,9 @@ function timeVobjectToNative(time: ICAL.Time | undefined) {
     ret.setUTCDate(time.day);
     ret.setUTCHours(time.hour);
     ret.setUTCMinutes(time.minute);
-    return ret;
+    return ret.toISOString();
   } else {
-    return time.toJSDate();
+    return time.toJSDate().toISOString();
   }
 }
 
@@ -99,7 +101,7 @@ function rruleVobjectToNative(event: EventType) {
   const ret: Calendar.RecurrenceRule = {
     frequency,
     interval: rrule.interval || undefined,
-    endDate: timeVobjectToNative(rrule.until)?.toISOString(),
+    endDate: timeVobjectToNative(rrule.until),
     occurrence: rrule.count || undefined,
     daysOfTheWeek,
     daysOfTheMonth: rrule.bymonthday,
@@ -392,7 +394,7 @@ export function contactVobjectToNative(contact: ContactType) {
       return {
         day: value.day,
         month: value.month,
-        year: value.year,
+        year: value.year ?? undefined,
       };
     } else {
       const time = prop.toJSON()[3];
@@ -400,7 +402,6 @@ export function contactVobjectToNative(contact: ContactType) {
         return {
           day: parseInt(time.slice(4, 6)),
           month: parseInt(time.slice(2, 4)),
-          year: null,
         };
       }
     }
@@ -580,4 +581,9 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   }
 
   return ret;
+}
+
+export async function getLocalContainer() {
+  const containers = (await getContainers()).filter((cont) => (cont.type === Contacts.ContainerTypes.Local));
+  return (containers.length > 0) ? containers[0] : null;
 }

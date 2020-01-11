@@ -4,6 +4,8 @@ import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 import * as Permissions from 'expo-permissions';
 
+import { beginBackgroundTask, endBackgroundTask } from '../EteSyncNative';
+
 import * as EteSync from 'etesync';
 import { Action } from 'redux-actions';
 
@@ -43,6 +45,7 @@ export class SyncManager {
   protected collectionType: string;
   protected syncStateJournals: SyncStateJournalData;
   protected syncStateEntries: SyncStateEntryData;
+  protected isSyncing: boolean;
 
   private managers = [
     SyncManagerCalendar,
@@ -106,11 +109,17 @@ export class SyncManager {
 
   public async sync() {
     const keepAwakeTag = 'SyncManager';
+    const taskId = beginBackgroundTask('Sync');
 
     if (!store.getState().connection?.isConnected) {
       logger.info('Disconnected, aborting sync');
       return false;
     }
+
+    if (this.isSyncing) {
+      return false;
+    }
+    this.isSyncing = true;
 
     try {
       activateKeepAwake(keepAwakeTag);
@@ -142,6 +151,8 @@ export class SyncManager {
       throw e;
     } finally {
       deactivateKeepAwake(keepAwakeTag);
+      this.isSyncing = true;
+      endBackgroundTask(await taskId);
     }
 
     // Force flusing the store to disk

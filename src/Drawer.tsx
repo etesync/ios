@@ -30,11 +30,6 @@ const menuItems = [
 
 const externalMenuItems = [
   {
-    title: 'FAQ',
-    link: C.faq,
-    icon: 'forum',
-  },
-  {
     title: 'Report issue',
     link: C.reportIssue,
     icon: 'bug',
@@ -47,6 +42,13 @@ const externalMenuItems = [
 ];
 
 if (!C.genericMode) {
+  externalMenuItems.unshift(
+    {
+      title: 'FAQ',
+      link: C.faq,
+      icon: 'forum',
+    }
+  );
   externalMenuItems.unshift(
     {
       title: 'Web site',

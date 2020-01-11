@@ -451,7 +451,9 @@ export const syncCount = handleAction(
 export interface SettingsType {
   locale: string;
   logLevel: LogLevel;
-  syncContacts: boolean;
+  syncContactsContainer: string | null;
+  syncCalendarsSource: string | null;
+  ranWizrd: boolean;
 }
 
 export const settingsReducer = handleActions(
@@ -460,5 +462,5 @@ export const settingsReducer = handleActions(
       { ...state, ...action.payload }
     ),
   },
-  { locale: 'en-gb', logLevel: LogLevel.Off, syncContacts: false }
+  { locale: 'en-gb', logLevel: LogLevel.Off, syncContactsContainer: null, syncCalendarsSource: null, ranWizrd: false }
 );

@@ -4,11 +4,12 @@ import { Map as ImmutableMap } from 'immutable';
 import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
-import { store, persistor, CredentialsData, SyncStateJournal, SyncStateJournalEntryData, SyncStateEntry, JournalsData } from '../store';
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from '../store';
 import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus } from '../store/actions';
-import { NativeBase } from './helpers';
+import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 import { arrayToChunkIterator } from '../helpers';
+import { BatchAction, HashDictionary } from '../EteSyncNative';
 
 export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
@@ -76,7 +77,32 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     syncUpdate(`Finished sync (${this.collectionType})`);
   }
 
-  public abstract async clearDeviceCollections(): Promise<void>;
+  public async clearDeviceCollections() {
+    const storeState = store.getState();
+    const etesync = this.etesync;
+    const syncStateJournals = storeState.sync.stateJournals;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
+
+    logger.info(`Clearing device collections for ${this.collectionType}`);
+
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
+        continue;
+      }
+
+      const journal = syncStateJournals.get(uid);
+
+      if (journal) {
+        logger.info(`Deleting ${collection.displayName}`);
+        await this.deleteJournal(journal.localId);
+        store.dispatch(unsetSyncStateJournal(etesync, journal));
+      } else {
+        logger.warn(`Skipping deletion of ${uid}. Not found.`);
+      }
+    }
+  }
 
   protected async syncJournalList() {
     const etesync = this.etesync;
@@ -175,32 +201,84 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           firstEntry = lastEntryPos + 1;
         }
 
+        let syncEntries: EteSync.SyncEntry[] = [];
+        let batch: [BatchAction, N][] = [];
+        const handledInBatch = new Map<string, boolean>();
         for (let i = firstEntry ; i < entries.size ; i++) {
           const syncEntry: EteSync.SyncEntry = entries.get(i)!;
           logger.debug(`Proccessing ${syncEntry.uid}`);
           try {
-            const syncStateEntry = await this.processSyncEntry(localId, syncEntry, journalSyncEntries);
+            const vobjectItem = this.syncEntryToVobject(syncEntry);
+            const nativeItem = this.vobjectToNative(vobjectItem);
+            const syncStateEntry = journalSyncEntries.get(nativeItem.uid);
+            if (handledInBatch.has(nativeItem.uid)) {
+              batch = batch.filter(([_action, item]) => (nativeItem.uid !== item.uid));
+            } else {
+              handledInBatch.set(nativeItem.uid, true);
+            }
             switch (syncEntry.action) {
               case EteSync.SyncEntryAction.Add:
               case EteSync.SyncEntryAction.Change: {
-                journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
-                store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
+                if (syncStateEntry?.localId) {
+                  batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }]);
+                } else {
+                  batch.push([BatchAction.Add, nativeItem]);
+                }
+
                 break;
               }
               case EteSync.SyncEntryAction.Delete: {
-                if (syncStateEntry) {
-                  journalSyncEntries.delete(syncStateEntry.uid);
-                  store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
+                if (syncStateEntry?.localId) {
+                  batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
                 }
+
                 break;
               }
             }
 
-            if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
-              persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
-            }
+            syncEntries.push(syncEntry);
           } catch (e) {
             logger.warn(`Failed processing: ${syncEntry.content}`);
+            throw e;
+          }
+
+          try {
+            if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
+              const hashes = await this.processSyncEntries(localId, batch);
+
+              for (const [action, nativeItem] of batch) {
+                // FIXME: do this all at once
+                const hash = hashes[nativeItem.uid];
+                const syncStateEntry: SyncStateEntry = {
+                  uid: nativeItem.uid,
+                  localId: hash?.[0],
+                  lastHash: hash?.[1],
+                };
+                switch (action) {
+                  case BatchAction.Add:
+                  case BatchAction.Change: {
+                    journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+                    store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
+                    break;
+                  }
+                  case BatchAction.Delete: {
+                    if (syncStateEntry) {
+                      journalSyncEntries.delete(syncStateEntry.uid);
+                      store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
+                    }
+                    break;
+                  }
+                }
+              }
+
+              persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
+
+              syncEntries = [];
+              batch = [];
+              handledInBatch.clear();
+            }
+          } catch (e) {
+            logger.warn('Failed batch saving contacts');
             throw e;
           }
         }
@@ -249,9 +327,9 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected syncPushHandleAddChange(_syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N) {
+  protected syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
     let syncEntryAction: EteSync.SyncEntryAction | undefined;
-    const currentHash = this.nativeHashCalc(nativeItem);
+    const currentHash = itemHash;
 
     if (syncStateEntry === undefined) {
       // New
@@ -260,8 +338,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     } else {
       if (currentHash !== syncStateEntry.lastHash) {
         // Changed
-        logger.info(`Changed entry ${nativeItem.uid}`);
-        syncEntryAction = EteSync.SyncEntryAction.Change;
+        if (this.handleLegacyHash(syncStateJournal.uid, syncStateEntry, nativeItem, itemHash)) {
+          logger.info(`Updated legacy hash for ${nativeItem.uid}`);
+        } else {
+          logger.info(`Changed entry ${nativeItem.uid}`);
+          syncEntryAction = EteSync.SyncEntryAction.Change;
+        }
       }
     }
 
@@ -314,14 +396,27 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     return null;
   }
 
+  protected handleLegacyHash(journalUid: string, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
+    if (syncStateEntry?.lastHash && syncStateEntry.lastHash.indexOf(':') === -1) {
+      // If the last hash was unversioned (no colon), try matching the legacy hash
+      const legacyHash = entryNativeHashCalc(nativeItem);
+      if (legacyHash === syncStateEntry.lastHash) {
+        // If the legacy hash is the same, there's nothing to do. Just update with the new hash and continue.
+        store.dispatch(setSyncStateEntry(this.etesync, journalUid, { ...syncStateEntry, lastHash: itemHash }));
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   protected abstract async createJournal(collection: EteSync.CollectionInfo): Promise<string>;
   protected abstract async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(): Promise<void>;
 
   protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
+  protected abstract vobjectToNative(vobject: T): N;
   protected abstract nativeToVobject(nativeItem: N): T;
-  protected abstract nativeHashCalc(entry: N): string;
-
-  protected abstract async processSyncEntry(containerLocalId: string, syncEntry: EteSync.SyncEntry, syncStateEntries: SyncStateJournalEntryData): Promise<SyncStateEntry>;
+  protected abstract async processSyncEntries(containerLocalId: string, batch: [BatchAction, N][]): Promise<HashDictionary>;
 }

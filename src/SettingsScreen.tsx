@@ -16,6 +16,7 @@ import { useCredentials } from './login';
 import ScrollView from './widgets/ScrollView';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PasswordInput from './widgets/PasswordInput';
+import SyncSettings from './sync/SyncSettings';
 
 import { StoreState } from './store';
 import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from './store/actions';
@@ -227,7 +228,6 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
 
   const [showAuthDialog, setShowAuthDialog] = React.useState(false);
   const [showEncryptionDialog, setShowEncryptionDialog] = React.useState(false);
-  const [showSyncContactsWarning, setShowSyncContactsWarning] = React.useState(false);
 
   const loggedIn = etesync && etesync.credentials && etesync.encryptionKey;
 
@@ -268,27 +268,12 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
           />
         </List.Section>
 
-        <List.Section>
-          <List.Subheader>Advanced</List.Subheader>
-          <List.Item
-            title="Sync Contacts"
-            description="Sync contacts with default address book"
-            right={(props) =>
-              <Switch
-                {...props}
-                color={theme.colors.accent}
-                value={settings.syncContacts}
-                onValueChange={(value) => {
-                  if (value) {
-                    setShowSyncContactsWarning(true);
-                  } else {
-                    dispatch(setSettings({ syncContacts: false }));
-                  }
-                }}
-              />
-            }
-          />
-        </List.Section>
+        {(!C.genericMode) && (
+          <List.Section>
+            <List.Subheader>Advanced</List.Subheader>
+            <SyncSettings />
+          </List.Section>
+        )}
 
         <List.Section>
           <List.Subheader>Debugging</List.Subheader>
@@ -318,24 +303,6 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
 
       <AuthenticationPasswordDialog visible={showAuthDialog} onDismiss={() => setShowAuthDialog(false)} />
       <EncryptionPasswordDialog visible={showEncryptionDialog} onDismiss={() => setShowEncryptionDialog(false)} />
-      <ConfirmationDialog
-        title="Important!"
-        visible={showSyncContactsWarning}
-        onOk={() => {
-          dispatch(setSettings({ syncContacts: true }));
-          setShowSyncContactsWarning(false);
-        }}
-        onCancel={() => setShowSyncContactsWarning(false)}
-      >
-        <>
-          <Paragraph>
-            Contact sync is not on by default because unlike the calendar sync, it syncs to your existing address book. So for example, if you have iCloud sync turned on, all of your EteSync contacts will sync to your iCloud account and vice-versa!
-          </Paragraph>
-          <Paragraph>
-            It's therefore recommended to turn iCloud contacts sync off from the phone's Settings app before proceeding.
-          </Paragraph>
-        </>
-      </ConfirmationDialog>
     </>
   );
 };

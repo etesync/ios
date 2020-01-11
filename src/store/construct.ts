@@ -37,9 +37,26 @@ export interface StoreState {
   errors: List<Error>;
 }
 
+const settingsMigrations = {
+  0: (state: any) => {
+    return {
+      ...state,
+      ranWizrd: true,
+    };
+  },
+  2: (state: any) => {
+    return {
+      ...state,
+      syncCalendars: true,
+    };
+  },
+};
+
 const settingsPersistConfig = {
   key: 'settings',
+  version: 2,
   storage: AsyncStorage,
+  migrate: createMigrate(settingsMigrations, { debug: false }),
 };
 
 const credentialsPersistConfig = {
