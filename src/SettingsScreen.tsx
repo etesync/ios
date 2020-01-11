@@ -268,7 +268,7 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
           />
         </List.Section>
 
-        {(!C.genericMode) && (
+        {(C.syncAppMode) && (
           <List.Section>
             <List.Subheader>Advanced</List.Subheader>
             <SyncSettings />

@@ -40,7 +40,7 @@ const wizardPages = [
   ),
 ];
 
-if (!C.genericMode) {
+if (C.syncAppMode) {
   wizardPages.push(
     (props: PagePropsType) => (
       <>
