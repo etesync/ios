@@ -7,7 +7,6 @@ import * as Permissions from 'expo-permissions';
 import { beginBackgroundTask, endBackgroundTask } from '../EteSyncNative';
 
 import * as EteSync from 'etesync';
-import { Action } from 'redux-actions';
 
 const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
@@ -98,10 +97,17 @@ export class SyncManager {
         const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
         const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
         journal.setInfo(cryptoManager, collection);
-        const journalAction: Action<EteSync.Journal> = await store.dispatch<any>(addJournal(etesync, journal));
-        // FIXME: Limit based on error code to only do it for associates.
-        if (!journalAction.error) {
-          await store.dispatch(fetchEntries(etesync, collection.uid, null));
+        try {
+          const journalAction = addJournal(etesync, journal);
+          await journalAction.payload;
+          // FIXME: Limit based on error code to only do it for associates.
+          if (!journalAction.error) {
+            await store.dispatch(journalAction);
+            await store.dispatch(fetchEntries(etesync, collection.uid, null));
+          }
+        } catch (e) {
+          // FIXME: Limit based on error code to only do it for associates.
+          logger.warn(e);
         }
       }
     }
