@@ -50,15 +50,49 @@ function titleAccessor(item: Contacts.Container | Calendar.Source | null) {
   return `${item.name || item.type} (${item.type})`;
 }
 
-export default function SyncSettings() {
+interface SelectSourcePropsType<T> {
+  title: string;
+  currentSource: T | undefined;
+  options: T[];
+  onChange: (item: T | null) => void;
+}
+
+function SelectSource<T extends Calendar.Source | Contacts.Container>(props: SelectSourcePropsType<T>) {
+  const { title, currentSource, options, onChange } = props;
   const theme = useTheme();
+  const [selectSourceOpen, setSelectSourceOpen] = React.useState(false);
+  const currentSourceName = (options) ? titleAccessor(currentSource ?? null) : 'Loading';
+
+  return (
+    <List.Item
+      title={title}
+      right={(props) =>
+        <Select
+          {...props}
+          visible={selectSourceOpen}
+          noneString="No sync"
+          onDismiss={() => setSelectSourceOpen(false)}
+          options={options ?? []}
+          titleAccossor={titleAccessor}
+          onChange={(source) => {
+            setSelectSourceOpen(false);
+            onChange(source);
+          }}
+          anchor={(
+            <Button mode="contained" color={theme.colors.accent} onPress={() => setSelectSourceOpen(true)}>{currentSourceName}</Button>
+          )}
+        />
+      }
+    />
+  );
+}
+
+export default function SyncSettings() {
   const dispatch = useDispatch();
   const settings = useSelector((state: StoreState) => state.settings);
   const [selectedContainer, setSelectedContainer] = React.useState<Contacts.Container>();
   const [availableContainers, setAvailableContainers] = React.useState<Contacts.Container[]>();
   const [availableSources, setAvailableSources] = React.useState<Calendar.Source[]>();
-  const [selectContainerOpen, setSelectContainerOpen] = React.useState(false);
-  const [selectSourceOpen, setSelectSourceOpen] = React.useState(false);
 
   React.useEffect(() => {
     getContainers().then((containers) => {
@@ -72,53 +106,27 @@ export default function SyncSettings() {
 
   const currentContainer = availableContainers?.find((container) => container.id === settings.syncContactsContainer);
   const currentSource = availableSources?.find((source) => source.id === settings.syncCalendarsSource);
-  const currentContainerName = (availableContainers) ? titleAccessor(currentContainer ?? null) : 'Loading';
-  const currentSourceName = (availableSources) ? titleAccessor(currentSource ?? null) : 'Loading';
 
   return (
     <>
-      <List.Item
+      <SelectSource<Contacts.Container>
         title="Sync Contacts"
-        right={(props) =>
-          <Select
-            {...props}
-            visible={selectContainerOpen}
-            noneString="No sync"
-            onDismiss={() => setSelectContainerOpen(false)}
-            options={availableContainers ?? []}
-            titleAccossor={titleAccessor}
-            onChange={(container) => {
-              setSelectContainerOpen(false);
-              setSelectedContainer(container ?? undefined);
-              if (!container) {
-                dispatch(setSettings({ syncContactsContainer: null }));
-              }
-            }}
-            anchor={(
-              <Button mode="contained" color={theme.colors.accent} onPress={() => setSelectContainerOpen(true)}>{currentContainerName}</Button>
-            )}
-          />
-        }
+        options={availableContainers ?? []}
+        currentSource={currentContainer}
+        onChange={(container) => {
+          setSelectedContainer(container ?? undefined);
+          if (!container) {
+            dispatch(setSettings({ syncContactsContainer: null }));
+          }
+        }}
       />
-      <List.Item
+      <SelectSource<Calendar.Source>
         title="Sync Calendars"
-        right={(props) =>
-          <Select
-            {...props}
-            visible={selectSourceOpen}
-            noneString="No sync"
-            onDismiss={() => setSelectSourceOpen(false)}
-            options={availableSources ?? []}
-            titleAccossor={titleAccessor}
-            onChange={(source) => {
-              setSelectSourceOpen(false);
-              dispatch(setSettings({ syncCalendarsSource: source?.id ?? null }));
-            }}
-            anchor={(
-              <Button mode="contained" color={theme.colors.accent} onPress={() => setSelectSourceOpen(true)}>{currentSourceName}</Button>
-            )}
-          />
-        }
+        options={availableSources ?? []}
+        currentSource={currentSource}
+        onChange={(source) => {
+          dispatch(setSettings({ syncCalendarsSource: source?.id ?? null }));
+        }}
       />
       <SyncContactsConfirmationDialog visible={!!selectedContainer} container={selectedContainer!} onDismiss={() => setSelectedContainer(undefined)} />
     </>
