@@ -167,11 +167,11 @@ export class SyncManager {
     return true;
   }
 
-  public async clearDeviceCollections() {
+  public async clearDeviceCollections(managers = this.managers) {
     const storeState = store.getState();
     const userInfo = storeState.cache.userInfo!;
 
-    for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
+    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
       await syncManager.init();
       if (!syncManager.canSync) {
         continue;

@@ -2,13 +2,16 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { Image, Linking, View } from 'react-native';
-import { Subheading, Divider, List, Text, Paragraph } from 'react-native-paper';
+import { Subheading, Divider, List, Text, Paragraph, Switch, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
 import { useDispatch } from 'react-redux';
 import { persistor, StoreState } from './store';
 import { logout } from './store/actions';
 
+import { SyncManagerAddressBook } from './sync/SyncManagerAddressBook';
+import { SyncManagerCalendar } from './sync/SyncManagerCalendar';
+import { SyncManagerTaskList } from './sync/SyncManagerTaskList';
 import { unregisterSyncTask, SyncManager } from './sync/SyncManager';
 
 import ScrollView from './widgets/ScrollView';
@@ -91,7 +94,10 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
 function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const theme = useTheme();
   const etesync = useCredentials();
+  const [clearAddressBooks, setClearAddressBooks] = React.useState(true);
+  const [clearCalendars, setClearCalendars] = React.useState(true);
 
   if (!etesync) {
     return null;
@@ -102,8 +108,19 @@ function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
       title="Are you sure?"
       visible={props.visible}
       onOk={async () => {
-        const syncManager = SyncManager.getManager(etesync);
-        await syncManager.clearDeviceCollections();
+        const managers = [];
+        if (clearAddressBooks) {
+          managers.push(SyncManagerAddressBook);
+        }
+        if (clearCalendars) {
+          managers.push(SyncManagerCalendar);
+          managers.push(SyncManagerTaskList);
+        }
+
+        if (managers.length > 0) {
+          const syncManager = SyncManager.getManager(etesync);
+          await syncManager.clearDeviceCollections(managers);
+        }
 
         dispatch(logout());
         navigation.closeDrawer();
@@ -118,10 +135,39 @@ function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
     >
       <Paragraph>
         Are you sure you would like to log out?
-      </Paragraph>
-      <Paragraph>
         Logging out will remove your account and all of its data from your device, and unsynced changes WILL be lost.
       </Paragraph>
+      {C.syncAppMode && (
+        <>
+          <Paragraph>
+            Additionally, should EteSync calendars and address books be removed from your device when logging out?
+          </Paragraph>
+          <List.Item
+            title="Remove contacts"
+            description={(clearAddressBooks) ? 'Removing contacts from device' : 'Keeping contacts on device'}
+            right={(props) =>
+              <Switch
+                {...props}
+                color={theme.colors.accent}
+                value={clearAddressBooks}
+                onValueChange={setClearAddressBooks}
+              />
+            }
+          />
+          <List.Item
+            title="Remove calendars"
+            description={(clearCalendars) ? 'Removing events and reminders from device' : 'Keeping events and reminers on device'}
+            right={(props) =>
+              <Switch
+                {...props}
+                color={theme.colors.accent}
+                value={clearCalendars}
+                onValueChange={setClearCalendars}
+              />
+            }
+          />
+        </>
+      )}
     </ConfirmationDialog>
   );
 }
