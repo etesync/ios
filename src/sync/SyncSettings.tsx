@@ -57,7 +57,7 @@ function titleAccessor(item: Contacts.Container | Calendar.Source | null) {
 
 interface SelectSourcePropsType<T> {
   title: string;
-  currentSource: T | undefined;
+  currentSource: T | null;
   options: T[];
   onChange: (item: T | null) => void;
 }
@@ -82,6 +82,9 @@ function SelectSource<T extends Calendar.Source | Contacts.Container>(props: Sel
             titleAccossor={titleAccessor}
             onChange={(source) => {
               setSelectSourceOpen(false);
+              if (source === currentSource) {
+                return;
+              }
               onChange(source);
             }}
             anchor={(
@@ -114,8 +117,8 @@ export default function SyncSettings() {
     });
   }, []);
 
-  const currentContainer = availableContainers?.find((container) => container.id === settings.syncContactsContainer);
-  const currentSource = availableSources?.find((source) => source.id === settings.syncCalendarsSource);
+  const currentContainer = availableContainers?.find((container) => container.id === settings.syncContactsContainer) ?? null;
+  const currentSource = availableSources?.find((source) => source.id === settings.syncCalendarsSource) ?? null;
 
   return (
     <>
