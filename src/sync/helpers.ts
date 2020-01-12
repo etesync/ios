@@ -390,10 +390,10 @@ export function contactVobjectToNative(contact: ContactType) {
 
   function parseDate(prop: ICAL.Property) {
     const value = prop.getFirstValue();
-    if (value.day !== null) {
+    if ((value.day !== null) && (value.day !== undefined)) {
       return {
         day: value.day,
-        month: value.month,
+        month: value.month - 1,
         year: value.year ?? undefined,
       };
     } else {
@@ -401,12 +401,12 @@ export function contactVobjectToNative(contact: ContactType) {
       if (time.length === 6 && time.startsWith('--')) {
         return {
           day: parseInt(time.slice(4, 6)),
-          month: parseInt(time.slice(2, 4)),
+          month: parseInt(time.slice(2, 4)) - 1,
         };
       } else if (time.length === 8) {
         return {
           day: parseInt(time.slice(6, 8)),
-          month: parseInt(time.slice(4, 6)),
+          month: parseInt(time.slice(4, 6)) - 1,
           year: parseInt(time.slice(0, 4)),
         };
       }
@@ -419,13 +419,13 @@ export function contactVobjectToNative(contact: ContactType) {
     const value = parseDate(prop);
 
     const ret: Partial<Contacts.Date> = {};
-    if (value.day) {
+    if (isDefined(value.day)) {
       ret.day = value.day;
     }
-    if (value.month) {
+    if (isDefined(value.month)) {
       ret.month = value.month;
     }
-    if (value.year) {
+    if (isDefined(value.year)) {
       ret.year = value.year;
     }
 
@@ -445,13 +445,13 @@ export function contactVobjectToNative(contact: ContactType) {
     const value = parseDate(prop);
 
     const ret: Partial<Contacts.Date> = {};
-    if (value.day) {
+    if (isDefined(value.day)) {
       ret.day = value.day;
     }
-    if (value.month) {
+    if (isDefined(value.month)) {
       ret.month = value.month;
     }
-    if (value.year) {
+    if (isDefined(value.year)) {
       ret.year = value.year;
     }
 
@@ -576,7 +576,7 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
     let formattedDate = '';
     formattedDate += (date.year) ? date.year.toString().padStart(2, '0') : '--';
     if (date.month) {
-      formattedDate += date.month.toString().padStart(2, '0');
+      formattedDate += (date.month + 1).toString().padStart(2, '0');
     }
     if (date.day) {
       formattedDate += date.day.toString().padStart(2, '0');
