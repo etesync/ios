@@ -86,7 +86,7 @@ export default React.memo(function JournalItemContact(props: PropsType) {
     'bday',
     'calendar',
     undefined,
-    ((x: any) => moment(x.toJSDate()).format('dddd, LL')),
+    ((x: any) => (x.toJSDate) ? moment(x.toJSDate()).format('dddd, LL') : x),
     () => 'Birthday'
   ));
 
@@ -94,7 +94,7 @@ export default React.memo(function JournalItemContact(props: PropsType) {
     'anniversary',
     'calendar',
     undefined,
-    ((x: any) => moment(x.toJSDate()).format('dddd, LL')),
+    ((x: any) => (x.toJSDate) ? moment(x.toJSDate()).format('dddd, LL') : x),
     () => 'Anniversary'
   ));
 
