@@ -39,6 +39,11 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
     const pushEntries = new Map<string, PushEntry[]>();
 
+    if (storeState.sync.stateJournals.isEmpty()) {
+      // Skip in case we don't have any sync journals (e.g. for associates)
+      return;
+    }
+
     // First collect all of the sync entries
     for (const collection of syncInfoCollections.values()) {
       const uid = collection.uid;
