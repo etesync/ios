@@ -403,6 +403,12 @@ export function contactVobjectToNative(contact: ContactType) {
           day: parseInt(time.slice(4, 6)),
           month: parseInt(time.slice(2, 4)),
         };
+      } else if (time.length === 8) {
+        return {
+          day: parseInt(time.slice(6, 8)),
+          month: parseInt(time.slice(4, 6)),
+          year: parseInt(time.slice(0, 4)),
+        };
       }
     }
 
@@ -412,28 +418,54 @@ export function contactVobjectToNative(contact: ContactType) {
   const birthdays: Contacts.Date[] = contact.comp.getAllProperties('bday').map((prop) => {
     const value = parseDate(prop);
 
-    return {
-      id: 'bday',
-      day: value.day,
-      month: value.month,
-      year: value.year,
-      format: Contacts.CalendarFormats.Gregorian,
-      label: 'Birthday',
-    };
-  });
+    const ret: Partial<Contacts.Date> = {};
+    if (value.day) {
+      ret.day = value.day;
+    }
+    if (value.month) {
+      ret.month = value.month;
+    }
+    if (value.year) {
+      ret.year = value.year;
+    }
+
+    if (Object.keys(ret).length > 0) {
+      return {
+        id: 'bday',
+        format: Contacts.CalendarFormats.Gregorian,
+        label: 'Birthday',
+        ...ret,
+      };
+    } else {
+      return undefined;
+    }
+  }).filter(isDefined);
 
   const dates: Contacts.Date[] = contact.comp.getAllProperties('anniversary').map((prop) => {
     const value = parseDate(prop);
 
-    return {
-      id: 'anniversary',
-      day: value.day,
-      month: value.month,
-      year: value.year,
-      format: Contacts.CalendarFormats.Gregorian,
-      label: 'Anniversary',
-    };
-  });
+    const ret: Partial<Contacts.Date> = {};
+    if (value.day) {
+      ret.day = value.day;
+    }
+    if (value.month) {
+      ret.month = value.month;
+    }
+    if (value.year) {
+      ret.year = value.year;
+    }
+
+    if (Object.keys(ret).length > 0) {
+      return {
+        id: 'anniversary',
+        format: Contacts.CalendarFormats.Gregorian,
+        label: 'Anniversary',
+        ...ret,
+      };
+    } else {
+      return undefined;
+    }
+  }).filter(isDefined);
 
   const titles: string[] = contactFieldToNative<string>(contact, 'title', (_fieldType: string, value: string) => {
     return value;
