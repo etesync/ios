@@ -37,7 +37,7 @@ export function entryNativeHashCalc(entry: {uid: string}) {
   return sjcl.codec.hex.fromBits(sha.finalize());
 }
 
-function timeVobjectToNative(time: ICAL.Time | undefined) {
+function timeVobjectToNative(time: ICAL.Time | null | undefined) {
   if (!time) {
     return undefined;
   }
@@ -78,10 +78,11 @@ function alarmVobjectToNative(alarm: ICAL.Component) {
 }
 
 function rruleVobjectToNative(event: EventType) {
-  const rrule = event.component.getFirstPropertyValue<ICAL.Recur>('rrule');
-  if (!rrule) {
+  const rruleProp = event.component.getFirstPropertyValue<ICAL.Recur>('rrule');
+  if (!rruleProp) {
     return undefined;
   }
+  const rrule = rruleProp.toJSON();
 
   const frequency = rrule.freq && Calendar.Frequency[rrule.freq];
   if (!frequency) {
@@ -101,7 +102,7 @@ function rruleVobjectToNative(event: EventType) {
   const ret: Calendar.RecurrenceRule = {
     frequency,
     interval: rrule.interval || undefined,
-    endDate: timeVobjectToNative(rrule.until),
+    endDate: timeVobjectToNative(rruleProp.until),
     occurrence: rrule.count || undefined,
     daysOfTheWeek,
     daysOfTheMonth: rrule.bymonthday,
