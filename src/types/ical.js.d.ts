@@ -173,7 +173,10 @@ declare module 'ical.js' {
     public bysetpos?: number[];
   }
 
-  export class Recur extends RecurData {
+  export class Recur {
     constructor(data?: RecurData);
+    public until: Time | null;
+
+    public toJSON(): Omit<RecurData, 'until'> & { until?: string };
   }
 }
