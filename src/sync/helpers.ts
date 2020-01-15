@@ -90,7 +90,11 @@ function rruleVobjectToNative(event: EventType) {
   }
   let daysOfTheWeek;
   if (rrule.byday) {
-    daysOfTheWeek = rrule.byday.map((x) => {
+    let byday = rrule.byday;
+    if (typeof byday === 'string') {
+      byday = [byday];
+    }
+    daysOfTheWeek = byday.map((x) => {
       const weekNo = x.slice(0, -2);
       const day = x.slice(-2);
       return {
