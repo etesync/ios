@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/etesync/ios
+License: GPL-3.0-only
+
+Files: *
+Copyright: Tom Hacohen <tom@stosb.com>
+License: GPL-3.0-only
