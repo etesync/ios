@@ -1,4 +1,5 @@
-import { AsyncStorage, ConnectionType } from 'react-native';
+import { AsyncStorage } from 'react-native';
+import { NetInfoStateType } from '@react-native-community/netinfo';
 
 import { combineReducers } from 'redux';
 import { createMigrate, persistReducer, createTransform } from 'redux-persist';
@@ -32,7 +33,7 @@ export interface StoreState {
     syncInfoCollection: SyncInfoCollectionData;
     syncInfoItem: SyncInfoItemData;
   };
-  connection: ConnectionType | null;
+  connection: NetInfoStateType | null;
   permissions: ImmutableMap<string, boolean>;
   errors: List<Error>;
 }
