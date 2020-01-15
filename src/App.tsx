@@ -12,8 +12,8 @@ import SettingsGate from './SettingsGate';
 
 import { getPersistenceFunctions } from './navigation/persistance';
 
-import { useScreens } from 'react-native-screens';
-useScreens();
+import { enableScreens } from 'react-native-screens';
+enableScreens();
 
 function InnerApp() {
   const colorScheme = useColorScheme();
