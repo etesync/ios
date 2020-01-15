@@ -13,6 +13,8 @@ import Container from './widgets/Container';
 import { expo } from '../app.json';
 import * as C from './constants';
 import { setSettings } from './store/actions';
+import LogoutDialog from './LogoutDialog';
+import { useCredentials } from './login';
 
 function emailDevelopers(error: Error, logs: string | undefined) {
   const subject = encodeURIComponent('EteSync iOS: Crash Report');
@@ -29,6 +31,8 @@ function emailDevelopers(error: Error, logs: string | undefined) {
 }
 
 function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | undefined }>) {
+  const etesync = useCredentials();
+  const [showLogout, setShowLogout] = React.useState(false);
   const errors = useSelector((state: StoreState) => state.errors);
   const error = props.error ?? errors.first(null);
   const [logs, setLogs] = React.useState<string>();
@@ -54,9 +58,17 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
               persistor.persist();
               Updates.reloadFromCache();
             }}>Enable Logging &amp; Reload</Button>
+            <Button disabled={!etesync} mode="contained" style={buttonStyle} onPress={() => setShowLogout(true)}>Logout &amp; Reload</Button>
           </View>
           <Text selectable>{content}</Text>
         </Container>
+        <LogoutDialog visible={showLogout} onDismiss={(loggedOut) => {
+          if (loggedOut) {
+            Updates.reloadFromCache();
+          }
+          setShowLogout(false);
+        }}
+        />
       </ScrollView>
     );
   }

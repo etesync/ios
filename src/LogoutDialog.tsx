@@ -17,7 +17,7 @@ import { useCredentials } from './login';
 
 import * as C from './constants';
 
-export default function LogoutDialog(props: { visible: boolean, onDismiss: () => void }) {
+export default function LogoutDialog(props: { visible: boolean, onDismiss: (loggedOut: boolean) => void }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const theme = useTheme();
@@ -55,9 +55,9 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: () =>
 
         persistor.persist();
 
-        props.onDismiss();
+        props.onDismiss(true);
       }}
-      onCancel={props.onDismiss}
+      onCancel={() => props.onDismiss(false)}
     >
       <Paragraph>
         Are you sure you would like to log out?
