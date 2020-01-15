@@ -281,9 +281,15 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
   if (task.timeZone) {
     const timezone = timezoneLoadFromName(task.timeZone);
     if (timezone) {
-      ret.startDate = ret.startDate?.convertToZone(timezone);
-      ret.dueDate = ret.dueDate?.convertToZone(timezone);
-      ret.completionDate = ret.completionDate?.convertToZone(timezone);
+      if (ret.startDate) {
+        ret.startDate = ret.startDate.convertToZone(timezone);
+      }
+      if (ret.dueDate) {
+        ret.dueDate = ret.dueDate.convertToZone(timezone);
+      }
+      if (ret.completionDate) {
+        ret.completionDate = ret.completionDate.convertToZone(timezone);
+      }
     }
   }
 
