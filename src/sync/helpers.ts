@@ -97,10 +97,13 @@ function rruleVobjectToNative(event: EventType) {
     daysOfTheWeek = byday.map((x) => {
       const weekNo = x.slice(0, -2);
       const day = x.slice(-2);
-      return {
+      const ret = {
         dayOfTheWeek: ICAL.Recur[day],
-        weekNumber: (weekNo) ? parseInt(weekNo) : undefined,
-      };
+      } as any;
+      if (weekNo) {
+        ret.weekNumber = parseInt(weekNo);
+      }
+      return ret;
     });
   }
   const ret: Calendar.RecurrenceRule = {
