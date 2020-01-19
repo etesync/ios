@@ -589,12 +589,8 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   function formatDate(date: NonNullable<typeof contact.birthday>) {
     let formattedDate = '';
     formattedDate += (date.year) ? date.year.toString().padStart(2, '0') : '--';
-    if (date.month) {
-      formattedDate += (date.month + 1).toString().padStart(2, '0');
-    }
-    if (date.day) {
-      formattedDate += date.day.toString().padStart(2, '0');
-    }
+    formattedDate += (date.month || (date.month === 0)) ? (date.month + 1).toString().padStart(2, '0') : '--';
+    formattedDate += (date.day) ? date.day.toString().padStart(2, '0') : '--';
     return formattedDate;
   }
   if (contact.dates) {
