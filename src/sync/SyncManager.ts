@@ -11,7 +11,7 @@ import * as EteSync from 'etesync';
 const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, persistor, CredentialsData, JournalsData, SyncStateJournalData, SyncStateEntryData, StoreState } from '../store';
+import { store, persistor, CredentialsData, JournalsData, StoreState } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { logger } from '../logging';
@@ -41,9 +41,6 @@ export class SyncManager {
 
   protected etesync: CredentialsData;
   protected userInfo: EteSync.UserInfo;
-  protected collectionType: string;
-  protected syncStateJournals: SyncStateJournalData;
-  protected syncStateEntries: SyncStateEntryData;
   protected isSyncing: boolean;
 
   private managers = [
