@@ -17,7 +17,6 @@ import { registerSyncTask } from './sync/SyncManager';
 
 
 const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
-  const dispatch = useDispatch();
   const etesync = useCredentials()!;
   const SyncGate = useSyncGate();
   const permissionsStatus = usePermissions();
@@ -25,8 +24,6 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
   React.useEffect(() => {
     if (etesync && !permissionsStatus) {
       registerSyncTask(etesync.credentials.email);
-      const syncManager = SyncManager.getManager(etesync);
-      dispatch(performSync(syncManager.sync()));
     }
   }, [etesync, !permissionsStatus]);
 

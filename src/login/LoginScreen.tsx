@@ -20,8 +20,11 @@ import WebviewKeygen from '../components/WebviewKeygen';
 
 import { store, StoreState } from '../store';
 
-import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo } from '../store/actions';
+import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo, performSync } from '../store/actions';
 import { useLoading, startTask } from '../helpers';
+
+import { SyncManager } from '../sync/SyncManager';
+import { credentialsSelector } from '.';
 
 import * as C from '../constants';
 
@@ -86,6 +89,9 @@ function EncryptionPart() {
   if (derived) {
     const done = () => {
       dispatch(derived);
+      const etesync = credentialsSelector(store.getState() as any);
+      const syncManager = SyncManager.getManager(etesync!);
+      dispatch(performSync(syncManager.sync()));
       navigation.navigate('App');
     };
 
