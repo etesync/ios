@@ -180,11 +180,11 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const syncStateJournal = syncStateJournals.get(uid)!;
       const localId = syncStateJournal.localId;
 
-      const syncInfoJournalItems = syncInfoItems.get(uid)!;
-      const entries = journalsEntries.get(uid)!.map((entry) => syncInfoJournalItems.get(entry.uid)!);
-      const lastEntry = entries.last(undefined);
+      const lastEntry = journalsEntries.get(uid)?.last(undefined);
       if (lastEntry?.uid !== syncStateJournal.lastSyncUid) {
         logger.info(`Applying changes. Current uid: ${lastEntry?.uid}, last one: ${syncStateJournal.lastSyncUid}`);
+        const syncInfoJournalItems = syncInfoItems.get(uid)!;
+        const entries = journalsEntries.get(uid)!.map((entry) => syncInfoJournalItems.get(entry.uid)!);
         const lastSyncUid = syncStateJournal.lastSyncUid;
 
         let firstEntry: number;
