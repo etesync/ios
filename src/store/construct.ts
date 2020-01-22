@@ -2,7 +2,7 @@ import { AsyncStorage } from 'react-native';
 import { NetInfoStateType } from '@react-native-community/netinfo';
 
 import { combineReducers } from 'redux';
-import { createMigrate, persistReducer, createTransform } from 'redux-persist';
+import { createMigrate, persistReducer, createTransform, PersistConfig } from 'redux-persist';
 
 import { List, Map as ImmutableMap } from 'immutable';
 
@@ -53,19 +53,19 @@ const settingsMigrations = {
   },
 };
 
-const settingsPersistConfig = {
+const settingsPersistConfig: PersistConfig = {
   key: 'settings',
   version: 2,
   storage: AsyncStorage,
   migrate: createMigrate(settingsMigrations, { debug: false }),
 };
 
-const credentialsPersistConfig = {
+const credentialsPersistConfig: PersistConfig = {
   key: 'credentials',
   storage: AsyncStorage,
 };
 
-const encryptionKeyPersistConfig = {
+const encryptionKeyPersistConfig: PersistConfig = {
   key: 'encryptionKey',
   storage: AsyncStorage,
 };
@@ -180,7 +180,7 @@ const cacheMigrations = {
   },
 };
 
-const cachePersistConfig = {
+const cachePersistConfig: PersistConfig = {
   key: 'cache',
   version: 1,
   storage: AsyncStorage,
@@ -208,7 +208,7 @@ const syncDeserialize = (state: any, key: string) => {
   return state;
 };
 
-const syncPersistConfig = {
+const syncPersistConfig: PersistConfig = {
   key: 'sync',
   storage: AsyncStorage,
   transforms: [createTransform(syncSerialize, syncDeserialize)],
