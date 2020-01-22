@@ -41,7 +41,7 @@ const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
   return (
     <ScrollView style={{ flex: 1 }}>
       <Container>
-        <Title style={{ textAlign: 'center' }}>EteSync {expo.version}</Title>
+        <Title style={{ textAlign: 'center' }}>{C.appName} {expo.version}</Title>
         <TouchableRipple onPress={() => { Linking.openURL(C.homePage) }}>
           <Text style={{ textAlign: 'center', color: theme.colors.accent, textDecorationLine: 'underline', margin: 10 }}>{C.homePage}</Text>
         </TouchableRipple>
