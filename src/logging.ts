@@ -58,9 +58,7 @@ export async function getLogs() {
 
   const wantedItems = await AsyncStorage.multiGet(wantedKeys);
   return wantedItems.sort(([a], [b]) => {
-    const idxA = parseInt(a.substring(a.lastIndexOf('_') + 1, a.length));
-    const idxB = parseInt(b.substring(b.lastIndexOf('_') + 1, b.length));
-    return idxA - idxB;
+    return a.localeCompare(b);
   }).map(([_key, value]) => value);
 }
 
