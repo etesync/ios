@@ -17,7 +17,7 @@
     "color": "^3.1.2",
     "constants": "^0.0.2",
     "crypto": "git+https://github.com/etesync/expo-crypto",
-    "etesync": "^0.2.0",
+    "etesync": "^0.3.1",
     "expo": "^36.0.0",
     "expo-background-fetch": "~8.0.0",
     "expo-calendar": "~8.0.0",
