@@ -34,7 +34,17 @@ export const fetchCredentials = createAction(
 
 export const logout = createAction(
   'LOGOUT',
-  () => true
+  (etesync: CredentialsData) => {
+    (async () => {
+      const authenticator = new EteSync.Authenticator(etesync.serviceApiUrl);
+      try {
+        await authenticator.invalidateToken(etesync.credentials.authToken);
+      } catch {
+        // Ignore for now. It usually means the token was a legacy one.
+      }
+    })();
+    return true; // We are not waiting on the above on purpose for now, just invalidate the token in the background
+  }
 );
 
 export const deriveKey = createAction(

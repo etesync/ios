@@ -48,7 +48,7 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           await syncManager.clearDeviceCollections(managers);
         }
 
-        dispatch(logout());
+        dispatch(logout(etesync));
         navigation.closeDrawer();
         navigation.navigate('Auth');
         unregisterSyncTask(etesync.credentials.email);
