@@ -7,7 +7,7 @@
 	<key>isShell</key>
 	<true/>
 	<key>manifestUrl</key>
-	<string>https://expo.etesync.com/release/2/ios-index.json</string>
+	<string>https://expo.etesync.com/release/3/ios-index.json</string>
 	<key>releaseChannel</key>
 	<string>default</string>
 </dict>

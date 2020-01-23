@@ -13,7 +13,7 @@ PUBLIC_URL=https://expo.etesync.com
 DEPLOY_PATH='release'
 # DEPLOY_PATH='test'
 
-APP_VERSION=2
+APP_VERSION=3
 
 yarn lint --max-warnings 0
 yarn tsc
