@@ -58,6 +58,8 @@ PODS:
     - UMSensorsInterface
   - EXRandom (8.0.0):
     - UMCore
+  - EXSecureStore (8.0.0):
+    - UMCore
   - EXSQLite (8.0.0):
     - UMCore
     - UMFileSystemInterface
@@ -344,6 +346,7 @@ DEPENDENCIES:
   - EXPermissions (from `../node_modules/expo-permissions/ios`)
   - ExpoKit/Core (from `http://github.com/expo/expo.git`, tag `ios/2.14.2`)
   - EXRandom (from `../node_modules/expo-random/ios`)
+  - EXSecureStore (from `../node_modules/expo-secure-store/ios`)
   - EXSQLite (from `../node_modules/expo-sqlite/ios`)
   - EXTaskManager (from `../node_modules/expo-task-manager/ios`)
   - EXWebBrowser (from `../node_modules/expo-web-browser/ios`)
@@ -447,6 +450,9 @@ EXTERNAL SOURCES:
   EXRandom:
     :path: !ruby/object:Pathname
     path: "../node_modules/expo-random/ios"
+  EXSecureStore:
+    :path: !ruby/object:Pathname
+    path: "../node_modules/expo-secure-store/ios"
   EXSQLite:
     :path: !ruby/object:Pathname
     path: "../node_modules/expo-sqlite/ios"
@@ -568,6 +574,7 @@ SPEC CHECKSUMS:
   EXPermissions: 9bc08859a675d291e89be9a0870155c27c16ac35
   ExpoKit: b966bbd05ef8415d77939e4d2b7520a6f6ef268c
   EXRandom: 3a6f6dce1997a40a7fc3bb00d18eabc380c51c2e
+  EXSecureStore: 1448b90d665c9400aaaf6655fccb464da14698f6
   EXSQLite: 220226a354912b100dfe913f5fe6f31762c8927e
   EXTaskManager: 6294f9e3f9d4a431655557f759ffebc53e1f9d0d
   EXWebBrowser: db32607359fb7b55b7b7b91df32dd3d8355bb3b7

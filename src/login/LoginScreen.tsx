@@ -156,8 +156,8 @@ function EncryptionPart() {
 }
 
 const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen() {
-  const credentials = useSelector((state: StoreState) => state.credentials.credentials);
-  const encryptionKey = useSelector((state: StoreState) => state.encryptionKey.key);
+  const credentials = useSelector((state: StoreState) => state.credentials.credentials ?? state.legacyCredentials.credentials);
+  const encryptionKey = useSelector((state: StoreState) => state.encryptionKey.key ?? state.legacyEncryptionKey.key);
   const dispatch = useDispatch();
   const [loading, error, setPromise] = useLoading();
 

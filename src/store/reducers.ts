@@ -47,6 +47,27 @@ export type SyncInfoItemData = ImmutableMap<string, ImmutableMap<string, SyncInf
 export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo>;
 
 
+export const legacyEncryptionKeyReducer = handleActions(
+  {
+    [actions.resetKey.toString()]: (_state: {key: string | null}, _action: any) => (
+      { key: null }
+    ),
+    [actions.logout.toString()]: (_state: {key: string | null}, _action: any) => {
+      return { key: null };
+    },
+  },
+  { key: null }
+);
+
+export const legacyCredentials = handleActions(
+  {
+    [actions.logout.toString()]: (_state: CredentialsDataRemote, _action: any) => {
+      return {} as CredentialsDataRemote;
+    },
+  },
+  {} as CredentialsDataRemote
+);
+
 export const encryptionKeyReducer = handleActions(
   {
     [actions.deriveKey.toString()]: (state: {key: string | null}, action: any) => {

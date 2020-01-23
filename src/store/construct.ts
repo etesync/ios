@@ -1,3 +1,5 @@
+import createSecureStore from 'redux-persist-expo-securestore';
+import * as SecureStore from 'expo-secure-store';
 import { AsyncStorage } from 'react-native';
 import { NetInfoStateType } from '@react-native-community/netinfo';
 
@@ -10,7 +12,7 @@ import * as EteSync from 'etesync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
-  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer,
+  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer, legacyCredentials, legacyEncryptionKeyReducer,
 } from './reducers';
 
 export interface StoreState {
@@ -36,7 +38,15 @@ export interface StoreState {
   connection: NetInfoStateType | null;
   permissions: ImmutableMap<string, boolean>;
   errors: List<Error>;
+
+  // Legacy
+  legacyCredentials: CredentialsDataRemote;
+  legacyEncryptionKey: {key: string};
 }
+
+const secureStorage = createSecureStore({
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK,
+} as any);
 
 const settingsMigrations = {
   0: (state: any) => {
@@ -60,14 +70,24 @@ const settingsPersistConfig: PersistConfig = {
   migrate: createMigrate(settingsMigrations, { debug: false }),
 };
 
-const credentialsPersistConfig: PersistConfig = {
+const legacyCredentialsPersistConfig: PersistConfig = {
   key: 'credentials',
   storage: AsyncStorage,
 };
 
-const encryptionKeyPersistConfig: PersistConfig = {
+const legacyEncryptionKeyPersistConfig: PersistConfig = {
   key: 'encryptionKey',
   storage: AsyncStorage,
+};
+
+const credentialsPersistConfig: PersistConfig = {
+  key: 'credentials',
+  storage: secureStorage,
+};
+
+const encryptionKeyPersistConfig: PersistConfig = {
+  key: 'encryptionKey',
+  storage: secureStorage,
 };
 
 const journalsSerialize = (state: JournalsData) => {
@@ -237,6 +257,10 @@ const reducers = combineReducers({
   connection: connectionReducer,
   permissions: permissionsReducer,
   errors: errorsReducer,
+
+  // Legacy
+  legacyCredentials: persistReducer(legacyCredentialsPersistConfig, legacyCredentials),
+  legacyEncryptionKey: persistReducer(legacyEncryptionKeyPersistConfig, legacyEncryptionKeyReducer),
 });
 
 export default reducers;

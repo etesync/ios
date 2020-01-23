@@ -4,9 +4,9 @@ import { createSelector } from 'reselect';
 import * as store from '../store';
 
 export const credentialsSelector = createSelector(
-  (state: store.StoreState) => state.credentials.credentials,
-  (state: store.StoreState) => state.credentials.serviceApiUrl,
-  (state: store.StoreState) => state.encryptionKey.key,
+  (state: store.StoreState) => state.credentials.credentials ?? state.legacyCredentials.credentials,
+  (state: store.StoreState) => state.credentials.serviceApiUrl ?? state.legacyCredentials.serviceApiUrl,
+  (state: store.StoreState) => state.encryptionKey.key ?? state.legacyEncryptionKey.key,
   (credentials, serviceApiUrl, encryptionKey) => {
     if (!credentials || !encryptionKey) {
       return null;
