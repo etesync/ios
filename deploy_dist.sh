@@ -20,4 +20,4 @@ yarn tsc
 
 rm -rf "$OUTPUTDIR"
 yarn run expo export --dump-sourcemap --public-url ${PUBLIC_URL}/${DEPLOY_PATH}/${APP_VERSION}
-rsync -e "ssh -p ${SSH_PORT}" -P --delete -rvzc ${OUTPUTDIR}/ ${SSH_USER}@${SSH_HOST}:${SSH_TARGET_DIR}/${DEPLOY_PATH}/${APP_VERSION}
+rsync -e "ssh -p ${SSH_PORT}" -P --delete -rvc -zz ${OUTPUTDIR}/ ${SSH_USER}@${SSH_HOST}:${SSH_TARGET_DIR}/${DEPLOY_PATH}/${APP_VERSION}
