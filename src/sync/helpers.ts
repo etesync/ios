@@ -77,6 +77,16 @@ function alarmVobjectToNative(alarm: ICAL.Component) {
   return ret;
 }
 
+export enum WeekDay {
+  SU = 1,
+  MO,
+  TU,
+  WE,
+  TH,
+  FR,
+  SA,
+}
+
 function rruleVobjectToNative(event: EventType) {
   const rruleProp = event.component.getFirstPropertyValue<ICAL.Recur>('rrule');
   if (!rruleProp) {
@@ -88,30 +98,12 @@ function rruleVobjectToNative(event: EventType) {
   if (!frequency) {
     return undefined;
   }
-  let daysOfTheWeek;
-  if (rrule.byday) {
-    let byday = rrule.byday;
-    if (typeof byday === 'string') {
-      byday = [byday];
-    }
-    daysOfTheWeek = byday.map((x) => {
-      const weekNo = x.slice(0, -2);
-      const day = x.slice(-2);
-      const ret = {
-        dayOfTheWeek: ICAL.Recur[day],
-      } as any;
-      if (weekNo) {
-        ret.weekNumber = parseInt(weekNo);
-      }
-      return ret;
-    });
-  }
-  const ret: Calendar.RecurrenceRule = {
+
+  const retRrule: Calendar.RecurrenceRule = {
     frequency,
     interval: rrule.interval || undefined,
     endDate: timeVobjectToNative(rruleProp.until),
     occurrence: rrule.count || undefined,
-    daysOfTheWeek,
     daysOfTheMonth: rrule.bymonthday,
     daysOfTheYear: rrule.byyearday,
     weeksOfTheYear: rrule.byweekno,
@@ -119,7 +111,25 @@ function rruleVobjectToNative(event: EventType) {
     setPositions: rrule.bysetpos,
   };
 
-  return ret;
+  if (rrule.byday) {
+    let byday = rrule.byday;
+    if (typeof byday === 'string') {
+      byday = [byday];
+    }
+    retRrule.daysOfTheWeek = byday.map((x) => {
+      const weekNo = x.slice(0, -2);
+      const day = x.slice(-2);
+      const ret: NonNullable<typeof retRrule.daysOfTheWeek>[0] = {
+        dayOfTheWeek: WeekDay[day],
+      };
+      if (weekNo) {
+        ret.weekNumber = parseInt(weekNo);
+      }
+      return ret;
+    });
+  }
+
+  return retRrule;
 }
 
 export function eventVobjectToNative(event: EventType) {
@@ -229,7 +239,7 @@ function rruleNativeToVobject(rrule: Calendar.RecurrenceRule, allDay: boolean) {
       if (x.weekNumber) {
         weekNo = `${(x.weekNumber > 0) ? '+' : '-'}${Math.abs(x.weekNumber)}`;
       }
-      return weekNo + ICAL.WeekDay[x.dayOfTheWeek];
+      return weekNo + WeekDay[x.dayOfTheWeek];
     });
   }
   if (rrule.daysOfTheMonth) {
