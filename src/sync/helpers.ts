@@ -87,6 +87,16 @@ export enum WeekDay {
   SA,
 }
 
+function makeIntoArray<T>(item: T[] | T | undefined) {
+  if (!isDefined(item)) {
+    return undefined;
+  }
+  if (!Array.isArray(item)) {
+    return [item];
+  }
+  return item;
+}
+
 function rruleVobjectToNative(event: EventType) {
   const rruleProp = event.component.getFirstPropertyValue<ICAL.Recur>('rrule');
   if (!rruleProp) {
@@ -104,19 +114,7 @@ function rruleVobjectToNative(event: EventType) {
     interval: rrule.interval || undefined,
     endDate: timeVobjectToNative(rruleProp.until),
     occurrence: rrule.count || undefined,
-    daysOfTheMonth: rrule.bymonthday,
-    daysOfTheYear: rrule.byyearday,
-    weeksOfTheYear: rrule.byweekno,
-    monthsOfTheYear: rrule.bymonth,
-    setPositions: rrule.bysetpos,
-  };
-
-  if (rrule.byday) {
-    let byday = rrule.byday;
-    if (typeof byday === 'string') {
-      byday = [byday];
-    }
-    retRrule.daysOfTheWeek = byday.map((x) => {
+    daysOfTheWeek: makeIntoArray(rrule.byday)?.map((x) => {
       const weekNo = x.slice(0, -2);
       const day = x.slice(-2);
       const ret: NonNullable<typeof retRrule.daysOfTheWeek>[0] = {
@@ -126,8 +124,13 @@ function rruleVobjectToNative(event: EventType) {
         ret.weekNumber = parseInt(weekNo);
       }
       return ret;
-    });
-  }
+    }),
+    daysOfTheMonth: makeIntoArray(rrule.bymonthday),
+    daysOfTheYear: makeIntoArray(rrule.byyearday),
+    weeksOfTheYear: makeIntoArray(rrule.byweekno),
+    monthsOfTheYear: makeIntoArray(rrule.bymonth),
+    setPositions: makeIntoArray(rrule.bysetpos),
+  };
 
   return retRrule;
 }
