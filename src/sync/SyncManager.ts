@@ -33,10 +33,21 @@ async function prngAddEntropy(entropyBits = 1024) {
 // we seed the entropy in the beginning + on every sync
 prngAddEntropy();
 
+const cachedSyncManager = new Map<string, SyncManager>();
 export class SyncManager {
   public static getManager(etesync: CredentialsData) {
-    // FIXME: Should make a singleton per etesync
-    return new SyncManager(etesync);
+    const cached = cachedSyncManager.get(etesync.credentials.email);
+    if (cached) {
+      return cached;
+    }
+
+    const ret = new SyncManager(etesync);
+    cachedSyncManager.set(etesync.credentials.email, ret);
+    return ret;
+  }
+
+  public static removeManager(etesync: CredentialsData) {
+    cachedSyncManager.delete(etesync.credentials.email);
   }
 
   protected etesync: CredentialsData;
@@ -153,8 +164,8 @@ export class SyncManager {
       }
       throw e;
     } finally {
+      this.isSyncing = false;
       deactivateKeepAwake(keepAwakeTag);
-      this.isSyncing = true;
       endBackgroundTask(await taskId);
     }
 

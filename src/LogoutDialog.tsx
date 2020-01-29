@@ -48,6 +48,8 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           await syncManager.clearDeviceCollections(managers);
         }
 
+        SyncManager.removeManager(etesync);
+
         dispatch(logout(etesync));
         navigation.closeDrawer();
         navigation.navigate('Auth');
