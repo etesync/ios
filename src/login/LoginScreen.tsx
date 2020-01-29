@@ -89,7 +89,7 @@ function EncryptionPart() {
   if (derived) {
     const done = () => {
       dispatch(derived);
-      const etesync = credentialsSelector(store.getState() as any);
+      const etesync = credentialsSelector(store.getState() as StoreState);
       const syncManager = SyncManager.getManager(etesync!);
       dispatch(performSync(syncManager.sync()));
       navigation.navigate('App');

@@ -21,7 +21,7 @@ export interface StoreState {
   syncStatus: string | null;
   credentials: CredentialsDataRemote;
   settings: SettingsType;
-  encryptionKey: {key: string};
+  encryptionKey: {key: string | null};
   sync: {
     stateJournals: SyncStateJournalData;
     stateEntries: SyncStateEntryData;
@@ -41,7 +41,7 @@ export interface StoreState {
 
   // Legacy
   legacyCredentials: CredentialsDataRemote;
-  legacyEncryptionKey: {key: string};
+  legacyEncryptionKey: {key: string | null};
 }
 
 const secureStorage = createSecureStore({
