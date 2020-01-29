@@ -278,7 +278,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
               handledInBatch.clear();
             }
           } catch (e) {
-            logger.warn('Failed batch saving contacts');
+            logger.warn('Failed batch saving');
             throw e;
           }
         }
