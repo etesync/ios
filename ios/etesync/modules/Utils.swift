@@ -313,8 +313,7 @@ func hashContact(contact: CNContact) -> String {
         msg.append(nil)
     }
     
-    // Needs a special entitlement: msg.append(.string(contact.note))
-    msg.append(.string("")) // note until we have the entitlement
+    msg.append(.string(contact.note))
     
     let sha = Sha256()
     

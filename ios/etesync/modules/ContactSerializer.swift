@@ -75,7 +75,7 @@ func mutateContact(contact: CNMutableContact, data: Dictionary<String, Any>) {
     // contact.phoneticGivenName = data[EXContactsKeyPhoneticFirstName] as! String? ?? ""
     // contact.phoneticMiddleName = data[EXContactsKeyPhoneticMiddleName] as! String? ?? ""
     // contact.phoneticFamilyName = data[EXContactsKeyPhoneticLastName] as! String? ?? ""
-    // contact.note = data[EXContactsKeyNote] as! String? ?? ""
+    contact.note = data[EXContactsKeyNote] as! String? ?? ""
     contact.birthday = decodeDate(data: data[EXContactsKeyBirthday] as! Dictionary<String, Any>?)
 
     if let phoneNumebrs = data[EXContactsKeyPhoneNumbers] {

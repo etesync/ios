@@ -12,6 +12,40 @@ import { ContactType } from '../pim-types';
 
 import { SyncManagerBase, PushEntry } from './SyncManagerBase';
 
+const fieldTypes = [
+  Contacts.Fields.ID,
+  Contacts.Fields.ContactType,
+  Contacts.Fields.Name,
+  Contacts.Fields.FirstName,
+  Contacts.Fields.MiddleName,
+  Contacts.Fields.LastName,
+  Contacts.Fields.MaidenName,
+  Contacts.Fields.NamePrefix,
+  Contacts.Fields.NameSuffix,
+  Contacts.Fields.Nickname,
+  // Contacts.Fields.PhoneticFirstName,
+  // Contacts.Fields.PhoneticMiddleName,
+  // Contacts.Fields.PhoneticLastName,
+  Contacts.Fields.Birthday,
+  // Contacts.Fields.NonGregorianBirthday,
+  Contacts.Fields.Emails,
+  Contacts.Fields.PhoneNumbers,
+  Contacts.Fields.Addresses,
+  Contacts.Fields.SocialProfiles,
+  Contacts.Fields.InstantMessageAddresses,
+  Contacts.Fields.UrlAddresses,
+  Contacts.Fields.Company,
+  Contacts.Fields.JobTitle,
+  Contacts.Fields.Department,
+  // Contacts.Fields.ImageAvailable,
+  // Contacts.Fields.Image,
+  // Contacts.Fields.RawImage,
+  Contacts.Fields.ExtraNames,
+  Contacts.Fields.Note,
+  Contacts.Fields.Dates,
+  Contacts.Fields.Relationships,
+];
+
 export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeContact> {
   protected collectionType = 'ADDRESS_BOOK';
   private containerId: string;
@@ -73,7 +107,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       if (syncStateEntry?.lastHash !== contactHash) {
         const collectionUid = reverseEntry?.collectionUid ?? defaultCollectionUid;
         const syncStateJournal = syncStateJournals.get(collectionUid)!;
-        const _contact = await Contacts.getContactByIdAsync(contactId);
+        const _contact = await Contacts.getContactByIdAsync(contactId, fieldTypes as any);
         const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(':')[0] };
         const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
         if (pushEntry) {
@@ -91,7 +125,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       // Deleted
       let existingContact: Contacts.Contact | undefined;
       try {
-        existingContact = await Contacts.getContactByIdAsync(syncStateEntry.localId);
+        existingContact = await Contacts.getContactByIdAsync(syncStateEntry.localId, fieldTypes as any);
       } catch (e) {
         // Skip
       }

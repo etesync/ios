@@ -304,7 +304,7 @@ class EteSyncNative: NSObject {
         CNContactPhoneNumbersKey,
         CNContactBirthdayKey,
         CNContactDatesKey,
-        // CNContactNoteKey,
+        CNContactNoteKey,
         CNContactImageDataAvailableKey,
         CNContactImageDataKey,
         CNContactThumbnailImageDataKey,

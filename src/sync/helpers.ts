@@ -500,6 +500,7 @@ export function contactVobjectToNative(contact: ContactType) {
   const jobTitle = titles.length > 0 ? titles[0] : undefined;
 
   const nickname = contact.comp.getFirstPropertyValue('nickname') ?? undefined;
+  const note = contact.comp.getFirstPropertyValue('note') ?? undefined;
 
   const ret: NativeContact & Contacts.Contact = {
     id: '',
@@ -515,6 +516,7 @@ export function contactVobjectToNative(contact: ContactType) {
     addresses,
     instantMessageAddresses,
     urlAddresses,
+    note,
   };
 
   const nField = contact.comp.getFirstProperty('n');
