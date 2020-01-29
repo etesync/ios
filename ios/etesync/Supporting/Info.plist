@@ -75,13 +75,13 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Allow EteSync to use your camera</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Access to your contacts is needed in order to load and save EteSync contacts.</string>
+	<string>Access to your contacts is needed in order to load and save EteSync contacts (including notes).</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow EteSync to use your location</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow EteSync to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow EteSync to access your device's accelerometer</string>
+	<string>Allow EteSync to access your device&apos;s accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give EteSync permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -49,6 +49,7 @@
 		8C24C27F23B516D30092D9FD /* EteSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EteSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C24C28123B516D30092D9FD /* EteSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EteSyncTests.swift; sourceTree = "<group>"; };
 		8C24C28323B516D30092D9FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C65926723E1BD5E00D0CC29 /* etesync.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = etesync.entitlements; sourceTree = "<group>"; };
 		8CAE5B0623BE1C4B00964CF5 /* EteEXCalendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EteEXCalendar.h; sourceTree = "<group>"; };
 		8CAE5B0723BE1C4B00964CF5 /* EteEXCalendar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EteEXCalendar.m; sourceTree = "<group>"; };
 		8CF157E423B4BBA000D4FF6F /* EtesyncNativeBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EtesyncNativeBridge.m; sourceTree = "<group>"; };
@@ -153,6 +154,7 @@
 		B56386431DB9693800A0598C /* etesync */ = {
 			isa = PBXGroup;
 			children = (
+				8C65926723E1BD5E00D0CC29 /* etesync.entitlements */,
 				B56386471DB9693800A0598C /* AppDelegate.h */,
 				B56386481DB9693800A0598C /* AppDelegate.m */,
 				B56386501DB9693800A0598C /* Assets.xcassets */,
@@ -563,6 +565,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = etesync/etesync.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1.3.101;
@@ -586,6 +589,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = etesync/etesync.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1.3.101;
