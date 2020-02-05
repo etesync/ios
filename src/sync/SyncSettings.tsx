@@ -151,8 +151,10 @@ export default function SyncSettings() {
         title="Remove contacts"
         visible={confirmContactsRemovalOpen}
         onOk={async () => {
-          const syncManager = SyncManager.getManager(etesync!);
-          await syncManager.clearDeviceCollections([SyncManagerAddressBook]);
+          if (etesync) {
+            const syncManager = SyncManager.getManager(etesync);
+            await syncManager.clearDeviceCollections([SyncManagerAddressBook]);
+          }
           dispatch(setSettings({ syncContactsContainer: null }));
           setConfirmContactsRemovalOpen(false);
         }}
@@ -171,8 +173,10 @@ export default function SyncSettings() {
         title="Remove calendars"
         visible={confirmCalendarsRemovalOpen}
         onOk={async () => {
-          const syncManager = SyncManager.getManager(etesync!);
-          await syncManager.clearDeviceCollections([SyncManagerCalendar, SyncManagerTaskList]);
+          if (etesync) {
+            const syncManager = SyncManager.getManager(etesync);
+            await syncManager.clearDeviceCollections([SyncManagerCalendar, SyncManagerTaskList]);
+          }
           dispatch(setSettings({ syncCalendarsSource: null }));
           setConfirmCalendarsRemovalOpen(false);
         }}
