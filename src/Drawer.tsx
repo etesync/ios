@@ -16,6 +16,7 @@ import LogoutDialog from './LogoutDialog';
 import { useCredentials } from './login';
 
 import * as C from './constants';
+import { isDefined } from './helpers';
 
 const menuItems = [
   {
@@ -90,6 +91,7 @@ function Drawer() {
   const [showLogout, setShowLogout] = React.useState(false);
   const navigation = useNavigation();
   const etesync = useCredentials();
+  const loggedIn = isDefined(useSelector((state: StoreState) => state.credentials.credentials));
   const syncCount = useSelector((state: StoreState) => state.syncCount);
 
   return (
@@ -128,6 +130,10 @@ function Drawer() {
                 }}
                 left={(props) => <List.Icon {...props} icon="fingerprint" />}
               />
+            </>
+          }
+          {loggedIn &&
+            <>
               <List.Item
                 title="Logout"
                 onPress={() => setShowLogout(true)}

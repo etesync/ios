@@ -25,35 +25,35 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
   const [clearAddressBooks, setClearAddressBooks] = React.useState(true);
   const [clearCalendars, setClearCalendars] = React.useState(true);
 
-  if (!etesync) {
-    return null;
-  }
-
   return (
     <ConfirmationDialog
       title="Are you sure?"
       visible={props.visible}
       onOk={async () => {
-        const managers = [];
-        if (clearAddressBooks) {
-          managers.push(SyncManagerAddressBook);
-        }
-        if (clearCalendars) {
-          managers.push(SyncManagerCalendar);
-          managers.push(SyncManagerTaskList);
+        if (etesync) {
+          const managers = [];
+          if (clearAddressBooks) {
+            managers.push(SyncManagerAddressBook);
+          }
+          if (clearCalendars) {
+            managers.push(SyncManagerCalendar);
+            managers.push(SyncManagerTaskList);
+          }
+
+          if (managers.length > 0) {
+            const syncManager = SyncManager.getManager(etesync);
+            await syncManager.clearDeviceCollections(managers);
+          }
+
+          SyncManager.removeManager(etesync);
+
+          unregisterSyncTask(etesync.credentials.email);
         }
 
-        if (managers.length > 0) {
-          const syncManager = SyncManager.getManager(etesync);
-          await syncManager.clearDeviceCollections(managers);
-        }
-
-        SyncManager.removeManager(etesync);
-
-        dispatch(logout(etesync));
+        // Here we log out regardless if we actually have an etesync
+        dispatch(logout(etesync!));
         navigation.closeDrawer();
         navigation.navigate('Auth');
-        unregisterSyncTask(etesync.credentials.email);
 
         persistor.persist();
 
