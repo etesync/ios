@@ -21,8 +21,7 @@ export function colorIntToHtml(color?: number) {
     return (ret.length === 1) ? '0' + ret : ret;
   }
 
-  return '#' + toHex(red) + toHex(green) + toHex(blue) +
-    ((alpha > 0) ? toHex(alpha) : '');
+  return '#' + toHex(red) + toHex(green) + toHex(blue) + toHex(alpha);
 }
 
 export function colorHtmlToInt(color?: string) {
@@ -41,7 +40,7 @@ export function colorHtmlToInt(color?: string) {
   const b = parseInt(match[3], 16);
   const a = (match[4]) ? parseInt(match[4], 16) : 0xFF;
 
-  return (b | (g << 8) | (r << 16) | (a << 24)) >>> 0;
+  return (b | (g << 8) | (r << 16) | (a << 24));
 }
 
 const allDayFormat = 'dddd, LL';
