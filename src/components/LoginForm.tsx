@@ -119,7 +119,7 @@ class LoginForm extends React.PureComponent {
             ref={this.formRefs[0]}
             error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange('username')}
-            label="Username"
+            label="Email"
             value={this.state.username}
           />
           <HelperText
