@@ -7,11 +7,11 @@ import { getContainers } from '../EteSyncNative';
 import { useDispatch, useSelector } from 'react-redux';
 import { List, Button, Paragraph, useTheme } from 'react-native-paper';
 
-import { StoreState } from '../store';
+import { StoreState, CredentialsData } from '../store';
 import { setSettings } from '../store/actions';
 import ConfirmationDialog from '../widgets/ConfirmationDialog';
 import Select from '../widgets/Select';
-import { useCredentials } from '../login';
+import { useRemoteCredentials } from '../login';
 import { SyncManager } from './SyncManager';
 import { SyncManagerAddressBook } from './SyncManagerAddressBook';
 import { SyncManagerCalendar } from './SyncManagerCalendar';
@@ -100,7 +100,7 @@ function SelectSource<T extends Calendar.Source | Contacts.Container>(props: Sel
 export default function SyncSettings() {
   const dispatch = useDispatch();
   const settings = useSelector((state: StoreState) => state.settings);
-  const etesync = useCredentials();
+  const etesync = useRemoteCredentials() as CredentialsData;
   const [selectedContainer, setSelectedContainer] = React.useState<Contacts.Container>();
   const [availableContainers, setAvailableContainers] = React.useState<Contacts.Container[]>();
   const [availableSources, setAvailableSources] = React.useState<Calendar.Source[]>();

@@ -13,10 +13,9 @@ import PrettyFingerprint from './widgets/PrettyFingerprint';
 import Container from './widgets/Container';
 
 import LogoutDialog from './LogoutDialog';
-import { useCredentials } from './login';
+import { useRemoteCredentials } from './login';
 
 import * as C from './constants';
-import { isDefined } from './helpers';
 
 const menuItems = [
   {
@@ -90,8 +89,8 @@ function Drawer() {
   const [showFingerprint, setShowFingerprint] = React.useState(false);
   const [showLogout, setShowLogout] = React.useState(false);
   const navigation = useNavigation();
-  const etesync = useCredentials();
-  const loggedIn = isDefined(useSelector((state: StoreState) => state.credentials.credentials));
+  const etesync = useRemoteCredentials();
+  const loggedIn = !!etesync;
   const syncCount = useSelector((state: StoreState) => state.syncCount);
 
   return (

@@ -13,7 +13,8 @@ import { unregisterSyncTask, SyncManager } from './sync/SyncManager';
 
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 
-import { useCredentials } from './login';
+import { useRemoteCredentials } from './login';
+import { CredentialsData } from './store';
 
 import * as C from './constants';
 
@@ -21,7 +22,7 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const theme = useTheme();
-  const etesync = useCredentials();
+  const etesync = useRemoteCredentials() as CredentialsData;
   const [clearAddressBooks, setClearAddressBooks] = React.useState(true);
   const [clearCalendars, setClearCalendars] = React.useState(true);
 
