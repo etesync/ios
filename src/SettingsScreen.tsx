@@ -165,7 +165,7 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 
         dispatch(newDerivedAction);
 
-        const syncManager = SyncManager.getManager({ ...etesync, encryptionKey: newDerived });
+        const syncManager = SyncManager.getManager(etesync);
         await syncManager.sync();
 
         props.onDismiss();

@@ -11,7 +11,7 @@ import * as EteSync from 'etesync';
 const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
-import { store, persistor, CredentialsData, JournalsData, StoreState } from '../store';
+import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote } from '../store';
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
 
 import { logger } from '../logging';
@@ -35,13 +35,13 @@ prngAddEntropy();
 
 const cachedSyncManager = new Map<string, SyncManager>();
 export class SyncManager {
-  public static getManager(etesync: CredentialsData) {
+  public static getManager(etesync: CredentialsDataRemote) {
     const cached = cachedSyncManager.get(etesync.credentials.email);
     if (cached) {
       return cached;
     }
 
-    const ret = new SyncManager(etesync);
+    const ret = new SyncManager();
     cachedSyncManager.set(etesync.credentials.email, ret);
     return ret;
   }
@@ -60,13 +60,10 @@ export class SyncManager {
     SyncManagerAddressBook,
   ];
 
-  constructor(etesync: CredentialsData) {
-    this.etesync = etesync;
-  }
-
   public async fetchAllJournals() {
-    const entries = store.getState().cache.entries;
-    const etesync = this.etesync;
+    const storeState = store.getState() as StoreState;
+    const entries = storeState.cache.entries;
+    const etesync = credentialsSelector(storeState)!;
     const me = etesync.credentials.email;
 
     let userInfoAction;
@@ -140,14 +137,15 @@ export class SyncManager {
       prngAddEntropy();
       await this.fetchAllJournals();
 
-      const storeState = store.getState();
+      const storeState = store.getState() as StoreState;
+      const etesync = credentialsSelector(storeState)!;
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
       const userInfo = storeState.cache.userInfo!;
-      syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+      syncInfoSelector({ etesync, entries, journals, userInfo });
 
       // FIXME: make the sync parallel
-      for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
+      for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(etesync, userInfo))) {
         await syncManager.init();
         if (!syncManager.canSync) {
           continue;
@@ -156,7 +154,7 @@ export class SyncManager {
       }
 
       // We do it again here so we decrypt the newly added items too
-      syncInfoSelector({ etesync: this.etesync, entries, journals, userInfo });
+      syncInfoSelector({ etesync, entries, journals, userInfo });
     } catch (e) {
       if (e instanceof EteSync.NetworkError) {
         // Ignore network errors
@@ -176,10 +174,11 @@ export class SyncManager {
   }
 
   public async clearDeviceCollections(managers = this.managers) {
-    const storeState = store.getState();
+    const storeState = store.getState() as StoreState;
+    const etesync = credentialsSelector(storeState)!;
     const userInfo = storeState.cache.userInfo!;
 
-    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(this.etesync, userInfo))) {
+    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(etesync, userInfo))) {
       await syncManager.init();
       if (!syncManager.canSync) {
         continue;
