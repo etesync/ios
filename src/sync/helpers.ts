@@ -42,17 +42,7 @@ function timeVobjectToNative(time: ICAL.Time | null | undefined) {
     return undefined;
   }
 
-  if (time.isDate) {
-    const ret = new Date(0);
-    ret.setUTCFullYear(time.year);
-    ret.setUTCMonth(time.month - 1);
-    ret.setUTCDate(time.day);
-    ret.setUTCHours(time.hour);
-    ret.setUTCMinutes(time.minute);
-    return ret.toISOString();
-  } else {
-    return time.toJSDate().toISOString();
-  }
+  return time.toJSDate().toISOString();
 }
 
 function alarmVobjectToNative(alarm: ICAL.Component) {
@@ -201,10 +191,12 @@ function timeNativeToVobject(date: Date, allDay: boolean) {
   if (!allDay) {
     return ret;
   } else {
-    // Adding almost a day and then making it allDay acorrectly handles allDay adjustments.
-    ret.adjust(0, 23, 59, 0);
-    const data = ret.toJSON();
-    data.isDate = allDay;
+    const data: ICAL.TimeJsonData = {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+      isDate: allDay,
+    };
     return ICAL.Time.fromData(data);
   }
 }
@@ -319,6 +311,10 @@ export function taskNativeToVobject(task: NativeTask): TaskType {
 export function eventNativeToVobject(event: NativeEvent): EventType {
   const startDate = timeNativeToVobject(new Date(event.startDate), event.allDay);
   const endDate = timeNativeToVobject(new Date(event.endDate), event.allDay);
+
+  if (event.allDay) {
+    endDate.adjust(1, 0, 0, 0); // Expo returns the end date and ical requires the day after.
+  }
 
   const ret = new EventType();
   ret.uid = event.uid;
