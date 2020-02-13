@@ -3,18 +3,36 @@ import { createSelector } from 'reselect';
 
 import * as store from '../store';
 
-export const credentialsSelector = createSelector(
+export const remoteCredentialsSelector = createSelector(
   (state: store.StoreState) => state.credentials.credentials ?? state.legacyCredentials.credentials,
   (state: store.StoreState) => state.credentials.serviceApiUrl ?? state.legacyCredentials.serviceApiUrl,
+  (credentials, serviceApiUrl) => {
+    if (!credentials) {
+      return null;
+    }
+
+    const ret: store.CredentialsDataRemote = {
+      credentials,
+      serviceApiUrl,
+    };
+    return ret;
+  }
+);
+
+export function useRemoteCredentials() {
+  return useSelector(remoteCredentialsSelector, shallowEqual);
+}
+
+export const credentialsSelector = createSelector(
+  (state: store.StoreState) => remoteCredentialsSelector(state),
   (state: store.StoreState) => state.encryptionKey.key ?? state.legacyEncryptionKey.key,
-  (credentials, serviceApiUrl, encryptionKey) => {
-    if (!credentials || !encryptionKey) {
+  (remoteCredentials, encryptionKey) => {
+    if (!remoteCredentials || !encryptionKey) {
       return null;
     }
 
     const ret: store.CredentialsData = {
-      credentials,
-      serviceApiUrl,
+      ...remoteCredentials,
       encryptionKey,
     };
     return ret;
