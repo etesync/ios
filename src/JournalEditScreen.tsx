@@ -119,17 +119,11 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
       collectionColorBox = (
         <>
           <ColorPicker
-            error={!!errors.color}
+            error={errors.color}
             defaultColor={defaultColor}
             color={color}
             onChange={setColor}
           />
-          <HelperText
-            type="error"
-            visible={!!errors.color}
-          >
-            {errors.color}
-          </HelperText>
         </>
       );
       break;

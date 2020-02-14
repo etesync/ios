@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View } from 'react-native';
-import { TextInput, TouchableRipple } from 'react-native-paper';
+import { TextInput, TouchableRipple, HelperText } from 'react-native-paper';
 
 import ColorBox from './ColorBox';
 import { colorHtmlToInt } from '../helpers';
@@ -10,7 +10,7 @@ interface PropsType {
   defaultColor: string;
   label?: string;
   placeholder?: string;
-  error?: boolean;
+  error?: string;
   onChange: (color: string) => void;
 }
 
@@ -52,12 +52,18 @@ export default function ColorPicker(props: PropsType) {
         <ColorBox size={36} color={(color && colorHtmlToInt(color)) ? color : props.defaultColor} />
         <TextInput
           style={{ marginLeft: 10, flex: 1 }}
-          error={props.error}
+          error={!!props.error}
           onChangeText={props.onChange}
           placeholder={props.placeholder ?? 'E.g. #aabbcc'}
           label={props.label ?? 'Color'}
           value={color}
         />
+        <HelperText
+          type="error"
+          visible={!!props.error}
+        >
+          {props.error}
+        </HelperText>
       </View>
     </View>
   );
