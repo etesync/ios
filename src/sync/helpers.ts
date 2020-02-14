@@ -549,10 +549,11 @@ function addProperty(comp: ICAL.Component, fieldName: string, subType: string | 
   if (subType) {
     prop.setParameter('type', subType);
   }
-  if (typeof value === 'string') {
-    prop.setValue(value);
+
+  if (Array.isArray(value)) {
+    prop.setValue(value.map((x) => x.replace(';', ',')).join(';'));
   } else {
-    prop.setValues(value);
+    prop.setValue(value);
   }
   comp.addProperty(prop);
 }
@@ -617,7 +618,7 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
     for (const address of contact.addresses) {
       const adr = [address.poBox, '', address.street, address.city, address.region, address.postalCode, address.country];
       if (adr.some((x) => !!x)) {
-        addProperty(comp, 'adr', address.label, adr.map((x) => x?.replace(';', ',') ?? '').join(';'));
+        addProperty(comp, 'adr', address.label, adr.map((x) => x ?? ''));
       }
     }
   }
@@ -626,7 +627,7 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   }
   const org = [contact.company, contact.department, ''];
   if (org.some((x) => !!x)) {
-    addProperty(comp, 'org', null, org.map((x) => x?.replace(';', ',') ?? '').join(';'));
+    addProperty(comp, 'org', null, org.map((x) => x ?? ''));
   }
 
   if (contact.note) {
