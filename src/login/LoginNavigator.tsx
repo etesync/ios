@@ -2,8 +2,9 @@ import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { createSwitchNavigator, createStackNavigator, NavigationScreenProp, HeaderProps, SafeAreaView } from 'react-navigation';
 import { View } from 'react-native';
-import { Paragraph, Title } from 'react-native-paper';
+import { Paragraph } from 'react-native-paper';
 
+import { Title } from '../widgets/Typography';
 import LoginScreen from './LoginScreen';
 
 import RootNavigator from '../RootNavigator';

@@ -72,6 +72,7 @@ function SelectSource<T extends Calendar.Source | Contacts.Container>(props: Sel
     <>
       <List.Item
         title={title}
+        accessible={false}
         right={(props) =>
           <Select
             {...props}

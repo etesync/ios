@@ -38,6 +38,7 @@ export default function _EncryptionLognForm(props: PropsType) {
         autoFocus
         error={!!errors.encryptionPassword}
         label="Encryption Password"
+        accessibilityLabel="Encryption Password"
         value={encryptionPassword}
         onChangeText={setEncryptionPassword}
       />

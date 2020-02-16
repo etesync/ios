@@ -69,7 +69,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
         onDismiss={props.onCancel}
         dismissable={props.dismissable && !loading}
       >
-        <Card>
+        <Card accessible={false}>
           <Card.Title title={props.title} />
           <Card.Content>
             {content}

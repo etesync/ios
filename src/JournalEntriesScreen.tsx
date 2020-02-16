@@ -3,11 +3,12 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { FlatList, View } from 'react-native';
-import { Menu, Divider, Appbar, Title, Text, List, useTheme } from 'react-native-paper';
+import { Menu, Divider, Appbar, Text, List, useTheme } from 'react-native-paper';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
 import Container from './widgets/Container';
+import { Title } from './widgets/Typography';
 
 import { TaskType, EventType, ContactType, parseString } from './pim-types';
 
@@ -130,7 +131,7 @@ function RightAction() {
       visible={showMenu}
       onDismiss={() => setShowMenu(false)}
       anchor={(
-        <Appbar.Action icon="dots-vertical" onPress={() => setShowMenu(true)} />
+        <Appbar.Action icon="dots-vertical" accessibilityLabel="Menu" onPress={() => setShowMenu(true)} />
       )}
     >
       <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="pencil" title="Edit" />

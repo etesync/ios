@@ -10,7 +10,11 @@ class ExternalLink extends React.PureComponent<PropsType> {
   public render() {
     const { href, children, ...props } = this.props;
     return (
-      <Button {...props} onPress={() => Linking.openURL(href)}>
+      <Button
+        accessibilityRole="link"
+        {...props}
+        onPress={() => Linking.openURL(href)}
+      >
         {children}
       </Button>
     );

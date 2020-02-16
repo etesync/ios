@@ -64,6 +64,7 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
       </ScrollView>
       <FAB
         icon={showRaw ? fabContentIcon : 'text-subject'}
+        accessibilityLabel={(showRaw) ? 'Show item' : 'Show raw item'}
         color="white"
         style={styles.fab}
         onPress={() => setShowRaw(!showRaw)}

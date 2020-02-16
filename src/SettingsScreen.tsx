@@ -280,6 +280,7 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
           <List.Item
             title="Enable Logging"
             description={(settings.logLevel === LogLevel.Off) ? 'Click to enable debug logging' : 'Click to disable debug logging'}
+            accessible={false}
             right={(props) =>
               <Switch
                 {...props}

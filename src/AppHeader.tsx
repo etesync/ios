@@ -10,7 +10,7 @@ const AppHeader = React.memo(function _AppHeader(props: PropsType) {
   const backIsToInitial = getScreenOption(props.scene, 'backIsToInitial');
 
   const backAction = (showMenuButton) ? (
-    <Appbar.Action icon="menu" onPress={() => navigation.openDrawer()} />
+    <Appbar.Action icon="menu" accessibilityLabel="Main menu" onPress={() => navigation.openDrawer()} />
   ) : (
     <Appbar.BackAction onPress={(backIsToInitial) ? () => { navigation.navigate('AuthLoading') } : () => { navigation.goBack() }} />
   );

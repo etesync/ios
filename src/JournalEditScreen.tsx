@@ -144,6 +144,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
           error={!!errors.displayName}
           onChangeText={setDisplayName}
           label="Display name (title)"
+          accessibilityLabel="Display name (title)"
           value={displayName}
         />
         <HelperText
@@ -157,6 +158,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
           ref={descriptionRef}
           onChangeText={setDescription}
           label="Description (optional)"
+          accessibilityLabel="Description (optional)"
           value={description}
         />
         <HelperText

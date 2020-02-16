@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Paragraph, Title } from 'react-native-paper';
+import { Button, Paragraph } from 'react-native-paper';
 
 import * as Permissions from 'expo-permissions';
 
+import { Title } from './widgets/Typography';
 import LoadingIndicator from './widgets/LoadingIndicator';
 
 import { StoreState } from './store';

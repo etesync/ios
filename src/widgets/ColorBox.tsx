@@ -12,6 +12,11 @@ export default function ColorBox(props: PropsType) {
   const style = { ...(props.style as any), backgroundColor: props.color, width: size, height: size };
 
   return (
-    <View style={style} />
+    <View
+      style={style}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel="Color indicator"
+    />
   );
 }

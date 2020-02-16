@@ -150,6 +150,7 @@ function RightAction() {
     <React.Fragment>
       <Appbar.Action
         icon="account-plus"
+        accessibilityLabel="Add member"
         onPress={() => {
           setMemberDialogVisible(true);
         }}
@@ -208,6 +209,7 @@ function RightAction() {
               error={!!errorUsername}
               onChangeText={setUsername}
               label="Username"
+              accessibilityLabel="Username"
               value={username}
             />
             <HelperText

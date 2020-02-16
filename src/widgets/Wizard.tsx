@@ -22,6 +22,7 @@ export function WizardNavigationBar(props: PagePropsType) {
         mode="contained"
         disabled={first}
         onPress={props.prev}
+        accessibilityLabel="Previous"
       >
         Prev
       </Button>

@@ -26,7 +26,7 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
       visible={showMenu}
       onDismiss={() => setShowMenu(false)}
       anchor={(
-        <IconButton color="white" theme={{ colors: { primary: backgroundPrimary } }} {...props} icon="dots-horizontal" onPress={() => setShowMenu(true)} />
+        <IconButton color="white" theme={{ colors: { primary: backgroundPrimary } }} accessibilityLabel="Journal menu" {...props} icon="dots-horizontal" onPress={() => setShowMenu(true)} />
       )}
     >
       <Menu.Item
@@ -139,7 +139,7 @@ export default function JournalListScreen() {
     <ScrollView style={{ flex: 1 }}>
       <Text style={{ textAlign: 'center', marginTop: 15 }}>Last sync: {lastSync ? moment(lastSync).format('lll') : 'never'}</Text>
       {cards.map((card) => (
-        <Card key={card.lookup} elevation={4} style={{ margin: 20 }}>
+        <Card key={card.lookup} accessible={false} elevation={4} style={{ margin: 20 }}>
           <Card.Title
             title={card.title}
             titleStyle={{ color: 'white' }}

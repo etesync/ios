@@ -51,7 +51,7 @@ function RefreshIcon() {
   }
 
   return (
-    <Appbar.Action icon="refresh" disabled={!etesync || syncCount > 0} onPress={refresh} />
+    <Appbar.Action icon="refresh" accessibilityLabel="Synchronize" disabled={!etesync || syncCount > 0} onPress={refresh} />
   );
 }
 

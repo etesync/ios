@@ -92,6 +92,7 @@ class LoginForm extends React.PureComponent {
           autoCorrect={false}
           error={!!this.state.errors.errorServer}
           label="Server URL"
+          accessibilityLabel="Server URL"
           value={this.state.server}
           placeholder="E.g. https://api.etesync.com"
           onChangeText={this.handleInputChange('server')}
@@ -120,6 +121,7 @@ class LoginForm extends React.PureComponent {
             error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange('username')}
             label="Email"
+            accessibilityLabel="Email"
             value={this.state.username}
           />
           <HelperText
@@ -135,6 +137,7 @@ class LoginForm extends React.PureComponent {
             ref={this.formRefs[1]}
             error={!!this.state.errors.errorPassword}
             label="Password"
+            accessibilityLabel="Password"
             value={this.state.password}
             onChangeText={this.handleInputChange('password')}
           />

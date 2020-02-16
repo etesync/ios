@@ -1,8 +1,9 @@
 import * as React from 'react';
 
-import { Title, useTheme } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 
 import Container from './widgets/Container';
+import { Title } from './widgets/Typography';
 
 interface HeaderPropsType {
   title: string;

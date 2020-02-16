@@ -4,12 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '../navigation/Hooks';
 
 import { View } from 'react-native';
-import { Headline, Subheading, Paragraph, Text } from 'react-native-paper';
+import { Paragraph, Text } from 'react-native-paper';
 import { NavigationScreenComponent } from 'react-navigation';
 
 import * as EteSync from 'etesync';
 import sjcl from 'sjcl';
 
+import { Subheading, Headline } from '../widgets/Typography';
 import ScrollView from '../widgets/ScrollView';
 import Container from '../widgets/Container';
 import LoadingIndicator from '../widgets/LoadingIndicator';

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigation } from './navigation/Hooks';
 import { Image, Linking, View } from 'react-native';
-import { Subheading, Divider, List, Text, Paragraph } from 'react-native-paper';
+import { Divider, List, Text, Paragraph } from 'react-native-paper';
 import { SafeAreaView } from 'react-navigation';
 
 import { StoreState } from './store';
@@ -11,6 +11,7 @@ import ScrollView from './widgets/ScrollView';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
 import PrettyFingerprint from './widgets/PrettyFingerprint';
 import Container from './widgets/Container';
+import { Subheading } from './widgets/Typography';
 
 import LogoutDialog from './LogoutDialog';
 import { useRemoteCredentials } from './login';

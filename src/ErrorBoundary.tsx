@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Linking, Clipboard } from 'react-native';
-import { Button, Title, Text } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 
 import { Updates } from 'expo';
 
 import { StoreState, persistor, store } from './store';
 
+import { Title } from './widgets/Typography';
 import ScrollView from './widgets/ScrollView';
 import { logger, LogLevel, getLogs } from './logging';
 import Container from './widgets/Container';
