@@ -3,7 +3,6 @@ import { Linking, FlatList } from 'react-native';
 import { Text, List, TouchableRipple, useTheme } from 'react-native-paper';
 
 import { Title } from './widgets/Typography';
-import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 import Markdown from './widgets/Markdown';
 
@@ -39,21 +38,21 @@ export default function AboutScreen() {
   const theme = useTheme();
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container>
-        <Title style={{ textAlign: 'center' }}>{C.appName} {expo.version}</Title>
-        <TouchableRipple onPress={() => { Linking.openURL(C.homePage) }}>
-          <Text style={{ textAlign: 'center', color: theme.colors.accent, textDecorationLine: 'underline', margin: 10 }}>{C.homePage}</Text>
-        </TouchableRipple>
-        <Markdown content={markdownContent} />
+    <FlatList
+      ListHeaderComponent={() => (
+        <Container>
+          <Title style={{ textAlign: 'center' }}>{C.appName} {expo.version}</Title>
+          <TouchableRipple onPress={() => { Linking.openURL(C.homePage) }}>
+            <Text style={{ textAlign: 'center', color: theme.colors.accent, textDecorationLine: 'underline', margin: 10 }}>{C.homePage}</Text>
+          </TouchableRipple>
+          <Markdown content={markdownContent} />
 
-        <Title style={{ marginTop: 30 }}>Open Source Licenses</Title>
-        <FlatList
-          data={Object.keys(licenses.dependencies)}
-          keyExtractor={(item) => item}
-          renderItem={generateRenderLicenseItem(licenses.dependencies)}
-        />
-      </Container>
-    </ScrollView>
+          <Title style={{ marginTop: 30 }}>Open Source Licenses</Title>
+        </Container>
+      )}
+      data={Object.keys(licenses.dependencies)}
+      keyExtractor={(item) => item}
+      renderItem={generateRenderLicenseItem(licenses.dependencies)}
+    />
   );
 }
