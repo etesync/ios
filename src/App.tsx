@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { StatusBar } from 'react-native';
 import { DarkTheme, DefaultTheme, Provider as PaperProvider, Theme, Colors } from 'react-native-paper';
 
 import { AppearanceProvider, useColorScheme } from 'react-native-appearance';
@@ -51,6 +52,7 @@ class App extends React.Component {
   public render() {
     return (
       <AppearanceProvider>
+        <StatusBar barStyle="dark-content" />
         <InnerApp />
       </AppearanceProvider>
     );
