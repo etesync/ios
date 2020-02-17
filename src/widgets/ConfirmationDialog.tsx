@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Keyboard } from 'react-native';
-import { Card, Portal, Modal, Button, ProgressBar, Paragraph } from 'react-native-paper';
+import { Card, Portal, Modal, Button, ProgressBar, Paragraph, useTheme } from 'react-native-paper';
 
 import { isPromise, useIsMounted } from '../helpers';
 
@@ -21,9 +21,11 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
   const isMounted = useIsMounted();
   const [loading, setLoading] = React.useState(props.loading ?? false);
   const [error, setError] = React.useState<string | undefined>(undefined);
+  const theme = useTheme();
   const labelCancel = props.labelCancel ?? 'Cancel';
   const labelOk = props.labelOk ?? 'OK';
   const loadingText = props.loadingText ?? 'Loading...';
+  const buttonThemeOverride = { colors: { primary: theme.colors.accent } };
 
   React.useEffect(() => {
     Keyboard.dismiss();
@@ -76,10 +78,10 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
           </Card.Content>
           <Card.Actions style={{ justifyContent: 'flex-end' }}>
             {props.onCancel &&
-              <Button disabled={loading} onPress={props.onCancel}>{labelCancel}</Button>
+              <Button disabled={loading} theme={buttonThemeOverride} onPress={props.onCancel}>{labelCancel}</Button>
             }
             {!error && props.onOk &&
-              <Button disabled={loading} onPress={onOk}>{labelOk}</Button>
+              <Button disabled={loading} theme={buttonThemeOverride} onPress={onOk}>{labelOk}</Button>
             }
           </Card.Actions>
         </Card>

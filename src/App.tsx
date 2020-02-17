@@ -29,7 +29,7 @@ function InnerApp() {
     colors: {
       ...baseTheme.colors,
       primary: Colors.amber500,
-      accent: Colors.lightBlueA400,
+      accent: Colors.lightBlueA700, // Not the real etesync theme but better for accessibility
     },
   };
 
