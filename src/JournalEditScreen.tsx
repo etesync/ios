@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { TextInput as NativeTextInput } from 'react-native';
-import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
+import { Text, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
 import { useNavigation, RouteProp } from '@react-navigation/native';
 
 import { SyncManager } from './sync/SyncManager';
@@ -10,6 +10,7 @@ import { useCredentials } from './login';
 import { store, StoreState } from './store';
 import { addJournal, updateJournal, deleteJournal, performSync } from './store/actions';
 
+import TextInput from './widgets/TextInput';
 import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 import ConfirmationDialog from './widgets/ConfirmationDialog';

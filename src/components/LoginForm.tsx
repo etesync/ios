@@ -1,10 +1,12 @@
 import * as React from 'react';
 
 import { Text, View, TextInput as NativeTextInput } from 'react-native';
-import { Switch, Button, HelperText, Paragraph, TextInput, TouchableRipple } from 'react-native-paper';
+import { Switch, Button, HelperText, Paragraph, TouchableRipple } from 'react-native-paper';
+
 
 import ExternalLink from '../widgets/ExternalLink';
 import Row from '../widgets/Row';
+import TextInput from '../widgets/TextInput';
 
 import * as C from '../constants';
 import PasswordInput from '../widgets/PasswordInput';

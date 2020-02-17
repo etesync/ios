@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
-import { IconButton, TextInput } from 'react-native-paper';
+import { IconButton } from 'react-native-paper';
+
+import TextInput from './TextInput';
 
 const PasswordInput = React.memo(React.forwardRef(function _PasswordInput(inProps: React.ComponentPropsWithoutRef<typeof TextInput>, ref) {
   const [isPassword, setIsPassword] = React.useState(true);

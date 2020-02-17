@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
-import { TextInput, TouchableRipple, HelperText } from 'react-native-paper';
+import { TouchableRipple, HelperText } from 'react-native-paper';
 
+import TextInput from './TextInput';
 import ColorBox from './ColorBox';
 import { colorHtmlToInt } from '../helpers';
 
