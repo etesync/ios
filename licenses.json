@@ -5,10 +5,27 @@
       "repository": "https://github.com/expo/vector-icons",
       "publisher": "Brent Vatne"
     },
+    "@react-native-community/masked-view": {
+      "licenses": "MIT",
+      "repository": "https://github.com/react-native-community/react-native-masked-view",
+      "publisher": "Mike Nedosekin"
+    },
     "@react-native-community/netinfo": {
       "licenses": "MIT",
       "repository": "https://github.com/react-native-community/react-native-netinfo",
       "publisher": "Matt Oakes"
+    },
+    "@react-navigation/drawer": {
+      "licenses": "MIT",
+      "repository": "https://github.com/react-navigation/react-navigation/tree/master/packages/drawer"
+    },
+    "@react-navigation/native": {
+      "licenses": "MIT",
+      "repository": "https://github.com/react-navigation/react-navigation/tree/master/packages/native"
+    },
+    "@react-navigation/stack": {
+      "licenses": "MIT",
+      "repository": "https://github.com/react-navigation/react-navigation/tree/master/packages/stack"
     },
     "assert": {
       "licenses": "MIT",
@@ -55,6 +72,11 @@
       "repository": "https://github.com/expo/expo",
       "publisher": "650 Industries, Inc."
     },
+    "expo-secure-store": {
+      "licenses": "MIT",
+      "repository": "https://github.com/expo/expo",
+      "publisher": "650 Industries, Inc."
+    },
     "expo-task-manager": {
       "licenses": "MIT",
       "repository": "https://github.com/expo/expo",
@@ -64,6 +86,9 @@
       "licenses": "MIT",
       "repository": "https://github.com/expo/expo",
       "publisher": "Expo"
+    },
+    "expokit": {
+      "licenses": "MIT"
     },
     "ical.js": {
       "licenses": "MPL-2.0",
@@ -75,11 +100,6 @@
       "repository": "https://github.com/facebook/immutable-js",
       "publisher": "Lee Byron",
       "url": "https://github.com/leebyron"
-    },
-    "libphonenumber-js": {
-      "licenses": "MIT",
-      "repository": "https://github.com/catamphetamine/libphonenumber-js",
-      "publisher": "catamphetamine"
     },
     "moment": {
       "licenses": "MIT",
@@ -94,7 +114,7 @@
     },
     "react-native-gesture-handler": {
       "licenses": "MIT",
-      "repository": "https://github.com/kmagiera/react-native-gesture-handler",
+      "repository": "https://github.com/software-mansion/react-native-gesture-handler",
       "publisher": "Krzysztof Magiera"
     },
     "react-native-keyboard-aware-scroll-view": {
@@ -111,6 +131,30 @@
       "licenses": "MIT",
       "repository": "https://github.com/callstack/react-native-paper"
     },
+    "react-native-reanimated": {
+      "licenses": "MIT",
+      "repository": "https://github.com/software-mansion/react-native-reanimated",
+      "publisher": "Krzysztof Magiera"
+    },
+    "react-native-rsa-native": {
+      "licenses": "MIT",
+      "repository": "https://github.com/amitaymolko/react-native-rsa-native",
+      "publisher": "Amitay Molko"
+    },
+    "react-native-safe-area-context": {
+      "licenses": "MIT",
+      "repository": "https://github.com/th3rdwave/react-native-safe-area-context",
+      "publisher": "Janic Duplessis"
+    },
+    "react-native-screens": {
+      "licenses": "MIT",
+      "repository": "https://github.com/kmagiera/react-native-screens",
+      "publisher": "Krzysztof Magiera"
+    },
+    "react-native-unimodules": {
+      "licenses": "MIT",
+      "repository": "https://github.com/unimodules/react-native-unimodules"
+    },
     "react-native-vector-icons": {
       "licenses": "MIT",
       "repository": "https://github.com/oblador/react-native-vector-icons",
@@ -124,11 +168,6 @@
     "react-native": {
       "licenses": "MIT",
       "repository": "https://github.com/facebook/react-native"
-    },
-    "react-navigation": {
-      "licenses": "BSD-2-Clause",
-      "repository": "https://github.com/react-navigation/react-navigation",
-      "publisher": "Adam Miskiewicz"
     },
     "react-redux": {
       "licenses": "MIT",
@@ -150,6 +189,11 @@
       "repository": "https://github.com/theaqua/redux-logger",
       "publisher": "Eugene Rodionov",
       "url": "https://github.com/theaqua"
+    },
+    "redux-persist-expo-securestore": {
+      "licenses": "MIT",
+      "repository": "https://github.com/Cretezy/redux-persist-expo-securestore",
+      "publisher": "Charles Crete"
     },
     "redux-persist": {
       "licenses": "MIT",
@@ -212,7 +256,7 @@
     },
     "@types/urijs": {
       "licenses": "MIT",
-      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+      "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
     },
     "@types/uuid": {
       "licenses": "MIT",
