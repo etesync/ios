@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View } from 'react-native';
 import { Avatar, IconButton, Card, Menu, List, Colors, Text } from 'react-native-paper';
-import { useNavigation } from '../navigation/Hooks';
+import { useNavigation } from '@react-navigation/native';
 
 import moment from 'moment';
 

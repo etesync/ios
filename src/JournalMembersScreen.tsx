@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { NavigationScreenComponent } from 'react-navigation';
-import { useNavigation } from './navigation/Hooks';
 import { View } from 'react-native';
 import { Avatar, List, Appbar, Paragraph, TextInput, HelperText, useTheme } from 'react-native-paper';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 
 import { useSyncGate } from './SyncGate';
 import { useCredentials } from './login';
@@ -20,7 +19,18 @@ import ErrorDialog from './widgets/ErrorDialog';
 import * as EteSync from 'etesync';
 import sjcl from 'sjcl';
 
-const JournalMembersScreen: NavigationScreenComponent = function _JournalMembersScreen() {
+type RootStackParamList = {
+  JournalMembersScreen: {
+    journalUid: string;
+  };
+};
+
+interface PropsType {
+  route: RouteProp<RootStackParamList, 'JournalMembersScreen'>;
+}
+
+
+const JournalMembersScreen = function _JournalMembersScreen(props: PropsType) {
   const [members, setMembers] = React.useState<EteSync.JournalMemberJson[] | undefined>(undefined);
   const [revokeUser, setRevokeUser] = React.useState<EteSync.JournalMemberJson | undefined>(undefined);
   const journals = useSelector((state: StoreState) => state.cache.journals);
@@ -33,7 +43,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid');
+  const { journalUid } = props.route.params;
   const journal = journals.get(journalUid)!;
 
   let error: string | undefined;
@@ -64,6 +74,12 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
       <LoadingIndicator />
     );
   }
+
+  navigation.setOptions({
+    headerRight: () => (
+      <RightAction journalUid={journalUid} />
+    ),
+  });
 
   return (
     <ScrollView>
@@ -110,7 +126,7 @@ const JournalMembersScreen: NavigationScreenComponent = function _JournalMembers
   );
 };
 
-function RightAction() {
+function RightAction(props: { journalUid: string }) {
   const [memberDialogVisible, setMemberDialogVisible] = React.useState(false);
   const [username, setUsername] = React.useState('');
   const [readOnly, setReadOnly] = React.useState(false);
@@ -121,7 +137,7 @@ function RightAction() {
   const journals = useSelector((state: StoreState) => state.cache.journals);
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
 
-  const journalUid = navigation.getParam('journalUid');
+  const journalUid = props.journalUid;
   const journal = journals.get(journalUid)!;
 
   async function memberAdd() {
@@ -230,10 +246,5 @@ function RightAction() {
     </React.Fragment>
   );
 }
-
-JournalMembersScreen.navigationOptions = {
-  title: 'Collection Members',
-  rightAction: (<RightAction />),
-};
 
 export default JournalMembersScreen;

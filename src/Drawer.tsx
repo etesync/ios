@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigation } from './navigation/Hooks';
+import { ParamListBase } from '@react-navigation/native';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { Image, Linking, View } from 'react-native';
 import { Divider, List, Text, Paragraph } from 'react-native-paper';
-import { SafeAreaView } from 'react-navigation';
+import SafeAreaView from 'react-native-safe-area-view';
 
 import { StoreState } from './store';
 
@@ -86,10 +87,14 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
   );
 }
 
-function Drawer() {
+interface PropsType {
+  navigation: any;
+}
+
+export default function Drawer(props: PropsType) {
   const [showFingerprint, setShowFingerprint] = React.useState(false);
   const [showLogout, setShowLogout] = React.useState(false);
-  const navigation = useNavigation();
+  const navigation = props.navigation as DrawerNavigationProp<ParamListBase>;
   const etesync = useRemoteCredentials();
   const loggedIn = !!etesync;
   const syncCount = useSelector((state: StoreState) => state.syncCount);
@@ -157,10 +162,15 @@ function Drawer() {
       </ScrollView>
 
       <FingerprintDialog visible={showFingerprint} onDismiss={() => setShowFingerprint(false)} />
-      <LogoutDialog visible={showLogout} onDismiss={() => setShowLogout(false)} />
+      <LogoutDialog
+        visible={showLogout}
+        onDismiss={(loggedOut) => {
+          if (loggedOut) {
+            navigation.closeDrawer();
+          }
+          setShowLogout(false);
+        }}
+      />
     </>
   );
 }
-
-export default Drawer;
-

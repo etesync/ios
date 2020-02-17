@@ -2,9 +2,8 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
-import { NavigationScreenComponent } from 'react-navigation';
-import { useNavigation } from './navigation/Hooks';
 import { Divider, List, Paragraph } from 'react-native-paper';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
@@ -75,7 +74,18 @@ async function saveTask(localId: string, content: string) {
   await Calendar.createReminderAsync(localId, task);
 }
 
-const JournalItemSaveScreen: NavigationScreenComponent = function _JournalItemSaveScreen() {
+type RootStackParamList = {
+  JournalItemSaveScreen: {
+    journalUid: string;
+    entryUid: string;
+  };
+};
+
+interface PropsType {
+  route: RouteProp<RootStackParamList, 'JournalItemSaveScreen'>;
+}
+
+export default function JournalItemSaveScreen(props: PropsType) {
   const [deviceCollections, setDeviceCollections] = React.useState<ImportCollection[] | undefined>(undefined);
   const permissions = useSelector((state: StoreState) => state.permissions);
   const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
@@ -88,9 +98,8 @@ const JournalItemSaveScreen: NavigationScreenComponent = function _JournalItemSa
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid');
+  const { journalUid, entryUid } = props.route.params;
   const collectionType = syncInfoCollections.get(journalUid)!.type;
-  const entryUid = navigation.getParam('entryUid');
   const entry = syncInfoEntries.get(journalUid)!.get(entryUid)!;
 
   if (!permissions.get(collectionType)) {
@@ -178,10 +187,4 @@ const JournalItemSaveScreen: NavigationScreenComponent = function _JournalItemSa
       </ScrollView>
     </React.Fragment>
   );
-};
-
-JournalItemSaveScreen.navigationOptions = {
-  title: 'Save Item',
-};
-
-export default JournalItemSaveScreen;
+}

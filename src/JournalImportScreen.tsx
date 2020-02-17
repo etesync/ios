@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import * as Calendar from 'expo-calendar';
-import { NavigationScreenComponent } from 'react-navigation';
-import { useNavigation } from './navigation/Hooks';
 import { Divider, List, Paragraph } from 'react-native-paper';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 
 import { SyncManager } from './sync/SyncManager';
 import { useCredentials } from './login';
@@ -96,7 +95,17 @@ async function tasksImport(localId: string, toLocalId: string) {
   }
 }
 
-const JournalImportScreen: NavigationScreenComponent = function _JournalImportScreen() {
+type RootStackParamList = {
+  JournalImportScreen: {
+    journalUid: string;
+  };
+};
+
+interface PropsType {
+  route: RouteProp<RootStackParamList, 'JournalImportScreen'>;
+}
+
+const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
   const [deviceCollections, setDeviceCollections] = React.useState<ImportCollection[] | undefined>(undefined);
   const [selectedCollection, setSelectedCollection] = React.useState<ImportCollection | null>(null);
   const permissions = useSelector((state: StoreState) => state.permissions);
@@ -110,7 +119,7 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid');
+  const { journalUid } = props.route.params;
   const collectionType = syncInfoCollections.get(journalUid)!.type;
 
   if (!permissions.get(collectionType)) {
@@ -225,10 +234,6 @@ const JournalImportScreen: NavigationScreenComponent = function _JournalImportSc
       </ConfirmationDialog>
     </React.Fragment>
   );
-};
-
-JournalImportScreen.navigationOptions = {
-  title: 'Import',
 };
 
 export default JournalImportScreen;

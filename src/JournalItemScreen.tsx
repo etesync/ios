@@ -1,10 +1,9 @@
 import * as React from 'react';
 
 import { useSelector } from 'react-redux';
-import { NavigationScreenComponent } from 'react-navigation';
-import { useNavigation } from './navigation/Hooks';
 import { StyleSheet } from 'react-native';
 import { Text, FAB, Appbar } from 'react-native-paper';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
@@ -16,7 +15,18 @@ import JournalItemContact from './JournalItemContact';
 import JournalItemEvent from './JournalItemEvent';
 import JournalItemTask from './JournalItemTask';
 
-const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen() {
+type RootStackParamList = {
+  JournalItemScreen: {
+    journalUid: string;
+    entryUid: string;
+  };
+};
+
+interface PropsType {
+  route: RouteProp<RootStackParamList, 'JournalItemScreen'>;
+}
+
+export default function JournalItemScreen(props: PropsType) {
   const [showRaw, setShowRaw] = React.useState(false);
   const navigation = useNavigation();
   const syncGate = useSyncGate();
@@ -27,9 +37,8 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid');
+  const { journalUid, entryUid } = props.route.params;
   const collection = syncInfoCollections.get(journalUid)!;
-  const entryUid = navigation.getParam('entryUid');
   const entries = syncInfoEntries.get(journalUid)!;
 
   const entry = entries.get(entryUid)!;
@@ -51,6 +60,12 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
       break;
   }
 
+  navigation.setOptions({
+    headerRight: () => (
+      <Appbar.Action icon="export" onPress={() => { navigation.navigate('JournalItemSave', { journalUid, entryUid }) }} />
+    ),
+  });
+
   return (
     <>
       <ScrollView style={{ flex: 1 }}>
@@ -71,7 +86,7 @@ const JournalItemScreen: NavigationScreenComponent = function _JournalItemScreen
       />
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   fab: {
@@ -81,23 +96,3 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 });
-
-function RightAction() {
-  const navigation = useNavigation();
-
-  const journalUid = navigation.getParam('journalUid');
-  const entryUid = navigation.getParam('entryUid');
-
-  return (
-    <Appbar.Action icon="export" onPress={() => { navigation.navigate('JournalItemSave', { journalUid, entryUid }) }} />
-  );
-}
-
-JournalItemScreen.navigationOptions = {
-  title: 'Journal Item',
-  rightAction: (
-    <RightAction />
-  ),
-};
-
-export default JournalItemScreen;

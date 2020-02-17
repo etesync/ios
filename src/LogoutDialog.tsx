@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useNavigation } from './navigation/Hooks';
 import { List, Paragraph, Switch, useTheme } from 'react-native-paper';
 
 import { useDispatch } from 'react-redux';
@@ -20,7 +19,6 @@ import * as C from './constants';
 
 export default function LogoutDialog(props: { visible: boolean, onDismiss: (loggedOut: boolean) => void }) {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
   const theme = useTheme();
   const etesync = useRemoteCredentials() as CredentialsData;
   const [clearAddressBooks, setClearAddressBooks] = React.useState(true);
@@ -53,8 +51,6 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
 
         // Here we log out regardless if we actually have an etesync
         dispatch(logout(etesync!));
-        navigation.closeDrawer();
-        navigation.navigate('Auth');
 
         persistor.persist();
 

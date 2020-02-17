@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { NavigationScreenComponent } from 'react-navigation';
 import { Linking, FlatList } from 'react-native';
 import { Text, List, TouchableRipple, useTheme } from 'react-native-paper';
 
@@ -36,7 +35,7 @@ const markdownContent = `
 This app is made possible with financial support from [NLnet Foundation](https://nlnet.nl/), courtesy of [NGI0 Discovery](https://nlnet.nl/discovery) and the [European Commission](https://ec.europa.eu) [DG CNECT](https://ec.europa.eu/info/departments/communications-networks-content-and-technology_en)'s [Next Generation Internet](https://ngi.eu) programme.
 `;
 
-const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
+export default function AboutScreen() {
   const theme = useTheme();
 
   return (
@@ -57,10 +56,4 @@ const AboutScreen: NavigationScreenComponent = function _AboutScreen() {
       </Container>
     </ScrollView>
   );
-};
-
-AboutScreen.navigationOptions = {
-  title: 'About',
-};
-
-export default AboutScreen;
+}

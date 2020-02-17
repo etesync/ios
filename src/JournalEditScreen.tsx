@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { NavigationScreenComponent } from 'react-navigation';
-import { useNavigation } from './navigation/Hooks';
 import { TextInput as NativeTextInput } from 'react-native';
 import { Text, TextInput, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 
 import { SyncManager } from './sync/SyncManager';
 import { useSyncGate } from './SyncGate';
@@ -26,7 +25,18 @@ interface FormErrors {
   color?: string;
 }
 
-const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen() {
+type RootStackParamList = {
+  JournalItemScreen: {
+    journalUid: string;
+    journalType?: string;
+  };
+};
+
+interface PropsType {
+  route: RouteProp<RootStackParamList, 'JournalItemScreen'>;
+}
+
+export default function JournalEditScreen(props: PropsType) {
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [journalType, setJournalType] = React.useState<string>();
   const [displayName, setDisplayName] = React.useState<string>('');
@@ -40,7 +50,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
   const etesync = useCredentials()!;
   const [loading, error, setPromise] = useLoading();
 
-  const journalUid: string = navigation.getParam('journalUid') ?? '';
+  const journalUid: string = props.route.params.journalUid ?? '';
   React.useMemo(() => {
     if (syncGate) {
       return;
@@ -55,7 +65,7 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
         setColor(colorIntToHtml(passedCollection.color));
       }
     } else {
-      setJournalType(navigation.getParam('journalType'));
+      setJournalType(props.route.params.journalType);
     }
 
   }, [syncGate, syncInfoCollections, journalUid]);
@@ -129,6 +139,12 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
       break;
   }
 
+  navigation.setOptions({
+    headerRight: () => (
+      <RightAction journalUid={journalUid} />
+    ),
+  });
+
   return (
     <ScrollView keyboardAware>
       <Container>
@@ -178,15 +194,15 @@ const JournalEditScreen: NavigationScreenComponent = function _JournalEditScreen
       </Container>
     </ScrollView>
   );
-};
+}
 
-function RightAction() {
+function RightAction(props: { journalUid: string }) {
   const [confirmationVisible, setConfirmationVisible] = React.useState(false);
   const navigation = useNavigation();
   const etesync = useCredentials()!;
   const journals = useSelector((state: StoreState) => state.cache.journals);
 
-  const journalUid = navigation.getParam('journalUid');
+  const journalUid = props.journalUid;
   const journal = journals.get(journalUid)!;
 
   return (
@@ -216,16 +232,3 @@ function RightAction() {
     </React.Fragment>
   );
 }
-
-JournalEditScreen.navigationOptions = ({ navigation }) => {
-  const journalUid = navigation.getParam('journalUid');
-
-  return {
-    title: (journalUid) ? 'Edit Collection' : 'Create Collection',
-    rightAction: (journalUid) ? (
-      <RightAction />
-    ) : undefined,
-  };
-};
-
-export default JournalEditScreen;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavigationScreenComponent } from 'react-navigation';
 import { Appbar } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 import { SyncManager } from './sync/SyncManager';
 
@@ -16,9 +16,12 @@ import { useSyncGate } from './SyncGate';
 import { registerSyncTask } from './sync/SyncManager';
 
 
-const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() {
+export default React.memo(function HomeScreen() {
   const etesync = useCredentials()!;
+  const dispatch = useDispatch();
   const SyncGate = useSyncGate();
+  const navigation = useNavigation();
+  const syncCount = useSelector((state: StoreState) => state.syncCount);
   const permissionsStatus = usePermissions();
 
   React.useEffect(() => {
@@ -26,6 +29,17 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
       registerSyncTask(etesync.credentials.email);
     }
   }, [etesync, !permissionsStatus]);
+
+  function refresh() {
+    const syncManager = SyncManager.getManager(etesync);
+    dispatch(performSync(syncManager.sync()));
+  }
+
+  navigation.setOptions({
+    headerRight: () => (
+      <Appbar.Action icon="refresh" accessibilityLabel="Synchronize" disabled={!etesync || syncCount > 0} onPress={refresh} />
+    ),
+  });
 
   if (permissionsStatus) {
     return permissionsStatus;
@@ -39,27 +53,3 @@ const HomeScreen: NavigationScreenComponent = React.memo(function _HomeScreen() 
     <JournalListScreen />
   );
 });
-
-function RefreshIcon() {
-  const etesync = useCredentials()!;
-  const dispatch = useDispatch();
-  const syncCount = useSelector((state: StoreState) => state.syncCount);
-
-  function refresh() {
-    const syncManager = SyncManager.getManager(etesync);
-    dispatch(performSync(syncManager.sync()));
-  }
-
-  return (
-    <Appbar.Action icon="refresh" accessibilityLabel="Synchronize" disabled={!etesync || syncCount > 0} onPress={refresh} />
-  );
-}
-
-HomeScreen.navigationOptions = () => ({
-  rightAction: (
-    <RefreshIcon />
-  ),
-  showMenuButton: true,
-});
-
-export default HomeScreen;

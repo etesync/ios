@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { NavigationScreenComponent } from 'react-navigation';
 import { useSelector } from 'react-redux';
-import { useNavigation } from './navigation/Hooks';
 import { FlatList, View } from 'react-native';
 import { Menu, Divider, Appbar, Text, List, useTheme } from 'react-native-paper';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 
 import { useSyncGate } from './SyncGate';
 import { StoreState } from './store';
@@ -23,10 +22,21 @@ const listIcons = {
   [EteSync.SyncEntryAction.Delete]: (props: any) => (<List.Icon {...props} color="#F20C0C" icon="delete" />),
 };
 
-const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
+type RootStackParamList = {
+  JournalEntries: {
+    journalUid?: string;
+  };
+};
+
+interface PropsType {
+  route: RouteProp<RootStackParamList, 'JournalEntries'>;
+}
+
+export default function JournalEntries(props: PropsType) {
   const navigation = useNavigation();
   const syncGate = useSyncGate();
   const theme = useTheme();
+  const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
   const syncStateEntries = useSelector((state: StoreState) => state.sync.stateEntries);
   const journalEntries = useSelector((state: StoreState) => state.cache.entries);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
@@ -36,7 +46,7 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
     return syncGate;
   }
 
-  const journalUid = navigation.getParam('journalUid') ?? '';
+  const journalUid = props.route.params.journalUid ?? '';
   const collection = syncInfoCollections.get(journalUid);
   const entries = journalEntries.get(journalUid);
 
@@ -95,6 +105,47 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       break;
   }
 
+  function RightAction() {
+    const [showMenu, setShowMenu] = React.useState(false);
+
+    return (
+      <Menu
+        visible={showMenu}
+        onDismiss={() => setShowMenu(false)}
+        anchor={(
+          <Appbar.Action icon="dots-vertical" accessibilityLabel="Menu" onPress={() => setShowMenu(true)} />
+        )}
+      >
+        <Menu.Item icon="pencil" title="Edit"
+          onPress={() => {
+            setShowMenu(false);
+            navigation.navigate('JournalEdit', { journalUid });
+          }}
+        />
+        <Menu.Item icon="account-multiple" title="Members"
+          onPress={() => {
+            setShowMenu(false);
+            navigation.navigate('JournalMembers', { journalUid });
+          }}
+        />
+        {syncStateJournals.has(journalUid) &&
+          <Menu.Item icon="import" title="Import"
+            onPress={() => {
+              setShowMenu(false);
+              navigation.navigate('JournalImport', { journalUid });
+            }}
+          />
+        }
+      </Menu>
+    );
+  }
+
+  navigation.setOptions({
+    headerRight: () => (
+      <RightAction />
+    ),
+  });
+
   return (
     <>
       <Container style={{ flexDirection: 'row' }}>
@@ -117,37 +168,4 @@ const JournalEntries: NavigationScreenComponent = function _JournalEntries() {
       />
     </>
   );
-};
-
-function RightAction() {
-  const [showMenu, setShowMenu] = React.useState(false);
-  const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
-  const navigation = useNavigation();
-
-  const journalUid = navigation.getParam('journalUid');
-
-  return (
-    <Menu
-      visible={showMenu}
-      onDismiss={() => setShowMenu(false)}
-      anchor={(
-        <Appbar.Action icon="dots-vertical" accessibilityLabel="Menu" onPress={() => setShowMenu(true)} />
-      )}
-    >
-      <Menu.Item onPress={() => navigation.navigate('JournalEdit', { journalUid })} icon="pencil" title="Edit" />
-      <Menu.Item onPress={() => navigation.navigate('JournalMembers', { journalUid })} icon="account-multiple" title="Members" />
-      {syncStateJournals.has(journalUid) &&
-        <Menu.Item onPress={() => navigation.navigate('JournalImport', { journalUid })} icon="import" title="Import" />
-      }
-    </Menu>
-  );
 }
-
-JournalEntries.navigationOptions = {
-  title: 'Journal Entries',
-  rightAction: (
-    <RightAction />
-  ),
-};
-
-export default JournalEntries;

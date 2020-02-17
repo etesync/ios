@@ -163,7 +163,7 @@ export default function SyncSettings() {
       >
         <>
           <Paragraph>
-          Disabling contacts sync will remove your EteSync contacts from your device. Would you like to procceed?
+            Disabling contacts sync will remove your EteSync contacts from your device. Would you like to procceed?
           </Paragraph>
           <Paragraph>
             If for example you are syncing with iCloud, your iCloud items will be removed too. Would you like to procceed?

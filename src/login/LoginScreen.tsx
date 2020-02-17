@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Action } from 'redux-actions';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation } from '../navigation/Hooks';
 
 import { View } from 'react-native';
 import { Paragraph, Text } from 'react-native-paper';
-import { NavigationScreenComponent } from 'react-navigation';
 
 import * as EteSync from 'etesync';
 import sjcl from 'sjcl';
@@ -71,7 +69,6 @@ function EncryptionPart() {
   const [derived, setDerived] = React.useState<Action<string>>();
   const [userInfo, setUserInfo] = React.useState<EteSync.UserInfo>();
   const dispatch = useDispatch();
-  const navigation = useNavigation();
   const [loading, error, setPromise] = useLoading();
 
   React.useEffect(() => {
@@ -92,8 +89,7 @@ function EncryptionPart() {
       dispatch(derived);
       const etesync = credentialsSelector(store.getState() as StoreState);
       const syncManager = SyncManager.getManager(etesync!);
-      dispatch(performSync(syncManager.sync()));
-      navigation.navigate('App');
+      dispatch(performSync(startTask(() => syncManager.sync(), 200)));
     };
 
     if (userInfo) {
@@ -156,7 +152,7 @@ function EncryptionPart() {
   );
 }
 
-const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen() {
+const LoginScreen = React.memo(function _LoginScreen() {
   const credentials = useSelector((state: StoreState) => state.credentials.credentials ?? state.legacyCredentials.credentials);
   const encryptionKey = useSelector((state: StoreState) => state.encryptionKey.key ?? state.legacyEncryptionKey.key);
   const dispatch = useDispatch();
@@ -198,9 +194,5 @@ const LoginScreen: NavigationScreenComponent = React.memo(function _LoginScreen(
 
   return <React.Fragment />;
 });
-
-LoginScreen.navigationOptions = {
-  showMenuButton: true,
-};
 
 export default LoginScreen;

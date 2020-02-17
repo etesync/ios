@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { NavigationScreenComponent } from 'react-navigation';
 import { View, Clipboard } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 
@@ -7,7 +6,7 @@ import ScrollView from './widgets/ScrollView';
 import Container from './widgets/Container';
 import { getLogs, clearLogs } from './logging';
 
-const DebugLogsScreen: NavigationScreenComponent = function _DebugLogsScreen() {
+export default function DebugLogsScreen() {
   const [logs, setLogs] = React.useState<string>();
 
   React.useEffect(() => {
@@ -28,10 +27,4 @@ const DebugLogsScreen: NavigationScreenComponent = function _DebugLogsScreen() {
       </Container>
     </ScrollView>
   );
-};
-
-DebugLogsScreen.navigationOptions = {
-  title: 'View Logs',
-};
-
-export default DebugLogsScreen;
+}

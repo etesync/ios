@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { NavigationScreenComponent } from 'react-navigation';
 import { Linking, TextInput as NativeTextInput } from 'react-native';
 import { List, Paragraph, HelperText, Switch, useTheme } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +9,6 @@ import sjcl from 'sjcl';
 import { logger, LogLevel } from './logging';
 
 import { SyncManager } from './sync/SyncManager';
-import { useNavigation } from './navigation/Hooks';
 import { useCredentials } from './login';
 
 import ScrollView from './widgets/ScrollView';
@@ -23,6 +21,7 @@ import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSy
 
 import * as C from './constants';
 import { startTask } from './helpers';
+import { useNavigation } from '@react-navigation/native';
 
 interface DialogPropsType {
   visible: boolean;
@@ -219,7 +218,7 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
   );
 }
 
-const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
+const SettingsScreen = function _SettingsScreen() {
   const etesync = useCredentials();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -306,11 +305,6 @@ const SettingsScreen: NavigationScreenComponent = function _SettingsScreen() {
       <EncryptionPasswordDialog visible={showEncryptionDialog} onDismiss={() => setShowEncryptionDialog(false)} />
     </>
   );
-};
-
-SettingsScreen.navigationOptions = {
-  title: 'Settings',
-  backIsToInitial: true,
 };
 
 export default SettingsScreen;

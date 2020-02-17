@@ -3,17 +3,19 @@ import { DarkTheme, DefaultTheme, Provider as PaperProvider, Theme, Colors } fro
 
 import { AppearanceProvider, useColorScheme } from 'react-native-appearance';
 
-import { createAppContainer, createDrawerNavigator } from 'react-navigation';
-import RootNavigator from './login/LoginNavigator';
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import RootNavigator from './RootNavigator';
 
 import ErrorBoundary from './ErrorBoundary';
 import Drawer from './Drawer';
 import SettingsGate from './SettingsGate';
 
-import { getPersistenceFunctions } from './navigation/persistance';
-
+import 'react-native-gesture-handler';
 import { enableScreens } from 'react-native-screens';
 enableScreens();
+
+const DrawerNavigation = createDrawerNavigator();
 
 function InnerApp() {
   const colorScheme = useColorScheme();
@@ -34,20 +36,16 @@ function InnerApp() {
     <PaperProvider theme={theme}>
       <ErrorBoundary>
         <SettingsGate>
-          <AppNavigator {...getPersistenceFunctions()} />
+          <NavigationContainer>
+            <DrawerNavigation.Navigator drawerContent={({ navigation }) => <Drawer navigation={navigation} />}>
+              <DrawerNavigation.Screen name="Root" component={RootNavigator} />
+            </DrawerNavigation.Navigator>
+          </NavigationContainer>
         </SettingsGate>
       </ErrorBoundary>
     </PaperProvider>
   );
 }
-
-const AppNavigator = createAppContainer(createDrawerNavigator(
-  { home: RootNavigator },
-  {
-    contentComponent: Drawer,
-    drawerPosition: 'left',
-  }
-));
 
 class App extends React.Component {
   public render() {
