@@ -17,6 +17,9 @@ interface FormErrors {
   errorServer?: string;
 }
 
+// Can be used to force always showing advance, e.g. for genericMode
+const alwaysShowAdvanced = false;
+
 class LoginForm extends React.PureComponent {
   public state: {
     showAdvanced: boolean;
@@ -36,7 +39,7 @@ class LoginForm extends React.PureComponent {
   constructor(props: any) {
     super(props);
     this.state = {
-      showAdvanced: C.genericMode, // We always want to show advanced in generic mode.
+      showAdvanced: alwaysShowAdvanced,
       errors: {},
       server: '',
       username: '',
@@ -154,23 +157,23 @@ class LoginForm extends React.PureComponent {
               <ExternalLink href={C.forgotPassword}>
                 <Text>Forget password?</Text>
               </ExternalLink>
-
-              <TouchableRipple
-                onPress={() =>
-                  this.setState((state: any) => ({
-                    showAdvanced: !state.showAdvanced,
-                  }))
-                }
-              >
-                <Row style={{ paddingVertical: 8, justifyContent: 'space-between' }}>
-                  <Paragraph>Advanced settings</Paragraph>
-                  <View pointerEvents="none">
-                    <Switch value={this.state.showAdvanced} />
-                  </View>
-                </Row>
-              </TouchableRipple>
             </>
           )}
+
+          <TouchableRipple
+            onPress={() =>
+              this.setState((state: any) => ({
+                showAdvanced: !state.showAdvanced,
+              }))
+            }
+          >
+            <Row style={{ paddingVertical: 8, justifyContent: 'space-between' }}>
+              <Paragraph>Advanced settings</Paragraph>
+              <View pointerEvents="none">
+                <Switch value={this.state.showAdvanced} />
+              </View>
+            </Row>
+          </TouchableRipple>
 
           {this.state.showAdvanced && advancedSettings}
           <HelperText
