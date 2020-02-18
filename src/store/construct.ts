@@ -21,7 +21,7 @@ export interface StoreState {
   syncStatus: string | null;
   credentials: CredentialsDataRemote;
   settings: SettingsType;
-  encryptionKey: {key: string | null};
+  encryptionKey: {encryptionKey: string | null};
   sync: {
     stateJournals: SyncStateJournalData;
     stateEntries: SyncStateEntryData;

@@ -25,7 +25,7 @@ export function useRemoteCredentials() {
 
 export const credentialsSelector = createSelector(
   (state: store.StoreState) => remoteCredentialsSelector(state),
-  (state: store.StoreState) => state.encryptionKey.key ?? state.legacyEncryptionKey.key,
+  (state: store.StoreState) => state.encryptionKey.encryptionKey ?? state.legacyEncryptionKey.key,
   (remoteCredentials, encryptionKey) => {
     if (!remoteCredentials || !encryptionKey) {
       return null;

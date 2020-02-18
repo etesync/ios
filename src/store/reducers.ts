@@ -70,23 +70,23 @@ export const legacyCredentials = handleActions(
 
 export const encryptionKeyReducer = handleActions(
   {
-    [actions.deriveKey.toString()]: (state: {key: string | null}, action: any) => {
+    [actions.deriveKey.toString()]: (state: {encryptionKey: string | null}, action: any) => {
       if (action.error) {
         return state;
       } else if (action.payload === undefined) {
         return state;
       }
 
-      return { key: action.payload };
+      return { encryptionKey: action.payload };
     },
-    [actions.resetKey.toString()]: (_state: {key: string | null}, _action: any) => (
-      { key: null }
-    ),
-    [actions.logout.toString()]: (_state: {key: string | null}, _action: any) => {
-      return { key: null };
+    [actions.resetKey.toString()]: (_state: {encryptionKey: string | null}, _action: any) => {
+      return { encryptionKey: null };
+    },
+    [actions.logout.toString()]: (_state: {encryptionKey: string | null}, _action: any) => {
+      return { encryptionKey: null };
     },
   },
-  { key: null }
+  { encryptionKey: null }
 );
 
 export const credentials = handleActions(
