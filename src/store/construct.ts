@@ -4,7 +4,7 @@ import { AsyncStorage } from 'react-native';
 import { NetInfoStateType } from '@react-native-community/netinfo';
 
 import { combineReducers } from 'redux';
-import { createMigrate, persistReducer, createTransform, PersistConfig } from 'redux-persist';
+import { createMigrate, persistReducer, createTransform } from 'redux-persist';
 
 import { List, Map as ImmutableMap } from 'immutable';
 
@@ -63,29 +63,29 @@ const settingsMigrations = {
   },
 };
 
-const settingsPersistConfig: PersistConfig = {
+const settingsPersistConfig = {
   key: 'settings',
   version: 2,
   storage: AsyncStorage,
   migrate: createMigrate(settingsMigrations, { debug: false }),
 };
 
-const legacyCredentialsPersistConfig: PersistConfig = {
+const legacyCredentialsPersistConfig = {
   key: 'credentials',
   storage: AsyncStorage,
 };
 
-const legacyEncryptionKeyPersistConfig: PersistConfig = {
+const legacyEncryptionKeyPersistConfig = {
   key: 'encryptionKey',
   storage: AsyncStorage,
 };
 
-const credentialsPersistConfig: PersistConfig = {
+const credentialsPersistConfig = {
   key: 'credentials',
   storage: secureStorage,
 };
 
-const encryptionKeyPersistConfig: PersistConfig = {
+const encryptionKeyPersistConfig = {
   key: 'encryptionKey',
   storage: secureStorage,
 };
@@ -151,7 +151,7 @@ const userInfoDeserialize = (state: EteSync.UserInfoJson) => {
   return ret;
 };
 
-const cacheSerialize = (state: any, key: string) => {
+const cacheSerialize = (state: any, key: string | number) => {
   if (key === 'entries') {
     const ret = {};
     state.forEach((value: List<EteSync.Entry>, mapKey: string) => {
@@ -169,7 +169,7 @@ const cacheSerialize = (state: any, key: string) => {
   return state;
 };
 
-const cacheDeserialize = (state: any, key: string) => {
+const cacheDeserialize = (state: any, key: string | number) => {
   if (key === 'entries') {
     const ret = {};
     Object.keys(state).forEach((mapKey) => {
@@ -200,15 +200,15 @@ const cacheMigrations = {
   },
 };
 
-const cachePersistConfig: PersistConfig = {
+const cachePersistConfig = {
   key: 'cache',
   version: 1,
   storage: AsyncStorage,
-  transforms: [createTransform(cacheSerialize, cacheDeserialize)],
+  transforms: [createTransform(cacheSerialize, cacheDeserialize)] as any,
   migrate: createMigrate(cacheMigrations, { debug: false }),
 };
 
-const syncSerialize = (state: any, key: string) => {
+const syncSerialize = (state: any, key: string | number) => {
   if ((key === 'stateJournals') || (key === 'stateEntries')) {
     return state.toJS();
   }
@@ -216,7 +216,7 @@ const syncSerialize = (state: any, key: string) => {
   return state;
 };
 
-const syncDeserialize = (state: any, key: string) => {
+const syncDeserialize = (state: any, key: string | number) => {
   if (key === 'stateJournals') {
     return ImmutableMap(state);
   } else if (key === 'stateEntries') {
@@ -228,10 +228,10 @@ const syncDeserialize = (state: any, key: string) => {
   return state;
 };
 
-const syncPersistConfig: PersistConfig = {
+const syncPersistConfig = {
   key: 'sync',
   storage: AsyncStorage,
-  transforms: [createTransform(syncSerialize, syncDeserialize)],
+  transforms: [createTransform(syncSerialize, syncDeserialize)] as any,
 };
 
 const reducers = combineReducers({
