@@ -1,7 +1,7 @@
 import * as EteSync from 'etesync';
 import * as Contacts from 'expo-contacts';
 
-import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges } from '../EteSyncNative';
+import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges, getContainers } from '../EteSyncNative';
 
 import { logger } from '../logging';
 
@@ -54,7 +54,15 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     await super.init();
     const storeState = store.getState();
     if (storeState.permissions.get(this.collectionType)) {
-      this.containerId = storeState.settings.syncContactsContainer!;
+      const containers = await getContainers();
+      if (storeState.settings.syncContactsContainer) {
+        const foundContainer = containers.find((container) => container.id === storeState.settings.syncContactsContainer);
+        if (foundContainer) {
+          this.containerId = foundContainer.id;
+        } else {
+          throw new Error('AddressBook: failed to find selected container. Please contact developers.');
+        }
+      }
       this.canSync = !!this.containerId;
     }
 

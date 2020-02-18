@@ -30,6 +30,10 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
       } else {
         this.localSource = sources.find((source) => (source?.name?.toLowerCase() === ACCOUNT_NAME))!;
       }
+
+      if (storeState.settings.syncCalendarsSource && !this.localSource) {
+        throw new Error('Calendar: failed to find selected source. Please contact developers.');
+      }
       this.canSync = !!this.localSource;
     }
 
