@@ -210,6 +210,7 @@ function RightAction(props: { journalUid: string }) {
     <React.Fragment>
       <Appbar.Action
         icon="delete"
+        accessibilityLabel="Delete journal"
         onPress={() => {
           setConfirmationVisible(true);
         }}
