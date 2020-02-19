@@ -144,7 +144,11 @@ export default function JournalListScreen() {
             title={card.title}
             titleStyle={{ color: 'white' }}
             style={{ ...shadowStyle, backgroundColor: backgroundPrimary }}
-            left={(props) => <Avatar.Icon color="white" theme={{ colors: { primary: backgroundPrimary } }} {...props} icon={card.icon} />}
+            left={(props) => (
+              <View accessibilityElementsHidden>
+                <Avatar.Icon color="white" theme={{ colors: { primary: backgroundPrimary } }} {...props} icon={card.icon} />
+              </View>
+            )}
             right={() => (
               <JournalsMoreMenu journalType={card.lookup} />
             )}
