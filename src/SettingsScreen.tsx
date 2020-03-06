@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import * as React from 'react';
 import { Linking, TextInput as NativeTextInput } from 'react-native';
 import { List, Paragraph, HelperText, Switch, useTheme } from 'react-native-paper';

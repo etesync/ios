@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 declare module 'ical.js' {
   function parse(input: string): any[];
 

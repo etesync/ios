@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import createSecureStore from 'redux-persist-expo-securestore';
 import * as SecureStore from 'expo-secure-store';
 import { AsyncStorage } from 'react-native';

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import * as React from 'react';
 import { Keyboard } from 'react-native';
 import { Card, Portal, Modal, Button, ProgressBar, Paragraph, useTheme } from 'react-native-paper';

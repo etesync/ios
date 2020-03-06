@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import * as React from 'react';
 import { Action } from 'redux-actions';
 import { useDispatch, useSelector } from 'react-redux';

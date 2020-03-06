@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import { NativeModules } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { NativeContact, NativeEvent, NativeTask } from './sync/helpers';

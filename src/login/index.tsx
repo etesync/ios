@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import { shallowEqual, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import { Action, createAction } from 'redux-actions';
 import * as Permissions from 'expo-permissions';
 

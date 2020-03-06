@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import * as React from 'react';
 import { StatusBar } from 'react-native';
 import { DarkTheme, DefaultTheme, Provider as PaperProvider, Theme, Colors } from 'react-native-paper';

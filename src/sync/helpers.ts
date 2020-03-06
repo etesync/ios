@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import * as Calendar from 'expo-calendar';
 import * as Contacts from 'expo-contacts';
 import * as ICAL from 'ical.js';

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: © 2019 EteSync Authors
+// SPDX-License-Identifier: GPL-3.0-only
+
 // Based on: https://github.com/acdlite/redux-promise/blob/master/src/index.js
 
 function isPromise(val: any): val is Promise<any> {
