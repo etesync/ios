@@ -75,11 +75,18 @@ function EncryptionPart() {
   const [loading, error, setPromise] = useLoading();
 
   React.useEffect(() => {
-    // FIXME: verify the error is a 404
-    store.dispatch<any>(fetchUserInfo(credentials, credentials.credentials.email)).then((fetchedUserInfo: Action<EteSync.UserInfo>) => {
-      setUserInfo(fetchedUserInfo.payload);
-    }).finally(() => {
-      setFetched(true);
+    setPromise(async () => {
+      try {
+        const fetchedUserInfo = fetchUserInfo(credentials, credentials.credentials.email);
+        store.dispatch(fetchedUserInfo);
+        setUserInfo(await fetchedUserInfo.payload);
+      } catch (e) {
+        if (!(e instanceof EteSync.HTTPError && (e.status === 404))) {
+          throw e;
+        }
+      } finally {
+        setFetched(true);
+      }
     });
   }, [credentials]);
 

@@ -210,8 +210,7 @@ function RightAction(props: { journalUid: string }) {
               setPublicKey(ret);
             } catch (e) {
               let message = e.toString();
-              // FIXME: Hack for handling user not found. Needs to be fixed in the library.
-              if (e instanceof EteSync.HTTPError && message.includes(': Not found')) {
+              if (e instanceof EteSync.HTTPError && (e.status === 404)) {
                 message = 'User not found. Have they setup their encryption password from one of the apps?';
               }
               setErrorUsername(message);
