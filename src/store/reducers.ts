@@ -49,6 +49,11 @@ export type SyncInfoItem = EteSync.SyncEntry & BaseModel;
 export type SyncInfoItemData = ImmutableMap<string, ImmutableMap<string, SyncInfoItem>>;
 export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo>;
 
+export interface ErrorsData {
+  fatal: List<Error>;
+  other: List<Error>;
+}
+
 
 export const legacyEncryptionKeyReducer = handleActions(
   {
@@ -389,21 +394,45 @@ export const fetchCount = handleAction(
 
 export const errorsReducer = handleActions(
   {
-    [combineActions(actions.performSync).toString()]: (state: List<Error>, action: Action<any>) => {
+    [actions.performSync.toString()]: (state: ErrorsData, action: Action<any>) => {
       if (action.error) {
-        return state.push(action.payload);
+        return {
+          ...state,
+          fatal: state.fatal.push(action.payload),
+        };
       }
 
       return state;
     },
-    [actions.clearErros.toString()]: (state: List<Error>, _action: Action<any>) => {
-      return state.clear();
+    [actions.addNonFatalError.toString()]: (state: ErrorsData, action: Action<Error>) => {
+      return {
+        ...state,
+        other: state.other.push(action.payload),
+      };
     },
-    [actions.logout.toString()]: (state: List<Error>, _action: any) => {
-      return state.clear();
+    [actions.popNonFatalError.toString()]: (state: ErrorsData, _action: Action<any>) => {
+      return {
+        ...state,
+        other: state.other.pop(),
+      };
+    },
+    [actions.clearErros.toString()]: (state: ErrorsData, _action: Action<any>) => {
+      return {
+        fatal: state.fatal.clear(),
+        other: state.other.clear(),
+      };
+    },
+    [actions.logout.toString()]: (state: ErrorsData, _action: any) => {
+      return {
+        fatal: state.fatal.clear(),
+        other: state.other.clear(),
+      };
     },
   },
-  List([])
+  {
+    fatal: List<Error>([]),
+    other: List<Error>([]),
+  }
 );
 
 export interface ConnectionInfo {

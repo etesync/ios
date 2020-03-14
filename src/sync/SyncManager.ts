@@ -15,7 +15,7 @@ const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from '../SyncHandler';
 import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote } from '../store';
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo } from '../store/actions';
+import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError } from '../store/actions';
 
 import { logger } from '../logging';
 
@@ -162,6 +162,13 @@ export class SyncManager {
       if (e instanceof EteSync.NetworkError) {
         // Ignore network errors
         return false;
+      } else if (e instanceof EteSync.HTTPError) {
+        switch (e.status) {
+          case 403: // FORBIDDEN
+          case 503: // UNAVAILABLE
+            store.dispatch(addNonFatalError(this.etesync, e));
+            return false;
+        }
       }
       throw e;
     } finally {

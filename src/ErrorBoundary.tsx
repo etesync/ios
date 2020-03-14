@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { View, Linking, Clipboard } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Text, Paragraph } from 'react-native-paper';
 
 import { Updates } from 'expo';
 
@@ -16,9 +16,10 @@ import { logger, LogLevel, getLogs } from './logging';
 import Container from './widgets/Container';
 import { expo } from '../app.json';
 import * as C from './constants';
-import { setSettings } from './store/actions';
+import { setSettings, popNonFatalError } from './store/actions';
 import LogoutDialog from './LogoutDialog';
 import { useCredentials } from './login';
+import ConfirmationDialog from './widgets/ConfirmationDialog';
 
 function emailDevelopers(error: Error, logs: string | undefined) {
   const subject = encodeURIComponent('EteSync iOS: Crash Report');
@@ -38,7 +39,8 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
   const etesync = useCredentials();
   const [showLogout, setShowLogout] = React.useState(false);
   const errors = useSelector((state: StoreState) => state.errors);
-  const error = props.error ?? errors.first(null);
+  const error = props.error ?? errors.fatal?.last(undefined);
+  const nonFatalError = errors.other?.last(undefined);
   const [logs, setLogs] = React.useState<string>();
 
   React.useEffect(() => {
@@ -76,7 +78,21 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
       </ScrollView>
     );
   }
-  return <>{props.children}</>;
+  return <>
+    {props.children}
+
+    <ConfirmationDialog
+      title="Error"
+      visible={!!nonFatalError}
+      onOk={() => {
+        store.dispatch(popNonFatalError(etesync!));
+      }}
+    >
+      <Paragraph>
+        {nonFatalError?.toString()}
+      </Paragraph>
+    </ConfirmationDialog>
+  </>;
 }
 
 interface PropsType {

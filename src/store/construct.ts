@@ -15,7 +15,7 @@ import * as EteSync from 'etesync';
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
-  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer, legacyCredentials, legacyEncryptionKeyReducer,
+  fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer, legacyCredentials, legacyEncryptionKeyReducer, ErrorsData,
 } from './reducers';
 
 export interface StoreState {
@@ -40,7 +40,7 @@ export interface StoreState {
   };
   connection: NetInfoStateType | null;
   permissions: ImmutableMap<string, boolean>;
-  errors: List<Error>;
+  errors: ErrorsData;
 
   // Legacy
   legacyCredentials: CredentialsDataRemote;

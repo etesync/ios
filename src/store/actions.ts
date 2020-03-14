@@ -300,6 +300,20 @@ export const setSyncStatus = createAction(
   }
 );
 
+export const addNonFatalError = createAction(
+  'ADD_NON_FATAL_ERROR',
+  (_etesync: CredentialsData, e: Error) => {
+    return e;
+  }
+);
+
+export const popNonFatalError = createAction(
+  'POP_NON_FATAL_ERROR',
+  (_etesync: CredentialsData) => {
+    return null;
+  }
+);
+
 export const clearErros = createAction(
   'CLEAR_ERRORS',
   (_etesync: CredentialsData) => {
