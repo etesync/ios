@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { View, Linking, Clipboard } from 'react-native';
-import { Button, Text, Paragraph } from 'react-native-paper';
+import { Button, Text, Paragraph, HelperText } from 'react-native-paper';
 
 import { Updates } from 'expo';
+
+import * as EteSync from 'etesync';
 
 import { StoreState, persistor, store } from './store';
 
@@ -16,10 +18,12 @@ import { logger, LogLevel, getLogs } from './logging';
 import Container from './widgets/Container';
 import { expo } from '../app.json';
 import * as C from './constants';
-import { setSettings, popNonFatalError } from './store/actions';
+import { setSettings, popNonFatalError, fetchCredentials } from './store/actions';
 import LogoutDialog from './LogoutDialog';
 import { useCredentials } from './login';
 import ConfirmationDialog from './widgets/ConfirmationDialog';
+import PasswordInput from './widgets/PasswordInput';
+import ExternalLink from './widgets/ExternalLink';
 
 function emailDevelopers(error: Error, logs: string | undefined) {
   const subject = encodeURIComponent('EteSync iOS: Crash Report');
@@ -33,6 +37,67 @@ function emailDevelopers(error: Error, logs: string | undefined) {
   };
   const body = encodeURIComponent(JSON.stringify(bodyJson));
   Linking.openURL(`mailto:${C.reportsEmail}?subject=${subject}&body=${body}`);
+}
+
+function SessionExpiredDialog() {
+  const etesync = useCredentials()!;
+  const dispatch = useDispatch();
+  const [password, setPassword] = React.useState('');
+  const [errorPassword, setErrorPassword] = React.useState<string>();
+
+  return (
+    <ConfirmationDialog
+      title="Session expired"
+      visible
+      onOk={async () => {
+        if (!password) {
+          setErrorPassword('Password is required');
+          return;
+        }
+
+        const credAction = fetchCredentials(etesync.credentials.email, password, etesync.serviceApiUrl);
+
+        try {
+          await credAction.payload;
+
+          dispatch(credAction);
+
+          store.dispatch(popNonFatalError(etesync!));
+        } catch (e) {
+          setErrorPassword(e.message);
+        }
+      }}
+      onCancel={() => {
+        store.dispatch(popNonFatalError(etesync!));
+      }}
+    >
+      <>
+        <Paragraph>
+          Your login session has expired, please entry your login password:
+        </Paragraph>
+        <PasswordInput
+          error={!!errorPassword}
+          label="Password"
+          accessibilityLabel="Password"
+          value={password}
+          onChangeText={setPassword}
+        />
+        <HelperText
+          type="error"
+          visible={!!errorPassword}
+        >
+          {errorPassword}
+        </HelperText>
+        {!C.genericMode && (
+          <>
+            <ExternalLink href={C.forgotPassword}>
+              <Text>Forget password?</Text>
+            </ExternalLink>
+          </>
+        )}
+      </>
+    </ConfirmationDialog>
+  );
 }
 
 function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | undefined }>) {
@@ -78,20 +143,34 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
       </ScrollView>
     );
   }
+
+  let nonFatalErrorDialog;
+  if (nonFatalError) {
+    if ((nonFatalError instanceof EteSync.HTTPError) && (nonFatalError.status === 401)) {
+      nonFatalErrorDialog = (
+        <SessionExpiredDialog />
+      );
+    } else {
+      nonFatalErrorDialog = (
+        <ConfirmationDialog
+          title="Error"
+          visible={!!nonFatalError}
+          onOk={() => {
+            store.dispatch(popNonFatalError(etesync!));
+          }}
+        >
+          <Paragraph>
+            {nonFatalError?.toString()}
+          </Paragraph>
+        </ConfirmationDialog>
+      );
+    }
+  }
+
   return <>
     {props.children}
 
-    <ConfirmationDialog
-      title="Error"
-      visible={!!nonFatalError}
-      onOk={() => {
-        store.dispatch(popNonFatalError(etesync!));
-      }}
-    >
-      <Paragraph>
-        {nonFatalError?.toString()}
-      </Paragraph>
-    </ConfirmationDialog>
+    {nonFatalErrorDialog}
   </>;
 }
 
