@@ -105,6 +105,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
   const [showLogout, setShowLogout] = React.useState(false);
   const errors = useSelector((state: StoreState) => state.errors);
   const error = props.error ?? errors.fatal?.last(undefined);
+  const nonFatalErrorCount = errors.other?.count() ?? 0;
   const nonFatalError = errors.other?.last(undefined);
   const [logs, setLogs] = React.useState<string>();
 
@@ -153,7 +154,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
     } else {
       nonFatalErrorDialog = (
         <ConfirmationDialog
-          title="Error"
+          title={`Error (${nonFatalErrorCount} remaining)`}
           visible={!!nonFatalError}
           onOk={() => {
             store.dispatch(popNonFatalError(etesync!));
