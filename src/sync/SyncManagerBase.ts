@@ -8,7 +8,7 @@ import { logger } from '../logging';
 
 import { PimType } from '../pim-types';
 import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus } from '../store/actions';
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError } from '../store/actions';
 import { NativeBase, entryNativeHashCalc } from './helpers';
 import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
 import { arrayToChunkIterator } from '../helpers';
@@ -242,7 +242,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             syncEntries.push(syncEntry);
           } catch (e) {
             logger.warn(`Failed processing: ${syncEntry.content}`);
-            throw e;
+            store.dispatch(addNonFatalError(etesync, e));
           }
 
           try {
