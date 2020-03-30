@@ -23,6 +23,7 @@ class EteSyncNative: NSObject {
             }
             
             var fetchedItems = Dictionary<String, EKEvent>()
+            var failedFetches = Dictionary<String, String>()
             var fetchItemIds: [String] = []
             
             for change in changes {
@@ -39,12 +40,11 @@ class EteSyncNative: NSObject {
                 if let event = store.calendarItem(withIdentifier: eventId) {
                     fetchedItems[event.calendarItemIdentifier] = (event as! EKEvent)
                 } else {
-                    reject("failed_fetching_event", String(format: "Failed fetching event with id %@", eventId), nil)
-                    return
+                    failedFetches[eventId] = "Failed fetching"
                 }
             }
             
-            var addChangeEvents: [EKEvent] = []
+            var addChangeItems: [EKEvent] = []
             var localIdToUid = Dictionary<String, String>()
             var ret = Dictionary<String, [String]>()
 
@@ -58,17 +58,23 @@ class EteSyncNative: NSObject {
                     // We already rejected if we got here
                     return
                 }
+                
+                if (failedFetches[identifier] != nil) {
+                    localIdToUid[identifier] = item["uid"] as? String
+                    continue
+                }
+
                 event.calendar = calendar
                 localIdToUid[event.calendarItemIdentifier] = item["uid"] as? String
-                
+
                 do {
                     switch (action) {
                     case ActionAdd:
                         try store.save(event, span: .futureEvents, commit: false)
-                        addChangeEvents.append(event)
+                        addChangeItems.append(event)
                     case ActionChange:
                         try store.save(event, span: .futureEvents, commit: false)
-                        addChangeEvents.append(event)
+                        addChangeItems.append(event)
                     case ActionDelete:
                         try store.remove(event, span: .futureEvents, commit: false)
                     default:
@@ -88,10 +94,18 @@ class EteSyncNative: NSObject {
                 return
             }
             
-            for event in addChangeEvents {
+            for event in addChangeItems {
                 ret[localIdToUid[event.calendarItemIdentifier]!] = [
                     event.calendarItemIdentifier,
                     etesync.hashEvent(event: event)
+                ]
+            }
+
+            for failed in failedFetches {
+                ret[localIdToUid[failed.key]!] = [
+                    failed.key,
+                    "",
+                    failed.value,
                 ]
             }
             
@@ -161,6 +175,7 @@ class EteSyncNative: NSObject {
             }
             
             var fetchedItems = Dictionary<String, EKReminder>()
+            var failedFetches = Dictionary<String, String>()
             var fetchItemIds: [String] = []
             
             for change in changes {
@@ -177,8 +192,7 @@ class EteSyncNative: NSObject {
                 if let event = store.calendarItem(withIdentifier: eventId) {
                     fetchedItems[event.calendarItemIdentifier] = (event as! EKReminder)
                 } else {
-                    reject("failed_fetching_event", String(format: "Failed fetching event with id %@", eventId), nil)
-                    return
+                    failedFetches[eventId] = "Failed fetching"
                 }
             }
             
@@ -196,6 +210,12 @@ class EteSyncNative: NSObject {
                     // We already rejected if we got here
                     return
                 }
+                
+                if (failedFetches[identifier] != nil) {
+                    localIdToUid[identifier] = item["uid"] as? String
+                    continue
+                }
+                
                 reminder.calendar = calendar
                 localIdToUid[reminder.calendarItemIdentifier] = item["uid"] as? String
                 
@@ -233,6 +253,14 @@ class EteSyncNative: NSObject {
                 ]
             }
             
+            for failed in failedFetches {
+                ret[localIdToUid[failed.key]!] = [
+                    failed.key,
+                    "",
+                    failed.value,
+                ]
+            }
+
             resolve(ret)
         }
     }

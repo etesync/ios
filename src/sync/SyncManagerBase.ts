@@ -252,24 +252,24 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
               for (const [action, nativeItem] of batch) {
                 // FIXME: do this all at once
                 const hash = hashes[nativeItem.uid];
+                const error = hash?.[2];
+                if (error) {
+                  store.dispatch(addNonFatalError(etesync, new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+                }
                 const syncStateEntry: SyncStateEntry = {
                   uid: nativeItem.uid,
                   localId: hash?.[0],
                   lastHash: hash?.[1],
                 };
-                switch (action) {
-                  case BatchAction.Add:
-                  case BatchAction.Change: {
-                    journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
-                    store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
-                    break;
-                  }
-                  case BatchAction.Delete: {
-                    if (syncStateEntry) {
-                      journalSyncEntries.delete(syncStateEntry.uid);
-                      store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
-                    }
-                    break;
+
+                if (!error && ((action === BatchAction.Add) || (action === BatchAction.Change))) {
+                  journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+                  store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
+                } else {
+                  // We want to delete our entries if there's an error (or if the action is delete anyway)
+                  if (syncStateEntry) {
+                    journalSyncEntries.delete(syncStateEntry.uid);
+                    store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
                   }
                 }
               }

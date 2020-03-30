@@ -5,7 +5,7 @@ import { NativeModules } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { NativeContact, NativeEvent, NativeTask } from './sync/helpers';
 
-export type HashesForItem = [string, string];
+export type HashesForItem = [string, string, string | undefined];
 
 export type HashDictionary = { [key: string]: HashesForItem };
 
