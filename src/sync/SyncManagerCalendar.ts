@@ -144,9 +144,15 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           // Skip
         }
 
-        // FIXME: handle the case of the event still existing for some reason.
-        if (!existingEvent) {
-          // If the event still exists it means it's not deleted.
+        let shouldDelete = !existingEvent;
+        if (existingEvent) {
+          // FIXME: handle the case of the event still existing and on the same calendar. Probably means we are just not in the range.
+          if (existingEvent.calendarId !== localId) {
+            shouldDelete = true;
+          }
+        }
+
+        if (shouldDelete) {
           const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (pushEntry) {
             pushEntries.push(pushEntry);

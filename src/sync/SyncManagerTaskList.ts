@@ -71,8 +71,15 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
           // Skip
         }
 
-        // FIXME: handle the case of the reminder still existing for some reason.
-        if (!existingReminder) {
+        let shouldDelete = !existingReminder;
+        if (existingReminder) {
+          // FIXME: handle the case of the event still existing and on the same calendar. Probably means we are just not in the range.
+          if (existingReminder.calendarId !== localId) {
+            shouldDelete = true;
+          }
+        }
+
+        if (shouldDelete) {
           // If the reminder still exists it means it's not deleted.
           const syncEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (syncEntry) {
