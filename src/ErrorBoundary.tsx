@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { View, Linking, Clipboard } from 'react-native';
 import { Button, Text, Paragraph, HelperText } from 'react-native-paper';
 
-import { Updates } from 'expo';
+import * as Updates from 'expo-updates';
 
 import * as EteSync from 'etesync';
 
@@ -124,11 +124,11 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
           <View style={{ marginVertical: 15, flexDirection: 'row', justifyContent: 'space-evenly', flexWrap: 'wrap' }}>
             <Button mode="contained" style={buttonStyle} onPress={() => emailDevelopers(error, logs)}>Report Bug</Button>
             <Button mode="contained" style={buttonStyle} onPress={() => Clipboard.setString(content)}>Copy Text</Button>
-            <Button mode="contained" style={buttonStyle} onPress={() => Updates.reloadFromCache()}>Reload App</Button>
+            <Button mode="contained" style={buttonStyle} onPress={() => Updates.reloadAsync()}>Reload App</Button>
             <Button mode="contained" style={buttonStyle} onPress={async () => {
               store.dispatch(setSettings({ logLevel: LogLevel.Debug }));
               persistor.persist();
-              Updates.reloadFromCache();
+              Updates.reloadAsync();
             }}>Enable Logging &amp; Reload</Button>
             <Button disabled={!etesync} mode="contained" style={buttonStyle} onPress={() => setShowLogout(true)}>Logout &amp; Reload</Button>
           </View>
@@ -136,7 +136,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
         </Container>
         <LogoutDialog visible={showLogout} onDismiss={(loggedOut) => {
           if (loggedOut) {
-            Updates.reloadFromCache();
+            Updates.reloadAsync();
           }
           setShowLogout(false);
         }}
