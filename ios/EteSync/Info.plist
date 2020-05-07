@@ -57,7 +57,7 @@
     <key>NSCameraUsageDescription</key>
     <string>Allow EteSync to use the camera</string>
     <key>NSContactsUsageDescription</key>
-    <string>Access to your contacts is needed in order to load and save EteSync contacts.</string>
+	<string>Access to your contacts is needed in order to load and save EteSync contacts (including notes).</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>Allow EteSync to use your location</string>
     <key>NSLocationAlwaysUsageDescription</key>
@@ -91,5 +91,7 @@
     <string>Automatic</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
   </dict>
 </plist>

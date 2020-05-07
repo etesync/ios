@@ -25,7 +25,7 @@
       "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
-        "NSContactsUsageDescription": "Access to your contacts is needed in order to load and save EteSync contacts.",
+        "NSContactsUsageDescription": "Access to your contacts is needed in order to load and save EteSync contacts (including notes).",
         "NSCalendarsUsageDescription": "Access to your calendars is needed in order to load and save EteSync calendars.",
         "NSRemindersUsageDescription": "Access to your reminders is needed in order to load and save EteSync reminders.",
         "UIBackgroundModes": [
