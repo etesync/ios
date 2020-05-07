@@ -4,7 +4,6 @@
     "description": "Secure, end-to-end encrypted, and privacy respecting sync for your contacts, calendars and tasks.",
     "slug": "etesync-ios",
     "privacy": "public",
-    "sdkVersion": "36.0.0",
     "platforms": [
       "ios"
     ],
