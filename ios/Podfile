@@ -37,6 +37,10 @@ target 'EteSync' do
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
 
   # Other native modules
+  use_frameworks!
+
+  pod 'react-native-rsa-native', :path => '../node_modules/react-native-rsa-native'
+  pod 'MessagePack.swift', '~> 3.0'
 
   # Automatically detect installed unimodules
   use_unimodules!
