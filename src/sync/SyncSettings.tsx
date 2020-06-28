@@ -10,6 +10,8 @@ import { getContainers } from '../EteSyncNative';
 import { useDispatch, useSelector } from 'react-redux';
 import { List, Button, Paragraph, useTheme } from 'react-native-paper';
 
+import { logger } from '../logging';
+
 import { StoreState, CredentialsData } from '../store';
 import { setSettings } from '../store/actions';
 import ConfirmationDialog from '../widgets/ConfirmationDialog';
@@ -101,6 +103,10 @@ function SelectSource<T extends Calendar.Source | Contacts.Container>(props: Sel
   );
 }
 
+function logResourceList(resources: (Calendar.Source | Contacts.Container)[]) {
+  logger.debug(resources.map((x) => `${x.type}: ${x.name} (${x.id})`).join(', '));
+}
+
 export default function SyncSettings() {
   const dispatch = useDispatch();
   const settings = useSelector((state: StoreState) => state.settings);
@@ -113,11 +119,15 @@ export default function SyncSettings() {
 
   React.useEffect(() => {
     getContainers().then((containers) => {
-      setAvailableContainers(containers.filter((container) => container.type !== Contacts.ContainerTypes.Unassigned));
+      const allowedContainers = containers.filter((container) => container.type !== Contacts.ContainerTypes.Unassigned);
+      logResourceList(allowedContainers);
+      setAvailableContainers(allowedContainers);
     });
     Calendar.getSourcesAsync().then((sources) => {
       const allowedTypes = [Calendar.SourceType.LOCAL, Calendar.SourceType.CALDAV, Calendar.SourceType.EXCHANGE];
-      setAvailableSources(sources.filter((source) => allowedTypes.includes(source.type)));
+      const allowedSources = sources.filter((source) => allowedTypes.includes(source.type));
+      logResourceList(allowedSources);
+      setAvailableSources(allowedSources);
     });
   }, []);
 
