@@ -76,19 +76,19 @@ export async function clearLogs() {
 const logHandler = (__DEV__) ? logPrint : logToBuffer;
 
 class Logger {
-  public debug(message: any) {
+  public debug(message: string) {
     logHandler(LogLevel.Debug, message);
   }
 
-  public info(message: any) {
+  public info(message: string) {
     logHandler(LogLevel.Info, message);
   }
 
-  public warn(message: any) {
+  public warn(message: string) {
     logHandler(LogLevel.Warning, message);
   }
 
-  public critical(message: any) {
+  public critical(message: string) {
     logHandler(LogLevel.Critical, message);
   }
 }

@@ -115,7 +115,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
 
   const buttonStyle = { marginVertical: 5 };
   if (error) {
-    logger.critical(error);
+    logger.critical(error.toString());
     const content = `${error.message}\n${error.stack}\n${logs}`;
     return (
       <ScrollView>
