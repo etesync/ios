@@ -30,6 +30,8 @@ declare module 'ical.js' {
 
     public addProperty(property: Property): Property;
     public addPropertyWithValue(name: string, value: string | number | object): Property;
+    
+    public hasProperty(name?: string): boolean;
 
     public updatePropertyWithValue(name: string, value: string | number | object): Property;
 
