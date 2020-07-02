@@ -120,10 +120,19 @@ declare module 'ical.js' {
   }
 
   export class RecurExpansion {
-    public complete: boolean;
-
-    public next(): Time;
-  }
+        public complete: boolean;
+        public dtstart: Time;
+        public last: Time;
+        public next(): Time;
+        public fromData(options);
+        public toJSON();
+        constructor(options: {
+            /** Start time of the event */
+            dtstart: Time;
+            /** Component for expansion, required if not resuming. */
+            component?: Component;
+        })
+    }
 
   export class Timezone {
     static public utcTimezone: Timezone;
