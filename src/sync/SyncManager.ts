@@ -95,11 +95,26 @@ export class SyncManager {
 
     const haveJournals = await store.dispatch<any>(fetchAll(etesync, entries));
     if (!haveJournals) {
-      for (const collectionType of ['ADDRESS_BOOK', 'CALENDAR', 'TASKS']) {
+      const collectionDescs = [
+        {
+          type: 'ADDRESS_BOOK',
+          name: 'My Contacts',
+        },
+        {
+          type: 'CALENDAR',
+          name: 'My Calendar',
+        },
+        {
+          type: 'TASKS',
+          name: 'My Tasks',
+        },
+      ];
+
+      for (const collectionDesc of collectionDescs) {
         const collection = new EteSync.CollectionInfo();
         collection.uid = EteSync.genUid();
-        collection.type = collectionType;
-        collection.displayName = 'Default';
+        collection.type = collectionDesc.type;
+        collection.displayName = collectionDesc.name;
 
         const journal = new EteSync.Journal({ uid: collection.uid });
         const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
