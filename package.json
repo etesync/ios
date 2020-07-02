@@ -6,7 +6,7 @@
     "ios": "expo start --ios",
     "test": "jest --watch",
     "check-types": "tsc",
-    "lint": "eslint --ext js,jsx,ts,tsx --ignore-pattern '*.d.ts' src",
+    "lint": "eslint --ext js,jsx,ts,tsx src",
     "eject": "expo eject"
   },
   "dependencies": {
