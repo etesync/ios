@@ -115,6 +115,7 @@ declare module 'ical.js' {
     public toUnixTime(): number;
     public toJSDate(): Date;
     public toJSON(): TimeJsonData;
+    public get icaltype(): 'date' | 'date-time'; 
   }
 
   export class Duration {
