@@ -86,7 +86,6 @@ declare module 'ical.js' {
     static public fromString(str: string): Time;
     static public fromJSDate(aDate: Date | null, useUTC: boolean): Time;
     static public fromData(aData: TimeJsonData): Time;
-    public get icaltype(): 'date' | 'date-time'; 
 
     static public now(): Time;
 
@@ -116,6 +115,7 @@ declare module 'ical.js' {
     public toUnixTime(): number;
     public toJSDate(): Date;
     public toJSON(): TimeJsonData;
+    public get icaltype(): 'date' | 'date-time'; 
   }
 
   export class Duration {
