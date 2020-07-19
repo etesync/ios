@@ -149,7 +149,7 @@ export default function SyncSettings() {
         }}
       />
       <SelectSource<Calendar.Source>
-        title="Sync Calendars"
+        title="Sync Calendars & Reminders"
         options={availableSources ?? []}
         currentSource={currentSource}
         onChange={(source) => {
