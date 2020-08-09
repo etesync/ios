@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/es/integration/react";
 import App from "./App";
 
+import "react-native-etebase";
 import { store, persistor } from "./store";
 
 class Index extends React.Component {

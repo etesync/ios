@@ -26,6 +26,8 @@ target 'etesync' do
  use_react_native!
 
   pod 'react-native-rsa-native', :path => '../node_modules/react-native-rsa-native'
+  pod 'react-native-sodium', :path => '../node_modules/react-native-sodium'
+  pod 'react-native-get-random-values', :path => '../node_modules/react-native-get-random-values'
   pod 'MessagePack.swift', '~> 3.0'
 
   post_install do |installer|

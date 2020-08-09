@@ -1099,6 +1099,11 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
+"@msgpack/msgpack@^1.12.2":
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/@msgpack/msgpack/-/msgpack-1.12.2.tgz#6a22e99a49b131a8789053d0b0903834552da36f"
+  integrity sha512-Vwhc3ObxmDZmA5hY8mfsau2rJ4vGPvzbj20QSZ2/E1GDPF61QVyjLfNHak9xmel6pW4heRt3v1fHa6np9Ehfeg==
+
 "@react-native-community/cli-debugger-ui@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-3.0.0.tgz#d01d08d1e5ddc1633d82c7d84d48fff07bd39416"
@@ -2530,6 +2535,11 @@ cross-spawn@^6.0.0, cross-spawn@^6.0.5:
     buffer "^5.4.3"
     expo-random "^7.0.0"
 
+"crypto@npm:leftpad":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/leftpad/-/leftpad-0.0.1.tgz#86b1a4de4face180ac545a83f1503523d8fed115"
+  integrity sha1-hrGk3k+s4YCsVFqD8VA1I9j+0RU=
+
 css-color-keywords@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/css-color-keywords/-/css-color-keywords-1.0.0.tgz#fea2616dc676b2962686b3af8dbdbe180b244e05"
@@ -2990,6 +3000,16 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
+etebase@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/etebase/-/etebase-0.11.0.tgz#082e6785167957723419c8eac59372b70953a921"
+  integrity sha512-VZwYf/i9yy89TEm2vR2dREukVcfrLmnRPS6xo5WmOTZHqBXxxMfjXtIKbH9B4xpqT5khzHmKQW6y9qFCxmWzgg==
+  dependencies:
+    "@msgpack/msgpack" "^1.12.2"
+    libsodium-wrappers "0.7.6"
+    node-fetch "^2.6.0"
+    urijs "^1.19.1"
+
 etesync@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/etesync/-/etesync-0.3.1.tgz#2af257d5617679177d93fb8f6bdaf64462aa15e0"
@@ -3325,6 +3345,11 @@ fancy-log@^1.3.2:
     parse-node-version "^1.0.0"
     time-stamp "^1.0.0"
 
+fast-base64-decode@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/fast-base64-decode/-/fast-base64-decode-1.0.0.tgz#b434a0dd7d92b12b43f26819300d2dafb83ee418"
+  integrity sha512-qwaScUgUGBYeDNRnbc/KyllVU88Jk1pRHPStuF/lO7B0/RTRLj7U0lkdTAutlBblY08rwZDff6tNU9cjv6j//Q==
+
 fast-deep-equal@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.1.tgz#545145077c501491e33b15ec408c294376e94ae4"
@@ -3562,6 +3587,11 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
+
+fs@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://registry.yarnpkg.com/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
+  integrity sha1-invTcYa23d84E/I4WLV+yq9eQdQ=
 
 fsevents@^1.2.7:
   version "1.2.11"
@@ -3867,6 +3897,11 @@ inherits@2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.1.tgz#b17d08d326b4423e568eff719f91b0b1cbdf69f1"
   integrity sha1-sX0I0ya0Qj5Wjv9xn5GwscvfafE=
+
+inherits@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
+  integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
 inquirer@^3.0.6:
   version "3.3.0"
@@ -4825,6 +4860,18 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+libsodium-wrappers@0.7.6:
+  version "0.7.6"
+  resolved "https://registry.yarnpkg.com/libsodium-wrappers/-/libsodium-wrappers-0.7.6.tgz#baed4c16d4bf9610104875ad8a8e164d259d48fb"
+  integrity sha512-OUO2CWW5bHdLr6hkKLHIKI4raEkZrf3QHkhXsJ1yCh6MZ3JDA7jFD3kCATNquuGSG6MjjPHQIQms0y0gBDzjQg==
+  dependencies:
+    libsodium "0.7.6"
+
+libsodium@0.7.6:
+  version "0.7.6"
+  resolved "https://registry.yarnpkg.com/libsodium/-/libsodium-0.7.6.tgz#018b80c5728054817845fbffa554274441bda277"
+  integrity sha512-hPb/04sEuLcTRdWDtd+xH3RXBihpmbPCsKW/Jtf4PsvdyKh+D6z2D2gvp/5BfoxseP+0FCOg66kE+0oGUE/loQ==
+
 license-checker@^25.0.1:
   version "25.0.1"
   resolved "https://registry.yarnpkg.com/license-checker/-/license-checker-25.0.1.tgz#4d14504478a5240a857bb3c21cd0491a00d761fa"
@@ -5487,7 +5534,7 @@ node-fetch@^1.0.1:
     encoding "^0.1.11"
     is-stream "^1.0.1"
 
-node-fetch@^2.2.0, node-fetch@^2.5.0:
+node-fetch@^2.2.0, node-fetch@^2.5.0, node-fetch@^2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
   integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
@@ -5943,6 +5990,14 @@ path-type@^3.0.0:
   dependencies:
     pify "^3.0.0"
 
+path@^0.12.7:
+  version "0.12.7"
+  resolved "https://registry.yarnpkg.com/path/-/path-0.12.7.tgz#d4dc2a506c4ce2197eb481ebfcd5b36c0140b10f"
+  integrity sha1-1NwqUGxM4hl+tIHr/NWzbAFAsQ8=
+  dependencies:
+    process "^0.11.1"
+    util "^0.10.3"
+
 performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
@@ -6057,7 +6112,7 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
-process@^0.11.10:
+process@^0.11.1, process@^0.11.10:
   version "0.11.10"
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha1-czIwDoQBYb2j5podHZGn1LwW8YI=
@@ -6170,6 +6225,15 @@ react-native-appearance@~0.3.1:
     invariant "^2.2.4"
     use-subscription "^1.0.0"
 
+react-native-etebase@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/react-native-etebase/-/react-native-etebase-0.1.5.tgz#0f19f03968f46caf1aafc317e7a24e5ab8718e16"
+  integrity sha512-tEfozDs3a2RtNy0cJhoYugkMj8OlkgpP/JaemO2fwStl4tWz6r2OXTZf8MWmDD+hKpmwIGhhe0fkx0zZdQwpUA==
+  dependencies:
+    crypto "npm:leftpad"
+    fs "^0.0.1-security"
+    path "^0.12.7"
+
 react-native-fit-image@^1.5.5:
   version "1.5.5"
   resolved "https://registry.yarnpkg.com/react-native-fit-image/-/react-native-fit-image-1.5.5.tgz#c660d1ad74b9dcaa1cba27a0d9c23837e000226c"
@@ -6186,6 +6250,13 @@ react-native-gesture-handler@^1.6.0:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.4"
     prop-types "^15.7.2"
+
+react-native-get-random-values@1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-get-random-values/-/react-native-get-random-values-1.4.0.tgz#1234d4dde6b56b2fab0eaa7dc1719e2f8c32c336"
+  integrity sha512-NnmEZcC5zfz+QEytFPM/fw818Hodw/BNbv7jGxU4pla4K2K9DCzG83IReMJqQ2wo552AYKguqrBG2SSn/U6rbA==
+  dependencies:
+    fast-base64-decode "^1.0.0"
 
 react-native-iphone-x-helper@^1.0.3, react-native-iphone-x-helper@^1.2.1:
   version "1.2.1"
@@ -6247,6 +6318,11 @@ react-native-screens@^2.0.0-beta.4:
   integrity sha512-wrbhTSNVcgdNcdby3h4CzrYKAA3bf/86UR2vEUIcp8gydzVxi2FQiopBavIrcwFJ9PvwXrERB5rF0VYUkzHpIw==
   dependencies:
     debounce "^1.2.0"
+
+react-native-sodium@^0.3.8:
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/react-native-sodium/-/react-native-sodium-0.3.8.tgz#ccb86a67d2cd6856be227ed962ffc019b32e7642"
+  integrity sha512-G+ZrNUr8yWPOGYSzM+Gc+5wKeLcQBlN7SrFjt9JzbeuNM+cEJlj4ntdoaMe43cciWVPr4yQIpFOu2Qapnk5HRQ==
 
 react-native-unimodules@^0.7.0:
   version "0.7.0"
@@ -7775,6 +7851,13 @@ util@0.10.3:
   integrity sha1-evsa/lCAUkZInj23/g7TeTNqwPk=
   dependencies:
     inherits "2.0.1"
+
+util@^0.10.3:
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/util/-/util-0.10.4.tgz#3aa0125bfe668a4672de58857d3ace27ecb76901"
+  integrity sha512-0Pm9hTQ3se5ll1XihRic3FDIku70C+iHUdT/W926rSgHV5QgXsYbKZN8MSC3tJtSkhuROzvsQjAaFENRXr+19A==
+  dependencies:
+    inherits "2.0.3"
 
 utils-merge@1.0.1:
   version "1.0.1"
