@@ -5,6 +5,8 @@ import { createStore, applyMiddleware } from "redux";
 import { persistStore } from "redux-persist";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
+import { useDispatch } from "react-redux";
+import { ActionMeta } from "redux-actions";
 
 import promiseMiddleware from "./promise-middleware";
 
@@ -68,6 +70,17 @@ if (__DEV__) {
       error: false,
     },
   }));
+}
+
+export function asyncDispatch<T, V>(action: ActionMeta<Promise<T>, V>): Promise<ActionMeta<T, V>> {
+  return store.dispatch(action) as any;
+}
+
+export function useAsyncDispatch() {
+  const dispatch = useDispatch();
+  return function (action: any): any {
+    return dispatch(action) as any;
+  } as typeof asyncDispatch;
 }
 
 export const store = createStore(

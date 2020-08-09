@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { Action, createAction } from "redux-actions";
+import { Action, createAction as origCreateAction, ActionMeta } from "redux-actions";
 import * as Permissions from "expo-permissions";
 
 import * as EteSync from "etesync";
@@ -9,6 +9,16 @@ import { UserInfo } from "etesync";
 
 import { ConnectionInfo, CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from "./";
 import { startTask } from "../helpers";
+
+type FunctionAny = (...args: any[]) => any;
+
+function createAction<Func extends FunctionAny, MetaFunc extends FunctionAny>(
+  actionType: string,
+  payloadCreator: Func,
+  metaCreator?: MetaFunc
+): (..._params: Parameters<Func>) => ActionMeta<ReturnType<Func>, ReturnType<MetaFunc>> {
+  return origCreateAction(actionType, payloadCreator, metaCreator as any) as any;
+}
 
 export const fetchCredentials = createAction(
   "FETCH_CREDENTIALS",
