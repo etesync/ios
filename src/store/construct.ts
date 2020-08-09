@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import createSecureStore from 'redux-persist-expo-securestore';
-import * as SecureStore from 'expo-secure-store';
-import { AsyncStorage } from 'react-native';
-import { NetInfoStateType } from '@react-native-community/netinfo';
+import createSecureStore from "redux-persist-expo-securestore";
+import * as SecureStore from "expo-secure-store";
+import { AsyncStorage } from "react-native";
+import { NetInfoStateType } from "@react-native-community/netinfo";
 
-import { combineReducers } from 'redux';
-import { createMigrate, persistReducer, createTransform } from 'redux-persist';
+import { combineReducers } from "redux";
+import { createMigrate, persistReducer, createTransform } from "redux-persist";
 
-import { List, Map as ImmutableMap } from 'immutable';
+import { List, Map as ImmutableMap } from "immutable";
 
-import * as EteSync from 'etesync';
+import * as EteSync from "etesync";
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
   fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer, legacyCredentials, legacyEncryptionKeyReducer, ErrorsData,
-} from './reducers';
+} from "./reducers";
 
 export interface StoreState {
   fetchCount: number;
@@ -67,29 +67,29 @@ const settingsMigrations = {
 };
 
 const settingsPersistConfig = {
-  key: 'settings',
+  key: "settings",
   version: 2,
   storage: AsyncStorage,
   migrate: createMigrate(settingsMigrations, { debug: false }),
 };
 
 const legacyCredentialsPersistConfig = {
-  key: 'credentials',
+  key: "credentials",
   storage: AsyncStorage,
 };
 
 const legacyEncryptionKeyPersistConfig = {
-  key: 'encryptionKey',
+  key: "encryptionKey",
   storage: AsyncStorage,
 };
 
 const credentialsPersistConfig = {
-  key: 'credentials',
+  key: "credentials",
   storage: secureStorage,
 };
 
 const encryptionKeyPersistConfig = {
-  key: 'encryptionKey',
+  key: "encryptionKey",
   storage: secureStorage,
 };
 
@@ -155,17 +155,17 @@ const userInfoDeserialize = (state: EteSync.UserInfoJson) => {
 };
 
 const cacheSerialize = (state: any, key: string | number) => {
-  if (key === 'entries') {
+  if (key === "entries") {
     const ret = {};
     state.forEach((value: List<EteSync.Entry>, mapKey: string) => {
       ret[mapKey] = entriesSerialize(value);
     });
     return ret;
-  } else if (key === 'journals') {
+  } else if (key === "journals") {
     return journalsSerialize(state);
-  } else if (key === 'userInfo') {
+  } else if (key === "userInfo") {
     return userInfoSerialize(state);
-  } else if ((key === 'syncInfoCollection') || (key === 'syncInfoItem')) {
+  } else if ((key === "syncInfoCollection") || (key === "syncInfoItem")) {
     return state.toJS();
   }
 
@@ -173,19 +173,19 @@ const cacheSerialize = (state: any, key: string | number) => {
 };
 
 const cacheDeserialize = (state: any, key: string | number) => {
-  if (key === 'entries') {
+  if (key === "entries") {
     const ret = {};
     Object.keys(state).forEach((mapKey) => {
       ret[mapKey] = entriesDeserialize(state[mapKey]);
     });
     return ImmutableMap(ret);
-  } else if (key === 'journals') {
+  } else if (key === "journals") {
     return journalsDeserialize(state);
-  } else if (key === 'userInfo') {
+  } else if (key === "userInfo") {
     return userInfoDeserialize(state);
-  } else if (key === 'syncInfoCollection') {
+  } else if (key === "syncInfoCollection") {
     return ImmutableMap(state);
-  } else if (key === 'syncInfoItem') {
+  } else if (key === "syncInfoItem") {
     return ImmutableMap(state).map((syncStateEntry: any) => {
       return ImmutableMap(syncStateEntry);
     });
@@ -204,7 +204,7 @@ const cacheMigrations = {
 };
 
 const cachePersistConfig = {
-  key: 'cache',
+  key: "cache",
   version: 1,
   storage: AsyncStorage,
   transforms: [createTransform(cacheSerialize, cacheDeserialize)] as any,
@@ -212,7 +212,7 @@ const cachePersistConfig = {
 };
 
 const syncSerialize = (state: any, key: string | number) => {
-  if ((key === 'stateJournals') || (key === 'stateEntries')) {
+  if ((key === "stateJournals") || (key === "stateEntries")) {
     return state.toJS();
   }
 
@@ -220,9 +220,9 @@ const syncSerialize = (state: any, key: string | number) => {
 };
 
 const syncDeserialize = (state: any, key: string | number) => {
-  if (key === 'stateJournals') {
+  if (key === "stateJournals") {
     return ImmutableMap(state);
-  } else if (key === 'stateEntries') {
+  } else if (key === "stateEntries") {
     return ImmutableMap(state).map((syncStateEntry: any) => {
       return ImmutableMap(syncStateEntry);
     });
@@ -232,7 +232,7 @@ const syncDeserialize = (state: any, key: string | number) => {
 };
 
 const syncPersistConfig = {
-  key: 'sync',
+  key: "sync",
   storage: AsyncStorage,
   transforms: [createTransform(syncSerialize, syncDeserialize)] as any,
 };

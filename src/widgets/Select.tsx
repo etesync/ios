@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { ViewProps } from 'react-native';
-import { Menu } from 'react-native-paper';
+import * as React from "react";
+import { ViewProps } from "react-native";
+import { Menu } from "react-native-paper";
 
 interface PropsType<T> extends ViewProps {
   visible: boolean;

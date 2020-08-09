@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from 'etesync';
-import { Map as ImmutableMap } from 'immutable';
+import * as EteSync from "etesync";
+import { Map as ImmutableMap } from "immutable";
 
-import { logger } from '../logging';
+import { logger } from "../logging";
 
-import { PimType } from '../pim-types';
-import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from '../store';
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError } from '../store/actions';
-import { NativeBase, entryNativeHashCalc } from './helpers';
-import { createJournalEntryFromSyncEntry } from '../etesync-helpers';
-import { arrayToChunkIterator } from '../helpers';
-import { BatchAction, HashDictionary } from '../EteSyncNative';
+import { PimType } from "../pim-types";
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from "../store";
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError } from "../store/actions";
+import { NativeBase, entryNativeHashCalc } from "./helpers";
+import { createJournalEntryFromSyncEntry } from "../etesync-helpers";
+import { arrayToChunkIterator } from "../helpers";
+import { BatchAction, HashDictionary } from "../EteSyncNative";
 
 export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
@@ -199,7 +199,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           });
 
           if (lastEntryPos === -1) {
-            throw Error('Could not find last sync entry!');
+            throw Error("Could not find last sync entry!");
           }
           firstEntry = lastEntryPos + 1;
         }
@@ -281,7 +281,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
               handledInBatch.clear();
             }
           } catch (e) {
-            logger.warn('Failed batch saving');
+            logger.warn("Failed batch saving");
             throw e;
           }
         }
@@ -400,7 +400,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   }
 
   protected handleLegacyHash(journalUid: string, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
-    if (syncStateEntry?.lastHash && syncStateEntry.lastHash.indexOf(':') === -1) {
+    if (syncStateEntry?.lastHash && syncStateEntry.lastHash.indexOf(":") === -1) {
       // If the last hash was unversioned (no colon), try matching the legacy hash
       const legacyHash = entryNativeHashCalc(nativeItem);
       if (legacyHash === syncStateEntry.lastHash) {

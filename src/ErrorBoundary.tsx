@@ -1,32 +1,32 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { View, Linking, Clipboard } from 'react-native';
-import { Button, Text, Paragraph, HelperText } from 'react-native-paper';
+import * as React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { View, Linking, Clipboard } from "react-native";
+import { Button, Text, Paragraph, HelperText } from "react-native-paper";
 
-import { Updates } from 'expo';
+import { Updates } from "expo";
 
-import * as EteSync from 'etesync';
+import * as EteSync from "etesync";
 
-import { StoreState, persistor, store } from './store';
+import { StoreState, persistor, store } from "./store";
 
-import { Title } from './widgets/Typography';
-import ScrollView from './widgets/ScrollView';
-import { logger, LogLevel, getLogs } from './logging';
-import Container from './widgets/Container';
-import { expo } from '../app.json';
-import * as C from './constants';
-import { setSettings, popNonFatalError, fetchCredentials } from './store/actions';
-import LogoutDialog from './LogoutDialog';
-import { useCredentials } from './login';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import PasswordInput from './widgets/PasswordInput';
-import ExternalLink from './widgets/ExternalLink';
+import { Title } from "./widgets/Typography";
+import ScrollView from "./widgets/ScrollView";
+import { logger, LogLevel, getLogs } from "./logging";
+import Container from "./widgets/Container";
+import { expo } from "../app.json";
+import * as C from "./constants";
+import { setSettings, popNonFatalError, fetchCredentials } from "./store/actions";
+import LogoutDialog from "./LogoutDialog";
+import { useCredentials } from "./login";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import PasswordInput from "./widgets/PasswordInput";
+import ExternalLink from "./widgets/ExternalLink";
 
 function emailDevelopers(error: Error, logs: string | undefined) {
-  const subject = encodeURIComponent('EteSync iOS: Crash Report');
+  const subject = encodeURIComponent("EteSync iOS: Crash Report");
   const bodyJson = {
     version: expo.version,
     error: {
@@ -42,7 +42,7 @@ function emailDevelopers(error: Error, logs: string | undefined) {
 function SessionExpiredDialog() {
   const etesync = useCredentials()!;
   const dispatch = useDispatch();
-  const [password, setPassword] = React.useState('');
+  const [password, setPassword] = React.useState("");
   const [errorPassword, setErrorPassword] = React.useState<string>();
 
   return (
@@ -51,7 +51,7 @@ function SessionExpiredDialog() {
       visible
       onOk={async () => {
         if (!password) {
-          setErrorPassword('Password is required');
+          setErrorPassword("Password is required");
           return;
         }
 
@@ -110,7 +110,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
   const [logs, setLogs] = React.useState<string>();
 
   React.useEffect(() => {
-    getLogs().then((value) => setLogs(value.join('\n')));
+    getLogs().then((value) => setLogs(value.join("\n")));
   }, []);
 
   const buttonStyle = { marginVertical: 5 };
@@ -121,7 +121,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
       <ScrollView>
         <Container>
           <Title>Something went wrong!</Title>
-          <View style={{ marginVertical: 15, flexDirection: 'row', justifyContent: 'space-evenly', flexWrap: 'wrap' }}>
+          <View style={{ marginVertical: 15, flexDirection: "row", justifyContent: "space-evenly", flexWrap: "wrap" }}>
             <Button mode="contained" style={buttonStyle} onPress={() => emailDevelopers(error, logs)}>Report Bug</Button>
             <Button mode="contained" style={buttonStyle} onPress={() => Clipboard.setString(content)}>Copy Text</Button>
             <Button mode="contained" style={buttonStyle} onPress={() => Updates.reloadFromCache()}>Reload App</Button>

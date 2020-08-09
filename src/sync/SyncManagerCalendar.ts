@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from 'etesync';
-import * as Calendar from 'expo-calendar';
+import * as EteSync from "etesync";
+import * as Calendar from "expo-calendar";
 
-import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictionary } from '../EteSyncNative';
+import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictionary } from "../EteSyncNative";
 
-import { logger } from '../logging';
+import { logger } from "../logging";
 
-import { store } from '../store';
+import { store } from "../store";
 
-import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from './helpers';
-import { colorIntToHtml } from '../helpers';
-import { PimType, EventType } from '../pim-types';
+import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from "./helpers";
+import { colorIntToHtml } from "../helpers";
+import { PimType, EventType } from "../pim-types";
 
-import { SyncManagerBase, PushEntry } from './SyncManagerBase';
+import { SyncManagerBase, PushEntry } from "./SyncManagerBase";
 
-const ACCOUNT_NAME = 'etesync';
+const ACCOUNT_NAME = "etesync";
 
 export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
   protected abstract entityType: string;
@@ -35,7 +35,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
       }
 
       if (storeState.settings.syncCalendarsSource && !this.localSource) {
-        throw new Error('Calendar: failed to find selected source. Please contact developers.');
+        throw new Error("Calendar: failed to find selected source. Please contact developers.");
       }
       this.canSync = !!this.localSource;
     }
@@ -73,7 +73,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
 
 export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, NativeEvent> {
-  protected collectionType = 'CALENDAR';
+  protected collectionType = "CALENDAR";
   protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush() {

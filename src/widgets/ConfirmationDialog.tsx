@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { Keyboard } from 'react-native';
-import { Card, Portal, Modal, Button, ProgressBar, Paragraph, useTheme } from 'react-native-paper';
+import * as React from "react";
+import { Keyboard } from "react-native";
+import { Card, Portal, Modal, Button, ProgressBar, Paragraph, useTheme } from "react-native-paper";
 
-import { isPromise, useIsMounted } from '../helpers';
+import { isPromise, useIsMounted } from "../helpers";
 
 interface PropsType {
   title: string;
@@ -25,9 +25,9 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
   const [loading, setLoading] = React.useState(props.loading ?? false);
   const [error, setError] = React.useState<string | undefined>(undefined);
   const theme = useTheme();
-  const labelCancel = props.labelCancel ?? 'Cancel';
-  const labelOk = props.labelOk ?? 'OK';
-  const loadingText = props.loadingText ?? 'Loading...';
+  const labelCancel = props.labelCancel ?? "Cancel";
+  const labelOk = props.labelOk ?? "OK";
+  const loadingText = props.loadingText ?? "Loading...";
   const buttonThemeOverride = { colors: { primary: theme.colors.accent } };
 
   React.useEffect(() => {
@@ -79,7 +79,7 @@ export default React.memo(function ConfirmationDialog(props: PropsType) {
           <Card.Content>
             {content}
           </Card.Content>
-          <Card.Actions style={{ justifyContent: 'flex-end' }}>
+          <Card.Actions style={{ justifyContent: "flex-end" }}>
             {props.onCancel &&
               <Button disabled={loading} theme={buttonThemeOverride} onPress={props.onCancel}>{labelCancel}</Button>
             }

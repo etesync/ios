@@ -1,24 +1,24 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import * as Calendar from 'expo-calendar';
-import * as Contacts from 'expo-contacts';
-import { Divider, List, Paragraph } from 'react-native-paper';
-import { useNavigation, RouteProp } from '@react-navigation/native';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import * as Calendar from "expo-calendar";
+import * as Contacts from "expo-contacts";
+import { Divider, List, Paragraph } from "react-native-paper";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 
-import { useSyncGate } from './SyncGate';
-import { StoreState } from './store';
+import { useSyncGate } from "./SyncGate";
+import { StoreState } from "./store";
 
-import { ContactType, EventType, TaskType } from './pim-types';
+import { ContactType, EventType, TaskType } from "./pim-types";
 
-import ScrollView from './widgets/ScrollView';
-import Container from './widgets/Container';
-import ColorBox from './widgets/ColorBox';
-import LoadingIndicator from './widgets/LoadingIndicator';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import { eventVobjectToNative, taskVobjectToNative, contactVobjectToNative } from './sync/helpers';
+import ScrollView from "./widgets/ScrollView";
+import Container from "./widgets/Container";
+import ColorBox from "./widgets/ColorBox";
+import LoadingIndicator from "./widgets/LoadingIndicator";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import { eventVobjectToNative, taskVobjectToNative, contactVobjectToNative } from "./sync/helpers";
 
 interface ImportCollection {
   id: string;
@@ -85,7 +85,7 @@ type RootStackParamList = {
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, 'JournalItemSaveScreen'>;
+  route: RouteProp<RootStackParamList, "JournalItemSaveScreen">;
 }
 
 export default function JournalItemSaveScreen(props: PropsType) {
@@ -122,17 +122,17 @@ export default function JournalItemSaveScreen(props: PropsType) {
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let saveItem: typeof saveEvent;
   switch (collectionType) {
-    case 'ADDRESS_BOOK': {
+    case "ADDRESS_BOOK": {
       fetchDeviceCollections = contactsFetchDeviceCollections;
       saveItem = saveContact;
       break;
     }
-    case 'CALENDAR': {
+    case "CALENDAR": {
       fetchDeviceCollections = eventsFetchDeviceCollections;
       saveItem = saveEvent;
       break;
     }
-    case 'TASKS': {
+    case "TASKS": {
       fetchDeviceCollections = tasksFetchDeviceCollections;
       saveItem = saveTask;
       break;

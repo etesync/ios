@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { createSelector } from 'reselect';
+import { createSelector } from "reselect";
 
-import * as EteSync from 'etesync';
-import { byte } from 'etesync';
+import * as EteSync from "etesync";
+import { byte } from "etesync";
 
-import { store, JournalsData, EntriesData, CredentialsData, UserInfoData, SyncInfoItem } from './store';
-import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from './store/actions';
+import { store, JournalsData, EntriesData, CredentialsData, UserInfoData, SyncInfoItem } from "./store";
+import { setSyncInfoCollection, setSyncInfoItem, unsetSyncInfoCollection } from "./store/actions";
 
 interface SyncInfoSelectorProps {
   etesync: CredentialsData;

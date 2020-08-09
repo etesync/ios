@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { WebView } from 'react-native-webview';
+import * as React from "react";
+import { WebView } from "react-native-webview";
 
 interface Keys {
   privateKey: string;
@@ -18,7 +18,7 @@ export default React.memo(function WebviewKeygen(props: PropsType) {
   return (
     <WebView
       style={{ height: 0, width: 0 }}
-      originWhitelist={['*']}
+      originWhitelist={["*"]}
       source={{ html: `
 <!doctype html>
 <html lang="en">

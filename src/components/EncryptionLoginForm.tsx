@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { View } from 'react-native';
-import { Text, HelperText, Button } from 'react-native-paper';
-import PasswordInput from '../widgets/PasswordInput';
+import * as React from "react";
+import { View } from "react-native";
+import { Text, HelperText, Button } from "react-native-paper";
+import PasswordInput from "../widgets/PasswordInput";
 
 
 interface FormErrors {
@@ -21,7 +21,7 @@ export default function _EncryptionLognForm(props: PropsType) {
 
   function onSave() {
     const saveErrors: FormErrors = {};
-    const fieldRequired = 'This field is required!';
+    const fieldRequired = "This field is required!";
 
     if (!encryptionPassword) {
       saveErrors.encryptionPassword = fieldRequired;

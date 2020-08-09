@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import * as EteSync from 'etesync';
+import * as React from "react";
+import * as EteSync from "etesync";
 
-import Color from 'color';
+import Color from "color";
 
-import { Text } from 'react-native-paper';
+import { Text } from "react-native-paper";
 
-import { SyncInfoItem } from './store';
+import { SyncInfoItem } from "./store";
 
-import Container from './widgets/Container';
-import Small from './widgets/Small';
+import Container from "./widgets/Container";
+import Small from "./widgets/Small";
 
-import { TaskType } from './pim-types';
-import { formatDate, formatOurTimezoneOffset, colorIntToHtml } from './helpers';
+import { TaskType } from "./pim-types";
+import { formatDate, formatOurTimezoneOffset, colorIntToHtml } from "./helpers";
 
-import JournalItemHeader from './JournalItemHeader';
+import JournalItemHeader from "./JournalItemHeader";
 
 interface PropsType {
   collection: EteSync.CollectionInfo;
@@ -30,7 +30,7 @@ export default React.memo(function JournalItemTask(props: PropsType) {
   const timezone = task.timezone;
 
   const backgroundColor = colorIntToHtml(props.collection.color);
-  const foregroundColor = Color(backgroundColor).isLight() ? 'black' : 'white';
+  const foregroundColor = Color(backgroundColor).isLight() ? "black" : "white";
 
   return (
     <>
@@ -41,12 +41,12 @@ export default React.memo(function JournalItemTask(props: PropsType) {
         {task.dueDate &&
           <Text style={{ color: foregroundColor }}>Due: {formatDate(task.dueDate)} {timezone && <Small>({formatOurTimezoneOffset()})</Small>}</Text>
         }
-        <Text style={{ textDecorationLine: 'underline' }}>{task.location}</Text>
+        <Text style={{ textDecorationLine: "underline" }}>{task.location}</Text>
       </JournalItemHeader>
       <Container>
-        <Text style={{ fontVariant: ['tabular-nums'] }}>{task.description}</Text>
+        <Text style={{ fontVariant: ["tabular-nums"] }}>{task.description}</Text>
         {(task.attendees.length > 0) && (
-          <Text>Attendees: {task.attendees.map((x) => (x.getFirstValue())).join(', ')}</Text>)}
+          <Text>Attendees: {task.attendees.map((x) => (x.getFirstValue())).join(", ")}</Text>)}
       </Container>
     </>
   );

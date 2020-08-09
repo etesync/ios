@@ -1,47 +1,47 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
-import SafeAreaView from 'react-native-safe-area-view';
-import { View } from 'react-native';
-import { Appbar, Paragraph, useTheme } from 'react-native-paper';
+import * as React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import SafeAreaView from "react-native-safe-area-view";
+import { View } from "react-native";
+import { Appbar, Paragraph, useTheme } from "react-native-paper";
 
-import { Title } from './widgets/Typography';
-import LoginScreen from './login/LoginScreen';
+import { Title } from "./widgets/Typography";
+import LoginScreen from "./login/LoginScreen";
 
-import SettingsScreen from './SettingsScreen';
-import AboutScreen from './AboutScreen';
-import DebugLogsScreen from './DebugLogsScreen';
-import HomeScreen from './HomeScreen';
-import JournalScreen from './JournalEntriesScreen';
-import JournalItemScreen from './JournalItemScreen';
-import JournalItemSaveScreen from './JournalItemSaveScreen';
-import JournalEditScreen from './JournalEditScreen';
-import JournalImportScreen from './JournalImportScreen';
-import JournalMembersScreen from './JournalMembersScreen';
-import SyncSettings from './sync/SyncSettings';
-import Wizard, { WizardNavigationBar, PagePropsType } from './widgets/Wizard';
-import { AskForPermissions } from './Permissions';
+import SettingsScreen from "./SettingsScreen";
+import AboutScreen from "./AboutScreen";
+import DebugLogsScreen from "./DebugLogsScreen";
+import HomeScreen from "./HomeScreen";
+import JournalScreen from "./JournalEntriesScreen";
+import JournalItemScreen from "./JournalItemScreen";
+import JournalItemSaveScreen from "./JournalItemSaveScreen";
+import JournalEditScreen from "./JournalEditScreen";
+import JournalImportScreen from "./JournalImportScreen";
+import JournalMembersScreen from "./JournalMembersScreen";
+import SyncSettings from "./sync/SyncSettings";
+import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
+import { AskForPermissions } from "./Permissions";
 
-import { useCredentials } from './login';
-import { StoreState } from './store';
-import { setSettings } from './store/actions';
+import { useCredentials } from "./login";
+import { StoreState } from "./store";
+import { setSettings } from "./store/actions";
 
-import * as C from './constants';
-import { isDefined } from './helpers';
+import * as C from "./constants";
+import { isDefined } from "./helpers";
 
 const Stack = createStackNavigator();
 
 const wizardPages = [
   (props: PagePropsType) => (
     <>
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        <Title style={{ textAlign: 'center' }}>Welcome to EteSync!</Title>
-        <Paragraph style={{ textAlign: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center" }}>
+        <Title style={{ textAlign: "center" }}>Welcome to EteSync!</Title>
+        <Paragraph style={{ textAlign: "center" }}>
           Please follow these few quick steps to setup the EteSync app.
         </Paragraph>
       </View>
@@ -98,10 +98,10 @@ export default React.memo(function _AuthLoadingScreen() {
         headerStyle: {
           backgroundColor: theme.colors.primary,
         },
-        headerTintColor: '#000000',
+        headerTintColor: "#000000",
         headerBackTitleVisible: false,
         headerBackTitleStyle: {
-          backgroundColor: 'black',
+          backgroundColor: "black",
         },
       }}
     >
@@ -111,7 +111,7 @@ export default React.memo(function _AuthLoadingScreen() {
             name="LoginScreen"
             component={LoginScreen}
             options={{
-              title: 'Login',
+              title: "Login",
               headerLeft: () => (
                 <MenuButton />
               ),
@@ -134,49 +134,49 @@ export default React.memo(function _AuthLoadingScreen() {
             name="Journal"
             component={JournalScreen}
             options={{
-              title: 'Journal Entries',
+              title: "Journal Entries",
             }}
           />
           <Stack.Screen
             name="JournalNew"
             component={JournalEditScreen}
             options={{
-              title: 'Journal New',
+              title: "Journal New",
             }}
           />
           <Stack.Screen
             name="JournalEdit"
             component={JournalEditScreen}
             options={{
-              title: 'Journal Edit',
+              title: "Journal Edit",
             }}
           />
           <Stack.Screen
             name="JournalItem"
             component={JournalItemScreen}
             options={{
-              title: 'Journal Item',
+              title: "Journal Item",
             }}
           />
           <Stack.Screen
             name="JournalItemSave"
             component={JournalItemSaveScreen}
             options={{
-              title: 'Save Item',
+              title: "Save Item",
             }}
           />
           <Stack.Screen
             name="JournalImport"
             component={JournalImportScreen}
             options={{
-              title: 'Import',
+              title: "Import",
             }}
           />
           <Stack.Screen
             name="JournalMembers"
             component={JournalMembersScreen}
             options={{
-              title: 'Journal Members',
+              title: "Journal Members",
             }}
           />
         </>
@@ -187,7 +187,7 @@ export default React.memo(function _AuthLoadingScreen() {
         name="DebugLogs"
         component={DebugLogsScreen}
         options={{
-          title: 'View Debug Logs',
+          title: "View Debug Logs",
         }}
       />
     </Stack.Navigator>

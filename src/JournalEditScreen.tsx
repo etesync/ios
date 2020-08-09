@@ -1,28 +1,28 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import { TextInput as NativeTextInput } from 'react-native';
-import { Text, HelperText, Button, Appbar, Paragraph } from 'react-native-paper';
-import { useNavigation, RouteProp } from '@react-navigation/native';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import { TextInput as NativeTextInput } from "react-native";
+import { Text, HelperText, Button, Appbar, Paragraph } from "react-native-paper";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 
-import { SyncManager } from './sync/SyncManager';
-import { useSyncGate } from './SyncGate';
-import { useCredentials } from './login';
-import { store, StoreState } from './store';
-import { addJournal, updateJournal, deleteJournal, performSync } from './store/actions';
+import { SyncManager } from "./sync/SyncManager";
+import { useSyncGate } from "./SyncGate";
+import { useCredentials } from "./login";
+import { store, StoreState } from "./store";
+import { addJournal, updateJournal, deleteJournal, performSync } from "./store/actions";
 
-import TextInput from './widgets/TextInput';
-import ScrollView from './widgets/ScrollView';
-import Container from './widgets/Container';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import ErrorOrLoadingDialog from './widgets/ErrorOrLoadingDialog';
+import TextInput from "./widgets/TextInput";
+import ScrollView from "./widgets/ScrollView";
+import Container from "./widgets/Container";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import ErrorOrLoadingDialog from "./widgets/ErrorOrLoadingDialog";
 
-import * as EteSync from 'etesync';
-import { useLoading, colorHtmlToInt, colorIntToHtml, defaultColor } from './helpers';
+import * as EteSync from "etesync";
+import { useLoading, colorHtmlToInt, colorIntToHtml, defaultColor } from "./helpers";
 
-import ColorPicker from './widgets/ColorPicker';
+import ColorPicker from "./widgets/ColorPicker";
 
 interface FormErrors {
   displayName?: string;
@@ -37,15 +37,15 @@ type RootStackParamList = {
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, 'JournalItemScreen'>;
+  route: RouteProp<RootStackParamList, "JournalItemScreen">;
 }
 
 export default function JournalEditScreen(props: PropsType) {
   const [errors, setErrors] = React.useState({} as FormErrors);
   const [journalType, setJournalType] = React.useState<string>();
-  const [displayName, setDisplayName] = React.useState<string>('');
-  const [description, setDescription] = React.useState<string>('');
-  const [color, setColor] = React.useState<string>('');
+  const [displayName, setDisplayName] = React.useState<string>("");
+  const [description, setDescription] = React.useState<string>("");
+  const [color, setColor] = React.useState<string>("");
   const journals = useSelector((state: StoreState) => state.cache.journals);
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
   const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
@@ -54,7 +54,7 @@ export default function JournalEditScreen(props: PropsType) {
   const etesync = useCredentials()!;
   const [loading, error, setPromise] = useLoading();
 
-  const journalUid: string = props.route.params.journalUid ?? '';
+  const journalUid: string = props.route.params.journalUid ?? "";
   React.useMemo(() => {
     if (syncGate) {
       return;
@@ -85,14 +85,14 @@ export default function JournalEditScreen(props: PropsType) {
   function onSave() {
     setPromise(async () => {
       const saveErrors: FormErrors = {};
-      const fieldRequired = 'This field is required!';
+      const fieldRequired = "This field is required!";
 
       if (!displayName) {
         saveErrors.displayName = fieldRequired;
       }
 
       if (color && !colorHtmlToInt(color)) {
-        saveErrors.color = 'Must be of the form #RRGGBB or #RRGGBBAA or empty';
+        saveErrors.color = "Must be of the form #RRGGBB or #RRGGBBAA or empty";
       }
 
       if (Object.keys(saveErrors).length > 0) {
@@ -128,8 +128,8 @@ export default function JournalEditScreen(props: PropsType) {
 
   let collectionColorBox: React.ReactNode;
   switch (journalType) {
-    case 'CALENDAR':
-    case 'TASKS':
+    case "CALENDAR":
+    case "TASKS":
       collectionColorBox = (
         <>
           <ColorPicker
@@ -193,7 +193,7 @@ export default function JournalEditScreen(props: PropsType) {
           disabled={loading}
           onPress={onSave}
         >
-          <Text>{loading ? 'Loading…' : 'Save'}</Text>
+          <Text>{loading ? "Loading…" : "Save"}</Text>
         </Button>
       </Container>
     </ScrollView>
@@ -223,7 +223,7 @@ function RightAction(props: { journalUid: string }) {
         visible={confirmationVisible}
         onOk={async () => {
           await store.dispatch(deleteJournal(etesync, journal));
-          navigation.navigate('home');
+          navigation.navigate("home");
           // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
           const syncManager = SyncManager.getManager(etesync);
           store.dispatch(performSync(syncManager.sync()));

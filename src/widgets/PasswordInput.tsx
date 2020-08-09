@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { View } from 'react-native';
-import { IconButton } from 'react-native-paper';
+import * as React from "react";
+import { View } from "react-native";
+import { IconButton } from "react-native-paper";
 
-import TextInput from './TextInput';
+import TextInput from "./TextInput";
 
 const PasswordInput = React.memo(React.forwardRef(function _PasswordInput(inProps: React.ComponentPropsWithoutRef<typeof TextInput>, ref) {
   const [isPassword, setIsPassword] = React.useState(true);
@@ -24,9 +24,9 @@ const PasswordInput = React.memo(React.forwardRef(function _PasswordInput(inProp
         {...props}
       />
       <IconButton
-        style={{ position: 'absolute', top: 15, right: 5 }}
-        icon={(isPassword) ? 'eye-off' : 'eye'}
-        accessibilityLabel={(isPassword) ? 'Show password' : 'Hide password'}
+        style={{ position: "absolute", top: 15, right: 5 }}
+        icon={(isPassword) ? "eye-off" : "eye"}
+        accessibilityLabel={(isPassword) ? "Show password" : "Hide password"}
         onPress={() => setIsPassword(!isPassword)}
       />
     </View>

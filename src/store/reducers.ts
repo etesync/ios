@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { Action, ActionMeta, ActionFunctionAny, combineActions, handleAction, handleActions } from 'redux-actions';
-import { shallowEqual } from 'react-redux';
+import { Action, ActionMeta, ActionFunctionAny, combineActions, handleAction, handleActions } from "redux-actions";
+import { shallowEqual } from "react-redux";
 
-import { List, Map as ImmutableMap } from 'immutable';
+import { List, Map as ImmutableMap } from "immutable";
 
-import * as EteSync from 'etesync';
+import * as EteSync from "etesync";
 
-import * as actions from './actions';
-import { LogLevel } from '../logging';
+import * as actions from "./actions";
+import { LogLevel } from "../logging";
 
 export interface CredentialsDataRemote {
   serviceApiUrl: string;
@@ -274,7 +274,7 @@ export const userInfo = handleActions(
 function simpleMapReducer<TypeData extends ImmutableMap<string, TypeItem>, TypeItem extends BaseModel>(suffix: string) {
   const _actions: {[key: string]: string} = actions as any;
   return {
-    [_actions['set' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+    [_actions["set" + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
       const syncStateJournal = action.payload;
       const current = state.get(syncStateJournal.uid);
       if (!current || !shallowEqual(current, syncStateJournal)) {
@@ -283,7 +283,7 @@ function simpleMapReducer<TypeData extends ImmutableMap<string, TypeItem>, TypeI
 
       return state;
     },
-    [_actions['unset' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+    [_actions["unset" + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
       const syncStateJournal = action.payload;
       return state.remove(syncStateJournal.uid);
     },
@@ -296,7 +296,7 @@ function simpleMapReducer<TypeData extends ImmutableMap<string, TypeItem>, TypeI
 function simpleMapMapReducer<TypeData extends ImmutableMap<string, ImmutableMap<string, TypeItem>>, TypeItem extends BaseModel>(suffix: string) {
   const _actions: {[key: string]: string} = actions as any;
   return {
-    [_actions['set' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+    [_actions["set" + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
       const syncStateEntry = action.payload;
       const mainKey = (action as any).meta as string;
       if (!state.has(mainKey)) {
@@ -304,7 +304,7 @@ function simpleMapMapReducer<TypeData extends ImmutableMap<string, ImmutableMap<
       }
       return state.setIn([mainKey, syncStateEntry.uid], syncStateEntry);
     },
-    [_actions['unset' + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
+    [_actions["unset" + suffix].toString()]: (state: TypeData, action: Action<TypeItem>) => {
       const syncStateEntry = action.payload;
       const mainKey = (action as any).meta as string;
       return state.deleteIn([mainKey, syncStateEntry.uid]);
@@ -318,14 +318,14 @@ function simpleMapMapReducer<TypeData extends ImmutableMap<string, ImmutableMap<
 
 export const syncStateJournalReducer = handleActions(
   {
-    ...simpleMapReducer<SyncStateJournalData, SyncStateJournal>('SyncStateJournal'),
+    ...simpleMapReducer<SyncStateJournalData, SyncStateJournal>("SyncStateJournal"),
   },
   ImmutableMap({})
 );
 
 export const syncStateEntryReducer = handleActions(
   {
-    ...simpleMapMapReducer<SyncStateEntryData, SyncStateEntry>('SyncStateEntry'),
+    ...simpleMapMapReducer<SyncStateEntryData, SyncStateEntry>("SyncStateEntry"),
     [actions.setSyncStateJournal.toString()]: (state: SyncStateEntryData, _action: Action<any>) => {
       const action: Action<SyncStateJournal> = _action; // Required because for some reason the typing fails if not the case.
       const syncStateJournal = action.payload;
@@ -347,14 +347,14 @@ export const syncStateEntryReducer = handleActions(
 
 export const syncInfoCollectionReducer = handleActions(
   {
-    ...simpleMapReducer<SyncInfoCollectionData, EteSync.CollectionInfo>('SyncInfoCollection'),
+    ...simpleMapReducer<SyncInfoCollectionData, EteSync.CollectionInfo>("SyncInfoCollection"),
   },
   ImmutableMap({})
 );
 
 export const syncInfoItemReducer = handleActions(
   {
-    ...simpleMapMapReducer<SyncInfoItemData, SyncInfoItem>('SyncInfoItem'),
+    ...simpleMapMapReducer<SyncInfoItemData, SyncInfoItem>("SyncInfoItem"),
     [actions.unsetSyncInfoCollection.toString()]: (state: SyncInfoItemData, _action: Action<any>) => {
       const action: Action<EteSync.CollectionInfo> = _action; // Required because for some reason the typing fails if not the case.
       const syncStateJournal = action.payload;
@@ -368,10 +368,10 @@ const fetchActions = [
 ] as Array<ActionFunctionAny<Action<any>>>;
 
 for (const func in actions) {
-  if (func.startsWith('fetch') ||
-    func.startsWith('add') ||
-    func.startsWith('update') ||
-    func.startsWith('delete')) {
+  if (func.startsWith("fetch") ||
+    func.startsWith("add") ||
+    func.startsWith("update") ||
+    func.startsWith("delete")) {
 
     fetchActions.push((actions as any)[func.toString()]);
   }
@@ -465,7 +465,7 @@ export const syncStatusReducer = handleActions(
     },
     [actions.performSync.toString()]: (_state: string | null, action: Action<any>) => {
       if (action.payload === undefined) {
-        return 'Started sync';
+        return "Started sync";
       }
       return null;
     },
@@ -515,5 +515,5 @@ export const settingsReducer = handleActions(
       { ...state, ...action.payload }
     ),
   },
-  { locale: 'en-gb', logLevel: LogLevel.Off, syncContactsContainer: null, syncCalendarsSource: null, ranWizrd: false }
+  { locale: "en-gb", logLevel: LogLevel.Off, syncContactsContainer: null, syncCalendarsSource: null, ranWizrd: false }
 );

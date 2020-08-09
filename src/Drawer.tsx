@@ -1,61 +1,61 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import { ParamListBase } from '@react-navigation/native';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { Image, Linking, View } from 'react-native';
-import { Divider, List, Text, Paragraph } from 'react-native-paper';
-import SafeAreaView from 'react-native-safe-area-view';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import { ParamListBase } from "@react-navigation/native";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { Image, Linking, View } from "react-native";
+import { Divider, List, Text, Paragraph } from "react-native-paper";
+import SafeAreaView from "react-native-safe-area-view";
 
-import { StoreState } from './store';
+import { StoreState } from "./store";
 
-import ScrollView from './widgets/ScrollView';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import PrettyFingerprint from './widgets/PrettyFingerprint';
-import Container from './widgets/Container';
-import { Subheading } from './widgets/Typography';
+import ScrollView from "./widgets/ScrollView";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import PrettyFingerprint from "./widgets/PrettyFingerprint";
+import Container from "./widgets/Container";
+import { Subheading } from "./widgets/Typography";
 
-import LogoutDialog from './LogoutDialog';
-import { useRemoteCredentials } from './login';
+import LogoutDialog from "./LogoutDialog";
+import { useRemoteCredentials } from "./login";
 
-import * as C from './constants';
+import * as C from "./constants";
 
 const menuItems = [
   {
-    title: 'Settings',
-    path: 'Settings',
-    icon: 'settings',
+    title: "Settings",
+    path: "Settings",
+    icon: "settings",
   },
 ];
 
 const externalMenuItems = [
   {
-    title: 'Report issue',
+    title: "Report issue",
     link: C.reportIssue,
-    icon: 'bug',
+    icon: "bug",
   },
   {
-    title: 'Contact developer',
+    title: "Contact developer",
     link: `mailto:${C.contactEmail}`,
-    icon: 'email',
+    icon: "email",
   },
 ];
 
 if (!C.genericMode) {
   externalMenuItems.unshift(
     {
-      title: 'FAQ',
+      title: "FAQ",
       link: C.faq,
-      icon: 'forum',
+      icon: "forum",
     }
   );
   externalMenuItems.unshift(
     {
-      title: 'Web site',
+      title: "Web site",
       link: C.homePage,
-      icon: 'home',
+      icon: "home",
     }
   );
 }
@@ -81,7 +81,7 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
           Your security fingerprint is:
         </Paragraph>
         {publicKey &&
-          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
+          <View style={{ justifyContent: "center", alignItems: "center", marginTop: 15 }}>
             <PrettyFingerprint publicKey={publicKey} />
           </View>
         }
@@ -104,15 +104,15 @@ export default function Drawer(props: PropsType) {
 
   return (
     <>
-      <SafeAreaView style={{ backgroundColor: '#424242' }}>
-        <Container style={{ backgroundColor: 'transparent' }}>
+      <SafeAreaView style={{ backgroundColor: "#424242" }}>
+        <Container style={{ backgroundColor: "transparent" }}>
           <Image
             style={{ width: 48, height: 48, marginBottom: 15 }}
-            source={require('./images/icon.png')}
+            source={require("./images/icon.png")}
           />
-          <Subheading style={{ color: 'white' }}>{C.appName}</Subheading>
+          <Subheading style={{ color: "white" }}>{C.appName}</Subheading>
           {etesync &&
-            <Text style={{ color: 'white' }}>{etesync.credentials.email}</Text>
+            <Text style={{ color: "white" }}>{etesync.credentials.email}</Text>
           }
         </Container>
       </SafeAreaView>

@@ -1,23 +1,23 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from 'etesync';
-import * as Calendar from 'expo-calendar';
+import * as EteSync from "etesync";
+import * as Calendar from "expo-calendar";
 
-import { calculateHashesForReminders, BatchAction, HashDictionary, processRemindersChanges } from '../EteSyncNative';
+import { calculateHashesForReminders, BatchAction, HashDictionary, processRemindersChanges } from "../EteSyncNative";
 
-import { logger } from '../logging';
+import { logger } from "../logging";
 
-import { store } from '../store';
+import { store } from "../store";
 
-import { NativeTask, taskVobjectToNative, taskNativeToVobject } from './helpers';
-import { TaskType } from '../pim-types';
+import { NativeTask, taskVobjectToNative, taskNativeToVobject } from "./helpers";
+import { TaskType } from "../pim-types";
 
-import { SyncManagerCalendarBase } from './SyncManagerCalendar';
-import { PushEntry } from './SyncManagerBase';
+import { SyncManagerCalendarBase } from "./SyncManagerCalendar";
+import { PushEntry } from "./SyncManagerBase";
 
 export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
-  protected collectionType = 'TASKS';
+  protected collectionType = "TASKS";
   protected entityType = Calendar.EntityTypes.REMINDER;
 
   protected async syncPush() {

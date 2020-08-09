@@ -1,24 +1,24 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import * as Calendar from 'expo-calendar';
-import { Divider, List, Paragraph } from 'react-native-paper';
-import { useNavigation, RouteProp } from '@react-navigation/native';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import * as Calendar from "expo-calendar";
+import { Divider, List, Paragraph } from "react-native-paper";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 
-import { SyncManager } from './sync/SyncManager';
-import { useCredentials } from './login';
-import { useSyncGate } from './SyncGate';
-import { store, StoreState } from './store';
-import { performSync } from './store/actions';
+import { SyncManager } from "./sync/SyncManager";
+import { useCredentials } from "./login";
+import { useSyncGate } from "./SyncGate";
+import { store, StoreState } from "./store";
+import { performSync } from "./store/actions";
 
-import ScrollView from './widgets/ScrollView';
-import Container from './widgets/Container';
-import ColorBox from './widgets/ColorBox';
-import LoadingIndicator from './widgets/LoadingIndicator';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import ErrorDialog from './widgets/ErrorDialog';
+import ScrollView from "./widgets/ScrollView";
+import Container from "./widgets/Container";
+import ColorBox from "./widgets/ColorBox";
+import LoadingIndicator from "./widgets/LoadingIndicator";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import ErrorDialog from "./widgets/ErrorDialog";
 
 interface ImportCollection {
   id: string;
@@ -28,7 +28,7 @@ interface ImportCollection {
 }
 
 function cleanCalendrItemForWriting(event: Calendar.Event | Calendar.Reminder) {
-  const readOnlyKeys = ['id', 'calendarId', 'creationDate', 'lastModifiedDate', 'originalStartDate', 'isDetached'];
+  const readOnlyKeys = ["id", "calendarId", "creationDate", "lastModifiedDate", "originalStartDate", "isDetached"];
   for (const key in event) {
     if (Object.prototype.hasOwnProperty.call(event, key)) {
       if ((event[key] === null) || (key in readOnlyKeys)) {
@@ -105,7 +105,7 @@ type RootStackParamList = {
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, 'JournalImportScreen'>;
+  route: RouteProp<RootStackParamList, "JournalImportScreen">;
 }
 
 const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
@@ -143,13 +143,13 @@ const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
   let importCollection: typeof eventsImport;
   let showDisclaimer: boolean;
   switch (collectionType) {
-    case 'CALENDAR': {
+    case "CALENDAR": {
       fetchDeviceCollections = eventsFetchDeviceCollections;
       importCollection = eventsImport;
       showDisclaimer = true;
       break;
     }
-    case 'TASKS': {
+    case "TASKS": {
       fetchDeviceCollections = tasksFetchDeviceCollections;
       importCollection = tasksImport;
       showDisclaimer = true;

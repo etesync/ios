@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
+import * as React from "react";
+import { useSelector } from "react-redux";
 
-import { useCredentials } from './login';
+import { useCredentials } from "./login";
 
-import LoadingIndicator from './widgets/LoadingIndicator';
+import LoadingIndicator from "./widgets/LoadingIndicator";
 
-import { StoreState } from './store';
+import { StoreState } from "./store";
 
-import { syncInfoSelector } from './SyncHandler';
+import { syncInfoSelector } from "./SyncHandler";
 
 export function useSyncGate() {
   const etesync = useCredentials();

@@ -1,23 +1,23 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import { FlatList, View } from 'react-native';
-import { Menu, Divider, Appbar, Text, List, useTheme } from 'react-native-paper';
-import { useNavigation, RouteProp } from '@react-navigation/native';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import { FlatList, View } from "react-native";
+import { Menu, Divider, Appbar, Text, List, useTheme } from "react-native-paper";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 
-import { useSyncGate } from './SyncGate';
-import { StoreState } from './store';
-import Container from './widgets/Container';
-import { Title } from './widgets/Typography';
+import { useSyncGate } from "./SyncGate";
+import { StoreState } from "./store";
+import Container from "./widgets/Container";
+import { Title } from "./widgets/Typography";
 
-import { TaskType, EventType, ContactType, parseString } from './pim-types';
+import { TaskType, EventType, ContactType, parseString } from "./pim-types";
 
-import * as EteSync from 'etesync';
-import { isDefined, colorIntToHtml } from './helpers';
+import * as EteSync from "etesync";
+import { isDefined, colorIntToHtml } from "./helpers";
 
-import ColorBox from './widgets/ColorBox';
+import ColorBox from "./widgets/ColorBox";
 
 const listIcons = {
   [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="plus" />),
@@ -32,7 +32,7 @@ type RootStackParamList = {
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, 'JournalEntries'>;
+  route: RouteProp<RootStackParamList, "JournalEntries">;
 }
 
 export default function JournalEntries(props: PropsType) {
@@ -49,7 +49,7 @@ export default function JournalEntries(props: PropsType) {
     return syncGate;
   }
 
-  const journalUid = props.route.params.journalUid ?? '';
+  const journalUid = props.route.params.journalUid ?? "";
   const collection = syncInfoCollections.get(journalUid);
   const entries = journalEntries.get(journalUid);
 
@@ -68,7 +68,7 @@ export default function JournalEntries(props: PropsType) {
 
     let name;
     let uid: string;
-    if (comp.name === 'vcalendar') {
+    if (comp.name === "vcalendar") {
       if (EventType.isEvent(comp)) {
         const vevent = EventType.fromVCalendar(comp);
         name = vevent.summary;
@@ -78,13 +78,13 @@ export default function JournalEntries(props: PropsType) {
         name = vtodo.summary;
         uid = vtodo.uid;
       }
-    } else if (comp.name === 'vcard') {
+    } else if (comp.name === "vcard") {
       const vcard = new ContactType(comp);
       name = vcard.fn;
       uid = vcard.uid;
     } else {
-      name = 'Error processing entry';
-      uid = '';
+      name = "Error processing entry";
+      uid = "";
     }
 
     return (
@@ -93,15 +93,15 @@ export default function JournalEntries(props: PropsType) {
         left={icon}
         title={name}
         description={uid}
-        onPress={() => { navigation.navigate('JournalItem', { journalUid, entryUid: syncEntry.uid }) }}
+        onPress={() => { navigation.navigate("JournalItem", { journalUid, entryUid: syncEntry.uid }) }}
       />
     );
   }
 
   let collectionColorBox: React.ReactNode;
   switch (collection.type) {
-    case 'CALENDAR':
-    case 'TASKS':
+    case "CALENDAR":
+    case "TASKS":
       collectionColorBox = (
         <ColorBox size={36} color={colorIntToHtml(collection.color)} />
       );
@@ -122,20 +122,20 @@ export default function JournalEntries(props: PropsType) {
         <Menu.Item icon="pencil" title="Edit"
           onPress={() => {
             setShowMenu(false);
-            navigation.navigate('JournalEdit', { journalUid });
+            navigation.navigate("JournalEdit", { journalUid });
           }}
         />
         <Menu.Item icon="account-multiple" title="Members"
           onPress={() => {
             setShowMenu(false);
-            navigation.navigate('JournalMembers', { journalUid });
+            navigation.navigate("JournalMembers", { journalUid });
           }}
         />
         {syncStateJournals.has(journalUid) &&
           <Menu.Item icon="import" title="Import"
             onPress={() => {
               setShowMenu(false);
-              navigation.navigate('JournalImport', { journalUid });
+              navigation.navigate("JournalImport", { journalUid });
             }}
           />
         }
@@ -151,8 +151,8 @@ export default function JournalEntries(props: PropsType) {
 
   return (
     <>
-      <Container style={{ flexDirection: 'row' }}>
-        <View style={{ marginRight: 'auto' }}>
+      <Container style={{ flexDirection: "row" }}>
+        <View style={{ marginRight: "auto" }}>
           <Title>{collection.displayName} ({journalUid.slice(0, 5)})</Title>
           <Text>
             {isDefined(itemCount) && `Items: ${itemCount}, `}

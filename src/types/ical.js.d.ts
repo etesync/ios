@@ -4,7 +4,7 @@
 // Disable some style eslint rules for things we can't control
 /* eslint-disable @typescript-eslint/camelcase, @typescript-eslint/class-name-casing */
 
-declare module 'ical.js' {
+declare module "ical.js" {
   function parse(input: string): any[];
 
   export class helpers {
@@ -115,7 +115,7 @@ declare module 'ical.js' {
     public toUnixTime(): number;
     public toJSDate(): Date;
     public toJSON(): TimeJsonData;
-    public get icaltype(): 'date' | 'date-time'; 
+    public get icaltype(): "date" | "date-time"; 
   }
 
   export class Duration {
@@ -163,7 +163,7 @@ declare module 'ical.js' {
     static public remove(tzid: string): Timezone | null;
   }
 
-  export type FrequencyValues = 'YEARLY' | 'MONTHLY' | 'WEEKLY' | 'DAILY' | 'HOURLY' | 'MINUTELY' | 'SECONDLY';
+  export type FrequencyValues = "YEARLY" | "MONTHLY" | "WEEKLY" | "DAILY" | "HOURLY" | "MINUTELY" | "SECONDLY";
 
   export enum WeekDay {
     SU = 1,
@@ -203,7 +203,7 @@ declare module 'ical.js' {
     public count: number | null;
 
     public clone(): Recur;
-    public toJSON(): Omit<RecurData, 'until'> & { until?: string };
+    public toJSON(): Omit<RecurData, "until"> & { until?: string };
     public iterator(startTime?: Time): RecurIterator;
     public isByCount(): boolean;
   }

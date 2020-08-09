@@ -1,34 +1,34 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { Action } from 'redux-actions';
-import { useDispatch, useSelector } from 'react-redux';
+import * as React from "react";
+import { Action } from "redux-actions";
+import { useDispatch, useSelector } from "react-redux";
 
-import { View } from 'react-native';
-import { Paragraph, Text } from 'react-native-paper';
+import { View } from "react-native";
+import { Paragraph, Text } from "react-native-paper";
 
-import * as EteSync from 'etesync';
-import sjcl from 'sjcl';
+import * as EteSync from "etesync";
+import sjcl from "sjcl";
 
-import { Subheading, Headline } from '../widgets/Typography';
-import ScrollView from '../widgets/ScrollView';
-import Container from '../widgets/Container';
-import LoadingIndicator from '../widgets/LoadingIndicator';
-import ErrorOrLoadingDialog from '../widgets/ErrorOrLoadingDialog';
-import LoginForm from '../components/LoginForm';
-import EncryptionLoginForm from '../components/EncryptionLoginForm';
-import WebviewKeygen from '../components/WebviewKeygen';
+import { Subheading, Headline } from "../widgets/Typography";
+import ScrollView from "../widgets/ScrollView";
+import Container from "../widgets/Container";
+import LoadingIndicator from "../widgets/LoadingIndicator";
+import ErrorOrLoadingDialog from "../widgets/ErrorOrLoadingDialog";
+import LoginForm from "../components/LoginForm";
+import EncryptionLoginForm from "../components/EncryptionLoginForm";
+import WebviewKeygen from "../components/WebviewKeygen";
 
-import { store, StoreState } from '../store';
+import { store, StoreState } from "../store";
 
-import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo, performSync } from '../store/actions';
-import { useLoading, startTask } from '../helpers';
+import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo, performSync } from "../store/actions";
+import { useLoading, startTask } from "../helpers";
 
-import { SyncManager } from '../sync/SyncManager';
-import { credentialsSelector } from '.';
+import { SyncManager } from "../sync/SyncManager";
+import { credentialsSelector } from ".";
 
-import * as C from '../constants';
+import * as C from "../constants";
 
 function b64ToBa(b64: string) {
   return sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(b64));
@@ -120,7 +120,7 @@ function EncryptionPart() {
         try {
           userInfo.verify(userInfoCryptoManager);
         } catch (e) {
-          throw new EteSync.EncryptionPasswordError('Wrong encryption password');
+          throw new EteSync.EncryptionPasswordError("Wrong encryption password");
         }
       }
 
@@ -142,7 +142,7 @@ function EncryptionPart() {
         </View>
         :
         <Paragraph>
-          You are logged in as <Text style={{ fontWeight: 'bold' }}>{credentials.credentials.email}</Text>.
+          You are logged in as <Text style={{ fontWeight: "bold" }}>{credentials.credentials.email}</Text>.
           Please enter your encryption password to continue, or log out from the side menu.
         </Paragraph>
       }

@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
+import * as React from "react";
 
-import { Text } from 'react-native';
+import { Text } from "react-native";
 
 export default React.memo(function Small(props: React.PropsWithChildren<{}>) {
   return (

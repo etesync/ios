@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import * as ICAL from 'ical.js';
-import moment from 'moment';
+import * as React from "react";
+import * as ICAL from "ical.js";
+import moment from "moment";
 
-export const defaultColor = '#8BC34A';
+export const defaultColor = "#8BC34A";
 
 export function colorIntToHtml(color?: number) {
   if (color === undefined) {
@@ -21,10 +21,10 @@ export function colorIntToHtml(color?: number) {
 
   function toHex(num: number) {
     const ret = num.toString(16);
-    return (ret.length === 1) ? '0' + ret : ret;
+    return (ret.length === 1) ? "0" + ret : ret;
   }
 
-  return '#' + toHex(red) + toHex(green) + toHex(blue) + toHex(alpha);
+  return "#" + toHex(red) + toHex(green) + toHex(blue) + toHex(alpha);
 }
 
 export function colorHtmlToInt(color?: string) {
@@ -46,8 +46,8 @@ export function colorHtmlToInt(color?: string) {
   return (b | (g << 8) | (r << 16) | (a << 24));
 }
 
-const allDayFormat = 'dddd, LL';
-const fullFormat = 'LLLL';
+const allDayFormat = "dddd, LL";
+const fullFormat = "LLLL";
 
 export function formatDate(date: ICAL.Time) {
   const mDate = moment(date.toJSDate());
@@ -66,15 +66,15 @@ export function formatDateRange(start: ICAL.Time, end: ICAL.Time) {
 
   // All day
   if (start.isDate) {
-    if (mEnd.diff(mStart, 'days', true) === 1) {
+    if (mEnd.diff(mStart, "days", true) === 1) {
       return mStart.format(allDayFormat);
     } else {
       strStart = mStart.format(allDayFormat);
-      strEnd = mEnd.clone().subtract(1, 'day').format(allDayFormat);
+      strEnd = mEnd.clone().subtract(1, "day").format(allDayFormat);
     }
-  } else if (mStart.isSame(mEnd, 'day')) {
+  } else if (mStart.isSame(mEnd, "day")) {
     strStart = mStart.format(fullFormat);
-    strEnd = mEnd.format('LT');
+    strEnd = mEnd.format("LT");
 
     if (mStart.isSame(mEnd)) {
       return strStart;
@@ -84,17 +84,17 @@ export function formatDateRange(start: ICAL.Time, end: ICAL.Time) {
     strEnd = mEnd.format(fullFormat);
   }
 
-  return strStart + ' - ' + strEnd;
+  return strStart + " - " + strEnd;
 }
 
 export function formatOurTimezoneOffset() {
   let offset = new Date().getTimezoneOffset();
-  const prefix = (offset > 0) ? '-' : '+';
+  const prefix = (offset > 0) ? "-" : "+";
   offset = Math.abs(offset);
   const hours = Math.floor(offset / 60);
   const minutes = offset % 60;
 
-  return `GMT${prefix}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  return `GMT${prefix}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
 
 export function* arrayToChunkIterator<T>(arr: T[], size: number) {
@@ -104,7 +104,7 @@ export function* arrayToChunkIterator<T>(arr: T[], size: number) {
 }
 
 export function isPromise(x: any): x is Promise<any> {
-  return x && typeof x.then === 'function';
+  return x && typeof x.then === "function";
 }
 
 export function isDefined<T>(x: T | undefined): x is T {

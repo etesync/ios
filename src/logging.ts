@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage } from "react-native";
 
 export enum LogLevel {
   Off = 0,
@@ -38,7 +38,7 @@ function logPrint(messageLevel: LogLevel, message: any) {
   }
 }
 
-const logPrefix = '__logging_';
+const logPrefix = "__logging_";
 
 function logToBuffer(messageLevel: LogLevel, message: any) {
   if (!shouldLog(messageLevel)) {

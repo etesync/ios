@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { ViewProps, View } from 'react-native';
-import { Button } from 'react-native-paper';
+import * as React from "react";
+import { ViewProps, View } from "react-native";
+import { Button } from "react-native-paper";
 
-import Container from './Container';
-import ScrollView from './ScrollView';
+import Container from "./Container";
+import ScrollView from "./ScrollView";
 
 export interface PagePropsType {
   prev?: () => void;
@@ -20,7 +20,7 @@ export function WizardNavigationBar(props: PagePropsType) {
   const last = props.currentPage === props.totalPages - 1;
 
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 'auto' }}>
+    <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: "auto" }}>
       <Button
         mode="contained"
         disabled={first}
@@ -34,7 +34,7 @@ export function WizardNavigationBar(props: PagePropsType) {
         color="green"
         onPress={props.next}
       >
-        {(last) ? 'Finish' : 'Next'}
+        {(last) ? "Finish" : "Next"}
       </Button>
     </View>
   );
@@ -58,7 +58,7 @@ export default function Wizard(inProps: PropsType) {
 
   return (
     <ScrollView {...props}>
-      <Container style={{ flex: 1, minHeight: '100%' }}>
+      <Container style={{ flex: 1, minHeight: "100%" }}>
         {Content({ prev, next, currentPage, totalPages: pages.length })}
       </Container>
     </ScrollView>

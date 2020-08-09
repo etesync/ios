@@ -1,30 +1,30 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { Linking, TextInput as NativeTextInput } from 'react-native';
-import { List, Paragraph, HelperText, Switch, useTheme } from 'react-native-paper';
-import { useDispatch, useSelector } from 'react-redux';
+import * as React from "react";
+import { Linking, TextInput as NativeTextInput } from "react-native";
+import { List, Paragraph, HelperText, Switch, useTheme } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
 
-import * as EteSync from 'etesync';
-import sjcl from 'sjcl';
+import * as EteSync from "etesync";
+import sjcl from "sjcl";
 
-import { logger, LogLevel } from './logging';
+import { logger, LogLevel } from "./logging";
 
-import { SyncManager } from './sync/SyncManager';
-import { useCredentials } from './login';
+import { SyncManager } from "./sync/SyncManager";
+import { useCredentials } from "./login";
 
-import ScrollView from './widgets/ScrollView';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import PasswordInput from './widgets/PasswordInput';
-import SyncSettings from './sync/SyncSettings';
+import ScrollView from "./widgets/ScrollView";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import PasswordInput from "./widgets/PasswordInput";
+import SyncSettings from "./sync/SyncSettings";
 
-import { StoreState } from './store';
-import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from './store/actions';
+import { StoreState } from "./store";
+import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from "./store/actions";
 
-import * as C from './constants';
-import { startTask } from './helpers';
-import { useNavigation } from '@react-navigation/native';
+import * as C from "./constants";
+import { startTask } from "./helpers";
+import { useNavigation } from "@react-navigation/native";
 
 interface DialogPropsType {
   visible: boolean;
@@ -35,11 +35,11 @@ function AuthenticationPasswordDialog(props: DialogPropsType) {
   const etesync = useCredentials()!;
   const dispatch = useDispatch();
   const [error, setError] = React.useState<string>();
-  const [password, setPassword] = React.useState('');
+  const [password, setPassword] = React.useState("");
 
   async function onOk() {
     if (!password) {
-      setError('Password can\'t be empty.');
+      setError("Password can't be empty.");
       return;
     }
     try {
@@ -88,8 +88,8 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
   const etesync = useCredentials()!;
   const dispatch = useDispatch();
   const [errors, setErrors] = React.useState<EncryptionFormErrors>({});
-  const [oldPassword, setOldPassword] = React.useState('');
-  const [newPassword, setNewPassword] = React.useState('');
+  const [oldPassword, setOldPassword] = React.useState("");
+  const [newPassword, setNewPassword] = React.useState("");
   const journals = useSelector((state: StoreState) => state.cache.journals);
 
   async function onOk() {
@@ -109,27 +109,27 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 
     await startTask(async () => {
       // FIXME: update journal list or maybe fetch all?
-      logger.info('Changing encryption password');
+      logger.info("Changing encryption password");
       const me = etesync.credentials.email;
-      logger.info('Deriving old key');
+      logger.info("Deriving old key");
       const oldDerivedAction = await deriveKey(etesync.credentials.email, oldPassword);
       const oldDerived = await oldDerivedAction.payload;
 
       if (oldDerived !== etesync.encryptionKey) {
-        setErrors({ oldPassword: 'Error: wrong encryption password.' });
+        setErrors({ oldPassword: "Error: wrong encryption password." });
         return;
       }
 
-      logger.info('Deriving new key');
+      logger.info("Deriving new key");
       const newDerivedAction = await deriveKey(etesync.credentials.email, newPassword);
       const newDerived = await newDerivedAction.payload;
-      logger.info('Fetching user info');
+      logger.info("Fetching user info");
       const userInfoAction = await dispatch(fetchUserInfo(etesync, me));
       const userInfo = await userInfoAction.payload;
       const userInfoCryptoManager = userInfo.getCryptoManager(oldDerived);
       const keyPair = userInfo.getKeyPair(userInfoCryptoManager);
 
-      logger.info('Updating journals');
+      logger.info("Updating journals");
       for (const journal of journals.values()) {
         if (journal.key) {
           // Skip journals that already have a key (includes one we don't own)
@@ -154,7 +154,7 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 
       // FIXME: the performSync is a hack to make sure we don't update any screens before we've update the store
       await dispatch(performSync((async () => {
-        logger.info('Updating user info');
+        logger.info("Updating user info");
         try {
           const newCryptoManager = userInfo.getCryptoManager(newDerived);
           userInfo.setKeyPair(newCryptoManager, keyPair);
@@ -265,7 +265,7 @@ const SettingsScreen = function _SettingsScreen() {
             title="About"
             description="About and open source licenses"
             onPress={() => {
-              navigation.navigate('About');
+              navigation.navigate("About");
             }}
           />
         </List.Section>
@@ -281,7 +281,7 @@ const SettingsScreen = function _SettingsScreen() {
           <List.Subheader>Debugging</List.Subheader>
           <List.Item
             title="Enable Logging"
-            description={(settings.logLevel === LogLevel.Off) ? 'Click to enable debug logging' : 'Click to disable debug logging'}
+            description={(settings.logLevel === LogLevel.Off) ? "Click to enable debug logging" : "Click to disable debug logging"}
             accessible={false}
             right={(props) =>
               <Switch
@@ -298,7 +298,7 @@ const SettingsScreen = function _SettingsScreen() {
             title="View Logs"
             description="View previously collected debug logs"
             onPress={() => {
-              navigation.navigate('DebugLogs');
+              navigation.navigate("DebugLogs");
             }}
           />
         </List.Section>

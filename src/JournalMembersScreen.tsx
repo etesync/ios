@@ -1,27 +1,27 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import { View } from 'react-native';
-import { Avatar, List, Appbar, Paragraph, HelperText, useTheme } from 'react-native-paper';
-import { useNavigation, RouteProp } from '@react-navigation/native';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import { View } from "react-native";
+import { Avatar, List, Appbar, Paragraph, HelperText, useTheme } from "react-native-paper";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 
-import { useSyncGate } from './SyncGate';
-import { useCredentials } from './login';
-import { StoreState } from './store';
+import { useSyncGate } from "./SyncGate";
+import { useCredentials } from "./login";
+import { StoreState } from "./store";
 
-import TextInput from './widgets/TextInput';
-import ScrollView from './widgets/ScrollView';
-import Checkbox from './widgets/Checkbox';
-import PrettyFingerprint from './widgets/PrettyFingerprint';
-import Container from './widgets/Container';
-import LoadingIndicator from './widgets/LoadingIndicator';
-import ConfirmationDialog from './widgets/ConfirmationDialog';
-import ErrorDialog from './widgets/ErrorDialog';
+import TextInput from "./widgets/TextInput";
+import ScrollView from "./widgets/ScrollView";
+import Checkbox from "./widgets/Checkbox";
+import PrettyFingerprint from "./widgets/PrettyFingerprint";
+import Container from "./widgets/Container";
+import LoadingIndicator from "./widgets/LoadingIndicator";
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
+import ErrorDialog from "./widgets/ErrorDialog";
 
-import * as EteSync from 'etesync';
-import sjcl from 'sjcl';
+import * as EteSync from "etesync";
+import sjcl from "sjcl";
 
 type RootStackParamList = {
   JournalMembersScreen: {
@@ -30,7 +30,7 @@ type RootStackParamList = {
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, 'JournalMembersScreen'>;
+  route: RouteProp<RootStackParamList, "JournalMembersScreen">;
 }
 
 
@@ -94,9 +94,9 @@ const JournalMembersScreen = function _JournalMembersScreen(props: PropsType) {
               key={member.user}
               title={member.user}
               right={(props: any) => (
-                <View {...props} style={{ flexDirection: 'row' }}>
+                <View {...props} style={{ flexDirection: "row" }}>
                   {member.readOnly &&
-                    <Avatar.Icon icon="eye" size={36} color={theme.colors.text} style={{ backgroundColor: 'transparent' }} />
+                    <Avatar.Icon icon="eye" size={36} color={theme.colors.text} style={{ backgroundColor: "transparent" }} />
                   }
                 </View>
               )}
@@ -132,9 +132,9 @@ const JournalMembersScreen = function _JournalMembersScreen(props: PropsType) {
 
 function RightAction(props: { journalUid: string }) {
   const [memberDialogVisible, setMemberDialogVisible] = React.useState(false);
-  const [username, setUsername] = React.useState('');
+  const [username, setUsername] = React.useState("");
   const [readOnly, setReadOnly] = React.useState(false);
-  const [publicKey, setPublicKey] = React.useState('');
+  const [publicKey, setPublicKey] = React.useState("");
   const [errorUsername, setErrorUsername] = React.useState<string | null>(null);
   const navigation = useNavigation();
   const etesync = useCredentials()!;
@@ -184,7 +184,7 @@ function RightAction(props: { journalUid: string }) {
           navigation.goBack();
         }}
         onCancel={() => {
-          setPublicKey('');
+          setPublicKey("");
           setMemberDialogVisible(false);
         }}
       >
@@ -193,7 +193,7 @@ function RightAction(props: { journalUid: string }) {
             Verify {username}'s security fingerprint to ensure the encryption is secure.
           </Paragraph>
           {publicKey &&
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 15 }}>
+            <View style={{ justifyContent: "center", alignItems: "center", marginTop: 15 }}>
               <PrettyFingerprint publicKey={publicKey} />
             </View>
           }
@@ -206,12 +206,12 @@ function RightAction(props: { journalUid: string }) {
           onOk={async () => {
             try {
               const ret = await memberPubkeyGet();
-              setErrorUsername('');
+              setErrorUsername("");
               setPublicKey(ret);
             } catch (e) {
               let message = e.toString();
               if (e instanceof EteSync.HTTPError && (e.status === 404)) {
-                message = 'User not found. Have they setup their encryption password from one of the apps?';
+                message = "User not found. Have they setup their encryption password from one of the apps?";
               }
               setErrorUsername(message);
             }

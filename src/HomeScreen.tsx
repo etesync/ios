@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Appbar } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import * as React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Appbar } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 
-import { SyncManager } from './sync/SyncManager';
+import { SyncManager } from "./sync/SyncManager";
 
-import JournalListScreen from './components/JournalListScreen';
-import { usePermissions } from './Permissions';
+import JournalListScreen from "./components/JournalListScreen";
+import { usePermissions } from "./Permissions";
 
-import { StoreState } from './store';
-import { performSync } from './store/actions';
+import { StoreState } from "./store";
+import { performSync } from "./store/actions";
 
-import { useCredentials } from './login';
-import { useSyncGate } from './SyncGate';
-import { registerSyncTask } from './sync/SyncManager';
+import { useCredentials } from "./login";
+import { useSyncGate } from "./SyncGate";
+import { registerSyncTask } from "./sync/SyncManager";
 
 
 export default React.memo(function HomeScreen() {

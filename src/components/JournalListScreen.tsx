@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import { View } from 'react-native';
-import { Avatar, IconButton, Card, Menu, List, Colors, Text } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import { View } from "react-native";
+import { Avatar, IconButton, Card, Menu, List, Colors, Text } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 
-import moment from 'moment';
+import moment from "moment";
 
-import { colorIntToHtml } from '../helpers';
+import { colorIntToHtml } from "../helpers";
 
-import ScrollView from '../widgets/ScrollView';
-import ColorBox from '../widgets/ColorBox';
-import { useCredentials } from '../login';
-import { useSyncGate } from '../SyncGate';
+import ScrollView from "../widgets/ScrollView";
+import ColorBox from "../widgets/ColorBox";
+import { useCredentials } from "../login";
+import { useSyncGate } from "../SyncGate";
 
-import { StoreState } from '../store';
+import { StoreState } from "../store";
 
 const backgroundPrimary = Colors.amber700;
 
@@ -35,7 +35,7 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
       <Menu.Item
         onPress={() => {
           setShowMenu(false);
-          navigation.navigate('JournalNew', { journalType: props.journalType });
+          navigation.navigate("JournalNew", { journalType: props.journalType });
         }}
         title="Create new"
       />
@@ -65,13 +65,13 @@ export default function JournalListScreen() {
       const shared = journal.owner !== me;
 
       function journalClicked() {
-        navigation.navigate('Journal', { journalUid: info.uid });
+        navigation.navigate("Journal", { journalUid: info.uid });
       }
 
       let colorBox: any;
       switch (info.type) {
-        case 'CALENDAR':
-        case 'TASKS':
+        case "CALENDAR":
+        case "TASKS":
           colorBox = (
             <ColorBox size={36} color={colorIntToHtml(info.color)} />
           );
@@ -79,12 +79,12 @@ export default function JournalListScreen() {
       }
 
       const rightIcon = (props: any) => (
-        <View {...props} style={{ flexDirection: 'row' }}>
+        <View {...props} style={{ flexDirection: "row" }}>
           {shared &&
-            <Avatar.Icon icon="account-multiple" size={36} style={{ backgroundColor: 'transparent' }} />
+            <Avatar.Icon icon="account-multiple" size={36} style={{ backgroundColor: "transparent" }} />
           }
           {journal.readOnly &&
-            <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: 'transparent' }} />
+            <Avatar.Icon icon="eye" size={36} style={{ backgroundColor: "transparent" }} />
           }
           {colorBox}
         </View>
@@ -110,24 +110,24 @@ export default function JournalListScreen() {
 
   const cards = [
     {
-      title: 'Address Books',
-      lookup: 'ADDRESS_BOOK',
-      icon: 'contacts',
+      title: "Address Books",
+      lookup: "ADDRESS_BOOK",
+      icon: "contacts",
     },
     {
-      title: 'Calendars',
-      lookup: 'CALENDAR',
-      icon: 'calendar',
+      title: "Calendars",
+      lookup: "CALENDAR",
+      icon: "calendar",
     },
     {
-      title: 'Tasks',
-      lookup: 'TASKS',
-      icon: 'format-list-checkbox',
+      title: "Tasks",
+      lookup: "TASKS",
+      icon: "format-list-checkbox",
     },
   ];
 
   const shadowStyle = {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -140,12 +140,12 @@ export default function JournalListScreen() {
 
   return (
     <ScrollView style={{ flex: 1 }}>
-      <Text style={{ textAlign: 'center', marginTop: 15 }}>Last sync: {lastSync ? moment(lastSync).format('lll') : 'never'}</Text>
+      <Text style={{ textAlign: "center", marginTop: 15 }}>Last sync: {lastSync ? moment(lastSync).format("lll") : "never"}</Text>
       {cards.map((card) => (
         <Card key={card.lookup} accessible={false} elevation={4} style={{ margin: 20 }}>
           <Card.Title
             title={card.title}
-            titleStyle={{ color: 'white' }}
+            titleStyle={{ color: "white" }}
             style={{ ...shadowStyle, backgroundColor: backgroundPrimary }}
             left={(props) => (
               <View accessibilityElementsHidden>

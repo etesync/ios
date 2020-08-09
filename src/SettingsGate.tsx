@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useSelector } from 'react-redux';
-import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
+import * as React from "react";
+import { useSelector } from "react-redux";
+import NetInfo, { NetInfoState } from "@react-native-community/netinfo";
 
-import moment from 'moment';
-import 'moment/locale/en-gb';
+import moment from "moment";
+import "moment/locale/en-gb";
 
-import { StoreState, store } from './store';
-import { setConnectionInfo } from './store/actions';
-import { logger, setLogLevel } from './logging';
+import { StoreState, store } from "./store";
+import { setConnectionInfo } from "./store/actions";
+import { logger, setLogLevel } from "./logging";
 
 function handleConnectivityChange(connectionInfo: NetInfoState) {
   logger.info(`ConnectionfInfo: ${connectionInfo.isConnected} ${connectionInfo.type}`);

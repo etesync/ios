@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import moment from 'moment';
-import * as EteSync from 'etesync';
+import * as React from "react";
+import moment from "moment";
+import * as EteSync from "etesync";
 
-import { Clipboard, Linking } from 'react-native';
-import { Text, List, Divider } from 'react-native-paper';
+import { Clipboard, Linking } from "react-native";
+import { Text, List, Divider } from "react-native-paper";
 
-import { SyncInfoItem } from './store';
+import { SyncInfoItem } from "./store";
 
-import Container from './widgets/Container';
+import Container from "./widgets/Container";
 
-import { ContactType } from './pim-types';
+import { ContactType } from "./pim-types";
 
-import JournalItemHeader from './JournalItemHeader';
+import JournalItemHeader from "./JournalItemHeader";
 
 interface PropsType {
   collection: EteSync.CollectionInfo;
@@ -25,8 +25,8 @@ export default React.memo(function JournalItemContact(props: PropsType) {
   const entry = props.entry;
   const contact = ContactType.parse(entry.content);
 
-  const revProp = contact.comp.getFirstProperty('rev');
-  const lastModified = (revProp) ? moment(revProp.getFirstValue().toJSDate()).format('LLLL') : undefined;
+  const revProp = contact.comp.getFirstProperty("rev");
+  const lastModified = (revProp) ? moment(revProp.getFirstValue().toJSDate()).format("LLLL") : undefined;
 
   const lists = [];
 
@@ -61,48 +61,48 @@ export default React.memo(function JournalItemContact(props: PropsType) {
   }
 
   lists.push(getAllType(
-    'tel',
-    'phone',
-    (x) => ('tel:' + x)
+    "tel",
+    "phone",
+    (x) => ("tel:" + x)
   ));
 
   lists.push(getAllType(
-    'email',
-    'email',
-    (x) => ('mailto:' + x)
+    "email",
+    "email",
+    (x) => ("mailto:" + x)
   ));
 
   lists.push(getAllType(
-    'impp',
-    'chat',
+    "impp",
+    "chat",
     (x) => x,
-    (x) => (x.substring(x.indexOf(':') + 1)),
-    (x) => (x.substring(0, x.indexOf(':')))
+    (x) => (x.substring(x.indexOf(":") + 1)),
+    (x) => (x.substring(0, x.indexOf(":")))
   ));
 
   lists.push(getAllType(
-    'adr',
-    'home'
+    "adr",
+    "home"
   ));
 
   lists.push(getAllType(
-    'bday',
-    'calendar',
+    "bday",
+    "calendar",
     undefined,
-    ((x: any) => (x.toJSDate) ? moment(x.toJSDate()).format('dddd, LL') : x),
-    () => 'Birthday'
+    ((x: any) => (x.toJSDate) ? moment(x.toJSDate()).format("dddd, LL") : x),
+    () => "Birthday"
   ));
 
   lists.push(getAllType(
-    'anniversary',
-    'calendar',
+    "anniversary",
+    "calendar",
     undefined,
-    ((x: any) => (x.toJSDate) ? moment(x.toJSDate()).format('dddd, LL') : x),
-    () => 'Anniversary'
+    ((x: any) => (x.toJSDate) ? moment(x.toJSDate()).format("dddd, LL") : x),
+    () => "Anniversary"
   ));
 
-  const skips = ['tel', 'email', 'impp', 'adr', 'bday', 'anniversary', 'rev',
-    'prodid', 'uid', 'fn', 'n', 'version', 'photo'];
+  const skips = ["tel", "email", "impp", "adr", "bday", "anniversary", "rev",
+    "prodid", "uid", "fn", "n", "version", "photo"];
   const theRest = contact.comp.getAllProperties().filter((prop) => (
     skips.indexOf(prop.name) === -1
   )).map((prop, idx) => {

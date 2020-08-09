@@ -1,37 +1,37 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { Notifications } from 'expo';
-import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import * as BackgroundFetch from 'expo-background-fetch';
-import * as TaskManager from 'expo-task-manager';
-import * as Permissions from 'expo-permissions';
+import { Notifications } from "expo";
+import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake";
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
+import * as Permissions from "expo-permissions";
 
-import { beginBackgroundTask, endBackgroundTask } from '../EteSyncNative';
+import { beginBackgroundTask, endBackgroundTask } from "../EteSyncNative";
 
-import * as EteSync from 'etesync';
+import * as EteSync from "etesync";
 
 const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
-import { syncInfoSelector } from '../SyncHandler';
-import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote } from '../store';
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError } from '../store/actions';
+import { syncInfoSelector } from "../SyncHandler";
+import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote } from "../store";
+import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError } from "../store/actions";
 
-import { logger } from '../logging';
+import { logger } from "../logging";
 
-import { SyncManagerAddressBook } from './SyncManagerAddressBook';
-import { SyncManagerCalendar } from './SyncManagerCalendar';
-import { SyncManagerTaskList } from './SyncManagerTaskList';
+import { SyncManagerAddressBook } from "./SyncManagerAddressBook";
+import { SyncManagerCalendar } from "./SyncManagerCalendar";
+import { SyncManagerTaskList } from "./SyncManagerTaskList";
 
-import sjcl from 'sjcl';
-import * as Random from 'expo-random';
-import { credentialsSelector } from '../login';
-import { startTask } from '../helpers';
+import sjcl from "sjcl";
+import * as Random from "expo-random";
+import { credentialsSelector } from "../login";
+import { startTask } from "../helpers";
 
 async function prngAddEntropy(entropyBits = 1024) {
   const bytes = await Random.getRandomBytesAsync(entropyBits / 8);
   const buf = new Uint32Array(new Uint8Array(bytes).buffer);
-  sjcl.random.addEntropy(buf as any, entropyBits, 'Random.getRandomBytesAsync');
+  sjcl.random.addEntropy(buf as any, entropyBits, "Random.getRandomBytesAsync");
 }
 // we seed the entropy in the beginning + on every sync
 prngAddEntropy();
@@ -97,16 +97,16 @@ export class SyncManager {
     if (!haveJournals) {
       const collectionDescs = [
         {
-          type: 'ADDRESS_BOOK',
-          name: 'My Contacts',
+          type: "ADDRESS_BOOK",
+          name: "My Contacts",
         },
         {
-          type: 'CALENDAR',
-          name: 'My Calendar',
+          type: "CALENDAR",
+          name: "My Calendar",
         },
         {
-          type: 'TASKS',
-          name: 'My Tasks',
+          type: "TASKS",
+          name: "My Tasks",
         },
       ];
 
@@ -137,11 +137,11 @@ export class SyncManager {
   }
 
   public async sync() {
-    const keepAwakeTag = 'SyncManager';
-    const taskId = beginBackgroundTask('Sync');
+    const keepAwakeTag = "SyncManager";
+    const taskId = beginBackgroundTask("Sync");
 
     if (!store.getState().connection?.isConnected) {
-      logger.info('Disconnected, aborting sync');
+      logger.info("Disconnected, aborting sync");
       return false;
     }
 
@@ -231,7 +231,7 @@ function persistorLoaded() {
   });
 }
 
-const BACKGROUND_SYNC_TASK_NAME = 'SYNCMANAGER_SYNC';
+const BACKGROUND_SYNC_TASK_NAME = "SYNCMANAGER_SYNC";
 
 TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
   let timeoutDone = false;
@@ -254,7 +254,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     if (timeoutDone) {
       if (await allowedNotifications) {
         Notifications.presentLocalNotificationAsync({
-          title: 'Sync Timedout',
+          title: "Sync Timedout",
           body: `Please contact us and let us know what happened.`,
         });
       }
@@ -270,8 +270,8 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     if (receivedNewData) {
       if (await allowedNotifications) {
         Notifications.presentLocalNotificationAsync({
-          title: 'New Data Available',
-          body: 'Please click here to sync!',
+          title: "New Data Available",
+          body: "Please click here to sync!",
         });
       }
     }
@@ -280,7 +280,7 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
   } catch (error) {
     if (await allowedNotifications) {
       Notifications.presentLocalNotificationAsync({
-        title: 'Sync Failed',
+        title: "Sync Failed",
         body: `Sync failed, please contact us.\nError: ${error.message}`,
       });
     }

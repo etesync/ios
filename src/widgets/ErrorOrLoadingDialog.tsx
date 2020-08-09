@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
+import * as React from "react";
 
-import ErrorDialog from './ErrorDialog';
-import ConfirmationDialog from './ConfirmationDialog';
+import ErrorDialog from "./ErrorDialog";
+import ConfirmationDialog from "./ConfirmationDialog";
 
 interface PropsType {
   loading?: boolean;
@@ -28,7 +28,7 @@ export default React.memo(function ErrorOrLoadingDialog(props: PropsType) {
         visible={props.loading}
         onCancel={props.onDismiss}
         loading
-        loadingText={props.loadingText ?? 'Please wait...'}
+        loadingText={props.loadingText ?? "Please wait..."}
       >
         <React.Fragment />
       </ConfirmationDialog>

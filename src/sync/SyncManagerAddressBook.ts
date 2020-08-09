@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from 'etesync';
-import * as Contacts from 'expo-contacts';
+import * as EteSync from "etesync";
+import * as Contacts from "expo-contacts";
 
-import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges, getContainers } from '../EteSyncNative';
+import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges, getContainers } from "../EteSyncNative";
 
-import { logger } from '../logging';
+import { logger } from "../logging";
 
-import { store, SyncStateEntry } from '../store';
+import { store, SyncStateEntry } from "../store";
 
-import { contactVobjectToNative, NativeContact, contactNativeToVobject } from './helpers';
-import { ContactType } from '../pim-types';
+import { contactVobjectToNative, NativeContact, contactNativeToVobject } from "./helpers";
+import { ContactType } from "../pim-types";
 
-import { SyncManagerBase, PushEntry } from './SyncManagerBase';
+import { SyncManagerBase, PushEntry } from "./SyncManagerBase";
 
 const fieldTypes = [
   Contacts.Fields.ID,
@@ -50,7 +50,7 @@ const fieldTypes = [
 ];
 
 export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeContact> {
-  protected collectionType = 'ADDRESS_BOOK';
+  protected collectionType = "ADDRESS_BOOK";
   private containerId: string;
 
   public async init() {
@@ -63,7 +63,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         if (foundContainer) {
           this.containerId = foundContainer.id;
         } else {
-          throw new Error('AddressBook: failed to find selected container. Please contact developers.');
+          throw new Error("AddressBook: failed to find selected container. Please contact developers.");
         }
       }
       this.canSync = !!this.containerId;
@@ -119,7 +119,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         const collectionUid = reverseEntry?.collectionUid ?? defaultCollectionUid;
         const syncStateJournal = syncStateJournals.get(collectionUid)!;
         const _contact = await Contacts.getContactByIdAsync(contactId, fieldTypes as any);
-        const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(':')[0] };
+        const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(":")[0] };
         const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
         if (pushEntry) {
           pushEntries.get(collectionUid)!.push(pushEntry);

@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { Action, createAction } from 'redux-actions';
-import * as Permissions from 'expo-permissions';
+import { Action, createAction } from "redux-actions";
+import * as Permissions from "expo-permissions";
 
-import * as EteSync from 'etesync';
-import { UserInfo } from 'etesync';
+import * as EteSync from "etesync";
+import { UserInfo } from "etesync";
 
-import { ConnectionInfo, CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from './';
-import { startTask } from '../helpers';
+import { ConnectionInfo, CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from "./";
+import { startTask } from "../helpers";
 
 export const fetchCredentials = createAction(
-  'FETCH_CREDENTIALS',
+  "FETCH_CREDENTIALS",
   (username: string, password: string, server: string) => {
     const authenticator = new EteSync.Authenticator(server);
 
@@ -36,7 +36,7 @@ export const fetchCredentials = createAction(
 );
 
 export const logout = createAction(
-  'LOGOUT',
+  "LOGOUT",
   (etesync: CredentialsData) => {
     (async () => {
       const authenticator = new EteSync.Authenticator(etesync.serviceApiUrl);
@@ -51,7 +51,7 @@ export const logout = createAction(
 );
 
 export const deriveKey = createAction(
-  'DERIVE_KEY',
+  "DERIVE_KEY",
   (username: string, encryptionPassword: string) => {
     return startTask(() => {
       return EteSync.deriveKey(username, encryptionPassword);
@@ -60,7 +60,7 @@ export const deriveKey = createAction(
 );
 
 export const resetKey = createAction(
-  'RESET_KEY',
+  "RESET_KEY",
   () => {
     return null;
   }
@@ -74,7 +74,7 @@ export const login = (username: string, password: string, encryptionPassword: st
 };
 
 export const fetchListJournal = createAction(
-  'FETCH_LIST_JOURNAL',
+  "FETCH_LIST_JOURNAL",
   (etesync: CredentialsData) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -85,7 +85,7 @@ export const fetchListJournal = createAction(
 );
 
 export const addJournal = createAction(
-  'ADD_JOURNAL',
+  "ADD_JOURNAL",
   (etesync: CredentialsData, journal: EteSync.Journal) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -99,7 +99,7 @@ export const addJournal = createAction(
 );
 
 export const updateJournal = createAction(
-  'UPDATE_JOURNAL',
+  "UPDATE_JOURNAL",
   (etesync: CredentialsData, journal: EteSync.Journal) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -113,7 +113,7 @@ export const updateJournal = createAction(
 );
 
 export const deleteJournal = createAction(
-  'DELETE_JOURNAL',
+  "DELETE_JOURNAL",
   (etesync: CredentialsData, journal: EteSync.Journal) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -127,7 +127,7 @@ export const deleteJournal = createAction(
 );
 
 export const fetchEntries = createAction(
-  'FETCH_ENTRIES',
+  "FETCH_ENTRIES",
   (etesync: CredentialsData, journalUid: string, prevUid: string | null) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -141,7 +141,7 @@ export const fetchEntries = createAction(
 );
 
 export const addEntries = createAction(
-  'ADD_ENTRIES',
+  "ADD_ENTRIES",
   async (etesync: CredentialsData, journalUid: string, newEntries: EteSync.Entry[], prevUid: string | null) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -156,7 +156,7 @@ export const addEntries = createAction(
 );
 
 export const fetchUserInfo = createAction(
-  'FETCH_USER_INFO',
+  "FETCH_USER_INFO",
   (etesync: CredentialsDataRemote, owner: string) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -167,7 +167,7 @@ export const fetchUserInfo = createAction(
 );
 
 export const createUserInfo = createAction(
-  'CREATE_USER_INFO',
+  "CREATE_USER_INFO",
   (etesync: CredentialsData, userInfo: UserInfo) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -181,7 +181,7 @@ export const createUserInfo = createAction(
 );
 
 export const updateUserInfo = createAction(
-  'UPDATE_USER_INFO',
+  "UPDATE_USER_INFO",
   (etesync: CredentialsData, userInfo: UserInfo) => {
     const creds = etesync.credentials;
     const apiBase = etesync.serviceApiUrl;
@@ -195,28 +195,28 @@ export const updateUserInfo = createAction(
 );
 
 export const performSync = createAction(
-  'PERFORM_SYNC',
+  "PERFORM_SYNC",
   (syncPromise: Promise<any>) => {
     return syncPromise;
   }
 );
 
 export const setSyncStateJournal = createAction(
-  'SET_SYNC_STATE_JOURNAL',
+  "SET_SYNC_STATE_JOURNAL",
   (_etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
     return { ...syncStateJournal };
   }
 );
 
 export const unsetSyncStateJournal = createAction(
-  'UNSET_SYNC_STATE_JOURNAL',
+  "UNSET_SYNC_STATE_JOURNAL",
   (_etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
     return { ...syncStateJournal };
   }
 );
 
 export const setSyncStateEntry = createAction(
-  'SET_SYNC_STATE_ENTRY',
+  "SET_SYNC_STATE_ENTRY",
   (_etesync: CredentialsData, _journalUid: string, syncStateEntry: SyncStateEntry) => {
     return { ...syncStateEntry };
   },
@@ -226,7 +226,7 @@ export const setSyncStateEntry = createAction(
 );
 
 export const unsetSyncStateEntry = createAction(
-  'UNSET_SYNC_STATE_ENTRY',
+  "UNSET_SYNC_STATE_ENTRY",
   (_etesync: CredentialsData, _journalUid: string, syncStateEntry: SyncStateEntry) => {
     return { ...syncStateEntry };
   },
@@ -237,14 +237,14 @@ export const unsetSyncStateEntry = createAction(
 
 
 export const setSyncInfoCollection = createAction(
-  'SET_SYNC_INFO_COLLECTION',
+  "SET_SYNC_INFO_COLLECTION",
   (_etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
     return { ...syncInfoCollection };
   }
 );
 
 export const unsetSyncInfoCollection = createAction(
-  'UNSET_SYNC_INFO_COLLECTION',
+  "UNSET_SYNC_INFO_COLLECTION",
   (_etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
     return { ...syncInfoCollection };
   }
@@ -252,7 +252,7 @@ export const unsetSyncInfoCollection = createAction(
 
 
 export const setSyncInfoItem = createAction(
-  'SET_SYNC_INFO_ITEM',
+  "SET_SYNC_INFO_ITEM",
   (_etesync: CredentialsData, _journalUid: string, syncInfoItem: SyncInfoItem) => {
     return { ...syncInfoItem };
   },
@@ -262,7 +262,7 @@ export const setSyncInfoItem = createAction(
 );
 
 export const unsetSyncInfoItem = createAction(
-  'UNSET_SYNC_INFO_ITEM',
+  "UNSET_SYNC_INFO_ITEM",
   (_etesync: CredentialsData, _journalUid: string, syncInfoItem: SyncInfoItem) => {
     return { ...syncInfoItem };
   },
@@ -272,50 +272,50 @@ export const unsetSyncInfoItem = createAction(
 );
 
 export const setConnectionInfo = createAction(
-  'SET_CONNECTION_INFO',
+  "SET_CONNECTION_INFO",
   (connectionInfo: ConnectionInfo) => {
     return { ...connectionInfo };
   }
 );
 
 export const setPermission = createAction(
-  'SET_PERMISSION',
+  "SET_PERMISSION",
   (_type: string, value: boolean) => {
     return value;
   },
   (type: string, _value: boolean) => {
     const mapping = {
-      [Permissions.CALENDAR]: 'CALENDAR',
-      [Permissions.REMINDERS]: 'TASKS',
-      [Permissions.CONTACTS]: 'ADDRESS_BOOK',
+      [Permissions.CALENDAR]: "CALENDAR",
+      [Permissions.REMINDERS]: "TASKS",
+      [Permissions.CONTACTS]: "ADDRESS_BOOK",
     };
     return mapping[type] ?? type;
   }
 );
 
 export const setSyncStatus = createAction(
-  'SET_SYNC_STATUS',
+  "SET_SYNC_STATUS",
   (status: string | null) => {
     return status;
   }
 );
 
 export const addNonFatalError = createAction(
-  'ADD_NON_FATAL_ERROR',
+  "ADD_NON_FATAL_ERROR",
   (_etesync: CredentialsData, e: Error) => {
     return e;
   }
 );
 
 export const popNonFatalError = createAction(
-  'POP_NON_FATAL_ERROR',
+  "POP_NON_FATAL_ERROR",
   (_etesync: CredentialsData) => {
     return null;
   }
 );
 
 export const clearErros = createAction(
-  'CLEAR_ERRORS',
+  "CLEAR_ERRORS",
   (_etesync: CredentialsData) => {
     return true;
   }
@@ -348,7 +348,7 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) 
 
 // FIXME: Move the rest to their own file
 export const setSettings = createAction(
-  'SET_SETTINGS',
+  "SET_SETTINGS",
   (settings: Partial<SettingsType>) => {
     return { ...settings };
   }

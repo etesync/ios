@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Button, Paragraph } from 'react-native-paper';
+import * as React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Button, Paragraph } from "react-native-paper";
 
-import * as Permissions from 'expo-permissions';
+import * as Permissions from "expo-permissions";
 
-import { Title } from './widgets/Typography';
-import LoadingIndicator from './widgets/LoadingIndicator';
+import { Title } from "./widgets/Typography";
+import LoadingIndicator from "./widgets/LoadingIndicator";
 
-import { StoreState } from './store';
-import { setPermission } from './store/actions';
+import { StoreState } from "./store";
+import { setPermission } from "./store/actions";
 
-import { logger } from './logging';
+import { logger } from "./logging";
 
 const wantedPermissions: Permissions.PermissionType[] = [Permissions.CALENDAR, Permissions.REMINDERS, Permissions.CONTACTS, Permissions.USER_FACING_NOTIFICATIONS];
 

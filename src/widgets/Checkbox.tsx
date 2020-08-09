@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { Checkbox as PaperCheckbox, Paragraph, TouchableRipple } from 'react-native-paper';
-import { View, StyleProp, ViewStyle } from 'react-native';
+import * as React from "react";
+import { Checkbox as PaperCheckbox, Paragraph, TouchableRipple } from "react-native-paper";
+import { View, StyleProp, ViewStyle } from "react-native";
 
 interface PropsType {
   style?: StyleProp<ViewStyle>;
@@ -18,11 +18,11 @@ export default function Checkbox(props: PropsType) {
       onPress={props.onPress}
       style={props.style}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 16 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 8, paddingHorizontal: 16 }}>
         <Paragraph>{props.title}</Paragraph>
         <View pointerEvents="none">
           <PaperCheckbox.Android
-            status={props.status ? 'checked' : 'unchecked'}
+            status={props.status ? "checked" : "unchecked"}
           />
         </View>
       </View>

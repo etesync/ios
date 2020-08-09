@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { createStore, applyMiddleware } from 'redux';
-import { persistStore } from 'redux-persist';
-import thunkMiddleware from 'redux-thunk';
-import { createLogger } from 'redux-logger';
+import { createStore, applyMiddleware } from "redux";
+import { persistStore } from "redux-persist";
+import thunkMiddleware from "redux-thunk";
+import { createLogger } from "redux-logger";
 
-import promiseMiddleware from './promise-middleware';
+import promiseMiddleware from "./promise-middleware";
 
-import reducers from './construct';
-import * as actions from './actions';
+import reducers from "./construct";
+import * as actions from "./actions";
 
 // Workaround babel limitation
-export * from './reducers';
-export * from './construct';
+export * from "./reducers";
+export * from "./construct";
 
 const middleware = [
   thunkMiddleware,
@@ -22,8 +22,8 @@ const middleware = [
 
 if (__DEV__) {
   const ignoreActions = [
-    'persist/PERSIST',
-    'persist/REHYDRATE',
+    "persist/PERSIST",
+    "persist/REHYDRATE",
     actions.setSyncStateJournal.toString(),
     actions.unsetSyncStateJournal.toString(),
     actions.setSyncStateEntry.toString(),
@@ -40,7 +40,7 @@ if (__DEV__) {
 
   const logger = {
     log: (msg: string) => {
-      if (msg[0] === '#') {
+      if (msg[0] === "#") {
         console.log(msg);
       }
     },
@@ -49,14 +49,14 @@ if (__DEV__) {
   middleware.push(createLogger({
     predicate,
     logger,
-    stateTransformer: () => 'state',
+    stateTransformer: () => "state",
     actionTransformer: ({ type, error, payload }) => ({ type, error, payload: (payload !== undefined) }),
     titleFormatter: (action: { type: string, error: any, payload: boolean }, time: string, took: number) => {
-      let prefix = '->';
+      let prefix = "->";
       if (action.error) {
-        prefix = 'xx';
+        prefix = "xx";
       } else if (action.payload) {
-        prefix = '==';
+        prefix = "==";
       }
       return `# ${prefix} ${action.type} @ ${time} (in ${took.toFixed(2)} ms)`;
     },

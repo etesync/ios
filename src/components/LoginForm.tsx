@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
+import * as React from "react";
 
-import { Text, View, TextInput as NativeTextInput } from 'react-native';
-import { Switch, Button, HelperText, Paragraph, TouchableRipple } from 'react-native-paper';
+import { Text, View, TextInput as NativeTextInput } from "react-native";
+import { Switch, Button, HelperText, Paragraph, TouchableRipple } from "react-native-paper";
 
 
-import ExternalLink from '../widgets/ExternalLink';
-import Row from '../widgets/Row';
-import TextInput from '../widgets/TextInput';
+import ExternalLink from "../widgets/ExternalLink";
+import Row from "../widgets/Row";
+import TextInput from "../widgets/TextInput";
 
-import * as C from '../constants';
-import PasswordInput from '../widgets/PasswordInput';
+import * as C from "../constants";
+import PasswordInput from "../widgets/PasswordInput";
 
 interface FormErrors {
   errorEmail?: string;
@@ -44,9 +44,9 @@ class LoginForm extends React.PureComponent {
     this.state = {
       showAdvanced: alwaysShowAdvanced,
       errors: {},
-      server: '',
-      username: '',
-      password: '',
+      server: "",
+      username: "",
+      password: "",
     };
     this.generateEncryption = this.generateEncryption.bind(this);
     this.toggleAdvancedSettings = this.toggleAdvancedSettings.bind(this);
@@ -70,7 +70,7 @@ class LoginForm extends React.PureComponent {
     const password = this.state.password;
 
     const errors: FormErrors = {};
-    const fieldRequired = 'This field is required!';
+    const fieldRequired = "This field is required!";
     if (!username) {
       errors.errorEmail = fieldRequired;
     }
@@ -103,7 +103,7 @@ class LoginForm extends React.PureComponent {
           accessibilityLabel="Server URL"
           value={this.state.server}
           placeholder="E.g. https://api.etesync.com"
-          onChangeText={this.handleInputChange('server')}
+          onChangeText={this.handleInputChange("server")}
           ref={this.formRefs[2]}
         />
         <HelperText
@@ -127,7 +127,7 @@ class LoginForm extends React.PureComponent {
             onSubmitEditing={() => this.formRefs[1].current!.focus()}
             ref={this.formRefs[0]}
             error={!!this.state.errors.errorEmail}
-            onChangeText={this.handleInputChange('username')}
+            onChangeText={this.handleInputChange("username")}
             label="Email"
             accessibilityLabel="Email"
             value={this.state.username}
@@ -140,14 +140,14 @@ class LoginForm extends React.PureComponent {
           </HelperText>
 
           <PasswordInput
-            returnKeyType={this.state.showAdvanced ? 'next' : undefined}
+            returnKeyType={this.state.showAdvanced ? "next" : undefined}
             onSubmitEditing={this.state.showAdvanced ? (() => this.formRefs[2].current!.focus()) : undefined}
             ref={this.formRefs[1]}
             error={!!this.state.errors.errorPassword}
             label="Password"
             accessibilityLabel="Password"
             value={this.state.password}
-            onChangeText={this.handleInputChange('password')}
+            onChangeText={this.handleInputChange("password")}
           />
           <HelperText
             type="error"
@@ -170,7 +170,7 @@ class LoginForm extends React.PureComponent {
               }))
             }
           >
-            <Row style={{ paddingVertical: 8, justifyContent: 'space-between' }}>
+            <Row style={{ paddingVertical: 8, justifyContent: "space-between" }}>
               <Paragraph>Advanced settings</Paragraph>
               <View pointerEvents="none">
                 <Switch value={this.state.showAdvanced} />

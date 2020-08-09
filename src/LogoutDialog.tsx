@@ -1,24 +1,24 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
-import { List, Paragraph, Switch, useTheme } from 'react-native-paper';
+import * as React from "react";
+import { List, Paragraph, Switch, useTheme } from "react-native-paper";
 
-import { useDispatch } from 'react-redux';
-import { persistor } from './store';
-import { logout } from './store/actions';
+import { useDispatch } from "react-redux";
+import { persistor } from "./store";
+import { logout } from "./store/actions";
 
-import { SyncManagerAddressBook } from './sync/SyncManagerAddressBook';
-import { SyncManagerCalendar } from './sync/SyncManagerCalendar';
-import { SyncManagerTaskList } from './sync/SyncManagerTaskList';
-import { unregisterSyncTask, SyncManager } from './sync/SyncManager';
+import { SyncManagerAddressBook } from "./sync/SyncManagerAddressBook";
+import { SyncManagerCalendar } from "./sync/SyncManagerCalendar";
+import { SyncManagerTaskList } from "./sync/SyncManagerTaskList";
+import { unregisterSyncTask, SyncManager } from "./sync/SyncManager";
 
-import ConfirmationDialog from './widgets/ConfirmationDialog';
+import ConfirmationDialog from "./widgets/ConfirmationDialog";
 
-import { useRemoteCredentials } from './login';
-import { CredentialsData } from './store';
+import { useRemoteCredentials } from "./login";
+import { CredentialsData } from "./store";
 
-import * as C from './constants';
+import * as C from "./constants";
 
 export default function LogoutDialog(props: { visible: boolean, onDismiss: (loggedOut: boolean) => void }) {
   const dispatch = useDispatch();
@@ -72,7 +72,7 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           </Paragraph>
           <List.Item
             title="Remove contacts"
-            description={(clearAddressBooks) ? 'Removing contacts from device' : 'Keeping contacts on device'}
+            description={(clearAddressBooks) ? "Removing contacts from device" : "Keeping contacts on device"}
             right={(props) =>
               <Switch
                 {...props}
@@ -84,7 +84,7 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           />
           <List.Item
             title="Remove calendars"
-            description={(clearCalendars) ? 'Removing events and reminders from device' : 'Keeping events and reminers on device'}
+            description={(clearCalendars) ? "Removing events and reminders from device" : "Keeping events and reminers on device"}
             right={(props) =>
               <Switch
                 {...props}

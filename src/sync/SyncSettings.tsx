@@ -1,26 +1,26 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as React from 'react';
+import * as React from "react";
 
-import * as Calendar from 'expo-calendar';
-import * as Contacts from 'expo-contacts';
-import { getContainers } from '../EteSyncNative';
+import * as Calendar from "expo-calendar";
+import * as Contacts from "expo-contacts";
+import { getContainers } from "../EteSyncNative";
 
-import { useDispatch, useSelector } from 'react-redux';
-import { List, Button, Paragraph, useTheme } from 'react-native-paper';
+import { useDispatch, useSelector } from "react-redux";
+import { List, Button, Paragraph, useTheme } from "react-native-paper";
 
-import { logger } from '../logging';
+import { logger } from "../logging";
 
-import { StoreState, CredentialsData } from '../store';
-import { setSettings } from '../store/actions';
-import ConfirmationDialog from '../widgets/ConfirmationDialog';
-import Select from '../widgets/Select';
-import { useRemoteCredentials } from '../login';
-import { SyncManager } from './SyncManager';
-import { SyncManagerAddressBook } from './SyncManagerAddressBook';
-import { SyncManagerCalendar } from './SyncManagerCalendar';
-import { SyncManagerTaskList } from './SyncManagerTaskList';
+import { StoreState, CredentialsData } from "../store";
+import { setSettings } from "../store/actions";
+import ConfirmationDialog from "../widgets/ConfirmationDialog";
+import Select from "../widgets/Select";
+import { useRemoteCredentials } from "../login";
+import { SyncManager } from "./SyncManager";
+import { SyncManagerAddressBook } from "./SyncManagerAddressBook";
+import { SyncManagerCalendar } from "./SyncManagerCalendar";
+import { SyncManagerTaskList } from "./SyncManagerTaskList";
 
 interface DialogPropsType {
   visible: boolean;
@@ -55,7 +55,7 @@ function SyncContactsConfirmationDialog(props: DialogPropsType) {
 
 function titleAccessor(item: Contacts.Container | Calendar.Source | null) {
   if (!item) {
-    return 'No sync';
+    return "No sync";
   }
   return `${item.name || item.type} (${item.type})`;
 }
@@ -71,7 +71,7 @@ function SelectSource<T extends Calendar.Source | Contacts.Container>(props: Sel
   const { title, currentSource, options, onChange } = props;
   const theme = useTheme();
   const [selectSourceOpen, setSelectSourceOpen] = React.useState(false);
-  const currentSourceName = (options) ? titleAccessor(currentSource ?? null) : 'Loading';
+  const currentSourceName = (options) ? titleAccessor(currentSource ?? null) : "Loading";
 
   return (
     <>
@@ -104,7 +104,7 @@ function SelectSource<T extends Calendar.Source | Contacts.Container>(props: Sel
 }
 
 function logResourceList(resources: (Calendar.Source | Contacts.Container)[]) {
-  logger.debug(resources.map((x) => `${x.type}: ${x.name} (${x.id})`).join(', '));
+  logger.debug(resources.map((x) => `${x.type}: ${x.name} (${x.id})`).join(", "));
 }
 
 export default function SyncSettings() {
