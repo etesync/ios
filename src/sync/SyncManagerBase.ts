@@ -243,7 +243,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             syncEntries.push(syncEntry);
           } catch (e) {
             logger.warn(`Failed processing: ${syncEntry.content}`);
-            store.dispatch(addNonFatalError(etesync, e));
+            store.dispatch(addNonFatalError(e));
           }
 
           try {
@@ -255,7 +255,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
                 const hash = hashes[nativeItem.uid];
                 const error = hash?.[2];
                 if (error) {
-                  store.dispatch(addNonFatalError(etesync, new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+                  store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
                 }
                 const syncStateEntry: SyncStateEntry = {
                   uid: nativeItem.uid,

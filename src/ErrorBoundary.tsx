@@ -8,7 +8,7 @@ import { Button, Text, Paragraph, HelperText } from "react-native-paper";
 
 import { Updates } from "expo";
 
-import * as EteSync from "etesync";
+import * as Etebase from "etebase";
 
 import { StoreState, persistor, store } from "./store";
 
@@ -62,13 +62,13 @@ function SessionExpiredDialog() {
 
           dispatch(credAction);
 
-          store.dispatch(popNonFatalError(etesync!));
+          store.dispatch(popNonFatalError());
         } catch (e) {
           setErrorPassword(e.message);
         }
       }}
       onCancel={() => {
-        store.dispatch(popNonFatalError(etesync!));
+        store.dispatch(popNonFatalError());
       }}
     >
       <>
@@ -147,7 +147,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
 
   let nonFatalErrorDialog;
   if (nonFatalError) {
-    if ((nonFatalError instanceof EteSync.HTTPError) && (nonFatalError.status === 401)) {
+    if ((nonFatalError instanceof Etebase.HTTPError) && (nonFatalError.status === 401)) {
       nonFatalErrorDialog = (
         <SessionExpiredDialog />
       );
@@ -157,7 +157,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
           title={`Error (${nonFatalErrorCount} remaining)`}
           visible={!!nonFatalError}
           onOk={() => {
-            store.dispatch(popNonFatalError(etesync!));
+            store.dispatch(popNonFatalError());
           }}
         >
           <Paragraph>
