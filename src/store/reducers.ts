@@ -90,7 +90,7 @@ export const credentialsEb = handleActions(
         };
       }
     },
-    [actions.logoutEb.toString()]: (_state: CredentialsDataEb, _action: any) => {
+    [actions.logout.toString()]: (_state: CredentialsDataEb, _action: any) => {
       return { storedSession: undefined };
     },
   },
@@ -123,7 +123,7 @@ export const syncGeneral = handleActions(
       }
       return state;
     },
-    [actions.logoutEb.toString()]: (_state: SyncGeneralData, _action: any) => {
+    [actions.logout.toString()]: (_state: SyncGeneralData, _action: any) => {
       return {};
     },
   },
@@ -146,7 +146,7 @@ export const collections = handleActions(
       }
       return state;
     },
-    [actions.logoutEb.toString()]: (state: CacheCollectionsData, _action: any) => {
+    [actions.logout.toString()]: (state: CacheCollectionsData, _action: any) => {
       return state.clear();
     },
   },
@@ -201,7 +201,7 @@ export const items = handleActions(
       }
       return state;
     },
-    [actions.logoutEb.toString()]: (state: CacheItemsData, _action: any) => {
+    [actions.logout.toString()]: (state: CacheItemsData, _action: any) => {
       return state.clear();
     },
   },

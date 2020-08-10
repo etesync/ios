@@ -21,16 +21,8 @@ function createAction<Func extends FunctionAny, MetaFunc extends FunctionAny>(
   return origCreateAction(actionType, payloadCreator, metaCreator as any) as any;
 }
 
-export const logoutEb = createAction(
-  "LOGOUT",
-  async (etebase: Etebase.Account) => {
-    // We don't wait on purpose, because we would like to logout and clear local data anyway
-    etebase.logout();
-  }
-);
-
 export const loginEb = createAction(
-  "LOGIN",
+  "LOGIN_EB",
   async (etebase: Etebase.Account) => {
     return etebase.save();
   }
@@ -184,13 +176,20 @@ export const fetchCredentials = createAction(
 
 export const logout = createAction(
   "LOGOUT",
-  (etesync: CredentialsData) => {
+  (creds: CredentialsData | Etebase.Account) => {
     (async () => {
-      const authenticator = new EteSync.Authenticator(etesync.serviceApiUrl);
-      try {
-        await authenticator.invalidateToken(etesync.credentials.authToken);
-      } catch {
-        // Ignore for now. It usually means the token was a legacy one.
+      if (creds instanceof Etebase.Account) {
+        const etebase = creds;
+        // We don't wait on purpose, because we would like to logout and clear local data anyway
+        etebase.logout();
+      } else {
+        const etesync = creds;
+        const authenticator = new EteSync.Authenticator(etesync.serviceApiUrl);
+        try {
+          await authenticator.invalidateToken(etesync.credentials.authToken);
+        } catch {
+          // Ignore for now. It usually means the token was a legacy one.
+        }
       }
     })();
     return true; // We are not waiting on the above on purpose for now, just invalidate the token in the background

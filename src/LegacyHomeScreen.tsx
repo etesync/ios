@@ -14,36 +14,42 @@ import { usePermissions } from "./Permissions";
 import { StoreState } from "./store";
 import { performSync } from "./store/actions";
 
-import { useCredentials } from "./credentials";
+import { useCredentials } from "./login";
+import { useSyncGate } from "./SyncGate";
 import { registerSyncTask } from "./sync/SyncManager";
 
 
 export default React.memo(function HomeScreen() {
-  const etebase = useCredentials()!;
+  const etesync = useCredentials()!;
   const dispatch = useDispatch();
+  const SyncGate = useSyncGate();
   const navigation = useNavigation();
   const syncCount = useSelector((state: StoreState) => state.syncCount);
   const permissionsStatus = usePermissions();
 
   React.useEffect(() => {
-    if (etebase && !permissionsStatus) {
-      registerSyncTask(etebase.user.username);
+    if (etesync && !permissionsStatus) {
+      registerSyncTask(etesync.credentials.email);
     }
-  }, [etebase, !permissionsStatus]);
+  }, [etesync, !permissionsStatus]);
 
   function refresh() {
-    const syncManager = SyncManager.getManager(etebase as any);
+    const syncManager = SyncManager.getManager(etesync);
     dispatch(performSync(syncManager.sync()));
   }
 
   navigation.setOptions({
     headerRight: () => (
-      <Appbar.Action icon="refresh" accessibilityLabel="Synchronize" disabled={!etebase || syncCount > 0} onPress={refresh} />
+      <Appbar.Action icon="refresh" accessibilityLabel="Synchronize" disabled={!etesync || syncCount > 0} onPress={refresh} />
     ),
   });
 
   if (permissionsStatus) {
     return permissionsStatus;
+  }
+
+  if (SyncGate) {
+    return SyncGate;
   }
 
   return (

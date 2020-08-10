@@ -172,10 +172,10 @@ const LoginScreen = React.memo(function _LoginScreen() {
   const dispatch = useAsyncDispatch();
   const [loading, error, setPromise] = useLoading();
 
-  async function onFormSubmit(username: string, password: string, serviceApiUrl?: string) {
-    let isEtebase;
-    if (serviceApiUrl) {
-      try {
+  function onFormSubmit(username: string, password: string, serviceApiUrl?: string) {
+    setPromise((async () => {
+      let isEtebase;
+      if (serviceApiUrl) {
         const url = URI(serviceApiUrl);
         url.segment("api");
         url.segment("v1");
@@ -183,23 +183,21 @@ const LoginScreen = React.memo(function _LoginScreen() {
         url.segment("is_etebase");
         const fetchIsEtebase = await fetch(url.normalize().toString());
         isEtebase = fetchIsEtebase.ok;
-      } catch (e) {
-        // FIXME-eb error handling
+      } else if (username.includes("@")) {
+        serviceApiUrl = C.serviceApiBase;
+        isEtebase = false;
+      } else {
+        serviceApiUrl = C.serviceApiBaseEb;
+        isEtebase = true;
       }
-    } else if (username.includes("@")) {
-      serviceApiUrl = C.serviceApiBase;
-      isEtebase = false;
-    } else {
-      serviceApiUrl = C.serviceApiBaseEb;
-      isEtebase = true;
-    }
 
-    if (isEtebase) {
-      const etebase = await Etebase.Account.login(username, password, serviceApiUrl);
-      setPromise(dispatch(loginEb(etebase)));
-    } else {
-      setPromise(dispatch(fetchCredentials(username, password, serviceApiUrl)));
-    }
+      if (isEtebase) {
+        const etebase = await Etebase.Account.login(username, password, serviceApiUrl);
+        dispatch(loginEb(etebase));
+      } else {
+        dispatch(fetchCredentials(username, password, serviceApiUrl));
+      }
+    })());
   }
 
   if (etebase) {

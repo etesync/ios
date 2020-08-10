@@ -27,6 +27,9 @@ import SyncSettings from "./sync/SyncSettings";
 import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
 import { AskForPermissions } from "./Permissions";
 
+import LegacyHomeScreen from "./LegacyHomeScreen";
+
+import { useCredentials as useCredentialsEb } from "./credentials";
 import { useCredentials } from "./login";
 import { StoreState } from "./store";
 import { setSettings } from "./store/actions";
@@ -77,10 +80,23 @@ const MenuButton = React.memo(function MenuButton() {
   );
 });
 
-export default React.memo(function _AuthLoadingScreen() {
+export default React.memo(function RootNavigator() {
+  const etesync = useCredentials();
+  if (etesync) {
+    return (
+      <RootNavigatorEteSync />
+    );
+  } else {
+    return (
+      <RootNavigatorEtebase />
+    );
+  }
+});
+
+function RootNavigatorEtebase() {
   const settings = useSelector((state: StoreState) => state.settings);
   const dispatch = useDispatch();
-  const credentials = useCredentials();
+  const etebase = useCredentialsEb();
   const theme = useTheme();
 
   if (!settings.ranWizrd) {
@@ -105,7 +121,7 @@ export default React.memo(function _AuthLoadingScreen() {
         },
       }}
     >
-      {(credentials === null) ? (
+      {(etebase === null) ? (
         <>
           <Stack.Screen
             name="LoginScreen"
@@ -192,4 +208,121 @@ export default React.memo(function _AuthLoadingScreen() {
       />
     </Stack.Navigator>
   );
-});
+}
+
+function RootNavigatorEteSync() {
+  const settings = useSelector((state: StoreState) => state.settings);
+  const dispatch = useDispatch();
+  const credentials = useCredentials();
+  const theme = useTheme();
+
+  if (!settings.ranWizrd) {
+    return (
+      <>
+        <SafeAreaView />
+        <Wizard pages={wizardPages} onFinish={() => dispatch(setSettings({ ranWizrd: true }))} style={{ flex: 1 }} />
+      </>
+    );
+  }
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.colors.primary,
+        },
+        headerTintColor: "#000000",
+        headerBackTitleVisible: false,
+        headerBackTitleStyle: {
+          backgroundColor: "black",
+        },
+      }}
+    >
+      {(credentials === null) ? (
+        <>
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{
+              title: "Login",
+              headerLeft: () => (
+                <MenuButton />
+              ),
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <Stack.Screen
+            name="home"
+            component={LegacyHomeScreen}
+            options={{
+              title: C.appName,
+              headerLeft: () => (
+                <MenuButton />
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="Journal"
+            component={JournalScreen}
+            options={{
+              title: "Journal Entries",
+            }}
+          />
+          <Stack.Screen
+            name="JournalNew"
+            component={JournalEditScreen}
+            options={{
+              title: "Journal New",
+            }}
+          />
+          <Stack.Screen
+            name="JournalEdit"
+            component={JournalEditScreen}
+            options={{
+              title: "Journal Edit",
+            }}
+          />
+          <Stack.Screen
+            name="JournalItem"
+            component={JournalItemScreen}
+            options={{
+              title: "Journal Item",
+            }}
+          />
+          <Stack.Screen
+            name="JournalItemSave"
+            component={JournalItemSaveScreen}
+            options={{
+              title: "Save Item",
+            }}
+          />
+          <Stack.Screen
+            name="JournalImport"
+            component={JournalImportScreen}
+            options={{
+              title: "Import",
+            }}
+          />
+          <Stack.Screen
+            name="JournalMembers"
+            component={JournalMembersScreen}
+            options={{
+              title: "Journal Members",
+            }}
+          />
+        </>
+      )}
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen
+        name="DebugLogs"
+        component={DebugLogsScreen}
+        options={{
+          title: "View Debug Logs",
+        }}
+      />
+    </Stack.Navigator>
+  );
+}

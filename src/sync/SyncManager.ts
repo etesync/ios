@@ -176,10 +176,11 @@ export class SyncManager {
 
   public async clearDeviceCollections(managers = this.managers) {
     const storeState = store.getState() as StoreState;
-    const etesync = credentialsSelector(storeState)!;
+    const etesync = await credentialsSelector(storeState)!;
     const userInfo = storeState.cache.userInfo!;
 
-    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(etesync, userInfo))) {
+    // FIXME-eb
+    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(etesync as any, userInfo))) {
       await syncManager.init();
       if (!syncManager.canSync) {
         continue;
