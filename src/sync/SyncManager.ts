@@ -21,6 +21,7 @@ import { SyncManagerAddressBook } from "./SyncManagerAddressBook";
 import { SyncManagerCalendar } from "./SyncManagerCalendar";
 import { SyncManagerTaskList } from "./SyncManagerTaskList";
 import { credentialsSelector } from "../credentials";
+import { startTask } from "../helpers";
 
 
 const cachedSyncManager = new Map<string, SyncManager>();
@@ -75,7 +76,7 @@ export class SyncManager {
     }
   }
 
-  private async fetchAllCollections() {
+  public async fetchAllCollections() {
     const storeState = store.getState() as unknown as StoreState;
     const etebase = (await credentialsSelector(storeState))!;
     const syncGeneral = storeState.sync2.general;
@@ -131,6 +132,8 @@ export class SyncManager {
       const entries = storeState.cache.entries;
       const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
       const userInfo = storeState.cache.userInfo!;
+
+      /* FIXME-eb
       syncInfoSelector({ etesync, entries, journals, userInfo });
 
       // FIXME: make the sync parallel
@@ -144,6 +147,7 @@ export class SyncManager {
 
       // We do it again here so we decrypt the newly added items too
       syncInfoSelector({ etesync, entries, journals, userInfo });
+      */
     } catch (e) {
       if (e instanceof Etebase.NetworkError) {
         // Ignore network errors
@@ -218,8 +222,8 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
       return BackgroundFetch.Result.Failed;
     }
 
-    const syncManager = SyncManager.getManager(etesync);
-    const sync = syncManager.fetchAllJournals();
+    const syncManager = SyncManager.getManager(etesync as any);
+    const sync = syncManager.fetchAllCollections();
     Promise.race([timeout, sync]);
 
     if (timeoutDone) {
