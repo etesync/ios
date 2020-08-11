@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
+import * as Etebase from "etebase";
 import * as EteSync from "etesync";
 import { Map as ImmutableMap } from "immutable";
 
 import { logger } from "../logging";
 
 import { PimType } from "../pim-types";
-import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from "../store";
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError } from "../store/actions";
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData, asyncDispatch } from "../store";
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError, setCacheItemMulti, setSyncCollection, itemBatch } from "../store/actions";
 import { NativeBase, entryNativeHashCalc } from "./helpers";
 import { createJournalEntryFromSyncEntry } from "../etesync-helpers";
 import { arrayToChunkIterator } from "../helpers";
@@ -18,11 +19,11 @@ export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
 
 export interface PushEntry {
-  syncEntry: EteSync.SyncEntry;
+  item: Etebase.CollectionItem;
   syncStateEntry: SyncStateEntry;
 }
 
-function persistSyncJournal(etesync: CredentialsData, syncStateJournal: SyncStateJournal, lastUid: string | null) {
+function persistSyncJournal(etesync: CredentialsData | Etebase.Account, syncStateJournal: SyncStateJournal, lastUid: string | null) {
   store.dispatch(setSyncStateJournal(etesync, { ...syncStateJournal, lastSyncUid: lastUid }));
 
   persistor.persist();
@@ -49,14 +50,12 @@ function syncUpdate(status: string | null) {
  */
 // XXX should probably be a singleton, or at least one per user - though maybe should be handled externally
 export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
-  protected etesync: CredentialsData;
-  protected userInfo: EteSync.UserInfo;
+  protected etebase: Etebase.Account;
   protected abstract collectionType: string;
   public canSync: boolean;
 
-  constructor(etesync: CredentialsData, userInfo: EteSync.UserInfo) {
-    this.etesync = etesync;
-    this.userInfo = userInfo;
+  constructor(etebase: Etebase.Account) {
+    this.etebase = etebase;
     this.canSync = false;
   }
 
@@ -82,25 +81,23 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   public async clearDeviceCollections() {
     const storeState = store.getState();
-    const etesync = this.etesync;
+    const etebase = this.etebase;
     const syncStateJournals = storeState.sync.stateJournals;
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const decryptedCollections = storeState.cache2.decryptedCollections;
 
     logger.info(`Clearing device collections for ${this.collectionType}`);
 
-    for (const collection of syncInfoCollections.values()) {
-      const uid = collection.uid;
-
-      if (collection.type !== this.collectionType) {
+    for (const [uid, { meta }] of decryptedCollections.entries()) {
+      if (meta.type !== this.collectionType) {
         continue;
       }
 
       const journal = syncStateJournals.get(uid);
 
       if (journal) {
-        logger.info(`Deleting ${collection.displayName}`);
+        logger.info(`Deleting ${meta.name}`);
         await this.deleteJournal(journal.localId);
-        store.dispatch(unsetSyncStateJournal(etesync, journal));
+        store.dispatch(unsetSyncStateJournal(etebase, journal));
       } else {
         logger.warn(`Skipping deletion of ${uid}. Not found.`);
       }
@@ -108,17 +105,15 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   }
 
   protected async syncJournalList() {
-    const etesync = this.etesync;
+    const etebase = this.etebase;
     const storeState = store.getState();
     const syncStateJournals = storeState.sync.stateJournals.asMutable();
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const decryptedCollections = storeState.cache2.decryptedCollections;
     const currentJournals = [] as SyncStateJournal[];
     const notOurs = new Map<string, boolean>();
 
-    for (const collection of syncInfoCollections.values()) {
-      const uid = collection.uid;
-
-      if (collection.type !== this.collectionType) {
+    for (const [uid, { meta }] of decryptedCollections.entries()) {
+      if (meta.type !== this.collectionType) {
         notOurs.set(uid, true);
         continue;
       }
@@ -129,18 +124,18 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         // FIXME: only modify if changed!
         logger.info(`Updating ${uid}`);
         localId = syncStateJournal.localId;
-        await this.updateJournal(localId, collection);
+        await this.updateJournal(localId, meta);
         syncStateJournals.delete(uid);
       } else {
         logger.info(`Creating ${uid}`);
-        localId = await this.createJournal(collection);
+        localId = await this.createJournal(meta);
 
         syncStateJournal = {
           localId,
           uid,
           lastSyncUid: null,
         };
-        store.dispatch(setSyncStateJournal(etesync, syncStateJournal));
+        store.dispatch(setSyncStateJournal(etebase, syncStateJournal));
       }
 
       currentJournals.push(syncStateJournal);
@@ -152,193 +147,154 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         logger.info(`Deleting ${oldJournal.uid}`);
         await this.deleteJournal(oldJournal.localId);
         syncStateJournals.delete(oldJournal.uid);
-        store.dispatch(unsetSyncStateJournal(etesync, oldJournal));
+        store.dispatch(unsetSyncStateJournal(etebase, oldJournal));
       }
       return true;
     }));
   }
 
+  private async pullHandleItems(syncStateJournal: SyncStateJournal, col: Etebase.Collection, itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[]) {
+    const storeState = store.getState();
+    const syncStateEntriesAll = storeState.sync.stateEntries;
+    const journalSyncEntries = (syncStateEntriesAll.get(col.uid) ?? ImmutableMap({})).asMutable();
+    const batch: [BatchAction, N][] = [];
+    for (const item of items) {
+      logger.debug(`Proccessing ${item.uid}`);
+      const content = await item.getContent(Etebase.OutputFormat.String);
+      try {
+        const vobjectItem = this.contentToVobject(content);
+        const nativeItem = this.vobjectToNative(vobjectItem);
+        const syncStateEntry = journalSyncEntries.get(nativeItem.uid);
+        if (item.isDeleted) {
+          if (syncStateEntry?.localId) {
+            batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
+          }
+        } else {
+          if (syncStateEntry?.localId) {
+            batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }]);
+          } else {
+            batch.push([BatchAction.Add, nativeItem]);
+          }
+        }
+      } catch (e) {
+        logger.warn(`Failed processing: ${content}`);
+        store.dispatch(addNonFatalError(e));
+      }
+    }
+
+    const localId = syncStateJournal.localId;
+
+    if (batch.length > 0) {
+      try {
+        const hashes = await this.processSyncEntries(localId, batch);
+
+        for (const [action, nativeItem] of batch) {
+          // FIXME: do this all at once
+          const hash = hashes[nativeItem.uid];
+          const error = hash?.[2];
+          if (error) {
+            store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+          }
+          const syncStateEntry: SyncStateEntry = {
+            uid: nativeItem.uid,
+            localId: hash?.[0],
+            lastHash: hash?.[1],
+          };
+
+          if (!error && ((action === BatchAction.Add) || (action === BatchAction.Change))) {
+            journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+            store.dispatch(setSyncStateEntry(this.etebase, col.uid, syncStateEntry));
+          } else {
+            // We want to delete our entries if there's an error (or if the action is delete anyway)
+            if (syncStateEntry) {
+              journalSyncEntries.delete(syncStateEntry.uid);
+              store.dispatch(unsetSyncStateEntry(this.etebase, col.uid, syncStateEntry));
+            }
+          }
+        }
+
+        persistSyncJournal(this.etebase, syncStateJournal, col.stoken);
+        store.dispatch(setCacheItemMulti(col.uid, itemMgr, items));
+      } catch (e) {
+        logger.warn("Failed batch saving");
+        throw e;
+      }
+    }
+  }
+
+  private async pullCollection(syncStateJournal: SyncStateJournal, col: Etebase.Collection) {
+    const storeState = store.getState();
+    const syncCollection = storeState.sync2.collections.get(col.uid, undefined);
+    const etebase = this.etebase;
+
+    const colMgr = etebase.getCollectionManager();
+    const itemMgr = colMgr.getItemManager(col);
+
+    let stoken = syncCollection?.stoken;
+    const limit = CHUNK_PULL;
+    let done = false;
+    while (!done) {
+      const items = await itemMgr.list({ stoken, limit });
+      await this.pullHandleItems(syncStateJournal, col, itemMgr, items.data);
+      done = items.done;
+      stoken = items.stoken;
+    }
+
+    if (syncCollection?.stoken !== stoken) {
+      store.dispatch(setSyncCollection(col.uid, stoken!));
+    }
+  }
+
   protected async syncPull() {
     const storeState = store.getState();
-    const journalsEntries = storeState.cache.entries;
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
-    const syncInfoItems = storeState.cache.syncInfoItem;
+    const decryptedCollections = storeState.cache2.decryptedCollections;
+    const cacheCollections = storeState.cache2.collections;
     const syncStateJournals = storeState.sync.stateJournals;
-    const syncStateEntriesAll = storeState.sync.stateEntries;
     // FIXME: Sholud alert beforehand if local is not enable and only iCloud is and let people know, and if that the case, use iCloud if there's no local.
     // See notes for more info
-    const etesync = this.etesync;
+    const etebase = this.etebase;
+    const colMgr = etebase.getCollectionManager();
 
-    for (const collection of syncInfoCollections.values()) {
-      const uid = collection.uid;
-
-      if (collection.type !== this.collectionType) {
+    for (const [uid, { meta }] of decryptedCollections.entries()) {
+      if (meta.type !== this.collectionType) {
         continue;
       }
 
       logger.info(`Pulling ${uid}`);
 
-      const journalSyncEntries = (syncStateEntriesAll.get(uid) ?? ImmutableMap({})).asMutable();
-
+      const col = await colMgr.cacheLoad(cacheCollections.get(uid)!);
       const syncStateJournal = syncStateJournals.get(uid)!;
-      const localId = syncStateJournal.localId;
-
-      const lastEntry = journalsEntries.get(uid)?.last(undefined);
-      if (lastEntry?.uid !== syncStateJournal.lastSyncUid) {
-        logger.info(`Applying changes. Current uid: ${lastEntry?.uid}, last one: ${syncStateJournal.lastSyncUid}`);
-        const syncInfoJournalItems = syncInfoItems.get(uid)!;
-        const entries = journalsEntries.get(uid)!.map((entry) => syncInfoJournalItems.get(entry.uid)!);
-        const lastSyncUid = syncStateJournal.lastSyncUid;
-
-        let firstEntry: number;
-        if (lastSyncUid === null) {
-          firstEntry = 0;
-        } else {
-          const lastEntryPos = entries.findIndex((entry) => {
-            return entry.uid === lastSyncUid;
-          });
-
-          if (lastEntryPos === -1) {
-            throw Error("Could not find last sync entry!");
-          }
-          firstEntry = lastEntryPos + 1;
-        }
-
-        let syncEntries: EteSync.SyncEntry[] = [];
-        let batch: [BatchAction, N][] = [];
-        const handledInBatch = new Map<string, boolean>();
-        for (let i = firstEntry ; i < entries.size ; i++) {
-          const syncEntry: EteSync.SyncEntry = entries.get(i)!;
-          logger.debug(`Proccessing ${syncEntry.uid}`);
-          try {
-            const vobjectItem = this.syncEntryToVobject(syncEntry);
-            const nativeItem = this.vobjectToNative(vobjectItem);
-
-            const syncStateEntry = journalSyncEntries.get(nativeItem.uid);
-            if (handledInBatch.has(nativeItem.uid)) {
-              batch = batch.filter(([_action, item]) => (nativeItem.uid !== item.uid));
-            } else {
-              handledInBatch.set(nativeItem.uid, true);
-            }
-            switch (syncEntry.action) {
-              case EteSync.SyncEntryAction.Add:
-              case EteSync.SyncEntryAction.Change: {
-                if (syncStateEntry?.localId) {
-                  batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }]);
-                } else {
-                  batch.push([BatchAction.Add, nativeItem]);
-                }
-
-                break;
-              }
-              case EteSync.SyncEntryAction.Delete: {
-                if (syncStateEntry?.localId) {
-                  batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
-                }
-
-                break;
-              }
-            }
-
-            syncEntries.push(syncEntry);
-          } catch (e) {
-            logger.warn(`Failed processing: ${syncEntry.content}`);
-            store.dispatch(addNonFatalError(e));
-          }
-
-          try {
-            if (((i === entries.size - 1) || (i % CHUNK_PULL) === CHUNK_PULL - 1)) {
-              const hashes = await this.processSyncEntries(localId, batch);
-
-              for (const [action, nativeItem] of batch) {
-                // FIXME: do this all at once
-                const hash = hashes[nativeItem.uid];
-                const error = hash?.[2];
-                if (error) {
-                  store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
-                }
-                const syncStateEntry: SyncStateEntry = {
-                  uid: nativeItem.uid,
-                  localId: hash?.[0],
-                  lastHash: hash?.[1],
-                };
-
-                if (!error && ((action === BatchAction.Add) || (action === BatchAction.Change))) {
-                  journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
-                  store.dispatch(setSyncStateEntry(etesync, uid, syncStateEntry));
-                } else {
-                  // We want to delete our entries if there's an error (or if the action is delete anyway)
-                  if (syncStateEntry) {
-                    journalSyncEntries.delete(syncStateEntry.uid);
-                    store.dispatch(unsetSyncStateEntry(etesync, uid, syncStateEntry));
-                  }
-                }
-              }
-
-              persistSyncJournal(etesync, syncStateJournal, syncEntry.uid!);
-
-              syncEntries = [];
-              batch = [];
-              handledInBatch.clear();
-            }
-          } catch (e) {
-            logger.warn("Failed batch saving");
-            throw e;
-          }
-        }
+      if (col.stoken !== syncStateJournal.lastSyncUid) {
+        logger.info(`Applying changes. Current stoken: ${col.stoken}, last one: ${syncStateJournal.lastSyncUid}`);
+        await this.pullCollection(syncStateJournal, col);
       }
     }
   }
 
   protected async pushJournalEntries(pSyncStateJournal: SyncStateJournal, pushEntries: PushEntry[]) {
     if (pushEntries.length > 0) {
-      const etesync = this.etesync;
       const storeState = store.getState();
-      const journals = storeState.cache.journals as JournalsData;
-      const syncStateJournal = { ...pSyncStateJournal };
-
-      const journalUid = syncStateJournal.uid;
-      let prevUid: string | null = syncStateJournal.lastSyncUid;
-      let lastSyncUid: string | null = prevUid;
+      const cacheCollections = storeState.cache2.collections;
+      const etebase = this.etebase;
+      const colMgr = etebase.getCollectionManager();
+      const col = await colMgr.cacheLoad(cacheCollections.get(pSyncStateJournal.uid)!);
+      const itemMgr = colMgr.getItemManager(col);
 
       for (const pushChunk of arrayToChunkIterator(pushEntries, CHUNK_PUSH)) {
-        const journalEntries = pushChunk.map((pushEntry) => {
-          const ret = createJournalEntryFromSyncEntry(this.etesync, this.userInfo, journals.get(journalUid)!, prevUid, pushEntry.syncEntry);
-          prevUid = ret.uid;
-
-          return ret;
-        });
-
-        await store.dispatch(addEntries(etesync, journalUid, journalEntries, lastSyncUid));
-
-        for (const pushEntry of pushChunk) {
-          switch (pushEntry.syncEntry.action) {
-            case EteSync.SyncEntryAction.Add:
-            case EteSync.SyncEntryAction.Change: {
-              store.dispatch(setSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
-              break;
-            }
-            case EteSync.SyncEntryAction.Delete: {
-              store.dispatch(unsetSyncStateEntry(etesync, journalUid, pushEntry.syncStateEntry));
-              break;
-            }
-          }
-        }
-
-        lastSyncUid = journalEntries[journalEntries.length - 1].uid;
-        persistSyncJournal(etesync, syncStateJournal, lastSyncUid!);
+        const items = pushChunk.map((x) => x.item);
+        await asyncDispatch(itemBatch(col, itemMgr, items));
       }
     }
   }
 
-  protected syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
-    let syncEntryAction: EteSync.SyncEntryAction | undefined;
+  protected async syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
+    let changed = false;
     const currentHash = itemHash;
 
     if (syncStateEntry === undefined) {
       // New
       logger.info(`New entry ${nativeItem.uid}`);
-      syncEntryAction = EteSync.SyncEntryAction.Add;
+      changed = true;
     } else {
       if (currentHash !== syncStateEntry.lastHash) {
         // Changed
@@ -346,17 +302,16 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           logger.info(`Updated legacy hash for ${nativeItem.uid}`);
         } else {
           logger.info(`Changed entry ${nativeItem.uid}`);
-          syncEntryAction = EteSync.SyncEntryAction.Change;
+          changed = true;
         }
       }
     }
 
-    if (syncEntryAction) {
+    if (changed) {
       const vobjectEvent = this.nativeToVobject(nativeItem);
-      const syncEntry = new EteSync.SyncEntry();
-      syncEntry.action = syncEntryAction;
+      let content;
       try {
-        syncEntry.content = vobjectEvent.toIcal();
+        content = vobjectEvent.toIcal();
       } catch (e) {
         logger.warn(`Failed pushing update: ${JSON.stringify(nativeItem)}`);
         throw e;
@@ -368,24 +323,28 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         lastHash: currentHash,
       };
 
-      return { syncEntry, syncStateEntry };
+      return { content, syncStateEntry };
     }
 
     return null;
   }
 
-  protected syncPushHandleDeleted(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry) {
+  protected async syncPushHandleDeleted(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry) {
     logger.info(`Deleted entry ${syncStateEntry.uid}`);
-
     const storeState = store.getState();
-    const syncInfoItems = storeState.cache.syncInfoItem;
+    const cacheCollections = storeState.cache2.collections;
+    const etebase = this.etebase;
+    const colMgr = etebase.getCollectionManager();
+    const col = await colMgr.cacheLoad(cacheCollections.get(syncStateJournal.uid)!);
+    const cacheItems = storeState.cache2.items.get(col.uid)!;
+    const itemMgr = colMgr.getItemManager(col);
+
     const uid = syncStateJournal.uid;
-    const syncInfoJournalItems = syncInfoItems.get(uid)!;
 
     const syncEntry = new EteSync.SyncEntry();
     syncEntry.action = EteSync.SyncEntryAction.Delete;
     for (const entry of syncInfoJournalItems.values()) {
-      const pimItem = this.syncEntryToVobject(entry);
+      const pimItem = this.contentToVobject(entry);
       if (pimItem.uid === syncStateEntry.uid) {
         try {
           syncEntry.content = pimItem.toIcal();
@@ -393,7 +352,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           logger.warn(`Failed push deletion: ${entry.content}`);
           throw e;
         }
-        return { syncEntry, syncStateEntry };
+        return { content: "", syncStateEntry };
       }
     }
 
@@ -406,7 +365,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const legacyHash = entryNativeHashCalc(nativeItem);
       if (legacyHash === syncStateEntry.lastHash) {
         // If the legacy hash is the same, there's nothing to do. Just update with the new hash and continue.
-        store.dispatch(setSyncStateEntry(this.etesync, journalUid, { ...syncStateEntry, lastHash: itemHash }));
+        store.dispatch(setSyncStateEntry(this.etebase, journalUid, { ...syncStateEntry, lastHash: itemHash }));
         return true;
       }
     }
@@ -414,12 +373,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     return false;
   }
 
-  protected abstract async createJournal(collection: EteSync.CollectionInfo): Promise<string>;
-  protected abstract async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo): Promise<void>;
+  protected abstract async createJournal(collection: Etebase.CollectionMetadata): Promise<string>;
+  protected abstract async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(): Promise<void>;
 
-  protected abstract syncEntryToVobject(syncEntry: EteSync.SyncEntry): T;
+  protected abstract contentToVobject(content: string): T;
   protected abstract vobjectToNative(vobject: T): N;
   protected abstract nativeToVobject(nativeItem: N): T;
   protected abstract async processSyncEntries(containerLocalId: string, batch: [BatchAction, N][]): Promise<HashDictionary>;

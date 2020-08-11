@@ -12,8 +12,8 @@ import { beginBackgroundTask, endBackgroundTask } from "../EteSyncNative";
 import * as Etebase from "etebase";
 
 import { syncInfoSelector } from "../SyncHandler";
-import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote } from "../store";
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError, setCacheItemMulti, setSyncCollection, setSyncGeneral, unsetCacheCollection, setCacheCollection } from "../store/actions";
+import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
+import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError, setCacheItemMulti, setSyncCollection, setSyncGeneral, unsetCacheCollection, setCacheCollection, setDecryptedCollection } from "../store/actions";
 
 import { logger } from "../logging";
 
@@ -26,17 +26,16 @@ import { startTask } from "../helpers";
 
 const cachedSyncManager = new Map<string, SyncManager>();
 export class SyncManager {
-  private COLLECTION_TYPES = ["etebase.vcard", "etebase.vevent", "etebase.vtodo"];
   private BATCH_SIZE = 40;
 
-  public static getManager(etesync: CredentialsDataRemote) {
-    const cached = cachedSyncManager.get(etesync.credentials.email);
+  public static getManager(etebase: Etebase.Account) {
+    const cached = cachedSyncManager.get(etebase.user.username);
     if (!__DEV__ && cached) {
       return cached;
     }
 
     const ret = new SyncManager();
-    cachedSyncManager.set(etesync.credentials.email, ret);
+    cachedSyncManager.set(etebase.user.username, ret);
     return ret;
   }
 
@@ -49,8 +48,8 @@ export class SyncManager {
 
   private managers = [
     SyncManagerCalendar,
-    SyncManagerTaskList,
-    SyncManagerAddressBook,
+    // SyncManagerTaskList,
+    // SyncManagerAddressBook,
   ];
 
   private async fetchCollection(col: Etebase.Collection) {
@@ -88,11 +87,7 @@ export class SyncManager {
     while (!done) {
       const collections = await colMgr.list({ stoken, limit });
       for (const col of collections.data) {
-        const meta = await col.getMeta();
-        if (this.COLLECTION_TYPES.includes(meta.type)) {
-          store.dispatch(setCacheCollection(colMgr, col));
-          await this.fetchCollection(col);
-        }
+        await asyncDispatch(setCacheCollection(colMgr, col));
       }
       if (collections.removedMemberships) {
         for (const removed of collections.removedMemberships) {
@@ -127,27 +122,16 @@ export class SyncManager {
       activateKeepAwake(keepAwakeTag);
       await this.fetchAllCollections();
 
-      const storeState = store.getState() as StoreState;
-      const etesync = credentialsSelector(storeState)!;
-      const entries = storeState.cache.entries;
-      const journals = storeState.cache.journals as JournalsData; // FIXME: no idea why we need this cast.
-      const userInfo = storeState.cache.userInfo!;
+      const storeState = store.getState() as unknown as StoreState;
+      const etebase = (await credentialsSelector(storeState))!;
 
-      /* FIXME-eb
-      syncInfoSelector({ etesync, entries, journals, userInfo });
-
-      // FIXME: make the sync parallel
-      for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(etesync, userInfo))) {
+      for (const syncManager of this.managers.map((ManagerClass) => new ManagerClass(etebase))) {
         await syncManager.init();
         if (!syncManager.canSync) {
           continue;
         }
         await syncManager.sync();
       }
-
-      // We do it again here so we decrypt the newly added items too
-      syncInfoSelector({ etesync, entries, journals, userInfo });
-      */
     } catch (e) {
       if (e instanceof Etebase.NetworkError) {
         // Ignore network errors
@@ -175,12 +159,11 @@ export class SyncManager {
   }
 
   public async clearDeviceCollections(managers = this.managers) {
-    const storeState = store.getState() as StoreState;
-    const etesync = await credentialsSelector(storeState)!;
-    const userInfo = storeState.cache.userInfo!;
+    const storeState = store.getState() as unknown as StoreState;
+    const etebase = (await credentialsSelector(storeState))!;
 
     // FIXME-eb
-    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(etesync as any, userInfo))) {
+    for (const syncManager of managers.map((ManagerClass) => new ManagerClass(etebase))) {
       await syncManager.init();
       if (!syncManager.canSync) {
         continue;
@@ -216,14 +199,14 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
 
   try {
     await persistorLoaded();
-    const beforeState = store.getState() as StoreState;
-    const etesync = credentialsSelector(beforeState);
+    const beforeState = store.getState() as unknown as StoreState;
+    const etebase = await credentialsSelector(beforeState);
 
-    if (!etesync) {
+    if (!etebase) {
       return BackgroundFetch.Result.Failed;
     }
 
-    const syncManager = SyncManager.getManager(etesync as any);
+    const syncManager = SyncManager.getManager(etebase);
     const sync = syncManager.fetchAllCollections();
     Promise.race([timeout, sync]);
 

@@ -32,7 +32,7 @@ export default React.memo(function HomeScreen() {
   }, [etebase, !permissionsStatus]);
 
   function refresh() {
-    const syncManager = SyncManager.getManager(etebase as any);
+    const syncManager = SyncManager.getManager(etebase);
     dispatch(performSync(syncManager.sync()));
   }
 

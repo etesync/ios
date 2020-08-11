@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from "etesync";
 import * as Calendar from "expo-calendar";
 
 import { calculateHashesForReminders, BatchAction, HashDictionary, processRemindersChanges } from "../EteSyncNative";
@@ -22,14 +21,12 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
   protected async syncPush() {
     const storeState = store.getState();
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const decryptedCollections = storeState.cache2.decryptedCollections;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
 
-    for (const collection of syncInfoCollections.values()) {
-      const uid = collection.uid;
-
-      if (collection.type !== this.collectionType) {
+    for (const [uid, { meta }] of decryptedCollections.entries()) {
+      if (meta.type !== this.collectionType) {
         continue;
       }
 
@@ -51,7 +48,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         if (syncStateEntry?.lastHash !== reminderHash) {
           const _reminder = await Calendar.getReminderAsync(reminderId);
           const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
-          const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder, reminderHash);
+          const syncEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder, reminderHash);
           if (syncEntry) {
             syncEntries.push(syncEntry);
           }
@@ -81,7 +78,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
         if (shouldDelete) {
           // If the reminder still exists it means it's not deleted.
-          const syncEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+          const syncEntry = await this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (syncEntry) {
             syncEntries.push(syncEntry);
           }
@@ -92,8 +89,8 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     }
   }
 
-  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
-    return TaskType.parse(syncEntry.content);
+  protected contentToVobject(content: string) {
+    return TaskType.parse(content);
   }
 
   protected vobjectToNative(vobject: TaskType) {

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from "etesync";
+import * as Etebase from "etebase";
 import * as Contacts from "expo-contacts";
 
 import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges, getContainers } from "../EteSyncNative";
@@ -75,8 +75,9 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   }
 
   protected async syncPush() {
+    return;
     const storeState = store.getState();
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const decryptedCollections = storeState.cache2.decryptedCollections;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
 
@@ -90,10 +91,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     }
 
     // First collect all of the sync entries
-    for (const collection of syncInfoCollections.values()) {
-      const uid = collection.uid;
-
-      if (collection.type !== this.collectionType) {
+    for (const [uid, { meta }] of decryptedCollections.entries()) {
+      if (meta.type !== this.collectionType) {
         continue;
       }
 
@@ -120,7 +119,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         const syncStateJournal = syncStateJournals.get(collectionUid)!;
         const _contact = await Contacts.getContactByIdAsync(contactId, fieldTypes as any);
         const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(":")[0] };
-        const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
+        const pushEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
         if (pushEntry) {
           pushEntries.get(collectionUid)!.push(pushEntry);
         }
@@ -145,7 +144,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       if (!existingContact) {
         // If the event still exists it means it's not deleted.
         const syncStateJournal = syncStateJournals.get(reverseEntry.collectionUid)!;
-        const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+        const pushEntry = await this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
         if (pushEntry) {
           pushEntries.get(reverseEntry.collectionUid)!.push(pushEntry);
         }
@@ -159,8 +158,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     }
   }
 
-  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
-    return ContactType.parse(syncEntry.content);
+  protected contentToVobject(content: string) {
+    return ContactType.parse(content);
   }
 
   protected vobjectToNative(vobject: ContactType) {
@@ -175,12 +174,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return processContactsChanges(this.containerId, containerLocalId, batch);
   }
 
-  protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
-    return Contacts.createGroupAsync(collection.displayName);
+  protected async createJournal(collection: Etebase.CollectionMetadata): Promise<string> {
+    return Contacts.createGroupAsync(collection.name);
   }
 
-  protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
-    return Contacts.updateGroupNameAsync(collection.displayName, containerLocalId);
+  protected async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata) {
+    return Contacts.updateGroupNameAsync(collection.name, containerLocalId);
   }
 
   protected async deleteJournal(containerLocalId: string) {

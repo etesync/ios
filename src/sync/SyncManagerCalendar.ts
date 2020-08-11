@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as EteSync from "etesync";
+import * as Etebase from "etebase";
 import * as Calendar from "expo-calendar";
 
 import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictionary } from "../EteSyncNative";
@@ -11,7 +11,7 @@ import { logger } from "../logging";
 import { store } from "../store";
 
 import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from "./helpers";
-import { colorIntToHtml } from "../helpers";
+import { defaultColor } from "../helpers";
 import { PimType, EventType } from "../pim-types";
 
 import { SyncManagerBase, PushEntry } from "./SyncManagerBase";
@@ -45,24 +45,24 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     }
   }
 
-  protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
+  protected async createJournal(collection: Etebase.CollectionMetadata): Promise<string> {
     const localSource = this.localSource;
 
     return Calendar.createCalendarAsync({
       sourceId: localSource.id,
       entityType: this.entityType,
-      title: collection.displayName,
-      color: colorIntToHtml(collection.color),
+      title: collection.name,
+      color: collection.color ?? defaultColor,
     });
   }
 
-  protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
+  protected async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata) {
     const localSource = this.localSource;
 
     await Calendar.updateCalendarAsync(containerLocalId, {
       sourceId: localSource.id,
-      title: collection.displayName,
-      color: colorIntToHtml(collection.color),
+      title: collection.name,
+      color: collection.color ?? defaultColor,
     });
   }
 
@@ -77,17 +77,16 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
   protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush() {
+    return;
     const storeState = store.getState();
-    const syncInfoCollections = storeState.cache.syncInfoCollection;
+    const decryptedCollections = storeState.cache2.decryptedCollections;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
-    for (const collection of syncInfoCollections.values()) {
-      const uid = collection.uid;
-
-      if (collection.type !== this.collectionType) {
+    for (const [uid, { meta }] of decryptedCollections.entries()) {
+      if (meta.type !== this.collectionType) {
         continue;
       }
 
@@ -123,7 +122,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           if (syncStateEntry?.lastHash !== eventHash) {
             const _event = await Calendar.getEventAsync(eventId);
             const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
-            const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event, eventHash);
+            const pushEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event, eventHash);
             if (pushEntry) {
               pushEntries.push(pushEntry);
             }
@@ -153,7 +152,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         }
 
         if (shouldDelete) {
-          const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+          const pushEntry = await this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (pushEntry) {
             pushEntries.push(pushEntry);
           }
@@ -164,8 +163,8 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     }
   }
 
-  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
-    return EventType.parse(syncEntry.content);
+  protected contentToVobject(content: string) {
+    return EventType.parse(content);
   }
 
   protected vobjectToNative(vobject: EventType) {
