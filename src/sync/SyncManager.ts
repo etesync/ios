@@ -40,7 +40,7 @@ const cachedSyncManager = new Map<string, SyncManager>();
 export class SyncManager {
   public static getManager(etesync: CredentialsDataRemote) {
     const cached = cachedSyncManager.get(etesync.credentials.email);
-    if (cached) {
+    if (!__DEV__ && cached) {
       return cached;
     }
 
