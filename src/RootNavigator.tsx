@@ -24,6 +24,7 @@ import JournalEditScreen from "./JournalEditScreen";
 import JournalImportScreen from "./JournalImportScreen";
 import JournalMembersScreen from "./JournalMembersScreen";
 import CollectionChangelogScreen from "./CollectionChangelogScreen";
+import CollectionEditScreen from "./CollectionEditScreen";
 import SyncSettings from "./sync/SyncSettings";
 import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
 import { AskForPermissions } from "./Permissions";
@@ -155,17 +156,17 @@ function RootNavigatorEtebase() {
             }}
           />
           <Stack.Screen
-            name="JournalNew"
-            component={JournalEditScreen}
+            name="CollectionNew"
+            component={CollectionEditScreen}
             options={{
-              title: "Journal New",
+              title: "Collection New",
             }}
           />
           <Stack.Screen
-            name="JournalEdit"
-            component={JournalEditScreen}
+            name="CollectionEdit"
+            component={CollectionEditScreen}
             options={{
-              title: "Journal Edit",
+              title: "Collection Edit",
             }}
           />
           <Stack.Screen

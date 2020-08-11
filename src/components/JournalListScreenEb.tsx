@@ -19,7 +19,7 @@ import { StoreState } from "../store";
 
 const backgroundPrimary = Colors.amber700;
 
-const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalType: string }) {
+const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { colType: string }) {
   const [showMenu, setShowMenu] = React.useState(false);
   const navigation = useNavigation();
 
@@ -34,7 +34,7 @@ const JournalsMoreMenu = React.memo(function _JournalsMoreMenu(props: { journalT
       <Menu.Item
         onPress={() => {
           setShowMenu(false);
-          navigation.navigate("JournalNew", { journalType: props.journalType });
+          navigation.navigate("CollectionNew", { colType: props.colType });
         }}
         title="Create new"
       />
@@ -143,7 +143,7 @@ export default function JournalListScreen() {
               </View>
             )}
             right={() => (
-              <JournalsMoreMenu journalType={card.lookup} />
+              <JournalsMoreMenu colType={card.lookup} />
             )}
           />
           {collectionsMap[card.lookup]}
