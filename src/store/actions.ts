@@ -31,7 +31,10 @@ export const loginEb = createAction(
 export const setCacheCollection = createAction(
   "SET_CACHE_COLLECTION",
   async (colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
-    return await colMgr.cacheSave(col);
+    return {
+      cache: await colMgr.cacheSave(col),
+      meta: await col.getMeta(),
+    };
   },
   (_colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
     return {
@@ -58,7 +61,10 @@ export const collectionUpload = createAction(
   "COLLECTION_UPLOAD",
   async (colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
     await colMgr.upload(col);
-    return await colMgr.cacheSave(col);
+    return {
+      cache: await colMgr.cacheSave(col),
+      meta: await col.getMeta(),
+    };
   },
   (_colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
     return {
@@ -71,7 +77,11 @@ export const collectionUpload = createAction(
 export const setCacheItem = createAction(
   "SET_CACHE_ITEM",
   async (_col: Etebase.Collection, itemMgr: Etebase.CollectionItemManager, item: Etebase.CollectionItem) => {
-    return await itemMgr.cacheSave(item);
+    return {
+      cache: await itemMgr.cacheSave(item),
+      meta: await item.getMeta(),
+      content: await item.getContent(Etebase.OutputFormat.String),
+    };
   },
   (col: Etebase.Collection, _itemMgr: Etebase.CollectionItemManager, item: Etebase.CollectionItem) => {
     return {
@@ -101,7 +111,11 @@ export const setCacheItemMulti = createAction(
   async (_colUid: string, itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[]) => {
     const ret = [];
     for (const item of items) {
-      ret.push(await itemMgr.cacheSave(item));
+      ret.push({
+        cache: await itemMgr.cacheSave(item),
+        meta: await item.getMeta(),
+        content: await item.getContent(Etebase.OutputFormat.String),
+      });
     }
     return ret;
   },
@@ -119,7 +133,11 @@ export const itemBatch = createAction(
     await itemMgr.batch(items, deps);
     const ret = [];
     for (const item of items) {
-      ret.push(await itemMgr.cacheSave(item));
+      ret.push({
+        cache: await itemMgr.cacheSave(item),
+        meta: await item.getMeta(),
+        content: await item.getContent(Etebase.OutputFormat.String),
+      });
     }
     return ret;
   },
@@ -130,6 +148,7 @@ export const itemBatch = createAction(
     };
   }
 );
+
 
 export const setSyncCollection = createAction(
   "SET_SYNC_COLLECTION",

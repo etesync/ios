@@ -19,7 +19,8 @@ import {
   fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer, legacyCredentials, legacyEncryptionKeyReducer, ErrorsData,
   // Etabese stuff:
   CredentialsDataEb, SyncCollectionsData, CacheCollectionsData, SyncGeneralData, CacheItemsData,
-  collections, items, syncCollections, syncGeneral, credentialsEb,
+  collections, items, syncCollections, syncGeneral, credentialsEb, DecryptedCollectionsData, DecryptedItemsData,
+  decryptedCollections, decryptedItems,
 } from "./reducers";
 
 export interface StoreState {
@@ -38,6 +39,9 @@ export interface StoreState {
   cache2: {
     collections: CacheCollectionsData;
     items: CacheItemsData;
+
+    decryptedCollections: DecryptedCollectionsData;
+    decryptedItems: DecryptedItemsData;
   };
   // }
   sync: {
@@ -291,6 +295,8 @@ const cacheSerialize2 = (state: any, key: string | number) => {
       return items.map((x) => Etebase.toBase64(x));
     });
     return ret.toJS();
+  } else if ((key === "decryptedCollections") || (key === "decryptedItems")) {
+    state.toJS();
   }
 
   return state;
@@ -304,6 +310,12 @@ const cacheDeserialize2 = (state: any, key: string | number) => {
   } else if (key === "items") {
     return ImmutableMap(state).map((item: any) => {
       return ImmutableMap<string, string>(item).map((x) => Etebase.fromBase64(x));
+    });
+  } else if (key === "decryptedCollections") {
+    return ImmutableMap(state);
+  } else if (key === "decryptedItems") {
+    return ImmutableMap(state).map((item: any) => {
+      return ImmutableMap(item);
     });
   }
 
@@ -333,6 +345,9 @@ const reducers = combineReducers({
   cache2: persistReducer(cachePersistConfig2, combineReducers({
     collections,
     items,
+
+    decryptedCollections,
+    decryptedItems,
   })),
   // }
   sync: persistReducer(syncPersistConfig, combineReducers({

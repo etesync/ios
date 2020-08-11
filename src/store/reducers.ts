@@ -65,7 +65,13 @@ export type CacheItem = Uint8Array;
 export type CacheItems = ImmutableMap<string, CacheItem>;
 export type CacheItemsData = ImmutableMap<string, CacheItems>;
 export type CacheCollection = Uint8Array;
-export type CacheCollectionsData = ImmutableMap<string, Uint8Array>;
+export type CacheCollectionsData = ImmutableMap<string, CacheCollection>;
+
+export type DecryptedItem = { meta: Etebase.CollectionItemMetadata, content: string };
+export type DecryptedItems = ImmutableMap<string, DecryptedItem>;
+export type DecryptedItemsData = ImmutableMap<string, DecryptedItems>;
+export type DecryptedCollection = { meta: Etebase.CollectionMetadata };
+export type DecryptedCollectionsData = ImmutableMap<string, DecryptedCollection>;
 
 export type SyncGeneralData = {
   stoken?: string | null;
@@ -136,12 +142,12 @@ export const collections = handleActions(
       actions.setCacheCollection,
       actions.collectionUpload,
       actions.unsetCacheCollection
-    ).toString()]: (state: CacheCollectionsData, action: ActionMeta<CacheCollection, { colUid: string, deleted: boolean }>) => {
+    ).toString()]: (state: CacheCollectionsData, action: ActionMeta<{ cache: CacheCollection }, { colUid: string, deleted: boolean }>) => {
       if (action.payload !== undefined) {
         if (action.meta.deleted) {
           return state.remove(action.meta.colUid);
         } else {
-          return state.set(action.meta.colUid, action.payload);
+          return state.set(action.meta.colUid, action.payload.cache);
         }
       }
       return state;
@@ -158,7 +164,85 @@ export const items = handleActions(
     [combineActions(
       actions.setCacheItem,
       actions.unsetCacheItem
-    ).toString()]: (state: CacheItemsData, action: ActionMeta<CacheItem, { colUid: string, itemUid: string, deleted: boolean }>) => {
+    ).toString()]: (state: CacheItemsData, action: ActionMeta<{ cache: CacheItem }, { colUid: string, itemUid: string, deleted: boolean }>) => {
+      if (action.payload !== undefined) {
+        if (action.meta.deleted) {
+          return state.removeIn([action.meta.colUid, action.meta.itemUid]);
+        } else {
+          return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload.cache);
+        }
+      }
+      return state;
+    },
+    [combineActions(
+      actions.itemBatch,
+      actions.setCacheItemMulti
+    ).toString()]: (state: CacheItemsData, action_: any) => {
+      // Fails without it for some reason
+      const action = action_ as ActionMeta<{ cache: CacheItem }[], { colUid: string, items: Etebase.CollectionItem[] }>;
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          let i = 0;
+          for (const item of action.meta.items) {
+            if (item.isDeleted) {
+              state.removeIn([action.meta.colUid, item.uid]);
+            } else {
+              state.setIn([action.meta.colUid, item.uid], action.payload[i].cache);
+            }
+            i++;
+          }
+        });
+      }
+      return state;
+    },
+    [actions.setCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.set(action.meta.colUid, ImmutableMap());
+      }
+      return state;
+    },
+    [actions.unsetCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.remove(action.meta.colUid);
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: CacheItemsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const decryptedCollections = handleActions(
+  {
+    [combineActions(
+      actions.setCacheCollection,
+      actions.collectionUpload,
+      actions.unsetCacheCollection
+    ).toString()]: (state: DecryptedCollectionsData, action: ActionMeta<DecryptedCollection, { colUid: string, deleted: boolean }>) => {
+      if (action.payload !== undefined) {
+        if (action.meta.deleted) {
+          return state.remove(action.meta.colUid);
+        } else {
+          return state.set(action.meta.colUid, action.payload);
+        }
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: DecryptedCollectionsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const decryptedItems = handleActions(
+  {
+    [combineActions(
+      actions.setCacheItem,
+      actions.unsetCacheItem
+    ).toString()]: (state: DecryptedItemsData, action: ActionMeta<DecryptedItem, { colUid: string, itemUid: string, deleted: boolean }>) => {
       if (action.payload !== undefined) {
         if (action.meta.deleted) {
           return state.removeIn([action.meta.colUid, action.meta.itemUid]);
@@ -171,9 +255,9 @@ export const items = handleActions(
     [combineActions(
       actions.itemBatch,
       actions.setCacheItemMulti
-    ).toString()]: (state: CacheItemsData, action_: any) => {
+    ).toString()]: (state: DecryptedItemsData, action_: any) => {
       // Fails without it for some reason
-      const action = action_ as ActionMeta<CacheItem[], { colUid: string, items: Etebase.CollectionItem[] }>;
+      const action = action_ as ActionMeta<DecryptedItem[], { colUid: string, items: Etebase.CollectionItem[] }>;
       if (action.payload !== undefined) {
         return state.withMutations((state) => {
           let i = 0;
@@ -189,19 +273,19 @@ export const items = handleActions(
       }
       return state;
     },
-    [actions.setCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<CacheCollection, { colUid: string }>) => {
+    [actions.setCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
       if (action.payload !== undefined) {
         return state.set(action.meta.colUid, ImmutableMap());
       }
       return state;
     },
-    [actions.unsetCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
+    [actions.unsetCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
       if (action.payload !== undefined) {
         return state.remove(action.meta.colUid);
       }
       return state;
     },
-    [actions.logout.toString()]: (state: CacheItemsData, _action: any) => {
+    [actions.logout.toString()]: (state: DecryptedItemsData, _action: any) => {
       return state.clear();
     },
   },
