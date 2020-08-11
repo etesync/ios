@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import { SyncManager } from "./sync/SyncManager";
 
-import JournalListScreen from "./components/JournalListScreen";
+import JournalListScreen from "./components/JournalListScreenEb";
 import { usePermissions } from "./Permissions";
 
 import { StoreState } from "./store";

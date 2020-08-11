@@ -26,6 +26,7 @@ import { startTask } from "../helpers";
 
 const cachedSyncManager = new Map<string, SyncManager>();
 export class SyncManager {
+  private COLLECTION_TYPES = ["etebase.vcard", "etebase.vevent", "etebase.vtodo"];
   private BATCH_SIZE = 40;
 
   public static getManager(etebase: Etebase.Account) {
@@ -87,7 +88,10 @@ export class SyncManager {
     while (!done) {
       const collections = await colMgr.list({ stoken, limit });
       for (const col of collections.data) {
-        await asyncDispatch(setCacheCollection(colMgr, col));
+        const { meta } = (await asyncDispatch(setCacheCollection(colMgr, col))).payload;
+        if (this.COLLECTION_TYPES.includes(meta.type)) {
+          await this.fetchCollection(col);
+        }
       }
       if (collections.removedMemberships) {
         for (const removed of collections.removedMemberships) {
