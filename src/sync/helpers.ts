@@ -362,6 +362,10 @@ function contactFieldToNative<T>(contact: ContactType, fieldName: string, mapper
   }).filter(isDefined);
 }
 
+function forceToString(val: string | string[]): string {
+  return (Array.isArray(val)) ? val.join(", ") : val;
+}
+
 export function contactVobjectToNative(contact: ContactType) {
   const phoneNumbers: Contacts.PhoneNumber[] = contactFieldToNative<Contacts.PhoneNumber>(contact, "tel", (fieldType: string, value: string) => {
     return {
@@ -405,12 +409,12 @@ export function contactVobjectToNative(contact: ContactType) {
     return {
       id: fieldType,
       label: fieldType,
-      poBox: value[0],
-      street: value[2],
-      city: value[3],
-      region: value[4],
-      postalCode: value[5],
-      country: value[6],
+      poBox: forceToString(value[0]),
+      street: forceToString(value[2]),
+      city: forceToString(value[3]),
+      region: forceToString(value[4]),
+      postalCode: forceToString(value[5]),
+      country: forceToString(value[6]),
     };
   });
 
@@ -524,11 +528,11 @@ export function contactVobjectToNative(contact: ContactType) {
     if (typeof nFieldParts === "string") {
       nFieldParts = nFieldParts.split(";");
     }
-    ret.lastName = nFieldParts[0];
-    ret.firstName = nFieldParts[1];
-    ret.middleName = nFieldParts[2];
-    ret.namePrefix = nFieldParts[3];
-    ret.nameSuffix = nFieldParts[4];
+    ret.lastName = forceToString(nFieldParts[0]);
+    ret.firstName = forceToString(nFieldParts[1]);
+    ret.middleName = forceToString(nFieldParts[2]);
+    ret.namePrefix = forceToString(nFieldParts[3]);
+    ret.nameSuffix = forceToString(nFieldParts[4]);
   } else if (ret.name) {
     // Do our best deconstructing fn
     ret.firstName = ret.name;
@@ -540,8 +544,8 @@ export function contactVobjectToNative(contact: ContactType) {
     if (typeof orgFieldParts === "string") {
       orgFieldParts = orgFieldParts.split(";");
     }
-    ret.company = orgFieldParts[0];
-    ret.department = orgFieldParts[1];
+    ret.company = forceToString(orgFieldParts[0]);
+    ret.department = forceToString(orgFieldParts[1]);
   }
 
   return ret;

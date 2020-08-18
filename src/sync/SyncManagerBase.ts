@@ -213,6 +213,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           try {
             const vobjectItem = this.syncEntryToVobject(syncEntry);
             const nativeItem = this.vobjectToNative(vobjectItem);
+
             const syncStateEntry = journalSyncEntries.get(nativeItem.uid);
             if (handledInBatch.has(nativeItem.uid)) {
               batch = batch.filter(([_action, item]) => (nativeItem.uid !== item.uid));
