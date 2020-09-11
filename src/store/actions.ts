@@ -76,14 +76,14 @@ export const collectionUpload = createAction(
 
 export const setCacheItem = createAction(
   "SET_CACHE_ITEM",
-  async (_col: Etebase.Collection, itemMgr: Etebase.CollectionItemManager, item: Etebase.CollectionItem) => {
+  async (_col: Etebase.Collection, itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
     return {
       cache: await itemMgr.cacheSave(item),
       meta: await item.getMeta(),
       content: await item.getContent(Etebase.OutputFormat.String),
     };
   },
-  (col: Etebase.Collection, _itemMgr: Etebase.CollectionItemManager, item: Etebase.CollectionItem) => {
+  (col: Etebase.Collection, _itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
     return {
       colUid: col.uid,
       itemUid: item.uid,
@@ -94,10 +94,10 @@ export const setCacheItem = createAction(
 
 export const unsetCacheItem = createAction(
   "UNSET_CACHE_ITEM",
-  (_colUid: string, _itemMgr: Etebase.CollectionItemManager, itemUid: string) => {
+  (_colUid: string, _itemMgr: Etebase.ItemManager, itemUid: string) => {
     return itemUid;
   },
-  (colUid: string, _itemMgr: Etebase.CollectionItemManager, itemUid: string) => {
+  (colUid: string, _itemMgr: Etebase.ItemManager, itemUid: string) => {
     return {
       colUid,
       itemUid,
@@ -108,7 +108,7 @@ export const unsetCacheItem = createAction(
 
 export const setCacheItemMulti = createAction(
   "SET_CACHE_ITEM_MULTI",
-  async (_colUid: string, itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[]) => {
+  async (_colUid: string, itemMgr: Etebase.ItemManager, items: Etebase.Item[]) => {
     const ret = [];
     for (const item of items) {
       ret.push({
@@ -119,7 +119,7 @@ export const setCacheItemMulti = createAction(
     }
     return ret;
   },
-  (colUid: string, _itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[], _deps?: Etebase.CollectionItem[]) => {
+  (colUid: string, _itemMgr: Etebase.ItemManager, items: Etebase.Item[], _deps?: Etebase.Item[]) => {
     return {
       colUid,
       items: items,
@@ -129,7 +129,7 @@ export const setCacheItemMulti = createAction(
 
 export const itemBatch = createAction(
   "ITEM_BATCH",
-  async (_col: Etebase.Collection, itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[], deps?: Etebase.CollectionItem[]) => {
+  async (_col: Etebase.Collection, itemMgr: Etebase.ItemManager, items: Etebase.Item[], deps?: Etebase.Item[]) => {
     await itemMgr.batch(items, deps);
     const ret = [];
     for (const item of items) {
@@ -141,7 +141,7 @@ export const itemBatch = createAction(
     }
     return ret;
   },
-  (col: Etebase.Collection, _itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[], _deps?: Etebase.CollectionItem[]) => {
+  (col: Etebase.Collection, _itemMgr: Etebase.ItemManager, items: Etebase.Item[], _deps?: Etebase.Item[]) => {
     return {
       colUid: col.uid,
       items: items,

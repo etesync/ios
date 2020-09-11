@@ -19,7 +19,7 @@ export const CHUNK_PULL = 30;
 export const CHUNK_PUSH = 30;
 
 export interface PushEntry {
-  item: Etebase.CollectionItem;
+  item: Etebase.Item;
   syncStateEntry: SyncStateEntry;
 }
 
@@ -153,7 +153,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }));
   }
 
-  private async pullHandleItems(syncStateJournal: SyncStateJournal, col: Etebase.Collection, itemMgr: Etebase.CollectionItemManager, items: Etebase.CollectionItem[]) {
+  private async pullHandleItems(syncStateJournal: SyncStateJournal, col: Etebase.Collection, itemMgr: Etebase.ItemManager, items: Etebase.Item[]) {
     const storeState = store.getState();
     const syncStateEntriesAll = storeState.sync.stateEntries;
     const journalSyncEntries = (syncStateEntriesAll.get(col.uid) ?? ImmutableMap({})).asMutable();

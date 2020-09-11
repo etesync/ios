@@ -67,7 +67,7 @@ export type CacheItemsData = ImmutableMap<string, CacheItems>;
 export type CacheCollection = Uint8Array;
 export type CacheCollectionsData = ImmutableMap<string, CacheCollection>;
 
-export type DecryptedItem = { meta: Etebase.CollectionItemMetadata, content: string };
+export type DecryptedItem = { meta: Etebase.ItemMetadata, content: string };
 export type DecryptedItems = ImmutableMap<string, DecryptedItem>;
 export type DecryptedItemsData = ImmutableMap<string, DecryptedItems>;
 export type DecryptedCollection = { meta: Etebase.CollectionMetadata };
@@ -179,7 +179,7 @@ export const items = handleActions(
       actions.setCacheItemMulti
     ).toString()]: (state: CacheItemsData, action_: any) => {
       // Fails without it for some reason
-      const action = action_ as ActionMeta<{ cache: CacheItem }[], { colUid: string, items: Etebase.CollectionItem[] }>;
+      const action = action_ as ActionMeta<{ cache: CacheItem }[], { colUid: string, items: Etebase.Item[] }>;
       if (action.payload !== undefined) {
         return state.withMutations((state) => {
           let i = 0;
@@ -257,7 +257,7 @@ export const decryptedItems = handleActions(
       actions.setCacheItemMulti
     ).toString()]: (state: DecryptedItemsData, action_: any) => {
       // Fails without it for some reason
-      const action = action_ as ActionMeta<DecryptedItem[], { colUid: string, items: Etebase.CollectionItem[] }>;
+      const action = action_ as ActionMeta<DecryptedItem[], { colUid: string, items: Etebase.Item[] }>;
       if (action.payload !== undefined) {
         return state.withMutations((state) => {
           let i = 0;

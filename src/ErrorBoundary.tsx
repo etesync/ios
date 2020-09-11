@@ -147,7 +147,7 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
 
   let nonFatalErrorDialog;
   if (nonFatalError) {
-    if ((nonFatalError instanceof Etebase.HTTPError) && (nonFatalError.status === 401)) {
+    if ((nonFatalError instanceof Etebase.HttpError) && (nonFatalError.status === 401)) {
       nonFatalErrorDialog = (
         <SessionExpiredDialog />
       );

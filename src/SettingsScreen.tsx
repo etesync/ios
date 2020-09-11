@@ -64,7 +64,7 @@ function ChangePasswordDialog(props: DialogPropsType) {
         const etebase = await Etebase.Account.login(username, oldPassword);
         await etebase.logout();
       } catch (e) {
-        if (e instanceof Etebase.EncryptionPasswordError) {
+        if (e instanceof Etebase.UnauthorizedError) {
           setErrors({ oldPassword: "Error: wrong encryption password." });
         } else {
           setErrors({ oldPassword: e.toString() });

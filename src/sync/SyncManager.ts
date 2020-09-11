@@ -140,7 +140,7 @@ export class SyncManager {
       if (e instanceof Etebase.NetworkError) {
         // Ignore network errors
         return false;
-      } else if (e instanceof Etebase.HTTPError) {
+      } else if (e instanceof Etebase.HttpError) {
         switch (e.status) {
           case 401: // INVALID TOKEN
           case 403: // FORBIDDEN
