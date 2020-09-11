@@ -27,6 +27,7 @@ import CollectionChangelogScreen from "./CollectionChangelogScreen";
 import CollectionEditScreen from "./CollectionEditScreen";
 import CollectionImportScreen from "./CollectionImportScreen";
 import CollectionItemScreen from "./CollectionItemScreen";
+import InvitationsScreen from "./InvitationsScreen";
 import SyncSettings from "./sync/SyncSettings";
 import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
 import { AskForPermissions } from "./Permissions";
@@ -212,6 +213,13 @@ function RootNavigatorEtebase() {
             component={JournalMembersScreen}
             options={{
               title: "Journal Members",
+            }}
+          />
+          <Stack.Screen
+            name="Invitations"
+            component={InvitationsScreen}
+            options={{
+              title: "Collection Invitations",
             }}
           />
         </>

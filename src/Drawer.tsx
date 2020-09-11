@@ -154,6 +154,18 @@ export default function Drawer(props: PropsType) {
           {loggedIn &&
             <>
               <List.Item
+                title="Invitations"
+                onPress={() => {
+                  navigation.closeDrawer();
+                  navigation.navigate("Invitations");
+                }}
+                left={(props) => <List.Icon {...props} icon="email-outline" />}
+              />
+            </>
+          }
+          {loggedIn &&
+            <>
+              <List.Item
                 title="Logout"
                 onPress={() => setShowLogout(true)}
                 disabled={syncCount > 0}
