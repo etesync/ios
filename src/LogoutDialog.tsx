@@ -19,11 +19,13 @@ import { useRemoteCredentials } from "./login";
 import { CredentialsData } from "./store";
 
 import * as C from "./constants";
+import { useCredentials } from "./credentials";
 
 export default function LogoutDialog(props: { visible: boolean, onDismiss: (loggedOut: boolean) => void }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const etesync = useRemoteCredentials() as CredentialsData;
+  const etebase = useCredentials();
   const [clearAddressBooks, setClearAddressBooks] = React.useState(true);
   const [clearCalendars, setClearCalendars] = React.useState(true);
 
@@ -52,8 +54,10 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           unregisterSyncTask(etesync.credentials.email);
         }
 
+        // FIXME-eb also handle etebase here including expiring the token
+
         // Here we log out regardless if we actually have an etesync
-        dispatch(logout(etesync!));
+        dispatch(logout(etebase ?? etesync));
 
         persistor.persist();
 
