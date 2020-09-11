@@ -40,6 +40,7 @@ import { setSettings } from "./store/actions";
 
 import * as C from "./constants";
 import { isDefined } from "./helpers";
+import CollectionMembersScreen from "./CollectionMembersScreen";
 
 const Stack = createStackNavigator();
 
@@ -197,6 +198,13 @@ function RootNavigatorEtebase() {
             component={CollectionImportScreen}
             options={{
               title: "Import",
+            }}
+          />
+          <Stack.Screen
+            name="CollectionMembers"
+            component={CollectionMembersScreen}
+            options={{
+              title: "Collection Members",
             }}
           />
           <Stack.Screen
