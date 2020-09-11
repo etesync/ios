@@ -98,7 +98,7 @@ export default function CollectionChangelogScreen(props: PropsType) {
         left={icon}
         title={name}
         description={mtime?.format("llll")}
-        onPress={() => { navigation.navigate("CollectionItem", { colUid, entryUid: item.uid }) }}
+        onPress={() => { navigation.navigate("CollectionItem", { colUid, itemUid: item.uid }) }}
       />
     );
   }
