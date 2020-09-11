@@ -42,10 +42,6 @@ export default function CollectionMembersScreen(props: PropsType) {
   const theme = useTheme();
   const etebase = useCredentials()!;
 
-  if (syncGate) {
-    return syncGate;
-  }
-
   const revokeUserIsAdmin = revokeUser?.accessLevel === Etebase.CollectionAccessLevel.Admin;
 
   const { colUid } = props.route.params;
@@ -100,6 +96,10 @@ export default function CollectionMembersScreen(props: PropsType) {
     await inviteMgr.invite(collection!, username, pubkey, accessLevel);
     await fetchMembers();
     setAddMemberOpen(false);
+  }
+
+  if (syncGate) {
+    return syncGate;
   }
 
   if (error) {
