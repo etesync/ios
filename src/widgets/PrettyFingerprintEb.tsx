@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import * as React from "react";
+import { TextProps } from "react-native";
 import * as Etebase from "etebase";
 
 import { Paragraph } from "react-native-paper";
 
-interface PropsType {
+interface PropsType extends TextProps {
   publicKey: Uint8Array;
 }
 
@@ -14,7 +15,7 @@ export default function PrettyFingerprint(props: PropsType) {
   const prettyFingerprint = Etebase.getPrettyFingerprint(props.publicKey);
 
   return (
-    <Paragraph style={{ fontVariant: ["tabular-nums"] }}>{prettyFingerprint}</Paragraph>
+    <Paragraph {...props} style={[props.style, { fontVariant: ["tabular-nums"] }]}>{prettyFingerprint}</Paragraph>
   );
 }
 
