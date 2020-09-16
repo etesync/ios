@@ -48,7 +48,7 @@ export default function CollectionMembersScreen(props: PropsType) {
 
   async function fetchMembers() {
     const colMgr = etebase.getCollectionManager();
-    const col = await colMgr.cacheLoad(collections.get(colUid)!);
+    const col = colMgr.cacheLoad(collections.get(colUid)!);
     if (col.accessLevel !== Etebase.CollectionAccessLevel.Admin) {
       setError(`Only the owner of the collection can view and modify its members.`);
       return;

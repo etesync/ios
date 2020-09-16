@@ -104,7 +104,7 @@ export default function CollectionEditScreen(props: PropsType) {
       const meta = { type: colType!, name, description, color };
       let collection;
       if (colUid) {
-        collection = await colMgr.cacheLoad(cacheCollections.get(colUid)!);
+        collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
         const colMeta = await collection.getMeta();
         await collection.setMeta({ ...colMeta, ...meta });
       } else {
@@ -221,7 +221,7 @@ function RightAction(props: { colUid: string }) {
         visible={confirmationVisible}
         onOk={async () => {
           const colMgr = etebase.getCollectionManager();
-          const collection = await colMgr.cacheLoad(cacheCollections.get(colUid)!);
+          const collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
           await collection.delete();
           await colMgr.upload(collection);
           navigation.navigate("home");

@@ -262,7 +262,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
       logger.info(`Pulling ${uid}`);
 
-      const col = await colMgr.cacheLoad(cacheCollections.get(uid)!);
+      const col = colMgr.cacheLoad(cacheCollections.get(uid)!);
       const syncStateJournal = syncStateJournals.get(uid)!;
       if (col.stoken !== syncStateJournal.lastSyncUid) {
         logger.info(`Applying changes. Current stoken: ${col.stoken}, last one: ${syncStateJournal.lastSyncUid}`);
@@ -277,7 +277,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       const cacheCollections = storeState.cache2.collections;
       const etebase = this.etebase;
       const colMgr = etebase.getCollectionManager();
-      const col = await colMgr.cacheLoad(cacheCollections.get(pSyncStateJournal.uid)!);
+      const col = colMgr.cacheLoad(cacheCollections.get(pSyncStateJournal.uid)!);
       const itemMgr = colMgr.getItemManager(col);
 
       for (const pushChunk of arrayToChunkIterator(pushEntries, CHUNK_PUSH)) {
@@ -335,7 +335,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const cacheCollections = storeState.cache2.collections;
     const etebase = this.etebase;
     const colMgr = etebase.getCollectionManager();
-    const col = await colMgr.cacheLoad(cacheCollections.get(syncStateJournal.uid)!);
+    const col = colMgr.cacheLoad(cacheCollections.get(syncStateJournal.uid)!);
     const cacheItems = storeState.cache2.items.get(col.uid)!;
     const itemMgr = colMgr.getItemManager(col);
 
