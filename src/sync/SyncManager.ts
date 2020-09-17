@@ -12,9 +12,8 @@ import { beginBackgroundTask, endBackgroundTask } from "../EteSyncNative";
 import * as Etebase from "etebase";
 
 import { SyncManager as LegacySyncManager } from "./legacy/SyncManager";
-import { syncInfoSelector } from "../SyncHandler";
-import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError, setCacheItemMulti, setSyncCollection, setSyncGeneral, unsetCacheCollection, setCacheCollection, setDecryptedCollection } from "../store/actions";
+import { store, persistor, CredentialsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
+import { addNonFatalError, setCacheItemMulti, setSyncCollection, setSyncGeneral, unsetCacheCollection, setCacheCollection } from "../store/actions";
 
 import { logger } from "../logging";
 
@@ -61,8 +60,8 @@ export class SyncManager {
 
   private managers = [
     SyncManagerCalendar,
-    // SyncManagerTaskList,
-    // SyncManagerAddressBook,
+    SyncManagerTaskList,
+    SyncManagerAddressBook,
   ];
 
   private async fetchCollection(col: Etebase.Collection) {
