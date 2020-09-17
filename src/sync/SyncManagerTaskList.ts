@@ -16,7 +16,9 @@ import { SyncManagerCalendarBase } from "./SyncManagerCalendar";
 import { PushEntry } from "./SyncManagerBase";
 
 export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
+  protected permissionsType = "TASKS";
   protected collectionType = "etebase.vtodo";
+  protected collectionTypeDisplay = "Tasks";
   protected entityType = Calendar.EntityTypes.REMINDER;
 
   protected async syncPush() {

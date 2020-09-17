@@ -50,6 +50,7 @@ function syncUpdate(status: string | null) {
 export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
   protected etebase: Etebase.Account;
   protected abstract collectionType: string;
+  protected abstract collectionTypeDisplay: string;
   public canSync: boolean;
 
   constructor(etebase: Etebase.Account) {
@@ -67,14 +68,14 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     if (__DEV__) {
       // await this.clearDeviceCollections();
     }
-    syncUpdate(`Starting sync (${this.collectionType})`);
-    syncUpdate(`Syncing journal list (${this.collectionType})`);
+    syncUpdate(`Starting sync (${this.collectionTypeDisplay})`);
+    syncUpdate(`Syncing journal list (${this.collectionTypeDisplay})`);
     await this.syncJournalList();
-    syncUpdate(`Pulling changes (${this.collectionType})`);
+    syncUpdate(`Pulling changes (${this.collectionTypeDisplay})`);
     await this.syncPull();
-    syncUpdate(`Pushing changes (${this.collectionType})`);
+    syncUpdate(`Pushing changes (${this.collectionTypeDisplay})`);
     await this.syncPush();
-    syncUpdate(`Finished sync (${this.collectionType})`);
+    syncUpdate(`Finished sync (${this.collectionTypeDisplay})`);
   }
 
   public async clearDeviceCollections() {

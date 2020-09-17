@@ -51,12 +51,13 @@ const fieldTypes = [
 
 export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeContact> {
   protected collectionType = "etebase.vcard";
+  protected collectionTypeDisplay = "Address Book";
   private containerId: string;
 
   public async init() {
     await super.init();
     const storeState = store.getState();
-    if (storeState.permissions.get(this.collectionType)) {
+    if (storeState.permissions.get("ADDRESS_BOOK")) {
       const containers = await getContainers();
       if (storeState.settings.syncContactsContainer) {
         const foundContainer = containers.find((container) => container.id === storeState.settings.syncContactsContainer);

@@ -19,6 +19,7 @@ import { SyncManagerBase, PushEntry } from "./SyncManagerBase";
 const ACCOUNT_NAME = "etesync";
 
 export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
+  protected abstract permissionsType: string;
   protected abstract entityType: string;
 
   protected localSource: Calendar.Source;
@@ -26,7 +27,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
   public async init() {
     await super.init();
     const storeState = store.getState();
-    if (storeState.permissions.get(this.collectionType)) {
+    if (storeState.permissions.get(this.permissionsType)) {
       const sources = await Calendar.getSourcesAsync();
       if (storeState.settings.ranWizrd) {
         this.localSource = sources.find((source) => source.id === storeState.settings.syncCalendarsSource)!;
@@ -73,7 +74,9 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
 
 export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, NativeEvent> {
+  protected permissionsType = "CALENDAR";
   protected collectionType = "etebase.vevent";
+  protected collectionTypeDisplay = "Calendars";
   protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush() {
