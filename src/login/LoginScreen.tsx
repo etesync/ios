@@ -4,7 +4,6 @@
 import * as React from "react";
 import { Action } from "redux-actions";
 import { useDispatch, useSelector } from "react-redux";
-import URI from "urijs";
 
 import { View } from "react-native";
 import { Paragraph, Text } from "react-native-paper";
@@ -176,13 +175,7 @@ const LoginScreen = React.memo(function _LoginScreen() {
     setPromise((async () => {
       let isEtebase;
       if (serviceApiUrl) {
-        const url = URI(serviceApiUrl);
-        url.segment("api");
-        url.segment("v1");
-        url.segment("authentication");
-        url.segment("is_etebase");
-        const fetchIsEtebase = await fetch(url.normalize().toString());
-        isEtebase = fetchIsEtebase.ok;
+        isEtebase = await Etebase.Account.isEtebaseServer(serviceApiUrl);
       } else if (username.includes("@")) {
         serviceApiUrl = C.serviceApiBase;
         isEtebase = false;
