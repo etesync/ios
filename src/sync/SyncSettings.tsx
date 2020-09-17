@@ -21,6 +21,10 @@ import { SyncManager } from "./SyncManager";
 import { SyncManagerAddressBook } from "./SyncManagerAddressBook";
 import { SyncManagerCalendar } from "./SyncManagerCalendar";
 import { SyncManagerTaskList } from "./SyncManagerTaskList";
+import { SyncManagerAddressBook as SyncManagerAddressBookLegacy } from "./legacy/SyncManagerAddressBook";
+import { SyncManagerCalendar as SyncManagerCalendarLegacy } from "./legacy/SyncManagerCalendar";
+import { SyncManagerTaskList as SyncManagerTaskListLegacy } from "./legacy/SyncManagerTaskList";
+import { useCredentials } from "../credentials";
 
 interface DialogPropsType {
   visible: boolean;
@@ -111,6 +115,7 @@ export default function SyncSettings() {
   const dispatch = useDispatch();
   const settings = useSelector((state: StoreState) => state.settings);
   const etesync = useRemoteCredentials() as CredentialsData;
+  const etebase = useCredentials();
   const [selectedContainer, setSelectedContainer] = React.useState<Contacts.Container>();
   const [availableContainers, setAvailableContainers] = React.useState<Contacts.Container[]>();
   const [availableSources, setAvailableSources] = React.useState<Calendar.Source[]>();
@@ -166,7 +171,11 @@ export default function SyncSettings() {
         visible={confirmContactsRemovalOpen}
         onOk={async () => {
           if (etesync) {
-            const syncManager = SyncManager.getManager(etesync);
+            const syncManager = SyncManager.getManagerLegacy(etesync);
+            await syncManager.clearDeviceCollections([SyncManagerAddressBookLegacy]);
+          }
+          if (etebase) {
+            const syncManager = SyncManager.getManager(etebase);
             await syncManager.clearDeviceCollections([SyncManagerAddressBook]);
           }
           dispatch(setSettings({ syncContactsContainer: null }));
@@ -188,7 +197,11 @@ export default function SyncSettings() {
         visible={confirmCalendarsRemovalOpen}
         onOk={async () => {
           if (etesync) {
-            const syncManager = SyncManager.getManager(etesync);
+            const syncManager = SyncManager.getManagerLegacy(etesync);
+            await syncManager.clearDeviceCollections([SyncManagerCalendarLegacy, SyncManagerTaskListLegacy]);
+          }
+          if (etebase) {
+            const syncManager = SyncManager.getManager(etebase);
             await syncManager.clearDeviceCollections([SyncManagerCalendar, SyncManagerTaskList]);
           }
           dispatch(setSettings({ syncCalendarsSource: null }));
