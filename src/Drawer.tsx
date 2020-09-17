@@ -155,7 +155,7 @@ export default function Drawer(props: PropsType) {
               />
             </>
           }
-          {loggedIn &&
+          {etebase &&
             <>
               <List.Item
                 title="Invitations"
