@@ -75,9 +75,9 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           SyncManager.removeManager(etebase);
 
           unregisterSyncTask(etebase.user.username);
-        }
 
-        // FIXME-eb also handle etebase here including expiring the token
+          await etebase.logout();
+        }
 
         // Here we log out regardless if we actually have an etesync
         dispatch(logout(etebase ?? etesync));
