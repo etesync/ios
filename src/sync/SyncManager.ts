@@ -11,6 +11,7 @@ import { beginBackgroundTask, endBackgroundTask } from "../EteSyncNative";
 
 import * as Etebase from "etebase";
 
+import { SyncManager as LegacySyncManager } from "./legacy/SyncManager";
 import { syncInfoSelector } from "../SyncHandler";
 import { store, persistor, CredentialsData, JournalsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
 import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError, setCacheItemMulti, setSyncCollection, setSyncGeneral, unsetCacheCollection, setCacheCollection, setDecryptedCollection } from "../store/actions";
@@ -24,19 +25,30 @@ import { credentialsSelector } from "../credentials";
 import { startTask } from "../helpers";
 
 
-const cachedSyncManager = new Map<string, SyncManager>();
+const cachedSyncManager = new Map<string, SyncManager | LegacySyncManager>();
 export class SyncManager {
   private COLLECTION_TYPES = ["etebase.vcard", "etebase.vevent", "etebase.vtodo"];
   private BATCH_SIZE = 40;
 
-  public static getManager(etebase: Etebase.Account) {
+  public static getManager(etebase: Etebase.Account): SyncManager {
     const cached = cachedSyncManager.get(etebase.user.username);
     if (!__DEV__ && cached) {
-      return cached;
+      return cached as SyncManager;
     }
 
     const ret = new SyncManager();
     cachedSyncManager.set(etebase.user.username, ret);
+    return ret;
+  }
+
+  public static getManagerLegacy(etesync: CredentialsDataRemote): LegacySyncManager {
+    const cached = cachedSyncManager.get(etesync.credentials.email);
+    if (!__DEV__ && cached) {
+      return cached as LegacySyncManager;
+    }
+
+    const ret = new LegacySyncManager();
+    cachedSyncManager.set(etesync.credentials.email, ret);
     return ret;
   }
 
