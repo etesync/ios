@@ -63,7 +63,7 @@ export default function CollectionChangelogScreen(props: PropsType) {
   const entriesList = Array.from(colDecryptedItems.entries()).map(([uid, val]) => ({ uid, ...val })).sort((a_, b_) => {
     const a = a_.meta.mtime ?? 0;
     const b = b_.meta.mtime ?? 0;
-    return a - b;
+    return b - a;
   });
 
   const itemCount = syncStateEntries.get(colUid)?.count();
