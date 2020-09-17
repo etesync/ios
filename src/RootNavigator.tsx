@@ -14,6 +14,7 @@ import { Title } from "./widgets/Typography";
 import LoginScreen from "./login/LoginScreen";
 
 import SettingsScreen from "./SettingsScreen";
+import SettingsScreenLegacy from "./SettingsScreenLegacy";
 import AboutScreen from "./AboutScreen";
 import DebugLogsScreen from "./DebugLogsScreen";
 import HomeScreen from "./HomeScreen";
@@ -341,7 +342,7 @@ function RootNavigatorEteSync() {
           />
         </>
       )}
-      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreenLegacy} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen
         name="DebugLogs"
