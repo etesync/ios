@@ -12,11 +12,13 @@ let excalendar = EteEXCalendar()
 @objc(EteSyncNative)
 class EteSyncNative: NSObject {
     let taskQueue = DispatchQueue(label: "com.etesync.DispatchQueue", attributes: .concurrent)
+    let eventStore = EKEventStore()
+    let contactStore = CNContactStore()
     
     @objc(processEventsChanges:changes:resolve:reject:)
     func processEventsChanges(containerId: String, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let store = EKEventStore()
+            let store = self.eventStore
             guard let calendar = store.calendar(withIdentifier: containerId) else {
                 reject("no_calendar", String(format: "Calendar with identifier %@ not found", containerId), nil)
                 return
@@ -116,7 +118,7 @@ class EteSyncNative: NSObject {
     
     @objc(hashEvent:resolve:reject:)
     func hashEvent(eventId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        let store = EKEventStore()
+        let store = self.eventStore
         if let event = store.calendarItem(withIdentifier: eventId) as! EKEvent? {
             resolve(etesync.hashEvent(event: event))
         } else {
@@ -127,7 +129,7 @@ class EteSyncNative: NSObject {
     @objc(calculateHashesForEvents:from:to:resolve:reject:)
     func calculateHashesForEvents(calendarId: String, from: NSNumber, to: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let store = EKEventStore()
+            let store = self.eventStore
             guard let cal = store.calendar(withIdentifier: calendarId) else {
                 reject("no_calendar", String(format: "Calendar with identifier %@ not found", calendarId), nil)
                 return
@@ -168,7 +170,7 @@ class EteSyncNative: NSObject {
     @objc(processRemindersChanges:changes:resolve:reject:)
     func processRemindersChanges(containerId: String, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let store = EKEventStore()
+            let store = self.eventStore
             guard let calendar = store.calendar(withIdentifier: containerId) else {
                 reject("no_calendar", String(format: "Calendar with identifier %@ not found", containerId), nil)
                 return
@@ -267,7 +269,7 @@ class EteSyncNative: NSObject {
     
     @objc(hashReminder:resolve:reject:)
     func hashReminder(reminderId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        let store = EKEventStore()
+        let store = self.eventStore
         if let reminder = store.calendarItem(withIdentifier: reminderId) as! EKReminder? {
             resolve(etesync.hashReminder(reminder: reminder))
         } else {
@@ -278,7 +280,7 @@ class EteSyncNative: NSObject {
     @objc(calculateHashesForReminders:resolve:reject:)
     func calculateHashesForReminders(calendarId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let store = EKEventStore()
+            let store = self.eventStore
             guard let cal = store.calendar(withIdentifier: calendarId) else {
                 reject("no_calendar", String(format: "Calendar with identifier %@ not found", calendarId), nil)
                 return
@@ -349,7 +351,7 @@ class EteSyncNative: NSObject {
 
     @objc(hashContact:resolve:reject:)
     func hashContact(contactId: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        let store = CNContactStore()
+        let store = self.contactStore
         let predicate = CNContact.predicateForContacts(withIdentifiers: [contactId])
         let fetchRequest = EteSyncNative.getFetchRequest(predicate: predicate)
         
@@ -373,7 +375,7 @@ class EteSyncNative: NSObject {
     @objc(calculateHashesForContacts:resolve:reject:)
     func calculateHashesForContacts(containerId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let store = CNContactStore()
+            let store = self.contactStore
             let predicate = CNContact.predicateForContactsInContainer(withIdentifier: containerId)
             let fetchRequest = EteSyncNative.getFetchRequest(predicate: predicate)
             
@@ -397,7 +399,7 @@ class EteSyncNative: NSObject {
     @objc(processContactsChanges:groupId:changes:resolve:reject:)
     func processContactsChanges(containerId: String, groupId: String?, changes: Array<Array<Any>>, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
-            let store = CNContactStore()
+            let store = self.contactStore
             var group: CNGroup? = nil
             if let gid = groupId {
                 do {
@@ -492,7 +494,7 @@ class EteSyncNative: NSObject {
     func deleteContactGroupAndMembers(groupId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
         taskQueue.async {
             var count = 0;
-            let store = CNContactStore()
+            let store = self.contactStore
             var group: CNGroup;
             do {
                 let groups = try store.groups(matching: CNGroup.predicateForGroups(withIdentifiers: [groupId]))
