@@ -389,6 +389,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     for (const [itemUid, { meta }] of decryptedItems.entries()) {
       if (meta.name === syncStateEntry.uid) {
         const item = itemMgr.cacheLoad(cacheItems.get(itemUid)!);
+        await item.delete(true);
         return { item, syncStateEntry };
       }
     }
