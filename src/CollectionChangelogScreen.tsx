@@ -16,16 +16,12 @@ import { Title } from "./widgets/Typography";
 
 import { TaskType, EventType, ContactType, parseString } from "./pim-types";
 
-import * as EteSync from "etesync";
 import { isDefined, defaultColor } from "./helpers";
 
 import ColorBox from "./widgets/ColorBox";
 
-const listIcons = {
-  [EteSync.SyncEntryAction.Add]: (props: any) => (<List.Icon {...props} color="#16B14B" icon="plus" />),
-  [EteSync.SyncEntryAction.Change]: (props: any) => (<List.Icon {...props} color="#FEB115" icon="pencil" />),
-  [EteSync.SyncEntryAction.Delete]: (props: any) => (<List.Icon {...props} color="#F20C0C" icon="delete" />),
-};
+const iconDeleted = (props: any) => (<List.Icon {...props} color="#F20C0C" icon="delete" />);
+const iconChanged = (props: any) => (<List.Icon {...props} color="#FEB115" icon="pencil" />);
 
 type RootStackParamList = {
   CollectionChangelogScreen: {
@@ -71,8 +67,8 @@ export default function CollectionChangelogScreen(props: PropsType) {
   function renderEntry(param: { item: DecryptedItem & { uid: string } }) {
     const item = param.item;
     const comp = parseString(item.content);
-    // FIXME-eb: icon
-    const icon = listIcons[0];
+
+    const icon = (item.isDeleted) ? iconDeleted : iconChanged;
 
     let name;
     if (comp.name === "vcalendar") {

@@ -67,7 +67,7 @@ export type CacheItemsData = ImmutableMap<string, CacheItems>;
 export type CacheCollection = Uint8Array;
 export type CacheCollectionsData = ImmutableMap<string, CacheCollection>;
 
-export type DecryptedItem = { meta: Etebase.ItemMetadata, content: string };
+export type DecryptedItem = { meta: Etebase.ItemMetadata, content: string, isDeleted: boolean };
 export type DecryptedItems = ImmutableMap<string, DecryptedItem>;
 export type DecryptedItemsData = ImmutableMap<string, DecryptedItems>;
 export type DecryptedCollection = { meta: Etebase.CollectionMetadata };

@@ -81,6 +81,7 @@ export const setCacheItem = createAction(
       cache: itemMgr.cacheSave(item),
       meta: await item.getMeta(),
       content: await item.getContent(Etebase.OutputFormat.String),
+      isDeleted: item.isDeleted,
     };
   },
   (col: Etebase.Collection, _itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
@@ -100,6 +101,7 @@ export const setCacheItemMulti = createAction(
         cache: itemMgr.cacheSave(item),
         meta: await item.getMeta(),
         content: await item.getContent(Etebase.OutputFormat.String),
+        isDeleted: item.isDeleted,
       });
     }
     return ret;
@@ -122,6 +124,7 @@ export const itemBatch = createAction(
         cache: itemMgr.cacheSave(item),
         meta: await item.getMeta(),
         content: await item.getContent(Etebase.OutputFormat.String),
+        isDeleted: item.isDeleted,
       });
     }
     return ret;
