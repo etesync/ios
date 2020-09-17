@@ -124,20 +124,7 @@ const CollectionImportScreen = function _CollectionImportScreen(props: PropsType
 
   const { colUid } = props.route.params;
   const collectionType = decryptedCollections.get(colUid)!.meta.type;
-
-  if (!permissions.get(collectionType)) {
-    return (
-      <ConfirmationDialog
-        title="Permision Denied"
-        visible
-        onOk={() => {
-          navigation.goBack();
-        }}
-      >
-        <Paragraph>Please give the app the appropriate permissions from the system's Settings app.</Paragraph>
-      </ConfirmationDialog>
-    );
-  }
+  let permissionType;
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let importCollection: typeof eventsImport;
@@ -147,12 +134,14 @@ const CollectionImportScreen = function _CollectionImportScreen(props: PropsType
       fetchDeviceCollections = eventsFetchDeviceCollections;
       importCollection = eventsImport;
       showDisclaimer = true;
+      permissionType = "CALENDAR";
       break;
     }
     case "etebase.vtodo": {
       fetchDeviceCollections = tasksFetchDeviceCollections;
       importCollection = tasksImport;
       showDisclaimer = true;
+      permissionType = "TASKS";
       break;
     }
     default: {
@@ -166,6 +155,20 @@ const CollectionImportScreen = function _CollectionImportScreen(props: PropsType
         />
       );
     }
+  }
+
+  if (!permissions.get(permissionType)) {
+    return (
+      <ConfirmationDialog
+        title="Permision Denied"
+        visible
+        onOk={() => {
+          navigation.goBack();
+        }}
+      >
+        <Paragraph>Please give the app the appropriate permissions from the system's Settings app.</Paragraph>
+      </ConfirmationDialog>
+    );
   }
 
   if (!deviceCollections) {
