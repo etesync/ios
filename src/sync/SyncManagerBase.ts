@@ -282,6 +282,13 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       for (const pushChunk of arrayToChunkIterator(pushEntries, CHUNK_PUSH)) {
         const items = pushChunk.map((x) => x.item);
         await asyncDispatch(itemBatch(col, itemMgr, items));
+        for (const pushEntry of pushChunk) {
+          if (pushEntry.item.isDeleted) {
+            store.dispatch(unsetSyncStateEntry(this.etebase, col.uid, pushEntry.syncStateEntry));
+          } else {
+            store.dispatch(setSyncStateEntry(this.etebase, col.uid, pushEntry.syncStateEntry));
+          }
+        }
       }
     }
   }
