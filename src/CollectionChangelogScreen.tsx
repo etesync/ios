@@ -16,7 +16,7 @@ import { Title } from "./widgets/Typography";
 
 import { TaskType, EventType, ContactType, parseString } from "./pim-types";
 
-import { isDefined, defaultColor } from "./helpers";
+import { defaultColor } from "./helpers";
 
 import ColorBox from "./widgets/ColorBox";
 
@@ -38,7 +38,6 @@ export default function CollectionChangelogScreen(props: PropsType) {
   const syncGate = useSyncGateEb();
   const theme = useTheme();
   const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
-  const syncStateEntries = useSelector((state: StoreState) => state.sync.stateEntries);
   const decryptedCollections = useSelector((state: StoreState) => state.cache2.decryptedCollections);
   const decryptedItems = useSelector((state: StoreState) => state.cache2.decryptedItems);
 
@@ -61,8 +60,6 @@ export default function CollectionChangelogScreen(props: PropsType) {
     const b = b_.meta.mtime ?? 0;
     return b - a;
   });
-
-  const itemCount = syncStateEntries.get(colUid)?.count();
 
   function renderEntry(param: { item: DecryptedItem & { uid: string } }) {
     const item = param.item;
@@ -156,8 +153,7 @@ export default function CollectionChangelogScreen(props: PropsType) {
         <View style={{ marginRight: "auto" }}>
           <Title>{meta.name}</Title>
           <Text>
-            {isDefined(itemCount) && `Items: ${itemCount}, `}
-            Log entries: {entriesList.length}
+            Change log items: {entriesList.length}
           </Text>
         </View>
         {collectionColorBox}
