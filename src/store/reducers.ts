@@ -162,15 +162,10 @@ export const collections = handleActions(
 export const items = handleActions(
   {
     [combineActions(
-      actions.setCacheItem,
-      actions.unsetCacheItem
-    ).toString()]: (state: CacheItemsData, action: ActionMeta<{ cache: CacheItem }, { colUid: string, itemUid: string, deleted: boolean }>) => {
+      actions.setCacheItem
+    ).toString()]: (state: CacheItemsData, action: ActionMeta<{ cache: CacheItem }, { colUid: string, itemUid: string }>) => {
       if (action.payload !== undefined) {
-        if (action.meta.deleted) {
-          return state.removeIn([action.meta.colUid, action.meta.itemUid]);
-        } else {
-          return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload.cache);
-        }
+        return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload.cache);
       }
       return state;
     },
@@ -184,11 +179,7 @@ export const items = handleActions(
         return state.withMutations((state) => {
           let i = 0;
           for (const item of action.meta.items) {
-            if (item.isDeleted) {
-              state.removeIn([action.meta.colUid, item.uid]);
-            } else {
-              state.setIn([action.meta.colUid, item.uid], action.payload[i].cache);
-            }
+            state.setIn([action.meta.colUid, item.uid], action.payload[i].cache);
             i++;
           }
         });
@@ -240,15 +231,10 @@ export const decryptedCollections = handleActions(
 export const decryptedItems = handleActions(
   {
     [combineActions(
-      actions.setCacheItem,
-      actions.unsetCacheItem
-    ).toString()]: (state: DecryptedItemsData, action: ActionMeta<DecryptedItem, { colUid: string, itemUid: string, deleted: boolean }>) => {
+      actions.setCacheItem
+    ).toString()]: (state: DecryptedItemsData, action: ActionMeta<DecryptedItem, { colUid: string, itemUid: string }>) => {
       if (action.payload !== undefined) {
-        if (action.meta.deleted) {
-          return state.removeIn([action.meta.colUid, action.meta.itemUid]);
-        } else {
-          return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload);
-        }
+        return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload);
       }
       return state;
     },
@@ -262,11 +248,7 @@ export const decryptedItems = handleActions(
         return state.withMutations((state) => {
           let i = 0;
           for (const item of action.meta.items) {
-            if (item.isDeleted) {
-              state.removeIn([action.meta.colUid, item.uid]);
-            } else {
-              state.setIn([action.meta.colUid, item.uid], action.payload[i]);
-            }
+            state.setIn([action.meta.colUid, item.uid], action.payload[i]);
             i++;
           }
         });
