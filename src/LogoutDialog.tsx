@@ -34,6 +34,7 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
 
   return (
     <ConfirmationDialog
+      key={props.visible.toString()}
       title="Are you sure?"
       visible={props.visible}
       onOk={async () => {
