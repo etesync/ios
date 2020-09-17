@@ -156,23 +156,25 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const storeState = store.getState();
     const syncStateEntriesAll = storeState.sync.stateEntries;
     const journalSyncEntries = (syncStateEntriesAll.get(col.uid) ?? ImmutableMap({})).asMutable();
-    const batch: [BatchAction, N][] = [];
+    const batch: [BatchAction, N, string][] = [];
     for (const item of items) {
       logger.debug(`Proccessing ${item.uid}`);
       const content = await item.getContent(Etebase.OutputFormat.String);
       try {
         const vobjectItem = this.contentToVobject(content);
         const nativeItem = this.vobjectToNative(vobjectItem);
-        const syncStateEntry = journalSyncEntries.get(nativeItem.uid);
+        // XXX We override the uid (that's being used by legacy) because we want to map with the itemUid
+        nativeItem.uid = item.uid;
+        const syncStateEntry = journalSyncEntries.get(item.uid);
         if (item.isDeleted) {
           if (syncStateEntry?.localId) {
-            batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
+            batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }, item.uid]);
           }
         } else {
           if (syncStateEntry?.localId) {
-            batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }]);
+            batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }, item.uid]);
           } else {
-            batch.push([BatchAction.Add, nativeItem]);
+            batch.push([BatchAction.Add, nativeItem, item.uid]);
           }
         }
       } catch (e) {
@@ -185,17 +187,18 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
     if (batch.length > 0) {
       try {
-        const hashes = await this.processSyncEntries(localId, batch);
+        const hashes = await this.processSyncEntries(localId, batch.map((x) => [x[0], x[1]]));
 
-        for (const [action, nativeItem] of batch) {
+        for (const [action, _ShouldNotBeUsed, itemUid] of batch) {
+          _ShouldNotBeUsed; // XXX Just silencing eslint
           // FIXME: do this all at once
-          const hash = hashes[nativeItem.uid];
+          const hash = hashes[itemUid];
           const error = hash?.[2];
           if (error) {
-            store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+            store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${itemUid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
           }
           const syncStateEntry: SyncStateEntry = {
-            uid: nativeItem.uid,
+            uid: itemUid,
             localId: hash?.[0],
             lastHash: hash?.[1],
           };
@@ -299,15 +302,15 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
     if (syncStateEntry === undefined) {
       // New
-      logger.info(`New entry ${nativeItem.uid}`);
+      logger.info(`New entry ${nativeItem.id}`);
       changed = true;
     } else {
       if (currentHash !== syncStateEntry.lastHash) {
         // Changed
         if (this.handleLegacyHash(syncStateJournal.uid, syncStateEntry, nativeItem, itemHash)) {
-          logger.info(`Updated legacy hash for ${nativeItem.uid}`);
+          logger.info(`Updated legacy hash for ${syncStateEntry.uid}`);
         } else {
-          logger.info(`Changed entry ${nativeItem.uid}`);
+          logger.info(`Changed entry ${syncStateEntry.uid}`);
           changed = true;
         }
       }
@@ -337,18 +340,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       let item: Etebase.Item | undefined;
       if (syncStateEntry) {
         // Existing item
-        const decryptedItems = storeState.cache2.decryptedItems.get(col.uid)!;
-
-        for (const [itemUid, { meta }] of decryptedItems.entries()) {
-          if (meta.name === syncStateEntry.uid) {
-            item = itemMgr.cacheLoad(cacheItems.get(itemUid)!);
-            break;
-          }
-        }
-
-        if (!item) {
-          throw new Error("Failed getting decrypted item");
-        }
+        item = itemMgr.cacheLoad(cacheItems.get(syncStateEntry.uid)!);
 
         await item.setContent(content);
         const meta = await item.getMeta();
@@ -358,13 +350,13 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         // New
         const meta: Etebase.ItemMetadata = {
           mtime,
-          name: nativeItem.uid,
+          name: vobjectEvent.uid,
         };
         item = await itemMgr.create(meta, content);
       }
 
       syncStateEntry = {
-        uid: nativeItem.uid,
+        uid: item.uid,
         localId: nativeItem.id!,
         lastHash: currentHash,
       };
@@ -383,15 +375,12 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const colMgr = etebase.getCollectionManager();
     const col = colMgr.cacheLoad(cacheCollections.get(syncStateJournal.uid)!);
     const cacheItems = storeState.cache2.items.get(col.uid)!;
-    const decryptedItems = storeState.cache2.decryptedItems.get(col.uid)!;
     const itemMgr = colMgr.getItemManager(col);
 
-    for (const [itemUid, { meta }] of decryptedItems.entries()) {
-      if (meta.name === syncStateEntry.uid) {
-        const item = itemMgr.cacheLoad(cacheItems.get(itemUid)!);
-        await item.delete(true);
-        return { item, syncStateEntry };
-      }
+    if (cacheItems.has(syncStateEntry.uid)) {
+      const item = itemMgr.cacheLoad(cacheItems.get(syncStateEntry.uid)!);
+      await item.delete(true);
+      return { item, syncStateEntry };
     }
 
     return null;
