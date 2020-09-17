@@ -215,9 +215,8 @@ TaskManager.defineTask(BACKGROUND_SYNC_TASK_NAME, async () => {
     const afterState = store.getState();
 
     const receivedNewData =
-      (beforeState.cache.journals !== afterState.cache.journals) ||
-      (beforeState.cache.entries !== afterState.cache.entries) ||
-      (beforeState.cache.userInfo !== afterState.cache.userInfo);
+      (beforeState.cache2.collections !== afterState.cache2.collections) ||
+      (beforeState.cache2.items !== afterState.cache2.items);
 
     if (receivedNewData) {
       if (await allowedNotifications) {
