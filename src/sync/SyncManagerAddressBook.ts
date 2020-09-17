@@ -50,7 +50,7 @@ const fieldTypes = [
 ];
 
 export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeContact> {
-  protected collectionType = "ADDRESS_BOOK";
+  protected collectionType = "etebase.vcard";
   private containerId: string;
 
   public async init() {

@@ -73,7 +73,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
 
 export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, NativeEvent> {
-  protected collectionType = "CALENDAR";
+  protected collectionType = "etebase.vevent";
   protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush() {
