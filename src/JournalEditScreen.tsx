@@ -118,7 +118,7 @@ export default function JournalEditScreen(props: PropsType) {
       }
 
       // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-      const syncManager = SyncManager.getManager(etesync);
+      const syncManager = SyncManager.getManagerLegacy(etesync);
       store.dispatch(performSync(syncManager.sync()));
       navigation.goBack();
     });
@@ -225,7 +225,7 @@ function RightAction(props: { journalUid: string }) {
           await store.dispatch(deleteJournal(etesync, journal));
           navigation.navigate("home");
           // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-          const syncManager = SyncManager.getManager(etesync);
+          const syncManager = SyncManager.getManagerLegacy(etesync);
           store.dispatch(performSync(syncManager.sync()));
         }}
         onCancel={() => {

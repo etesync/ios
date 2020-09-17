@@ -222,7 +222,7 @@ const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
         loadingText="Please wait, may take a while..."
         onOk={async () => {
           await importCollection(selectedCollection!.id, syncStateJournal.localId);
-          const syncManager = SyncManager.getManager(etesync);
+          const syncManager = SyncManager.getManagerLegacy(etesync);
           store.dispatch(performSync(syncManager.sync())); // not awaiting on puprose
           setSelectedCollection(null);
           navigation.goBack();

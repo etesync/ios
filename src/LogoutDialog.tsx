@@ -11,6 +11,9 @@ import { logout } from "./store/actions";
 import { SyncManagerAddressBook } from "./sync/SyncManagerAddressBook";
 import { SyncManagerCalendar } from "./sync/SyncManagerCalendar";
 import { SyncManagerTaskList } from "./sync/SyncManagerTaskList";
+import { SyncManagerAddressBook as SyncManagerAddressBookLegacy } from "./sync/legacy/SyncManagerAddressBook";
+import { SyncManagerCalendar as SyncManagerCalendarLegacy } from "./sync/legacy/SyncManagerCalendar";
+import { SyncManagerTaskList as SyncManagerTaskListLegacy } from "./sync/legacy/SyncManagerTaskList";
 import { unregisterSyncTask, SyncManager } from "./sync/SyncManager";
 
 import ConfirmationDialog from "./widgets/ConfirmationDialog";
@@ -37,6 +40,25 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
         if (etesync) {
           const managers = [];
           if (clearAddressBooks) {
+            managers.push(SyncManagerAddressBookLegacy);
+          }
+          if (clearCalendars) {
+            managers.push(SyncManagerCalendarLegacy);
+            managers.push(SyncManagerTaskListLegacy);
+          }
+
+          if (managers.length > 0) {
+            const syncManager = SyncManager.getManagerLegacy(etesync);
+            await syncManager.clearDeviceCollections(managers);
+          }
+
+          SyncManager.removeManager(etesync);
+
+          unregisterSyncTask(etesync.credentials.email);
+        }
+        if (etebase) {
+          const managers = [];
+          if (clearAddressBooks) {
             managers.push(SyncManagerAddressBook);
           }
           if (clearCalendars) {
@@ -45,13 +67,13 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
           }
 
           if (managers.length > 0) {
-            const syncManager = SyncManager.getManager(etesync);
+            const syncManager = SyncManager.getManager(etebase);
             await syncManager.clearDeviceCollections(managers);
           }
 
-          SyncManager.removeManager(etesync);
+          SyncManager.removeManager(etebase);
 
-          unregisterSyncTask(etesync.credentials.email);
+          unregisterSyncTask(etebase.user.username);
         }
 
         // FIXME-eb also handle etebase here including expiring the token

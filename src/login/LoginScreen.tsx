@@ -101,7 +101,7 @@ function EncryptionPart() {
     const done = () => {
       dispatch(derived);
       const etesync = credentialsSelector(store.getState() as StoreState);
-      const syncManager = SyncManager.getManager(etesync!);
+      const syncManager = SyncManager.getManagerLegacy(etesync!);
       dispatch(performSync(startTask(() => syncManager.sync(), 200)));
     };
 

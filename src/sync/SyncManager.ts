@@ -51,8 +51,12 @@ export class SyncManager {
     return ret;
   }
 
-  public static removeManager(etesync: CredentialsData) {
-    cachedSyncManager.delete(etesync.credentials.email);
+  public static removeManager(etebase: Etebase.Account | CredentialsData) {
+    if (etebase instanceof Etebase.Account) {
+      cachedSyncManager.delete(etebase.user.username);
+    } else {
+      cachedSyncManager.delete(etebase.credentials.email);
+    }
   }
 
   protected etebase: Etebase.Account;

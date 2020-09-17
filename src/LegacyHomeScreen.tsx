@@ -34,7 +34,7 @@ export default React.memo(function HomeScreen() {
   }, [etesync, !permissionsStatus]);
 
   function refresh() {
-    const syncManager = SyncManager.getManager(etesync);
+    const syncManager = SyncManager.getManagerLegacy(etesync);
     dispatch(performSync(syncManager.sync()));
   }
 
