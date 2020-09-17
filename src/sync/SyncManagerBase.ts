@@ -187,7 +187,30 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
     if (batch.length > 0) {
       try {
-        const hashes = await this.processSyncEntries(localId, batch.map((x) => [x[0], x[1]]));
+        let hashes: HashDictionary;
+        try {
+          hashes = await this.processSyncEntries(localId, batch.map((x) => [x[0], x[1]]));
+        } catch (e) {
+          // If we failed, try processing entries one by one
+          logger.warn("Failed processing entries. Trying one by one.");
+          hashes = {};
+          for (const batchOne of batch) {
+            const key = batchOne[2];
+            logger.info(`Processing (one by one): ${key}`);
+            logger.debug(JSON.stringify(batchOne[1]));
+            try {
+              const hashesOne = await this.processSyncEntries(localId, [[batchOne[0], batchOne[1]]]);
+              const hash = hashesOne[key];
+              if (hash) {
+                hashes[key] = hash;
+              }
+            } catch (e) {
+              const message = `Skipping failed contact (${key}). Please report to developers.`;
+              logger.warn(message);
+              store.dispatch(addNonFatalError(new Error(message)));
+            }
+          }
+        }
 
         for (const [action, _ShouldNotBeUsed, itemUid] of batch) {
           _ShouldNotBeUsed; // XXX Just silencing eslint
