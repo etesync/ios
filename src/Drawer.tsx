@@ -66,6 +66,10 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
   const etebase = useCredentials();
 
+  if (!props.visible) {
+    return null;
+  }
+
   let publicKey: React.ReactNode;
   if (userInfo) {
     publicKey = (
