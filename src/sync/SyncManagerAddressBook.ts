@@ -75,7 +75,6 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
   }
 
   protected async syncPush() {
-    return;
     const storeState = store.getState();
     const decryptedCollections = storeState.cache2.decryptedCollections;
     const syncStateJournals = storeState.sync.stateJournals;

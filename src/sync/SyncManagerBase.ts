@@ -2,16 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import * as Etebase from "etebase";
-import * as EteSync from "etesync";
 import { Map as ImmutableMap } from "immutable";
 
 import { logger } from "../logging";
 
 import { PimType } from "../pim-types";
-import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData, asyncDispatch } from "../store";
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError, setCacheItemMulti, setSyncCollection, itemBatch } from "../store/actions";
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, asyncDispatch } from "../store";
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, setSyncStatus, addNonFatalError, setCacheItemMulti, setSyncCollection, itemBatch } from "../store/actions";
 import { NativeBase, entryNativeHashCalc } from "./helpers";
-import { createJournalEntryFromSyncEntry } from "../etesync-helpers";
 import { arrayToChunkIterator } from "../helpers";
 import { BatchAction, HashDictionary } from "../EteSyncNative";
 
@@ -287,7 +285,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
   }
 
-  protected async syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string) {
+  protected async syncPushHandleAddChange(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry | undefined, nativeItem: N, itemHash: string): Promise<PushEntry | null> {
     let changed = false;
     const currentHash = itemHash;
 
@@ -308,7 +306,16 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }
 
     if (changed) {
+      const storeState = store.getState();
+      const cacheCollections = storeState.cache2.collections;
+      const etebase = this.etebase;
+      const colMgr = etebase.getCollectionManager();
+      const col = colMgr.cacheLoad(cacheCollections.get(syncStateJournal.uid)!);
+      const cacheItems = storeState.cache2.items.get(col.uid)!;
+      const itemMgr = colMgr.getItemManager(col);
+
       const vobjectEvent = this.nativeToVobject(nativeItem);
+
       let content;
       try {
         content = vobjectEvent.toIcal();
@@ -317,19 +324,50 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         throw e;
       }
 
+      const mtime = (new Date()).getTime();
+
+      let item: Etebase.Item | undefined;
+      if (syncStateEntry) {
+        // Existing item
+        const decryptedItems = storeState.cache2.decryptedItems.get(col.uid)!;
+
+        for (const [itemUid, { meta }] of decryptedItems.entries()) {
+          if (meta.name === syncStateEntry.uid) {
+            item = itemMgr.cacheLoad(cacheItems.get(itemUid)!);
+            break;
+          }
+        }
+
+        if (!item) {
+          throw new Error("Failed getting decrypted item");
+        }
+
+        await item.setContent(content);
+        const meta = await item.getMeta();
+        meta.mtime = mtime;
+        await item.setMeta(meta);
+      } else {
+        // New
+        const meta: Etebase.ItemMetadata = {
+          mtime,
+          name: nativeItem.uid,
+        };
+        item = await itemMgr.create(meta, content);
+      }
+
       syncStateEntry = {
         uid: nativeItem.uid,
         localId: nativeItem.id!,
         lastHash: currentHash,
       };
 
-      return { content, syncStateEntry };
+      return { item, syncStateEntry };
     }
 
     return null;
   }
 
-  protected async syncPushHandleDeleted(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry) {
+  protected async syncPushHandleDeleted(syncStateJournal: SyncStateJournal, syncStateEntry: SyncStateEntry): Promise<PushEntry | null> {
     logger.info(`Deleted entry ${syncStateEntry.uid}`);
     const storeState = store.getState();
     const cacheCollections = storeState.cache2.collections;
@@ -337,22 +375,13 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const colMgr = etebase.getCollectionManager();
     const col = colMgr.cacheLoad(cacheCollections.get(syncStateJournal.uid)!);
     const cacheItems = storeState.cache2.items.get(col.uid)!;
+    const decryptedItems = storeState.cache2.decryptedItems.get(col.uid)!;
     const itemMgr = colMgr.getItemManager(col);
 
-    const uid = syncStateJournal.uid;
-
-    const syncEntry = new EteSync.SyncEntry();
-    syncEntry.action = EteSync.SyncEntryAction.Delete;
-    for (const entry of syncInfoJournalItems.values()) {
-      const pimItem = this.contentToVobject(entry);
-      if (pimItem.uid === syncStateEntry.uid) {
-        try {
-          syncEntry.content = pimItem.toIcal();
-        } catch (e) {
-          logger.warn(`Failed push deletion: ${entry.content}`);
-          throw e;
-        }
-        return { content: "", syncStateEntry };
+    for (const [itemUid, { meta }] of decryptedItems.entries()) {
+      if (meta.name === syncStateEntry.uid) {
+        const item = itemMgr.cacheLoad(cacheItems.get(itemUid)!);
+        return { item, syncStateEntry };
       }
     }
 
