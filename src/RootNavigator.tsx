@@ -182,20 +182,6 @@ function RootNavigatorEtebase() {
             }}
           />
           <Stack.Screen
-            name="JournalItem"
-            component={JournalItemScreen}
-            options={{
-              title: "Journal Item",
-            }}
-          />
-          <Stack.Screen
-            name="JournalItemSave"
-            component={JournalItemSaveScreen}
-            options={{
-              title: "Save Item",
-            }}
-          />
-          <Stack.Screen
             name="CollectionImport"
             component={CollectionImportScreen}
             options={{
@@ -207,13 +193,6 @@ function RootNavigatorEtebase() {
             component={CollectionMembersScreen}
             options={{
               title: "Collection Members",
-            }}
-          />
-          <Stack.Screen
-            name="JournalMembers"
-            component={JournalMembersScreen}
-            options={{
-              title: "Journal Members",
             }}
           />
           <Stack.Screen
