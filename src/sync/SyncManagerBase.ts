@@ -27,7 +27,7 @@ function persistSyncJournal(etesync: CredentialsData | Etebase.Account, syncStat
   persistor.persist();
 }
 
-function syncUpdate(status: string | null) {
+export function syncUpdate(status: string | null) {
   store.dispatch(setSyncStatus(status));
   if (status) {
     logger.info(status);

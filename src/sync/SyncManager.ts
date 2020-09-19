@@ -13,10 +13,11 @@ import * as Etebase from "etebase";
 
 import { SyncManager as LegacySyncManager } from "./legacy/SyncManager";
 import { store, persistor, CredentialsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
-import { addNonFatalError, setSyncGeneral, unsetCacheCollection, setCacheCollection } from "../store/actions";
+import { addNonFatalError, setSyncGeneral, unsetCacheCollection, setCacheCollection, setSyncCollection, setCacheItemMulti } from "../store/actions";
 
 import { logger } from "../logging";
 
+import { syncUpdate } from "./SyncManagerBase";
 import { SyncManagerAddressBook } from "./SyncManagerAddressBook";
 import { SyncManagerCalendar } from "./SyncManagerCalendar";
 import { SyncManagerTaskList } from "./SyncManagerTaskList";
@@ -26,6 +27,7 @@ import { startTask } from "../helpers";
 
 const cachedSyncManager = new Map<string, SyncManager | LegacySyncManager>();
 export class SyncManager {
+  private COLLECTION_TYPES = ["etebase.vcard", "etebase.vevent", "etebase.vtodo"];
   private BATCH_SIZE = 40;
 
   public static getManager(etebase: Etebase.Account): SyncManager {
@@ -67,6 +69,28 @@ export class SyncManager {
     SyncManagerAddressBook,
   ];
 
+  private async fetchCollection(etebase: Etebase.Account, col: Etebase.Collection) {
+    const storeState = store.getState() as unknown as StoreState;
+    const syncCollection = storeState.sync2.collections.get(col.uid, undefined);
+
+    const colMgr = etebase.getCollectionManager();
+    const itemMgr = colMgr.getItemManager(col);
+
+    let stoken = syncCollection?.stoken;
+    const limit = this.BATCH_SIZE;
+    let done = false;
+    while (!done) {
+      const items = await itemMgr.list({ stoken, limit });
+      store.dispatch(setCacheItemMulti(col.uid, itemMgr, items.data));
+      done = items.done;
+      stoken = items.stoken;
+    }
+
+    if (syncCollection?.stoken !== stoken) {
+      store.dispatch(setSyncCollection(col.uid, stoken!));
+    }
+  }
+
   public async fetchAllCollections() {
     const storeState = store.getState() as unknown as StoreState;
     const etebase = (await credentialsSelector(storeState))!;
@@ -79,6 +103,13 @@ export class SyncManager {
     while (!done) {
       const collections = await colMgr.list({ stoken, limit });
       for (const col of collections.data) {
+        if (!col.isDeleted) {
+          const { meta } = (await asyncDispatch(setCacheCollection(colMgr, col))).payload;
+          if (this.COLLECTION_TYPES.includes(meta.type)) {
+            syncUpdate(`Fetching collection ${meta.name}`);
+            await this.fetchCollection(etebase, col);
+          }
+        }
         await asyncDispatch(setCacheCollection(colMgr, col));
       }
 
@@ -113,6 +144,7 @@ export class SyncManager {
 
     try {
       activateKeepAwake(keepAwakeTag);
+      syncUpdate(`Fetching collection list`);
       await this.fetchAllCollections();
 
       const storeState = store.getState() as unknown as StoreState;
