@@ -185,54 +185,58 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
     const localId = syncStateJournal.localId;
 
+    function handleBatch(etebase: Etebase.Account, hashes: HashDictionary, batch: [BatchAction, N][]) {
+      for (const [action, nativeItem] of batch) {
+        const itemUid = nativeItem.uid; // This is the itemUid because we set it above
+        // FIXME: do this all at once
+        const hash = hashes[itemUid];
+        const error = hash?.[2];
+        if (error) {
+          store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${itemUid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+        }
+        const syncStateEntry: SyncStateEntry = {
+          uid: itemUid,
+          localId: hash?.[0],
+          lastHash: hash?.[1],
+        };
+
+        if (!error && ((action === BatchAction.Add) || (action === BatchAction.Change))) {
+          journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
+          store.dispatch(setSyncStateEntry(etebase, col.uid, syncStateEntry));
+        } else {
+          // We want to delete our entries if there's an error (or if the action is delete anyway)
+          if (syncStateEntry) {
+            journalSyncEntries.delete(syncStateEntry.uid);
+            store.dispatch(unsetSyncStateEntry(etebase, col.uid, syncStateEntry));
+          }
+        }
+      }
+    }
+
     if (batch.length > 0) {
       try {
-        let hashes: HashDictionary;
+        let hashes: HashDictionary | undefined;
         try {
           hashes = await this.processSyncEntries(localId, batch);
+          handleBatch(this.etebase, hashes, batch);
         } catch (e) {
+          if (hashes) {
+            // If hashes was already set, it means we have a real error and should throw
+            throw e;
+          }
+
           // If we failed, try processing entries one by one
           logger.warn("Failed processing entries. Trying one by one.");
-          hashes = {};
           for (const batchOne of batch) {
             const key = batchOne[1].uid; // This is the itemUid because we set it above
             logger.info(`Processing (one by one): ${key}`);
             try {
-              const hashesOne = await this.processSyncEntries(localId, [[batchOne[0], batchOne[1]]]);
-              const hash = hashesOne[key];
-              if (hash) {
-                hashes[key] = hash;
-              }
+              const hashes = await this.processSyncEntries(localId, [batchOne]);
+              handleBatch(this.etebase, hashes, [batchOne]);
             } catch (e) {
               const message = `Skipping failed contact (${key}). Please report to developers.`;
               logger.warn(message);
               store.dispatch(addNonFatalError(new Error(message)));
-            }
-          }
-        }
-
-        for (const [action, nativeItem] of batch) {
-          const itemUid = nativeItem.uid; // This is the itemUid because we set it above
-          // FIXME: do this all at once
-          const hash = hashes[itemUid];
-          const error = hash?.[2];
-          if (error) {
-            store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${itemUid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
-          }
-          const syncStateEntry: SyncStateEntry = {
-            uid: itemUid,
-            localId: hash?.[0],
-            lastHash: hash?.[1],
-          };
-
-          if (!error && ((action === BatchAction.Add) || (action === BatchAction.Change))) {
-            journalSyncEntries.set(syncStateEntry.uid, syncStateEntry);
-            store.dispatch(setSyncStateEntry(this.etebase, col.uid, syncStateEntry));
-          } else {
-            // We want to delete our entries if there's an error (or if the action is delete anyway)
-            if (syncStateEntry) {
-              journalSyncEntries.delete(syncStateEntry.uid);
-              store.dispatch(unsetSyncStateEntry(this.etebase, col.uid, syncStateEntry));
             }
           }
         }
