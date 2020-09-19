@@ -188,7 +188,9 @@ export const items = handleActions(
     },
     [actions.setCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
       if (action.payload !== undefined) {
-        return state.set(action.meta.colUid, ImmutableMap());
+        if (!state.has(action.meta.colUid)) {
+          return state.set(action.meta.colUid, ImmutableMap());
+        }
       }
       return state;
     },
@@ -257,7 +259,9 @@ export const decryptedItems = handleActions(
     },
     [actions.setCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
       if (action.payload !== undefined) {
-        return state.set(action.meta.colUid, ImmutableMap());
+        if (!state.has(action.meta.colUid)) {
+          return state.set(action.meta.colUid, ImmutableMap());
+        }
       }
       return state;
     },
