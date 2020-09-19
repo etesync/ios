@@ -29,6 +29,7 @@ import CollectionEditScreen from "./CollectionEditScreen";
 import CollectionImportScreen from "./CollectionImportScreen";
 import CollectionItemScreen from "./CollectionItemScreen";
 import InvitationsScreen from "./InvitationsScreen";
+import AccountWizardScreen from "./AccountWizardScreen";
 import SyncSettings from "./sync/SyncSettings";
 import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
 import { AskForPermissions } from "./Permissions";
@@ -143,6 +144,13 @@ function RootNavigatorEtebase() {
         </>
       ) : (
         <>
+          <Stack.Screen
+            name="AccountWizard"
+            component={AccountWizardScreen}
+            options={{
+              title: C.appName,
+            }}
+          />
           <Stack.Screen
             name="home"
             component={HomeScreen}
