@@ -14,6 +14,9 @@ import { SyncManager } from "./sync/SyncManager";
 import { store } from "./store";
 import { useCredentials } from "./credentials";
 import { useNavigation } from "@react-navigation/native";
+import { useSyncGateEb } from "./SyncGate";
+import { useDispatch } from "react-redux";
+import { performSync } from "./store/actions";
 
 const wizardPages = [
   (props: PagePropsType) => (
@@ -82,6 +85,8 @@ export default function AccountWizardScreen() {
   const [ranWizard, setRanWizard] = React.useState(false);
   const [syncError, setSyncError] = React.useState<Error>();
   const etebase = useCredentials();
+  const dispatch = useDispatch();
+  const syncGate = useSyncGateEb();
   const navigation = useNavigation();
   const [loading, setLoading] = React.useState(true);
 
@@ -91,7 +96,7 @@ export default function AccountWizardScreen() {
     if (!etebase) {
       return;
     }
-    (async () => {
+    dispatch(performSync((async () => {
       const syncManager = SyncManager.getManager(etebase!);
       const sync = syncManager.sync();
       try {
@@ -106,14 +111,16 @@ export default function AccountWizardScreen() {
         setSyncError(e);
       }
       setLoading(false);
-    })();
+
+      return true;
+    })()));
   }, [etebase, tryCount]);
 
   React.useEffect(() => {
-    if (!syncError && !loading && ranWizard) {
+    if (!syncError && !syncGate && ranWizard) {
       navigation.replace("home", undefined);
     }
-  }, [ranWizard, syncError, loading]);
+  }, [ranWizard, syncError, syncGate]);
 
   if (syncError) {
     return (
@@ -130,6 +137,10 @@ export default function AccountWizardScreen() {
         </Button>
       </View>
     );
+  }
+
+  if (syncGate) {
+    return syncGate;
   }
 
   if (loading) {
