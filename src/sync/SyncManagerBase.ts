@@ -156,7 +156,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const storeState = store.getState();
     const syncStateEntriesAll = storeState.sync.stateEntries;
     const journalSyncEntries = (syncStateEntriesAll.get(col.uid) ?? ImmutableMap({})).asMutable();
-    const batch: [BatchAction, N, string][] = [];
+    const batch: [BatchAction, N][] = [];
     for (const item of items) {
       logger.debug(`Proccessing ${item.uid}`);
       const content = await item.getContent(Etebase.OutputFormat.String);
@@ -168,13 +168,13 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         const syncStateEntry = journalSyncEntries.get(item.uid);
         if (item.isDeleted) {
           if (syncStateEntry?.localId) {
-            batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }, item.uid]);
+            batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
           }
         } else {
           if (syncStateEntry?.localId) {
-            batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }, item.uid]);
+            batch.push([BatchAction.Change, { ...nativeItem, id: syncStateEntry.localId }]);
           } else {
-            batch.push([BatchAction.Add, nativeItem, item.uid]);
+            batch.push([BatchAction.Add, nativeItem]);
           }
         }
       } catch (e) {
@@ -189,13 +189,13 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       try {
         let hashes: HashDictionary;
         try {
-          hashes = await this.processSyncEntries(localId, batch.map((x) => [x[0], x[1]]));
+          hashes = await this.processSyncEntries(localId, batch);
         } catch (e) {
           // If we failed, try processing entries one by one
           logger.warn("Failed processing entries. Trying one by one.");
           hashes = {};
           for (const batchOne of batch) {
-            const key = batchOne[2];
+            const key = batchOne[1].uid; // This is the itemUid because we set it above
             logger.info(`Processing (one by one): ${key}`);
             logger.debug(JSON.stringify(batchOne[1]));
             try {
@@ -212,8 +212,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           }
         }
 
-        for (const [action, _ShouldNotBeUsed, itemUid] of batch) {
-          _ShouldNotBeUsed; // XXX Just silencing eslint
+        for (const [action, nativeItem] of batch) {
+          const itemUid = nativeItem.uid; // This is the itemUid because we set it above
           // FIXME: do this all at once
           const hash = hashes[itemUid];
           const error = hash?.[2];
