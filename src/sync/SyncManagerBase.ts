@@ -197,7 +197,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           for (const batchOne of batch) {
             const key = batchOne[1].uid; // This is the itemUid because we set it above
             logger.info(`Processing (one by one): ${key}`);
-            logger.debug(JSON.stringify(batchOne[1]));
             try {
               const hashesOne = await this.processSyncEntries(localId, [[batchOne[0], batchOne[1]]]);
               const hash = hashesOne[key];
