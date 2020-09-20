@@ -137,6 +137,34 @@ export const itemBatch = createAction(
   }
 );
 
+export const changeQueueAdd = createAction(
+  "CHANGE_QUEUE_ADD",
+  (_etebase: Etebase.Account, _colUid: string, items: string[]) => {
+    return {
+      items,
+    };
+  },
+  (_etebase: Etebase.Account, colUid: string, _items: string[]) => {
+    return {
+      colUid: colUid,
+    };
+  }
+);
+
+export const changeQueueRemove = createAction(
+  "CHANGE_QUEUE_REMOVE",
+  (_etebase: Etebase.Account, _colUid: string, items: string[]) => {
+    return {
+      items,
+    };
+  },
+  (_etebase: Etebase.Account, colUid: string, _items: string[]) => {
+    return {
+      colUid: colUid,
+    };
+  }
+);
+
 
 export const setSyncCollection = createAction(
   "SET_SYNC_COLLECTION",

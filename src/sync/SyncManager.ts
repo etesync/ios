@@ -13,7 +13,7 @@ import * as Etebase from "etebase";
 
 import { SyncManager as LegacySyncManager } from "./legacy/SyncManager";
 import { store, persistor, CredentialsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
-import { addNonFatalError, setSyncGeneral, unsetCacheCollection, setCacheCollection, setSyncCollection, setCacheItemMulti } from "../store/actions";
+import { addNonFatalError, setSyncGeneral, unsetCacheCollection, setCacheCollection, setSyncCollection, setCacheItemMulti, changeQueueAdd } from "../store/actions";
 
 import { logger } from "../logging";
 
@@ -82,6 +82,7 @@ export class SyncManager {
     while (!done) {
       const items = await itemMgr.list({ stoken, limit });
       store.dispatch(setCacheItemMulti(col.uid, itemMgr, items.data));
+      store.dispatch(changeQueueAdd(this.etebase, col.uid, items.data.map((x) => x.uid)));
       done = items.done;
       stoken = items.stoken;
     }

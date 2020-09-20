@@ -73,6 +73,8 @@ export type DecryptedItemsData = ImmutableMap<string, DecryptedItems>;
 export type DecryptedCollection = { meta: Etebase.CollectionMetadata };
 export type DecryptedCollectionsData = ImmutableMap<string, DecryptedCollection>;
 
+export type ChangeQueue = ImmutableMap<string, ImmutableMap<string, true>>; // The col.uid and item.uid of changed items
+
 export type SyncGeneralData = {
   stoken?: string | null;
   lastSyncDate?: Date;
@@ -272,6 +274,35 @@ export const decryptedItems = handleActions(
       return state;
     },
     [actions.logout.toString()]: (state: DecryptedItemsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const changeQueue = handleActions(
+  {
+    [actions.changeQueueAdd.toString()]: (state: ChangeQueue, action: ActionMeta<{ items: string[] }, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          for (const itemUid of action.payload.items) {
+            state.setIn([action.meta.colUid, itemUid], true);
+          }
+        });
+      }
+      return state;
+    },
+    [actions.changeQueueRemove.toString()]: (state: ChangeQueue, action: ActionMeta<{ items: string[] }, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          for (const itemUid of action.payload.items) {
+            state.removeIn([action.meta.colUid, itemUid]);
+          }
+        });
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: ChangeQueue, _action: any) => {
       return state.clear();
     },
   },

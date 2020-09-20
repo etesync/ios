@@ -20,7 +20,7 @@ import {
   // Etabese stuff:
   CredentialsDataEb, SyncCollectionsData, CacheCollectionsData, SyncGeneralData, CacheItemsData,
   collections, items, syncCollections, syncGeneral, credentialsEb, DecryptedCollectionsData, DecryptedItemsData,
-  decryptedCollections, decryptedItems,
+  decryptedCollections, decryptedItems, changeQueue, ChangeQueue,
 } from "./reducers";
 
 export interface StoreState {
@@ -34,6 +34,7 @@ export interface StoreState {
   credentials2: CredentialsDataEb;
   sync2: {
     collections: SyncCollectionsData;
+    changeQueue: ChangeQueue;
     general: SyncGeneralData;
   };
   cache2: {
@@ -263,7 +264,7 @@ const credentialsPersistConfig2 = {
 };
 
 const syncSerialize2 = (state: any, key: string | number) => {
-  if (key === "collections") {
+  if ((key === "collections") || (key === "changeQueue")) {
     return state.toJS();
   }
 
@@ -271,7 +272,7 @@ const syncSerialize2 = (state: any, key: string | number) => {
 };
 
 const syncDeserialize2 = (state: any, key: string | number) => {
-  if (key === "collections") {
+  if ((key === "collections") || (key === "changeQueue")) {
     return ImmutableMap(state);
   }
 
@@ -340,6 +341,7 @@ const reducers = combineReducers({
   credentials2: persistReducer(credentialsPersistConfig2, credentialsEb),
   sync2: persistReducer(syncPersistConfig2, combineReducers({
     collections: syncCollections,
+    changeQueue,
     general: syncGeneral,
   })),
   cache2: persistReducer(cachePersistConfig2, combineReducers({

@@ -7,8 +7,8 @@ import { Map as ImmutableMap } from "immutable";
 import { logger } from "../logging";
 
 import { PimType } from "../pim-types";
-import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, asyncDispatch } from "../store";
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, setSyncStatus, addNonFatalError, setCacheItemMulti, setSyncCollection, itemBatch } from "../store/actions";
+import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, asyncDispatch, DecryptedItem } from "../store";
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, setSyncStatus, addNonFatalError, itemBatch, changeQueueRemove, changeQueueAdd } from "../store/actions";
 import { NativeBase, entryNativeHashCalc } from "./helpers";
 import { arrayToChunkIterator } from "../helpers";
 import { BatchAction, HashDictionary } from "../EteSyncNative";
@@ -117,9 +117,9 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         continue;
       }
 
-      let syncStateJournal = syncStateJournals.get(uid)!;
+      let syncStateJournal = syncStateJournals.get(uid);
       let localId: string;
-      if (syncStateJournals.has(uid)) {
+      if (syncStateJournal) {
         // FIXME: only modify if changed!
         logger.info(`Updating ${uid}`);
         localId = syncStateJournal.localId;
@@ -134,6 +134,11 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
           uid,
           lastSyncUid: null,
         };
+
+        const decryptedItems = storeState.cache2.decryptedItems.get(uid)!;
+        // Init the change queue and add all the items there if this is our first sync
+        store.dispatch(changeQueueAdd(this.etebase, uid, Array.from(decryptedItems.keys())));
+
         store.dispatch(setSyncStateJournal(etebase, syncStateJournal));
       }
 
@@ -152,21 +157,21 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     }));
   }
 
-  private async pullHandleItems(syncStateJournal: SyncStateJournal, col: Etebase.Collection, itemMgr: Etebase.ItemManager, items: Etebase.Item[]) {
+  private async pullHandleItems(syncStateJournal: SyncStateJournal, col: Etebase.Collection, items: [string, DecryptedItem][]) {
     const storeState = store.getState();
     const syncStateEntriesAll = storeState.sync.stateEntries;
     const journalSyncEntries = (syncStateEntriesAll.get(col.uid) ?? ImmutableMap({})).asMutable();
     const batch: [BatchAction, N][] = [];
-    for (const item of items) {
-      logger.debug(`Proccessing ${item.uid}`);
-      const content = await item.getContent(Etebase.OutputFormat.String);
+    for (const [itemUid, decryptedItem] of items) {
+      logger.debug(`Proccessing ${itemUid}`);
+      const content = decryptedItem.content;
       try {
         const vobjectItem = this.contentToVobject(content);
         const nativeItem = this.vobjectToNative(vobjectItem);
         // XXX We override the uid (that's being used by legacy) because we want to map with the itemUid
-        nativeItem.uid = item.uid;
-        const syncStateEntry = journalSyncEntries.get(item.uid);
-        if (item.isDeleted) {
+        nativeItem.uid = itemUid;
+        const syncStateEntry = journalSyncEntries.get(itemUid);
+        if (decryptedItem.isDeleted) {
           if (syncStateEntry?.localId) {
             batch.push([BatchAction.Delete, { ...nativeItem, id: syncStateEntry.localId }]);
           }
@@ -242,7 +247,6 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         }
 
         persistSyncJournal(this.etebase, syncStateJournal, col.stoken);
-        store.dispatch(setCacheItemMulti(col.uid, itemMgr, items));
       } catch (e) {
         logger.warn("Failed batch saving");
         throw e;
@@ -252,24 +256,16 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
   private async pullCollection(syncStateJournal: SyncStateJournal, col: Etebase.Collection) {
     const storeState = store.getState();
-    const syncCollection = storeState.sync2.collections.get(col.uid, undefined);
-    const etebase = this.etebase;
-
-    const colMgr = etebase.getCollectionManager();
-    const itemMgr = colMgr.getItemManager(col);
-
-    let stoken = syncCollection?.stoken;
-    const limit = CHUNK_PULL;
-    let done = false;
-    while (!done) {
-      const items = await itemMgr.list({ stoken, limit });
-      await this.pullHandleItems(syncStateJournal, col, itemMgr, items.data);
-      done = items.done;
-      stoken = items.stoken;
+    const decryptedItems = storeState.cache2.decryptedItems.get(col.uid)!;
+    const changeQueue = storeState.sync2.changeQueue.get(col.uid);
+    if (!changeQueue) {
+      return;
     }
 
-    if (syncCollection?.stoken !== stoken) {
-      store.dispatch(setSyncCollection(col.uid, stoken!));
+    for (const changedItems of arrayToChunkIterator(Array.from(changeQueue.keys()), CHUNK_PULL)) {
+      const batch = changedItems.map((x) => [x, decryptedItems.get(x)!] as [string, DecryptedItem]);
+      await this.pullHandleItems(syncStateJournal, col, batch);
+      store.dispatch(changeQueueRemove(this.etebase, col.uid, changedItems));
     }
   }
 
