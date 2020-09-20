@@ -9,6 +9,7 @@ import { Button, Text, Paragraph, HelperText } from "react-native-paper";
 import { Updates } from "expo";
 
 import * as Etebase from "etebase";
+import * as EteSync from "etesync";
 
 import { StoreState, persistor, store } from "./store";
 
@@ -147,7 +148,9 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
 
   let nonFatalErrorDialog;
   if (nonFatalError) {
-    if (nonFatalError instanceof Etebase.UnauthorizedError) {
+    if (((nonFatalError instanceof EteSync.HTTPError) && (nonFatalError.status === 401)) ||
+      (nonFatalError instanceof Etebase.UnauthorizedError)) {
+
       nonFatalErrorDialog = (
         <SessionExpiredDialog />
       );
