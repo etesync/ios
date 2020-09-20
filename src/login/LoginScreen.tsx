@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { View } from "react-native";
 import { Paragraph, Text } from "react-native-paper";
 
+import * as Etebase from "etebase";
 import * as EteSync from "etesync";
 import sjcl from "sjcl";
 
@@ -20,15 +21,16 @@ import LoginForm from "../components/LoginForm";
 import EncryptionLoginForm from "../components/EncryptionLoginForm";
 import WebviewKeygen from "../components/WebviewKeygen";
 
-import { store, StoreState } from "../store";
+import { store, StoreState, useAsyncDispatch, asyncDispatch } from "../store";
 
-import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo, performSync } from "../store/actions";
+import { fetchUserInfo, deriveKey, fetchCredentials, createUserInfo, performSync, loginEb } from "../store/actions";
 import { useLoading, startTask } from "../helpers";
 
 import { SyncManager } from "../sync/SyncManager";
 import { credentialsSelector } from ".";
 
 import * as C from "../constants";
+import { useCredentials } from "../credentials";
 
 function b64ToBa(b64: string) {
   return sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(b64));
@@ -57,7 +59,7 @@ function KeyGen(props: KeyGenPropsType) {
 
             userInfo.setKeyPair(cryptoManager, keyPair);
 
-            await store.dispatch(createUserInfo({ ...credentials, encryptionKey: derived }, userInfo));
+            await asyncDispatch(createUserInfo({ ...credentials, encryptionKey: derived }, userInfo));
             props.onFinish();
           }
         }}
@@ -98,7 +100,7 @@ function EncryptionPart() {
     const done = () => {
       dispatch(derived);
       const etesync = credentialsSelector(store.getState() as StoreState);
-      const syncManager = SyncManager.getManager(etesync!);
+      const syncManager = SyncManager.getManagerLegacy(etesync!);
       dispatch(performSync(startTask(() => syncManager.sync(), 200)));
     };
 
@@ -163,14 +165,36 @@ function EncryptionPart() {
 }
 
 const LoginScreen = React.memo(function _LoginScreen() {
+  const etebase = useCredentials()!;
   const credentials = useSelector((state: StoreState) => state.credentials.credentials ?? state.legacyCredentials.credentials);
   const encryptionKey = useSelector((state: StoreState) => state.encryptionKey.encryptionKey ?? state.legacyEncryptionKey.key);
-  const dispatch = useDispatch();
+  const dispatch = useAsyncDispatch();
   const [loading, error, setPromise] = useLoading();
 
   function onFormSubmit(username: string, password: string, serviceApiUrl?: string) {
-    serviceApiUrl = serviceApiUrl ? serviceApiUrl : C.serviceApiBase;
-    setPromise(dispatch<any>(fetchCredentials(username, password, serviceApiUrl)));
+    setPromise((async () => {
+      let isEtebase;
+      if (serviceApiUrl) {
+        isEtebase = await Etebase.Account.isEtebaseServer(serviceApiUrl);
+      } else if (username.includes("@")) {
+        serviceApiUrl = C.serviceApiBase;
+        isEtebase = false;
+      } else {
+        serviceApiUrl = C.serviceApiBaseEb;
+        isEtebase = true;
+      }
+
+      if (isEtebase) {
+        const etebase = await Etebase.Account.login(username, password, serviceApiUrl);
+        dispatch(loginEb(etebase));
+      } else {
+        dispatch(fetchCredentials(username, password, serviceApiUrl));
+      }
+    })());
+  }
+
+  if (etebase) {
+    return <React.Fragment />;
   }
 
   let screenContent: React.ReactNode;

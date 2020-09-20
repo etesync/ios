@@ -5,6 +5,7 @@ import { Action, createAction as origCreateAction, ActionMeta } from "redux-acti
 import * as Permissions from "expo-permissions";
 
 import * as EteSync from "etesync";
+import * as Etebase from "etebase";
 import { UserInfo } from "etesync";
 
 import { ConnectionInfo, CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from "./";
@@ -19,6 +20,169 @@ function createAction<Func extends FunctionAny, MetaFunc extends FunctionAny>(
 ): (..._params: Parameters<Func>) => ActionMeta<ReturnType<Func>, ReturnType<MetaFunc>> {
   return origCreateAction(actionType, payloadCreator, metaCreator as any) as any;
 }
+
+export const loginEb = createAction(
+  "LOGIN_EB",
+  async (etebase: Etebase.Account) => {
+    return etebase.save();
+  }
+);
+
+export const setCacheCollection = createAction(
+  "SET_CACHE_COLLECTION",
+  async (colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
+    return {
+      cache: colMgr.cacheSave(col),
+      meta: await col.getMeta(),
+    };
+  },
+  (_colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
+    return {
+      colUid: col.uid,
+      deleted: col.isDeleted,
+    };
+  }
+);
+
+export const unsetCacheCollection = createAction(
+  "UNSET_CACHE_COLLECTION",
+  (_colMgr: Etebase.CollectionManager, _colUid: string) => {
+    return undefined;
+  },
+  (_colMgr: Etebase.CollectionManager, colUid: string) => {
+    return {
+      colUid,
+      deleted: true,
+    };
+  }
+);
+
+export const collectionUpload = createAction(
+  "COLLECTION_UPLOAD",
+  async (colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
+    await colMgr.upload(col);
+    return {
+      cache: colMgr.cacheSave(col),
+      meta: await col.getMeta(),
+    };
+  },
+  (_colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
+    return {
+      colUid: col.uid,
+      deleted: col.isDeleted,
+    };
+  }
+);
+
+export const setCacheItem = createAction(
+  "SET_CACHE_ITEM",
+  async (_col: Etebase.Collection, itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
+    return {
+      cache: itemMgr.cacheSave(item),
+      meta: await item.getMeta(),
+      content: await item.getContent(Etebase.OutputFormat.String),
+      isDeleted: item.isDeleted,
+    };
+  },
+  (col: Etebase.Collection, _itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
+    return {
+      colUid: col.uid,
+      itemUid: item.uid,
+    };
+  }
+);
+
+export const setCacheItemMulti = createAction(
+  "SET_CACHE_ITEM_MULTI",
+  async (_colUid: string, itemMgr: Etebase.ItemManager, items: Etebase.Item[]) => {
+    const ret = [];
+    for (const item of items) {
+      ret.push({
+        cache: itemMgr.cacheSave(item),
+        meta: await item.getMeta(),
+        content: await item.getContent(Etebase.OutputFormat.String),
+        isDeleted: item.isDeleted,
+      });
+    }
+    return ret;
+  },
+  (colUid: string, _itemMgr: Etebase.ItemManager, items: Etebase.Item[], _deps?: Etebase.Item[]) => {
+    return {
+      colUid,
+      items: items,
+    };
+  }
+);
+
+export const itemBatch = createAction(
+  "ITEM_BATCH",
+  async (_col: Etebase.Collection, itemMgr: Etebase.ItemManager, items: Etebase.Item[], deps?: Etebase.Item[]) => {
+    await itemMgr.batch(items, deps);
+    const ret = [];
+    for (const item of items) {
+      ret.push({
+        cache: itemMgr.cacheSave(item),
+        meta: await item.getMeta(),
+        content: await item.getContent(Etebase.OutputFormat.String),
+        isDeleted: item.isDeleted,
+      });
+    }
+    return ret;
+  },
+  (col: Etebase.Collection, _itemMgr: Etebase.ItemManager, items: Etebase.Item[], _deps?: Etebase.Item[]) => {
+    return {
+      colUid: col.uid,
+      items: items,
+    };
+  }
+);
+
+export const changeQueueAdd = createAction(
+  "CHANGE_QUEUE_ADD",
+  (_etebase: Etebase.Account, _colUid: string, items: string[]) => {
+    return {
+      items,
+    };
+  },
+  (_etebase: Etebase.Account, colUid: string, _items: string[]) => {
+    return {
+      colUid: colUid,
+    };
+  }
+);
+
+export const changeQueueRemove = createAction(
+  "CHANGE_QUEUE_REMOVE",
+  (_etebase: Etebase.Account, _colUid: string, items: string[]) => {
+    return {
+      items,
+    };
+  },
+  (_etebase: Etebase.Account, colUid: string, _items: string[]) => {
+    return {
+      colUid: colUid,
+    };
+  }
+);
+
+
+export const setSyncCollection = createAction(
+  "SET_SYNC_COLLECTION",
+  (uid: string, stoken: string) => {
+    return {
+      uid,
+      stoken,
+    };
+  }
+);
+
+export const setSyncGeneral = createAction(
+  "SET_SYNC_GENERAL",
+  (stoken: string | null) => {
+    return stoken;
+  }
+);
+
 
 export const fetchCredentials = createAction(
   "FETCH_CREDENTIALS",
@@ -47,13 +211,20 @@ export const fetchCredentials = createAction(
 
 export const logout = createAction(
   "LOGOUT",
-  (etesync: CredentialsData) => {
+  (creds: CredentialsData | Etebase.Account) => {
     (async () => {
-      const authenticator = new EteSync.Authenticator(etesync.serviceApiUrl);
-      try {
-        await authenticator.invalidateToken(etesync.credentials.authToken);
-      } catch {
-        // Ignore for now. It usually means the token was a legacy one.
+      if (creds instanceof Etebase.Account) {
+        const etebase = creds;
+        // We don't wait on purpose, because we would like to logout and clear local data anyway
+        etebase.logout();
+      } else {
+        const etesync = creds;
+        const authenticator = new EteSync.Authenticator(etesync.serviceApiUrl);
+        try {
+          await authenticator.invalidateToken(etesync.credentials.authToken);
+        } catch {
+          // Ignore for now. It usually means the token was a legacy one.
+        }
       }
     })();
     return true; // We are not waiting on the above on purpose for now, just invalidate the token in the background
@@ -213,21 +384,21 @@ export const performSync = createAction(
 
 export const setSyncStateJournal = createAction(
   "SET_SYNC_STATE_JOURNAL",
-  (_etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
+  (_etesync: CredentialsData | Etebase.Account, syncStateJournal: SyncStateJournal) => {
     return { ...syncStateJournal };
   }
 );
 
 export const unsetSyncStateJournal = createAction(
   "UNSET_SYNC_STATE_JOURNAL",
-  (_etesync: CredentialsData, syncStateJournal: SyncStateJournal) => {
+  (_etesync: CredentialsData | Etebase.Account, syncStateJournal: SyncStateJournal) => {
     return { ...syncStateJournal };
   }
 );
 
 export const setSyncStateEntry = createAction(
   "SET_SYNC_STATE_ENTRY",
-  (_etesync: CredentialsData, _journalUid: string, syncStateEntry: SyncStateEntry) => {
+  (_etesync: CredentialsData | Etebase.Account, _journalUid: string, syncStateEntry: SyncStateEntry) => {
     return { ...syncStateEntry };
   },
   (_etesync: CredentialsData, journalUid: string, _syncStateEntry: SyncStateEntry) => {
@@ -237,7 +408,7 @@ export const setSyncStateEntry = createAction(
 
 export const unsetSyncStateEntry = createAction(
   "UNSET_SYNC_STATE_ENTRY",
-  (_etesync: CredentialsData, _journalUid: string, syncStateEntry: SyncStateEntry) => {
+  (_etesync: CredentialsData | Etebase.Account, _journalUid: string, syncStateEntry: SyncStateEntry) => {
     return { ...syncStateEntry };
   },
   (_etesync: CredentialsData, journalUid: string, _syncStateEntry: SyncStateEntry) => {
@@ -248,14 +419,14 @@ export const unsetSyncStateEntry = createAction(
 
 export const setSyncInfoCollection = createAction(
   "SET_SYNC_INFO_COLLECTION",
-  (_etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
+  (_etesync: CredentialsData | Etebase.Account, syncInfoCollection: EteSync.CollectionInfo) => {
     return { ...syncInfoCollection };
   }
 );
 
 export const unsetSyncInfoCollection = createAction(
   "UNSET_SYNC_INFO_COLLECTION",
-  (_etesync: CredentialsData, syncInfoCollection: EteSync.CollectionInfo) => {
+  (_etesync: CredentialsData | Etebase.Account, syncInfoCollection: EteSync.CollectionInfo) => {
     return { ...syncInfoCollection };
   }
 );
@@ -263,20 +434,20 @@ export const unsetSyncInfoCollection = createAction(
 
 export const setSyncInfoItem = createAction(
   "SET_SYNC_INFO_ITEM",
-  (_etesync: CredentialsData, _journalUid: string, syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData | Etebase.Account, _journalUid: string, syncInfoItem: SyncInfoItem) => {
     return { ...syncInfoItem };
   },
-  (_etesync: CredentialsData, journalUid: string, _syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData | Etebase.Account, journalUid: string, _syncInfoItem: SyncInfoItem) => {
     return journalUid;
   }
 );
 
 export const unsetSyncInfoItem = createAction(
   "UNSET_SYNC_INFO_ITEM",
-  (_etesync: CredentialsData, _journalUid: string, syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData | Etebase.Account, _journalUid: string, syncInfoItem: SyncInfoItem) => {
     return { ...syncInfoItem };
   },
-  (_etesync: CredentialsData, journalUid: string, _syncInfoItem: SyncInfoItem) => {
+  (_etesync: CredentialsData | Etebase.Account, journalUid: string, _syncInfoItem: SyncInfoItem) => {
     return journalUid;
   }
 );
@@ -312,14 +483,14 @@ export const setSyncStatus = createAction(
 
 export const addNonFatalError = createAction(
   "ADD_NON_FATAL_ERROR",
-  (_etesync: CredentialsData, e: Error) => {
+  (e: Error) => {
     return e;
   }
 );
 
 export const popNonFatalError = createAction(
   "POP_NON_FATAL_ERROR",
-  (_etesync: CredentialsData) => {
+  () => {
     return null;
   }
 );

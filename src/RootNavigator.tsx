@@ -14,6 +14,7 @@ import { Title } from "./widgets/Typography";
 import LoginScreen from "./login/LoginScreen";
 
 import SettingsScreen from "./SettingsScreen";
+import SettingsScreenLegacy from "./SettingsScreenLegacy";
 import AboutScreen from "./AboutScreen";
 import DebugLogsScreen from "./DebugLogsScreen";
 import HomeScreen from "./HomeScreen";
@@ -23,16 +24,26 @@ import JournalItemSaveScreen from "./JournalItemSaveScreen";
 import JournalEditScreen from "./JournalEditScreen";
 import JournalImportScreen from "./JournalImportScreen";
 import JournalMembersScreen from "./JournalMembersScreen";
+import CollectionChangelogScreen from "./CollectionChangelogScreen";
+import CollectionEditScreen from "./CollectionEditScreen";
+import CollectionImportScreen from "./CollectionImportScreen";
+import CollectionItemScreen from "./CollectionItemScreen";
+import InvitationsScreen from "./InvitationsScreen";
+import AccountWizardScreen from "./AccountWizardScreen";
 import SyncSettings from "./sync/SyncSettings";
 import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
 import { AskForPermissions } from "./Permissions";
 
+import LegacyHomeScreen from "./LegacyHomeScreen";
+
+import { useCredentials as useCredentialsEb } from "./credentials";
 import { useCredentials } from "./login";
 import { StoreState } from "./store";
 import { setSettings } from "./store/actions";
 
 import * as C from "./constants";
 import { isDefined } from "./helpers";
+import CollectionMembersScreen from "./CollectionMembersScreen";
 
 const Stack = createStackNavigator();
 
@@ -77,7 +88,144 @@ const MenuButton = React.memo(function MenuButton() {
   );
 });
 
-export default React.memo(function _AuthLoadingScreen() {
+export default React.memo(function RootNavigator() {
+  const etesync = useCredentials();
+  if (etesync) {
+    return (
+      <RootNavigatorEteSync />
+    );
+  } else {
+    return (
+      <RootNavigatorEtebase />
+    );
+  }
+});
+
+function RootNavigatorEtebase() {
+  const settings = useSelector((state: StoreState) => state.settings);
+  const dispatch = useDispatch();
+  const etebase = useCredentialsEb();
+  const theme = useTheme();
+
+  if (!settings.ranWizrd) {
+    return (
+      <>
+        <SafeAreaView />
+        <Wizard pages={wizardPages} onFinish={() => dispatch(setSettings({ ranWizrd: true }))} style={{ flex: 1 }} />
+      </>
+    );
+  }
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.colors.primary,
+        },
+        headerTintColor: "#000000",
+        headerBackTitleVisible: false,
+        headerBackTitleStyle: {
+          backgroundColor: "black",
+        },
+      }}
+    >
+      {(etebase === null) ? (
+        <>
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{
+              title: "Login",
+              headerLeft: () => (
+                <MenuButton />
+              ),
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <Stack.Screen
+            name="AccountWizard"
+            component={AccountWizardScreen}
+            options={{
+              title: C.appName,
+            }}
+          />
+          <Stack.Screen
+            name="home"
+            component={HomeScreen}
+            options={{
+              title: C.appName,
+              headerLeft: () => (
+                <MenuButton />
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="Collection"
+            component={CollectionChangelogScreen}
+            options={{
+              title: "Collection Entries",
+            }}
+          />
+          <Stack.Screen
+            name="CollectionNew"
+            component={CollectionEditScreen}
+            options={{
+              title: "Collection New",
+            }}
+          />
+          <Stack.Screen
+            name="CollectionEdit"
+            component={CollectionEditScreen}
+            options={{
+              title: "Collection Edit",
+            }}
+          />
+          <Stack.Screen
+            name="CollectionItem"
+            component={CollectionItemScreen}
+            options={{
+              title: "Collection Item",
+            }}
+          />
+          <Stack.Screen
+            name="CollectionImport"
+            component={CollectionImportScreen}
+            options={{
+              title: "Import",
+            }}
+          />
+          <Stack.Screen
+            name="CollectionMembers"
+            component={CollectionMembersScreen}
+            options={{
+              title: "Collection Members",
+            }}
+          />
+          <Stack.Screen
+            name="Invitations"
+            component={InvitationsScreen}
+            options={{
+              title: "Collection Invitations",
+            }}
+          />
+        </>
+      )}
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen
+        name="DebugLogs"
+        component={DebugLogsScreen}
+        options={{
+          title: "View Debug Logs",
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function RootNavigatorEteSync() {
   const settings = useSelector((state: StoreState) => state.settings);
   const dispatch = useDispatch();
   const credentials = useCredentials();
@@ -122,7 +270,7 @@ export default React.memo(function _AuthLoadingScreen() {
         <>
           <Stack.Screen
             name="home"
-            component={HomeScreen}
+            component={LegacyHomeScreen}
             options={{
               title: C.appName,
               headerLeft: () => (
@@ -181,7 +329,7 @@ export default React.memo(function _AuthLoadingScreen() {
           />
         </>
       )}
-      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreenLegacy} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen
         name="DebugLogs"
@@ -192,4 +340,4 @@ export default React.memo(function _AuthLoadingScreen() {
       />
     </Stack.Navigator>
   );
-});
+}

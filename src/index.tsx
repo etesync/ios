@@ -7,15 +7,37 @@ import { PersistGate } from "redux-persist/es/integration/react";
 import App from "./App";
 
 import "react-native-etebase";
+import * as Etebase from "etebase";
 import { store, persistor } from "./store";
+
+function MyPersistGate(props: React.PropsWithChildren<{}>) {
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    Etebase.ready.then(() => {
+      setLoading(false);
+      persistor.persist();
+    });
+  }, []);
+
+  if (loading) {
+    return (<React.Fragment />);
+  }
+
+  return (
+    <PersistGate persistor={persistor}>
+      {props.children}
+    </PersistGate>
+  );
+}
 
 class Index extends React.Component {
   public render() {
     return (
       <Provider store={store}>
-        <PersistGate persistor={persistor}>
+        <MyPersistGate>
           <App />
-        </PersistGate>
+        </MyPersistGate>
       </Provider>
     );
   }

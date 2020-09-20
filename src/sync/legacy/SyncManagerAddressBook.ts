@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as Etebase from "etebase";
+import * as EteSync from "etesync";
 import * as Contacts from "expo-contacts";
 
-import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges, getContainers } from "../EteSyncNative";
+import { deleteContactGroupAndMembers, calculateHashesForContacts, BatchAction, HashDictionary, processContactsChanges, getContainers } from "../../EteSyncNative";
 
-import { logger } from "../logging";
+import { logger } from "../../logging";
 
-import { store, SyncStateEntry } from "../store";
+import { store, SyncStateEntry } from "../../store";
 
-import { contactVobjectToNative, NativeContact, contactNativeToVobject } from "./helpers";
-import { ContactType } from "../pim-types";
+import { contactVobjectToNative, NativeContact, contactNativeToVobject } from "../helpers";
+import { ContactType } from "../../pim-types";
 
 import { SyncManagerBase, PushEntry } from "./SyncManagerBase";
 
@@ -50,14 +50,13 @@ const fieldTypes = [
 ];
 
 export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeContact> {
-  protected collectionType = "etebase.vcard";
-  protected collectionTypeDisplay = "Address Book";
+  protected collectionType = "ADDRESS_BOOK";
   private containerId: string;
 
   public async init() {
     await super.init();
     const storeState = store.getState();
-    if (storeState.permissions.get("ADDRESS_BOOK")) {
+    if (storeState.permissions.get(this.collectionType)) {
       const containers = await getContainers();
       if (storeState.settings.syncContactsContainer) {
         const foundContainer = containers.find((container) => container.id === storeState.settings.syncContactsContainer);
@@ -77,7 +76,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
   protected async syncPush() {
     const storeState = store.getState();
-    const decryptedCollections = storeState.cache2.decryptedCollections;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
 
@@ -91,8 +90,10 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     }
 
     // First collect all of the sync entries
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
         continue;
       }
 
@@ -119,7 +120,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         const syncStateJournal = syncStateJournals.get(collectionUid)!;
         const _contact = await Contacts.getContactByIdAsync(contactId, fieldTypes as any);
         const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(":")[0] };
-        const pushEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
+        const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
         if (pushEntry) {
           pushEntries.get(collectionUid)!.push(pushEntry);
         }
@@ -144,7 +145,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       if (!existingContact) {
         // If the event still exists it means it's not deleted.
         const syncStateJournal = syncStateJournals.get(reverseEntry.collectionUid)!;
-        const pushEntry = await this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+        const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
         if (pushEntry) {
           pushEntries.get(reverseEntry.collectionUid)!.push(pushEntry);
         }
@@ -158,8 +159,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     }
   }
 
-  protected contentToVobject(content: string) {
-    return ContactType.parse(content);
+  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
+    return ContactType.parse(syncEntry.content);
   }
 
   protected vobjectToNative(vobject: ContactType) {
@@ -174,12 +175,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return processContactsChanges(this.containerId, containerLocalId, batch);
   }
 
-  protected async createJournal(collection: Etebase.CollectionMetadata): Promise<string> {
-    return Contacts.createGroupAsync(collection.name);
+  protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
+    return Contacts.createGroupAsync(collection.displayName);
   }
 
-  protected async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata) {
-    return Contacts.updateGroupNameAsync(collection.name, containerLocalId);
+  protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
+    return Contacts.updateGroupNameAsync(collection.displayName, containerLocalId);
   }
 
   protected async deleteJournal(containerLocalId: string) {

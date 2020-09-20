@@ -119,7 +119,6 @@ class LoginForm extends React.PureComponent {
       <>
         <View>
           <TextInput
-            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
             autoFocus
@@ -128,8 +127,8 @@ class LoginForm extends React.PureComponent {
             ref={this.formRefs[0]}
             error={!!this.state.errors.errorEmail}
             onChangeText={this.handleInputChange("username")}
-            label="Email"
-            accessibilityLabel="Email"
+            label="Username"
+            accessibilityLabel="Username"
             value={this.state.username}
           />
           <HelperText

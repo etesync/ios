@@ -27,7 +27,7 @@ export interface NativeTask extends Calendar.Reminder, NativeBase {
 export interface NativeContact extends Omit<Contacts.Contact, "id">, NativeBase {
 }
 
-export function entryNativeHashCalc(entry: {uid: string}) {
+export function entryNativeHashCalc(entry: NativeBase) {
   const ignoreKeys = ["lastModifiedDate"];
   const sha = new sjcl.hash.sha256();
   Object.keys(entry).sort().forEach((key) => {

@@ -8,8 +8,8 @@ import { Divider, List, Paragraph } from "react-native-paper";
 import { useNavigation, RouteProp } from "@react-navigation/native";
 
 import { SyncManager } from "./sync/SyncManager";
-import { useCredentials } from "./login";
-import { useSyncGate } from "./SyncGate";
+import { useCredentials } from "./credentials";
+import { useSyncGateEb } from "./SyncGate";
 import { store, StoreState } from "./store";
 import { performSync } from "./store/actions";
 
@@ -99,60 +99,49 @@ async function tasksImport(localId: string, toLocalId: string) {
 }
 
 type RootStackParamList = {
-  JournalImportScreen: {
-    journalUid: string;
+  CollectionImportScreen: {
+    colUid: string;
   };
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, "JournalImportScreen">;
+  route: RouteProp<RootStackParamList, "CollectionImportScreen">;
 }
 
-const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
+const CollectionImportScreen = function _CollectionImportScreen(props: PropsType) {
   const [deviceCollections, setDeviceCollections] = React.useState<ImportCollection[] | undefined>(undefined);
   const [selectedCollection, setSelectedCollection] = React.useState<ImportCollection | null>(null);
   const permissions = useSelector((state: StoreState) => state.permissions);
   const syncStateJournals = useSelector((state: StoreState) => state.sync.stateJournals);
-  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
-  const syncGate = useSyncGate();
-  const etesync = useCredentials()!;
+  const decryptedCollections = useSelector((state: StoreState) => state.cache2.decryptedCollections);
+  const syncGate = useSyncGateEb();
+  const etebase = useCredentials()!;
   const navigation = useNavigation();
 
   if (syncGate) {
     return syncGate;
   }
 
-  const { journalUid } = props.route.params;
-  const collectionType = syncInfoCollections.get(journalUid)!.type;
-
-  if (!permissions.get(collectionType)) {
-    return (
-      <ConfirmationDialog
-        title="Permision Denied"
-        visible
-        onOk={() => {
-          navigation.goBack();
-        }}
-      >
-        <Paragraph>Please give the app the appropriate permissions from the system's Settings app.</Paragraph>
-      </ConfirmationDialog>
-    );
-  }
+  const { colUid } = props.route.params;
+  const collectionType = decryptedCollections.get(colUid)!.meta.type;
+  let permissionType;
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;
   let importCollection: typeof eventsImport;
   let showDisclaimer: boolean;
   switch (collectionType) {
-    case "CALENDAR": {
+    case "etebase.vevent": {
       fetchDeviceCollections = eventsFetchDeviceCollections;
       importCollection = eventsImport;
       showDisclaimer = true;
+      permissionType = "CALENDAR";
       break;
     }
-    case "TASKS": {
+    case "etebase.vtodo": {
       fetchDeviceCollections = tasksFetchDeviceCollections;
       importCollection = tasksImport;
       showDisclaimer = true;
+      permissionType = "TASKS";
       break;
     }
     default: {
@@ -168,12 +157,26 @@ const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
     }
   }
 
+  if (!permissions.get(permissionType)) {
+    return (
+      <ConfirmationDialog
+        title="Permision Denied"
+        visible
+        onOk={() => {
+          navigation.goBack();
+        }}
+      >
+        <Paragraph>Please give the app the appropriate permissions from the system's Settings app.</Paragraph>
+      </ConfirmationDialog>
+    );
+  }
+
   if (!deviceCollections) {
     fetchDeviceCollections(setDeviceCollections);
     return (<LoadingIndicator />);
   }
 
-  const syncStateJournal = syncStateJournals.get(journalUid);
+  const syncStateJournal = syncStateJournals.get(colUid);
 
   if (!syncStateJournal) {
     return (
@@ -222,7 +225,7 @@ const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
         loadingText="Please wait, may take a while..."
         onOk={async () => {
           await importCollection(selectedCollection!.id, syncStateJournal.localId);
-          const syncManager = SyncManager.getManagerLegacy(etesync);
+          const syncManager = SyncManager.getManager(etebase);
           store.dispatch(performSync(syncManager.sync())); // not awaiting on puprose
           setSelectedCollection(null);
           navigation.goBack();
@@ -239,4 +242,4 @@ const JournalImportScreen = function _JournalImportScreen(props: PropsType) {
   );
 };
 
-export default JournalImportScreen;
+export default CollectionImportScreen;

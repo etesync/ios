@@ -1,25 +1,24 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import * as Etebase from "etebase";
+import * as EteSync from "etesync";
 import * as Calendar from "expo-calendar";
 
-import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictionary } from "../EteSyncNative";
+import { calculateHashesForEvents, processEventsChanges, BatchAction, HashDictionary } from "../../EteSyncNative";
 
-import { logger } from "../logging";
+import { logger } from "../../logging";
 
-import { store } from "../store";
+import { store } from "../../store";
 
-import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from "./helpers";
-import { defaultColor } from "../helpers";
-import { PimType, EventType } from "../pim-types";
+import { eventVobjectToNative, eventNativeToVobject, NativeBase, NativeEvent } from "../helpers";
+import { colorIntToHtml } from "../../helpers";
+import { PimType, EventType } from "../../pim-types";
 
 import { SyncManagerBase, PushEntry } from "./SyncManagerBase";
 
 const ACCOUNT_NAME = "etesync";
 
 export abstract class SyncManagerCalendarBase<T extends PimType, N extends NativeBase> extends SyncManagerBase<T, N> {
-  protected abstract permissionsType: string;
   protected abstract entityType: string;
 
   protected localSource: Calendar.Source;
@@ -27,7 +26,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
   public async init() {
     await super.init();
     const storeState = store.getState();
-    if (storeState.permissions.get(this.permissionsType)) {
+    if (storeState.permissions.get(this.collectionType)) {
       const sources = await Calendar.getSourcesAsync();
       if (storeState.settings.ranWizrd) {
         this.localSource = sources.find((source) => source.id === storeState.settings.syncCalendarsSource)!;
@@ -46,24 +45,24 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     }
   }
 
-  protected async createJournal(collection: Etebase.CollectionMetadata): Promise<string> {
+  protected async createJournal(collection: EteSync.CollectionInfo): Promise<string> {
     const localSource = this.localSource;
 
     return Calendar.createCalendarAsync({
       sourceId: localSource.id,
       entityType: this.entityType,
-      title: collection.name,
-      color: collection.color ?? defaultColor,
+      title: collection.displayName,
+      color: colorIntToHtml(collection.color),
     });
   }
 
-  protected async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata) {
+  protected async updateJournal(containerLocalId: string, collection: EteSync.CollectionInfo) {
     const localSource = this.localSource;
 
     await Calendar.updateCalendarAsync(containerLocalId, {
       sourceId: localSource.id,
-      title: collection.name,
-      color: collection.color ?? defaultColor,
+      title: collection.displayName,
+      color: colorIntToHtml(collection.color),
     });
   }
 
@@ -74,21 +73,21 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
 
 
 export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, NativeEvent> {
-  protected permissionsType = "CALENDAR";
-  protected collectionType = "etebase.vevent";
-  protected collectionTypeDisplay = "Calendars";
+  protected collectionType = "CALENDAR";
   protected entityType = Calendar.EntityTypes.EVENT;
 
   protected async syncPush() {
     const storeState = store.getState();
-    const decryptedCollections = storeState.cache2.decryptedCollections;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
         continue;
       }
 
@@ -124,7 +123,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
           if (syncStateEntry?.lastHash !== eventHash) {
             const _event = await Calendar.getEventAsync(eventId);
             const event = { ..._event, uid: (syncStateEntry) ? syncStateEntry.uid : _event.id };
-            const pushEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event, eventHash);
+            const pushEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, event, eventHash);
             if (pushEntry) {
               pushEntries.push(pushEntry);
             }
@@ -154,7 +153,7 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
         }
 
         if (shouldDelete) {
-          const pushEntry = await this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+          const pushEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (pushEntry) {
             pushEntries.push(pushEntry);
           }
@@ -165,8 +164,8 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     }
   }
 
-  protected contentToVobject(content: string) {
-    return EventType.parse(content);
+  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
+    return EventType.parse(syncEntry.content);
   }
 
   protected vobjectToNative(vobject: EventType) {

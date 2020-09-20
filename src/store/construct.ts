@@ -12,10 +12,15 @@ import { createMigrate, persistReducer, createTransform } from "redux-persist";
 import { List, Map as ImmutableMap } from "immutable";
 
 import * as EteSync from "etesync";
+import * as Etebase from "etebase";
 import {
   JournalsData, EntriesData, UserInfoData,
   CredentialsDataRemote, SettingsType,
   fetchCount, syncCount, journals, entries, credentials, userInfo, settingsReducer, encryptionKeyReducer, SyncStateJournalData, SyncStateEntryData, syncStateJournalReducer, syncStateEntryReducer, SyncInfoCollectionData, SyncInfoItemData, syncInfoCollectionReducer, syncInfoItemReducer, syncStatusReducer, lastSyncReducer, connectionReducer, permissionsReducer, errorsReducer, legacyCredentials, legacyEncryptionKeyReducer, ErrorsData,
+  // Etabese stuff:
+  CredentialsDataEb, SyncCollectionsData, CacheCollectionsData, SyncGeneralData, CacheItemsData,
+  collections, items, syncCollections, syncGeneral, credentialsEb, DecryptedCollectionsData, DecryptedItemsData,
+  decryptedCollections, decryptedItems, changeQueue, ChangeQueue,
 } from "./reducers";
 
 export interface StoreState {
@@ -25,6 +30,21 @@ export interface StoreState {
   credentials: CredentialsDataRemote;
   settings: SettingsType;
   encryptionKey: {encryptionKey: string | null};
+  // Etebase {
+  credentials2: CredentialsDataEb;
+  sync2: {
+    collections: SyncCollectionsData;
+    changeQueue: ChangeQueue;
+    general: SyncGeneralData;
+  };
+  cache2: {
+    collections: CacheCollectionsData;
+    items: CacheItemsData;
+
+    decryptedCollections: DecryptedCollectionsData;
+    decryptedItems: DecryptedItemsData;
+  };
+  // }
   sync: {
     stateJournals: SyncStateJournalData;
     stateEntries: SyncStateEntryData;
@@ -237,6 +257,79 @@ const syncPersistConfig = {
   transforms: [createTransform(syncSerialize, syncDeserialize)] as any,
 };
 
+const credentialsPersistConfig2 = {
+  key: "credentials2",
+  version: 0,
+  storage: AsyncStorage,
+};
+
+const syncSerialize2 = (state: any, key: string | number) => {
+  if ((key === "collections") || (key === "changeQueue")) {
+    return state.toJS();
+  }
+
+  return state;
+};
+
+const syncDeserialize2 = (state: any, key: string | number) => {
+  if ((key === "collections") || (key === "changeQueue")) {
+    return ImmutableMap(state);
+  }
+
+  return state;
+};
+
+const syncPersistConfig2 = {
+  key: "sync2",
+  storage: AsyncStorage,
+  transforms: [createTransform(syncSerialize2, syncDeserialize2)] as any,
+};
+
+const cacheSerialize2 = (state: any, key: string | number) => {
+  if (key === "collections") {
+    const typedState = state as CacheCollectionsData;
+    const ret = typedState.map((x) => Etebase.toBase64(x));
+    return ret.toJS();
+  } else if (key === "items") {
+    const typedState = state as CacheItemsData;
+    const ret = typedState.map((items) => {
+      return items.map((x) => Etebase.toBase64(x));
+    });
+    return ret.toJS();
+  } else if ((key === "decryptedCollections") || (key === "decryptedItems")) {
+    state.toJS();
+  }
+
+  return state;
+};
+
+const cacheDeserialize2 = (state: any, key: string | number) => {
+  if (key === "collections") {
+    return ImmutableMap<string, string>(state).map((x) => {
+      return Etebase.fromBase64(x);
+    });
+  } else if (key === "items") {
+    return ImmutableMap(state).map((item: any) => {
+      return ImmutableMap<string, string>(item).map((x) => Etebase.fromBase64(x));
+    });
+  } else if (key === "decryptedCollections") {
+    return ImmutableMap(state);
+  } else if (key === "decryptedItems") {
+    return ImmutableMap(state).map((item: any) => {
+      return ImmutableMap(item);
+    });
+  }
+
+  return state;
+};
+
+const cachePersistConfig2 = {
+  key: "cache2",
+  version: 0,
+  storage: AsyncStorage,
+  transforms: [createTransform(cacheSerialize2, cacheDeserialize2)] as any,
+};
+
 const reducers = combineReducers({
   fetchCount,
   syncCount,
@@ -244,6 +337,21 @@ const reducers = combineReducers({
   settings: persistReducer(settingsPersistConfig, settingsReducer),
   credentials: persistReducer(credentialsPersistConfig, credentials),
   encryptionKey: persistReducer(encryptionKeyPersistConfig, encryptionKeyReducer),
+  // Etebase {
+  credentials2: persistReducer(credentialsPersistConfig2, credentialsEb),
+  sync2: persistReducer(syncPersistConfig2, combineReducers({
+    collections: syncCollections,
+    changeQueue,
+    general: syncGeneral,
+  })),
+  cache2: persistReducer(cachePersistConfig2, combineReducers({
+    collections,
+    items,
+
+    decryptedCollections,
+    decryptedItems,
+  })),
+  // }
   sync: persistReducer(syncPersistConfig, combineReducers({
     stateJournals: syncStateJournalReducer,
     stateEntries: syncStateEntryReducer,

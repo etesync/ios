@@ -8,10 +8,10 @@ import { Text, HelperText, Button, Appbar, Paragraph } from "react-native-paper"
 import { useNavigation, RouteProp } from "@react-navigation/native";
 
 import { SyncManager } from "./sync/SyncManager";
-import { useSyncGate } from "./SyncGate";
-import { useCredentials } from "./login";
-import { store, StoreState } from "./store";
-import { addJournal, updateJournal, deleteJournal, performSync } from "./store/actions";
+import { useSyncGateEb } from "./SyncGate";
+import { useCredentials } from "./credentials";
+import { StoreState, useAsyncDispatch } from "./store";
+import { collectionUpload, performSync } from "./store/actions";
 
 import TextInput from "./widgets/TextInput";
 import ScrollView from "./widgets/ScrollView";
@@ -19,66 +19,66 @@ import Container from "./widgets/Container";
 import ConfirmationDialog from "./widgets/ConfirmationDialog";
 import ErrorOrLoadingDialog from "./widgets/ErrorOrLoadingDialog";
 
-import * as EteSync from "etesync";
-import { useLoading, colorHtmlToInt, colorIntToHtml, defaultColor } from "./helpers";
+import { useLoading, colorHtmlToInt, defaultColor } from "./helpers";
 
 import ColorPicker from "./widgets/ColorPicker";
 
 interface FormErrors {
-  displayName?: string;
+  name?: string;
   color?: string;
 }
 
 type RootStackParamList = {
-  JournalItemScreen: {
-    journalUid: string;
-    journalType?: string;
+  CollectionEditScreen: {
+    colUid?: string;
+    colType?: string;
   };
 };
 
 interface PropsType {
-  route: RouteProp<RootStackParamList, "JournalItemScreen">;
+  route: RouteProp<RootStackParamList, "CollectionEditScreen">;
 }
 
-export default function JournalEditScreen(props: PropsType) {
+export default function CollectionEditScreen(props: PropsType) {
   const [errors, setErrors] = React.useState({} as FormErrors);
-  const [journalType, setJournalType] = React.useState<string>();
-  const [displayName, setDisplayName] = React.useState<string>("");
+  const [colType, setColType] = React.useState<string>();
+  const [name, setName] = React.useState<string>("");
   const [description, setDescription] = React.useState<string>("");
   const [color, setColor] = React.useState<string>("");
-  const journals = useSelector((state: StoreState) => state.cache.journals);
-  const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
-  const syncInfoCollections = useSelector((state: StoreState) => state.cache.syncInfoCollection);
-  const syncGate = useSyncGate();
+  const dispatch = useAsyncDispatch();
+  const decryptedCollections = useSelector((state: StoreState) => state.cache2.decryptedCollections);
+  const cacheCollections = useSelector((state: StoreState) => state.cache2.collections);
+  const syncGate = useSyncGateEb();
   const navigation = useNavigation();
-  const etesync = useCredentials()!;
+  const etebase = useCredentials()!;
   const [loading, error, setPromise] = useLoading();
 
-  const journalUid: string = props.route.params.journalUid ?? "";
+  const colUid: string = props.route.params.colUid ?? "";
   React.useMemo(() => {
     if (syncGate) {
       return;
     }
 
-    const passedCollection = syncInfoCollections.get(journalUid);
+    const passedCollection = decryptedCollections.get(colUid);
     if (passedCollection) {
-      setJournalType(passedCollection.type);
-      setDisplayName(passedCollection.displayName);
-      setDescription(passedCollection.description);
-      if (passedCollection.color !== undefined) {
-        setColor(colorIntToHtml(passedCollection.color));
+      const { meta } = passedCollection;
+      setColType(meta.type);
+      setName(meta.name);
+      setDescription(meta.description ?? "");
+      if (meta.color !== undefined) {
+        setColor(meta.color);
       }
     } else {
-      setJournalType(props.route.params.journalType);
+      setColType(props.route.params.colType);
     }
 
-  }, [syncGate, syncInfoCollections, journalUid]);
+  }, [syncGate, colUid]);
 
   if (syncGate) {
     return syncGate;
   }
 
-  if (!journalType) {
+  if (!colType) {
     return <React.Fragment />;
   }
 
@@ -87,8 +87,8 @@ export default function JournalEditScreen(props: PropsType) {
       const saveErrors: FormErrors = {};
       const fieldRequired = "This field is required!";
 
-      if (!displayName) {
-        saveErrors.displayName = fieldRequired;
+      if (!name) {
+        saveErrors.name = fieldRequired;
       }
 
       if (color && !colorHtmlToInt(color)) {
@@ -100,36 +100,31 @@ export default function JournalEditScreen(props: PropsType) {
         return;
       }
 
-      const passedCollection = syncInfoCollections.get(journalUid);
-      const uid = passedCollection?.uid ?? EteSync.genUid();
-
-      const computedColor = (color) ? colorHtmlToInt(color) : undefined;
-
-      const info = new EteSync.CollectionInfo({ ...passedCollection, uid, type: journalType, displayName, description, color: computedColor });
-      const journal = new EteSync.Journal((journals.has(journalUid)) ? journals.get(journalUid)!.serialize() : { uid: info.uid });
-      const keyPair = userInfo.getKeyPair(userInfo.getCryptoManager(etesync.encryptionKey));
-      const cryptoManager = journal.getCryptoManager(etesync.encryptionKey, keyPair);
-      journal.setInfo(cryptoManager, info);
-
-      if (journalUid) {
-        await store.dispatch(updateJournal(etesync, journal));
+      const colMgr = etebase.getCollectionManager();
+      const meta = { type: colType!, name, description, color };
+      let collection;
+      if (colUid) {
+        collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
+        const colMeta = await collection.getMeta();
+        await collection.setMeta({ ...colMeta, ...meta });
       } else {
-        await store.dispatch(addJournal(etesync, journal));
+        collection = await colMgr.create(meta, "");
       }
 
-      // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-      const syncManager = SyncManager.getManagerLegacy(etesync);
-      store.dispatch(performSync(syncManager.sync()));
+      await dispatch(collectionUpload(colMgr, collection));
       navigation.goBack();
+      // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
+      const syncManager = SyncManager.getManager(etebase);
+      dispatch(performSync(syncManager.sync())); // not awaiting on puprose
     });
   }
 
   const descriptionRef = React.createRef<NativeTextInput>();
 
   let collectionColorBox: React.ReactNode;
-  switch (journalType) {
-    case "CALENDAR":
-    case "TASKS":
+  switch (colType) {
+    case "etebase.vevent":
+    case "etebase.vtodo":
       collectionColorBox = (
         <>
           <ColorPicker
@@ -145,7 +140,7 @@ export default function JournalEditScreen(props: PropsType) {
 
   navigation.setOptions({
     headerRight: () => (
-      <RightAction journalUid={journalUid} />
+      <RightAction colUid={colUid} />
     ),
   });
 
@@ -161,17 +156,17 @@ export default function JournalEditScreen(props: PropsType) {
           autoFocus
           returnKeyType="next"
           onSubmitEditing={() => descriptionRef.current!.focus()}
-          error={!!errors.displayName}
-          onChangeText={setDisplayName}
+          error={!!errors.name}
+          onChangeText={setName}
           label="Display name (title)"
           accessibilityLabel="Display name (title)"
-          value={displayName}
+          value={name}
         />
         <HelperText
           type="error"
-          visible={!!errors.displayName}
+          visible={!!errors.name}
         >
-          {errors.displayName}
+          {errors.name}
         </HelperText>
 
         <TextInput
@@ -200,20 +195,23 @@ export default function JournalEditScreen(props: PropsType) {
   );
 }
 
-function RightAction(props: { journalUid: string }) {
+function RightAction(props: { colUid: string }) {
   const [confirmationVisible, setConfirmationVisible] = React.useState(false);
   const navigation = useNavigation();
-  const etesync = useCredentials()!;
-  const journals = useSelector((state: StoreState) => state.cache.journals);
+  const etebase = useCredentials()!;
+  const dispatch = useAsyncDispatch();
+  const cacheCollections = useSelector((state: StoreState) => state.cache2.collections);
 
-  const journalUid = props.journalUid;
-  const journal = journals.get(journalUid)!;
+  const colUid = props.colUid;
+  if (!colUid) {
+    return <React.Fragment />;
+  }
 
   return (
     <React.Fragment>
       <Appbar.Action
         icon="delete"
-        accessibilityLabel="Delete journal"
+        accessibilityLabel="Delete collection"
         onPress={() => {
           setConfirmationVisible(true);
         }}
@@ -222,11 +220,14 @@ function RightAction(props: { journalUid: string }) {
         title="Are you sure?"
         visible={confirmationVisible}
         onOk={async () => {
-          await store.dispatch(deleteJournal(etesync, journal));
+          const colMgr = etebase.getCollectionManager();
+          const collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
+          await collection.delete();
+          await colMgr.upload(collection);
           navigation.navigate("home");
           // FIXME having the sync manager here is ugly. We should just deal with these changes centrally.
-          const syncManager = SyncManager.getManagerLegacy(etesync);
-          store.dispatch(performSync(syncManager.sync()));
+          const syncManager = SyncManager.getManager(etebase);
+          dispatch(performSync(syncManager.sync())); // not awaiting on puprose
         }}
         onCancel={() => {
           setConfirmationVisible(false);

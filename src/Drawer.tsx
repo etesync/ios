@@ -14,6 +14,7 @@ import { StoreState } from "./store";
 import ScrollView from "./widgets/ScrollView";
 import ConfirmationDialog from "./widgets/ConfirmationDialog";
 import PrettyFingerprint from "./widgets/PrettyFingerprint";
+import PrettyFingerprintEb from "./widgets/PrettyFingerprintEb";
 import Container from "./widgets/Container";
 import { Subheading } from "./widgets/Typography";
 
@@ -21,6 +22,7 @@ import LogoutDialog from "./LogoutDialog";
 import { useRemoteCredentials } from "./login";
 
 import * as C from "./constants";
+import { useCredentials } from "./credentials";
 
 const menuItems = [
   {
@@ -62,12 +64,23 @@ if (!C.genericMode) {
 
 function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
   const userInfo = useSelector((state: StoreState) => state.cache.userInfo);
+  const etebase = useCredentials();
 
-  if (!userInfo) {
+  if (!props.visible) {
     return null;
   }
 
-  const publicKey = userInfo.publicKey;
+  let publicKey: React.ReactNode;
+  if (userInfo) {
+    publicKey = (
+      <PrettyFingerprint publicKey={userInfo.publicKey} />
+    );
+  } else if (etebase) {
+    const inviteMgr = etebase.getInvitationManager();
+    publicKey = (
+      <PrettyFingerprintEb publicKey={inviteMgr.pubkey} />
+    );
+  }
 
   return (
     <ConfirmationDialog
@@ -80,11 +93,9 @@ function FingerprintDialog(props: { visible: boolean, onDismiss: () => void }) {
         <Paragraph>
           Your security fingerprint is:
         </Paragraph>
-        {publicKey &&
-          <View style={{ justifyContent: "center", alignItems: "center", marginTop: 15 }}>
-            <PrettyFingerprint publicKey={publicKey} />
-          </View>
-        }
+        <View style={{ justifyContent: "center", alignItems: "center", marginTop: 15 }}>
+          {publicKey}
+        </View>
       </>
     </ConfirmationDialog>
   );
@@ -99,7 +110,8 @@ export default function Drawer(props: PropsType) {
   const [showLogout, setShowLogout] = React.useState(false);
   const navigation = props.navigation as DrawerNavigationProp<ParamListBase>;
   const etesync = useRemoteCredentials();
-  const loggedIn = !!etesync;
+  const etebase = useCredentials();
+  const loggedIn = !!etesync || !!etebase;
   const syncCount = useSelector((state: StoreState) => state.syncCount);
 
   return (
@@ -113,6 +125,9 @@ export default function Drawer(props: PropsType) {
           <Subheading style={{ color: "white" }}>{C.appName}</Subheading>
           {etesync &&
             <Text style={{ color: "white" }}>{etesync.credentials.email}</Text>
+          }
+          {etebase &&
+            <Text style={{ color: "white" }}>{etebase.user.username}</Text>
           }
         </Container>
       </SafeAreaView>
@@ -129,7 +144,7 @@ export default function Drawer(props: PropsType) {
               left={(props) => <List.Icon {...props} icon={menuItem.icon} />}
             />
           ))}
-          {etesync &&
+          {loggedIn &&
             <>
               <List.Item
                 title="Show Fingerprint"
@@ -137,6 +152,18 @@ export default function Drawer(props: PropsType) {
                   setShowFingerprint(true);
                 }}
                 left={(props) => <List.Icon {...props} icon="fingerprint" />}
+              />
+            </>
+          }
+          {etebase &&
+            <>
+              <List.Item
+                title="Invitations"
+                onPress={() => {
+                  navigation.closeDrawer();
+                  navigation.navigate("Invitations");
+                }}
+                left={(props) => <List.Icon {...props} icon="email-outline" />}
               />
             </>
           }

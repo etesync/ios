@@ -1,34 +1,35 @@
 // SPDX-FileCopyrightText: © 2019 EteSync Authors
 // SPDX-License-Identifier: GPL-3.0-only
 
+import * as EteSync from "etesync";
 import * as Calendar from "expo-calendar";
 
-import { calculateHashesForReminders, BatchAction, HashDictionary, processRemindersChanges } from "../EteSyncNative";
+import { calculateHashesForReminders, BatchAction, HashDictionary, processRemindersChanges } from "../../EteSyncNative";
 
-import { logger } from "../logging";
+import { logger } from "../../logging";
 
-import { store } from "../store";
+import { store } from "../../store";
 
-import { NativeTask, taskVobjectToNative, taskNativeToVobject } from "./helpers";
-import { TaskType } from "../pim-types";
+import { NativeTask, taskVobjectToNative, taskNativeToVobject } from "../helpers";
+import { TaskType } from "../../pim-types";
 
 import { SyncManagerCalendarBase } from "./SyncManagerCalendar";
 import { PushEntry } from "./SyncManagerBase";
 
 export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, NativeTask> {
-  protected permissionsType = "TASKS";
-  protected collectionType = "etebase.vtodo";
-  protected collectionTypeDisplay = "Tasks";
+  protected collectionType = "TASKS";
   protected entityType = Calendar.EntityTypes.REMINDER;
 
   protected async syncPush() {
     const storeState = store.getState();
-    const decryptedCollections = storeState.cache2.decryptedCollections;
+    const syncInfoCollections = storeState.cache.syncInfoCollection;
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const collection of syncInfoCollections.values()) {
+      const uid = collection.uid;
+
+      if (collection.type !== this.collectionType) {
         continue;
       }
 
@@ -50,7 +51,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
         if (syncStateEntry?.lastHash !== reminderHash) {
           const _reminder = await Calendar.getReminderAsync(reminderId);
           const reminder = { ..._reminder, uid: (syncStateEntry) ? syncStateEntry.uid : _reminder.id! };
-          const syncEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder, reminderHash);
+          const syncEntry = this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, reminder, reminderHash);
           if (syncEntry) {
             syncEntries.push(syncEntry);
           }
@@ -80,7 +81,7 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
 
         if (shouldDelete) {
           // If the reminder still exists it means it's not deleted.
-          const syncEntry = await this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
+          const syncEntry = this.syncPushHandleDeleted(syncStateJournal, syncStateEntry);
           if (syncEntry) {
             syncEntries.push(syncEntry);
           }
@@ -91,8 +92,8 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     }
   }
 
-  protected contentToVobject(content: string) {
-    return TaskType.parse(content);
+  protected syncEntryToVobject(syncEntry: EteSync.SyncEntry) {
+    return TaskType.parse(syncEntry.content);
   }
 
   protected vobjectToNative(vobject: TaskType) {

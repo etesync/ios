@@ -3,24 +3,22 @@
 
 import * as React from "react";
 import { Linking, TextInput as NativeTextInput } from "react-native";
-import { List, Paragraph, HelperText, Switch, useTheme } from "react-native-paper";
+import { List, HelperText, Switch, useTheme } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 
-import * as EteSync from "etesync";
-import sjcl from "sjcl";
+import * as Etebase from "etebase";
 
 import { logger, LogLevel } from "./logging";
 
-import { SyncManager } from "./sync/SyncManager";
-import { useCredentials } from "./login";
+import { useCredentials } from "./credentials";
 
 import ScrollView from "./widgets/ScrollView";
 import ConfirmationDialog from "./widgets/ConfirmationDialog";
 import PasswordInput from "./widgets/PasswordInput";
 import SyncSettings from "./sync/SyncSettings";
 
-import { StoreState } from "./store";
-import { setSettings, fetchCredentials, fetchUserInfo, updateUserInfo, performSync, deriveKey } from "./store/actions";
+import { StoreState, useAsyncDispatch } from "./store";
+import { setSettings, loginEb } from "./store/actions";
 
 import * as C from "./constants";
 import { startTask } from "./helpers";
@@ -31,66 +29,17 @@ interface DialogPropsType {
   onDismiss: () => void;
 }
 
-function AuthenticationPasswordDialog(props: DialogPropsType) {
-  const etesync = useCredentials()!;
-  const dispatch = useDispatch();
-  const [error, setError] = React.useState<string>();
-  const [password, setPassword] = React.useState("");
-
-  async function onOk() {
-    if (!password) {
-      setError("Password can't be empty.");
-      return;
-    }
-    try {
-      await dispatch<any>(fetchCredentials(etesync.credentials.email, password, etesync.serviceApiUrl));
-    } catch (e) {
-      setError(e.message);
-      return;
-    }
-    props.onDismiss();
-  }
-
-  return (
-    <ConfirmationDialog
-      title="Authentication Password"
-      visible={props.visible}
-      onOk={onOk}
-      onCancel={props.onDismiss}
-    >
-      <>
-        <Paragraph>
-          Please enter your authentication password:
-        </Paragraph>
-        <PasswordInput
-          error={!!error}
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-        />
-        <HelperText
-          type="error"
-          visible={!!error}
-        >
-          {error}
-        </HelperText>
-      </>
-    </ConfirmationDialog>
-  );
-}
-
 interface EncryptionFormErrors {
   oldPassword?: string;
   newPassword?: string;
 }
 
-function EncryptionPasswordDialog(props: DialogPropsType) {
-  const etesync = useCredentials()!;
-  const dispatch = useDispatch();
+function ChangePasswordDialog(props: DialogPropsType) {
+  const etebase = useCredentials()!;
+  const dispatch = useAsyncDispatch();
   const [errors, setErrors] = React.useState<EncryptionFormErrors>({});
   const [oldPassword, setOldPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
-  const journals = useSelector((state: StoreState) => state.cache.journals);
 
   async function onOk() {
     const fieldNotEmpty = "Password can't be empty.";
@@ -108,72 +57,28 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
     }
 
     await startTask(async () => {
-      // FIXME: update journal list or maybe fetch all?
       logger.info("Changing encryption password");
-      const me = etesync.credentials.email;
-      logger.info("Deriving old key");
-      const oldDerivedAction = await deriveKey(etesync.credentials.email, oldPassword);
-      const oldDerived = await oldDerivedAction.payload;
-
-      if (oldDerived !== etesync.encryptionKey) {
-        setErrors({ oldPassword: "Error: wrong encryption password." });
+      logger.info("Verifying old key");
+      const username = etebase.user.username;
+      try {
+        const etebase = await Etebase.Account.login(username, oldPassword);
+        await etebase.logout();
+      } catch (e) {
+        if (e instanceof Etebase.UnauthorizedError) {
+          setErrors({ oldPassword: "Error: wrong encryption password." });
+        } else {
+          setErrors({ oldPassword: e.toString() });
+        }
         return;
       }
 
-      logger.info("Deriving new key");
-      const newDerivedAction = await deriveKey(etesync.credentials.email, newPassword);
-      const newDerived = await newDerivedAction.payload;
-      logger.info("Fetching user info");
-      const userInfoAction = await dispatch(fetchUserInfo(etesync, me));
-      const userInfo = await userInfoAction.payload;
-      const userInfoCryptoManager = userInfo.getCryptoManager(oldDerived);
-      const keyPair = userInfo.getKeyPair(userInfoCryptoManager);
-
-      logger.info("Updating journals");
-      for (const journal of journals.values()) {
-        if (journal.key) {
-          // Skip journals that already have a key (includes one we don't own)
-          continue;
-        }
-
-        // FIXME: Add a warning message like in Android + mention in it not to stop it
-        const cryptoManager = journal.getCryptoManager(oldDerived, keyPair);
-
-        const pubkeyBytes = keyPair.publicKey;
-        const encryptedKey = sjcl.codec.base64.fromBits(sjcl.codec.bytes.toBits(cryptoManager.getEncryptedKey(keyPair, pubkeyBytes)));
-
-        const journalMembersManager = new EteSync.JournalMembersManager(etesync.credentials, etesync.serviceApiUrl, journal.uid);
-        logger.info(`Updating journal ${journal.uid}`);
-        try {
-          await journalMembersManager.create({ user: me, key: encryptedKey, readOnly: false });
-        } catch (e) {
-          setErrors({ newPassword: e.toString() });
-          return;
-        }
+      logger.info("Setting new password");
+      try {
+        await etebase.changePassword(newPassword);
+        dispatch(loginEb(etebase));
+      } catch (e) {
+        setErrors({ newPassword: e.toString() });
       }
-
-      // FIXME: the performSync is a hack to make sure we don't update any screens before we've update the store
-      await dispatch(performSync((async () => {
-        logger.info("Updating user info");
-        try {
-          const newCryptoManager = userInfo.getCryptoManager(newDerived);
-          userInfo.setKeyPair(newCryptoManager, keyPair);
-
-          await dispatch(updateUserInfo(etesync, userInfo));
-        } catch (e) {
-          setErrors({ newPassword: e.toString() });
-          return false;
-        }
-
-        dispatch(newDerivedAction);
-
-        const syncManager = SyncManager.getManager(etesync);
-        await syncManager.sync();
-
-        props.onDismiss();
-
-        return true;
-      })()));
     });
   }
 
@@ -222,16 +127,15 @@ function EncryptionPasswordDialog(props: DialogPropsType) {
 }
 
 const SettingsScreen = function _SettingsScreen() {
-  const etesync = useCredentials();
+  const etebase = useCredentials();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const theme = useTheme();
   const settings = useSelector((state: StoreState) => state.settings);
 
-  const [showAuthDialog, setShowAuthDialog] = React.useState(false);
-  const [showEncryptionDialog, setShowEncryptionDialog] = React.useState(false);
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = React.useState(false);
 
-  const loggedIn = etesync && etesync.credentials && etesync.encryptionKey;
+  const loggedIn = !!etebase;
 
   return (
     <>
@@ -247,14 +151,9 @@ const SettingsScreen = function _SettingsScreen() {
               />
             }
             <List.Item
-              title="Authentication Password"
-              description="Use a different authentication password"
-              onPress={() => { setShowAuthDialog(true) }}
-            />
-            <List.Item
-              title="Encryption Password"
-              description="Change your encryption password"
-              onPress={() => { setShowEncryptionDialog(true) }}
+              title="Change Password"
+              description="Change your account's password"
+              onPress={() => { setShowChangePasswordDialog(true) }}
             />
           </List.Section>
         )}
@@ -304,8 +203,7 @@ const SettingsScreen = function _SettingsScreen() {
         </List.Section>
       </ScrollView>
 
-      <AuthenticationPasswordDialog visible={showAuthDialog} onDismiss={() => setShowAuthDialog(false)} />
-      <EncryptionPasswordDialog visible={showEncryptionDialog} onDismiss={() => setShowEncryptionDialog(false)} />
+      <ChangePasswordDialog visible={showChangePasswordDialog} onDismiss={() => setShowChangePasswordDialog(false)} />
     </>
   );
 };

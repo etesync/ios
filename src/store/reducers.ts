@@ -7,6 +7,7 @@ import { shallowEqual } from "react-redux";
 import { List, Map as ImmutableMap } from "immutable";
 
 import * as EteSync from "etesync";
+import * as Etebase from "etebase";
 
 import * as actions from "./actions";
 import { LogLevel } from "../logging";
@@ -54,6 +55,259 @@ export interface ErrorsData {
   other: List<Error>;
 }
 
+export interface SyncCollectionsEntryData extends BaseModel {
+  stoken: string;
+}
+
+export type SyncCollectionsData = ImmutableMap<string, SyncCollectionsEntryData>;
+
+export type CacheItem = Uint8Array;
+export type CacheItems = ImmutableMap<string, CacheItem>;
+export type CacheItemsData = ImmutableMap<string, CacheItems>;
+export type CacheCollection = Uint8Array;
+export type CacheCollectionsData = ImmutableMap<string, CacheCollection>;
+
+export type DecryptedItem = { meta: Etebase.ItemMetadata, content: string, isDeleted: boolean };
+export type DecryptedItems = ImmutableMap<string, DecryptedItem>;
+export type DecryptedItemsData = ImmutableMap<string, DecryptedItems>;
+export type DecryptedCollection = { meta: Etebase.CollectionMetadata };
+export type DecryptedCollectionsData = ImmutableMap<string, DecryptedCollection>;
+
+export type ChangeQueue = ImmutableMap<string, ImmutableMap<string, true>>; // The col.uid and item.uid of changed items
+
+export type SyncGeneralData = {
+  stoken?: string | null;
+  lastSyncDate?: Date;
+};
+
+export interface CredentialsDataEb {
+  storedSession?: string;
+}
+
+export const credentialsEb = handleActions(
+  {
+    [actions.loginEb.toString()]: (
+      state: CredentialsDataEb, action: Action<string>) => {
+      if (action.error) {
+        return state;
+      } else if (action.payload === undefined) {
+        return state;
+      } else {
+        return {
+          storedSession: action.payload,
+        };
+      }
+    },
+    [actions.logout.toString()]: (_state: CredentialsDataEb, _action: any) => {
+      return { storedSession: undefined };
+    },
+  },
+  { storedSession: undefined }
+);
+
+export const syncCollections = handleActions(
+  {
+    [actions.setSyncCollection.toString()]: (state: SyncCollectionsData, action: Action<SyncCollectionsEntryData>) => {
+      if (action.payload !== undefined) {
+        return state.set(action.payload.uid, action.payload);
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: SyncCollectionsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const syncGeneral = handleActions(
+  {
+    [actions.setSyncGeneral.toString()]: (state: SyncGeneralData, action: Action<string | null | undefined>) => {
+      if (action.payload !== undefined) {
+        return {
+          stoken: action.payload,
+          lastSyncDate: new Date(),
+        };
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (_state: SyncGeneralData, _action: any) => {
+      return {};
+    },
+  },
+  {} as SyncGeneralData
+);
+
+export const collections = handleActions(
+  {
+    [combineActions(
+      actions.setCacheCollection,
+      actions.collectionUpload,
+      actions.unsetCacheCollection
+    ).toString()]: (state: CacheCollectionsData, action: ActionMeta<{ cache: CacheCollection }, { colUid: string, deleted: boolean }>) => {
+      if (action.payload !== undefined) {
+        if (action.meta.deleted) {
+          return state.remove(action.meta.colUid);
+        } else {
+          return state.set(action.meta.colUid, action.payload.cache);
+        }
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: CacheCollectionsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const items = handleActions(
+  {
+    [combineActions(
+      actions.setCacheItem
+    ).toString()]: (state: CacheItemsData, action: ActionMeta<{ cache: CacheItem }, { colUid: string, itemUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload.cache);
+      }
+      return state;
+    },
+    [combineActions(
+      actions.itemBatch,
+      actions.setCacheItemMulti
+    ).toString()]: (state: CacheItemsData, action_: any) => {
+      // Fails without it for some reason
+      const action = action_ as ActionMeta<{ cache: CacheItem }[], { colUid: string, items: Etebase.Item[] }>;
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          let i = 0;
+          for (const item of action.meta.items) {
+            state.setIn([action.meta.colUid, item.uid], action.payload[i].cache);
+            i++;
+          }
+        });
+      }
+      return state;
+    },
+    [actions.setCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        if (!state.has(action.meta.colUid)) {
+          return state.set(action.meta.colUid, ImmutableMap());
+        }
+      }
+      return state;
+    },
+    [actions.unsetCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.remove(action.meta.colUid);
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: CacheItemsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const decryptedCollections = handleActions(
+  {
+    [combineActions(
+      actions.setCacheCollection,
+      actions.collectionUpload,
+      actions.unsetCacheCollection
+    ).toString()]: (state: DecryptedCollectionsData, action: ActionMeta<DecryptedCollection, { colUid: string, deleted: boolean }>) => {
+      if (action.payload !== undefined) {
+        if (action.meta.deleted) {
+          return state.remove(action.meta.colUid);
+        } else {
+          return state.set(action.meta.colUid, action.payload);
+        }
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: DecryptedCollectionsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const decryptedItems = handleActions(
+  {
+    [combineActions(
+      actions.setCacheItem
+    ).toString()]: (state: DecryptedItemsData, action: ActionMeta<DecryptedItem, { colUid: string, itemUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload);
+      }
+      return state;
+    },
+    [combineActions(
+      actions.itemBatch,
+      actions.setCacheItemMulti
+    ).toString()]: (state: DecryptedItemsData, action_: any) => {
+      // Fails without it for some reason
+      const action = action_ as ActionMeta<DecryptedItem[], { colUid: string, items: Etebase.Item[] }>;
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          let i = 0;
+          for (const item of action.meta.items) {
+            state.setIn([action.meta.colUid, item.uid], action.payload[i]);
+            i++;
+          }
+        });
+      }
+      return state;
+    },
+    [actions.setCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        if (!state.has(action.meta.colUid)) {
+          return state.set(action.meta.colUid, ImmutableMap());
+        }
+      }
+      return state;
+    },
+    [actions.unsetCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.remove(action.meta.colUid);
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: DecryptedItemsData, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
+
+export const changeQueue = handleActions(
+  {
+    [actions.changeQueueAdd.toString()]: (state: ChangeQueue, action: ActionMeta<{ items: string[] }, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          for (const itemUid of action.payload.items) {
+            state.setIn([action.meta.colUid, itemUid], true);
+          }
+        });
+      }
+      return state;
+    },
+    [actions.changeQueueRemove.toString()]: (state: ChangeQueue, action: ActionMeta<{ items: string[] }, { colUid: string }>) => {
+      if (action.payload !== undefined) {
+        return state.withMutations((state) => {
+          for (const itemUid of action.payload.items) {
+            state.removeIn([action.meta.colUid, itemUid]);
+          }
+        });
+      }
+      return state;
+    },
+    [actions.logout.toString()]: (state: ChangeQueue, _action: any) => {
+      return state.clear();
+    },
+  },
+  ImmutableMap({})
+);
 
 export const legacyEncryptionKeyReducer = handleActions(
   {
