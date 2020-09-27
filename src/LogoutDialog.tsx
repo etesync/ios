@@ -77,8 +77,6 @@ export default function LogoutDialog(props: { visible: boolean, onDismiss: (logg
             SyncManager.removeManager(etebase);
 
             unregisterSyncTask(etebase.user.username);
-
-            await etebase.logout();
           }
         } catch (e) {
           error = e;
