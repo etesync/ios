@@ -42,6 +42,7 @@ export default function AboutScreen() {
 
   return (
     <FlatList
+      style={{ backgroundColor: theme.colors.surface }}
       ListHeaderComponent={() => (
         <Container>
           <Title style={{ textAlign: "center" }}>{C.appName} {expo.version}</Title>
