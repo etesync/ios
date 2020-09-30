@@ -6319,10 +6319,10 @@ react-native-screens@^2.0.0-beta.4:
   dependencies:
     debounce "^1.2.0"
 
-react-native-sodium@^0.3.8:
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/react-native-sodium/-/react-native-sodium-0.3.8.tgz#ccb86a67d2cd6856be227ed962ffc019b32e7642"
-  integrity sha512-G+ZrNUr8yWPOGYSzM+Gc+5wKeLcQBlN7SrFjt9JzbeuNM+cEJlj4ntdoaMe43cciWVPr4yQIpFOu2Qapnk5HRQ==
+react-native-sodium@^0.3.9:
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/react-native-sodium/-/react-native-sodium-0.3.9.tgz#cd853b9ef03ee053130d6d731c5d738f65a961db"
+  integrity sha512-eLI2n5Kflvq6OcVHW4estK0EGFlSDk2fHSHst4a2ysO4Hpm5nxf/DCQ7DWcLZYJlE9SX9wk461eF9wKZL/gwfQ==
 
 react-native-unimodules@^0.7.0:
   version "0.7.0"
