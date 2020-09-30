@@ -18,8 +18,8 @@ const Markdown = React.memo(function _Markdown(props: { content: string }) {
         link: { color: theme.colors.accent, textDecorationLine: "underline" },
         hr: { backgroundColor: theme.colors.placeholder },
         blockquote: { backgroundColor: blockBackgroundColor },
-        code_inline: { backgroundColor: blockBackgroundColor },
-        code_block: { backgroundColor: blockBackgroundColor },
+        code_inline: { backgroundColor: blockBackgroundColor }, // eslint-disable-line @typescript-eslint/camelcase
+        code_block: { backgroundColor: blockBackgroundColor }, // eslint-disable-line @typescript-eslint/camelcase
         fence: { backgroundColor: blockBackgroundColor },
       }}
       mergeStyle
