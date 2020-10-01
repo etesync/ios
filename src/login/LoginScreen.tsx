@@ -31,6 +31,7 @@ import { credentialsSelector } from ".";
 
 import * as C from "../constants";
 import { useCredentials } from "../credentials";
+import { useNavigation } from "@react-navigation/native";
 
 function b64ToBa(b64: string) {
   return sjcl.codec.bytes.fromBits(sjcl.codec.base64.toBits(b64));
@@ -166,6 +167,7 @@ function EncryptionPart() {
 
 const LoginScreen = React.memo(function _LoginScreen() {
   const etebase = useCredentials()!;
+  const navigation = useNavigation();
   const credentials = useSelector((state: StoreState) => state.credentials.credentials ?? state.legacyCredentials.credentials);
   const encryptionKey = useSelector((state: StoreState) => state.encryptionKey.encryptionKey ?? state.legacyEncryptionKey.key);
   const dispatch = useAsyncDispatch();
@@ -187,6 +189,7 @@ const LoginScreen = React.memo(function _LoginScreen() {
       if (isEtebase) {
         const etebase = await Etebase.Account.login(username, password, serviceApiUrl);
         dispatch(loginEb(etebase));
+        navigation.navigate("AccountWizard");
       } else {
         dispatch(fetchCredentials(username, password, serviceApiUrl));
       }

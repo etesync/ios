@@ -7,6 +7,7 @@ import { View } from "react-native";
 import { Button, Paragraph, Headline } from "react-native-paper";
 
 import LoadingIndicator from "./widgets/LoadingIndicator";
+import Container from "./widgets/Container";
 import Wizard, { WizardNavigationBar, PagePropsType } from "./widgets/Wizard";
 
 import { SyncManager } from "./sync/SyncManager";
@@ -98,7 +99,7 @@ export default function AccountWizardScreen() {
     }
     dispatch(performSync((async () => {
       const syncManager = SyncManager.getManager(etebase!);
-      const sync = syncManager.sync();
+      const sync = syncManager.sync(true);
       try {
         await sync;
 
@@ -124,7 +125,7 @@ export default function AccountWizardScreen() {
 
   if (syncError) {
     return (
-      <View style={{ flexGrow: 1, justifyContent: "center", alignItems: "center" }}>
+      <Container style={{ flexGrow: 1, justifyContent: "center", alignItems: "center" }}>
         <Headline style={{ textAlign: "center" }}>Error!</Headline>
         <Paragraph style={{ textAlign: "center" }}>
           {syncError?.message}
@@ -135,7 +136,7 @@ export default function AccountWizardScreen() {
         >
           Retry
         </Button>
-      </View>
+      </Container>
     );
   }
 

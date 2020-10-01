@@ -129,7 +129,7 @@ export class SyncManager {
     return true;
   }
 
-  public async sync() {
+  public async sync(alwaysThrowErrors = false) {
     const keepAwakeTag = "SyncManager";
     const taskId = beginBackgroundTask("Sync");
 
@@ -159,6 +159,10 @@ export class SyncManager {
         await syncManager.sync();
       }
     } catch (e) {
+      if (alwaysThrowErrors) {
+        throw e;
+      }
+
       if (e instanceof Etebase.NetworkError) {
         // Ignore network errors
         return false;
