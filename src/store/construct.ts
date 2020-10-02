@@ -20,7 +20,7 @@ import {
   // Etabese stuff:
   CredentialsDataEb, SyncCollectionsData, CacheCollectionsData, SyncGeneralData, CacheItemsData,
   collections, items, syncCollections, syncGeneral, credentialsEb, DecryptedCollectionsData, DecryptedItemsData,
-  decryptedCollections, decryptedItems, changeQueue, ChangeQueue,
+  decryptedCollections, decryptedItems, changeQueue, ChangeQueue, Message, messagesReducer,
 } from "./reducers";
 
 export interface StoreState {
@@ -61,6 +61,7 @@ export interface StoreState {
   connection: NetInfoStateType | null;
   permissions: ImmutableMap<string, boolean>;
   errors: ErrorsData;
+  messages: List<Message>;
 
   // Legacy
   legacyCredentials: CredentialsDataRemote;
@@ -368,6 +369,7 @@ const reducers = combineReducers({
   connection: connectionReducer,
   permissions: permissionsReducer,
   errors: errorsReducer,
+  messages: messagesReducer,
 
   // Legacy
   legacyCredentials: persistReducer(legacyCredentialsPersistConfig, legacyCredentials),

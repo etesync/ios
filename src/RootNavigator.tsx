@@ -8,7 +8,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import SafeAreaView from "react-native-safe-area-view";
 import { View } from "react-native";
-import { Appbar, Paragraph, useTheme } from "react-native-paper";
+import { Appbar, Paragraph, useTheme, Snackbar } from "react-native-paper";
 
 import { Title } from "./widgets/Typography";
 import LoginScreen from "./login/LoginScreen";
@@ -39,7 +39,7 @@ import LegacyHomeScreen from "./LegacyHomeScreen";
 import { useCredentials as useCredentialsEb } from "./credentials";
 import { useCredentials } from "./login";
 import { StoreState } from "./store";
-import { setSettings } from "./store/actions";
+import { setSettings, popMessage } from "./store/actions";
 
 import * as C from "./constants";
 import { isDefined } from "./helpers";
@@ -117,112 +117,140 @@ function RootNavigatorEtebase() {
   }
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: "#000000",
-        headerBackTitleVisible: false,
-        headerBackTitleStyle: {
-          backgroundColor: "black",
-        },
+    <>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: theme.colors.primary,
+          },
+          headerTintColor: "#000000",
+          headerBackTitleVisible: false,
+          headerBackTitleStyle: {
+            backgroundColor: "black",
+          },
+        }}
+      >
+        {(etebase === null) ? (
+          <>
+            <Stack.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+              options={{
+                title: "Login",
+                headerLeft: () => (
+                  <MenuButton />
+                ),
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen
+              name="home"
+              component={HomeScreen}
+              options={{
+                title: C.appName,
+                headerLeft: () => (
+                  <MenuButton />
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="Collection"
+              component={CollectionChangelogScreen}
+              options={{
+                title: "Collection Entries",
+              }}
+            />
+            <Stack.Screen
+              name="CollectionNew"
+              component={CollectionEditScreen}
+              options={{
+                title: "Collection New",
+              }}
+            />
+            <Stack.Screen
+              name="CollectionEdit"
+              component={CollectionEditScreen}
+              options={{
+                title: "Collection Edit",
+              }}
+            />
+            <Stack.Screen
+              name="CollectionItem"
+              component={CollectionItemScreen}
+              options={{
+                title: "Collection Item",
+              }}
+            />
+            <Stack.Screen
+              name="CollectionImport"
+              component={CollectionImportScreen}
+              options={{
+                title: "Import",
+              }}
+            />
+            <Stack.Screen
+              name="CollectionMembers"
+              component={CollectionMembersScreen}
+              options={{
+                title: "Collection Members",
+              }}
+            />
+            <Stack.Screen
+              name="Invitations"
+              component={InvitationsScreen}
+              options={{
+                title: "Collection Invitations",
+              }}
+            />
+          </>
+        )}
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen
+          name="DebugLogs"
+          component={DebugLogsScreen}
+          options={{
+            title: "View Debug Logs",
+          }}
+        />
+        {/* We keep this outside of the guarded routes so we can navigate to it from the login/signup screens */}
+        <Stack.Screen
+          name="AccountWizard"
+          component={AccountWizardScreen}
+          options={{
+            title: C.appName,
+          }}
+        />
+      </Stack.Navigator>
+      <GlobalMessages />
+    </>
+  );
+}
+
+function GlobalMessages() {
+  const dispatch = useDispatch();
+  const message = useSelector((state: StoreState) => state.messages.first(undefined));
+
+  function handleClose() {
+    dispatch(popMessage());
+  }
+
+  // FIXME: handle severity
+  return (
+    <Snackbar
+      key={message?.message}
+      visible={!!message}
+      duration={5000}
+      onDismiss={handleClose}
+      action={{
+        label: "Dismiss",
+        onPress: handleClose,
       }}
     >
-      {(etebase === null) ? (
-        <>
-          <Stack.Screen
-            name="LoginScreen"
-            component={LoginScreen}
-            options={{
-              title: "Login",
-              headerLeft: () => (
-                <MenuButton />
-              ),
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <Stack.Screen
-            name="home"
-            component={HomeScreen}
-            options={{
-              title: C.appName,
-              headerLeft: () => (
-                <MenuButton />
-              ),
-            }}
-          />
-          <Stack.Screen
-            name="Collection"
-            component={CollectionChangelogScreen}
-            options={{
-              title: "Collection Entries",
-            }}
-          />
-          <Stack.Screen
-            name="CollectionNew"
-            component={CollectionEditScreen}
-            options={{
-              title: "Collection New",
-            }}
-          />
-          <Stack.Screen
-            name="CollectionEdit"
-            component={CollectionEditScreen}
-            options={{
-              title: "Collection Edit",
-            }}
-          />
-          <Stack.Screen
-            name="CollectionItem"
-            component={CollectionItemScreen}
-            options={{
-              title: "Collection Item",
-            }}
-          />
-          <Stack.Screen
-            name="CollectionImport"
-            component={CollectionImportScreen}
-            options={{
-              title: "Import",
-            }}
-          />
-          <Stack.Screen
-            name="CollectionMembers"
-            component={CollectionMembersScreen}
-            options={{
-              title: "Collection Members",
-            }}
-          />
-          <Stack.Screen
-            name="Invitations"
-            component={InvitationsScreen}
-            options={{
-              title: "Collection Invitations",
-            }}
-          />
-        </>
-      )}
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="About" component={AboutScreen} />
-      <Stack.Screen
-        name="DebugLogs"
-        component={DebugLogsScreen}
-        options={{
-          title: "View Debug Logs",
-        }}
-      />
-      {/* We keep this outside of the guarded routes so we can navigate to it from the login/signup screens */}
-      <Stack.Screen
-        name="AccountWizard"
-        component={AccountWizardScreen}
-        options={{
-          title: C.appName,
-        }}
-      />
-    </Stack.Navigator>
+      {message?.message}
+    </Snackbar>
   );
 }
 

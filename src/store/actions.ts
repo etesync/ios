@@ -10,6 +10,7 @@ import { UserInfo } from "etesync";
 
 import { ConnectionInfo, CredentialsData, CredentialsDataRemote, EntriesData, SettingsType, SyncStateJournal, SyncStateEntry, SyncInfoItem } from "./";
 import { startTask } from "../helpers";
+import { Message } from "./reducers";
 
 type FunctionAny = (...args: any[]) => any;
 
@@ -526,6 +527,20 @@ export function fetchAll(etesync: CredentialsData, currentEntries: EntriesData) 
     });
   };
 }
+
+export const pushMessage = createAction(
+  "PUSH_MESSAGE",
+  (message: Message) => {
+    return message;
+  }
+);
+
+export const popMessage = createAction(
+  "POP_MESSAGE",
+  () => {
+    return true;
+  }
+);
 
 // FIXME: Move the rest to their own file
 export const setSettings = createAction(
