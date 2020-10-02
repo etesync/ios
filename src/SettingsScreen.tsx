@@ -21,7 +21,7 @@ import { StoreState, useAsyncDispatch } from "./store";
 import { setSettings, loginEb } from "./store/actions";
 
 import * as C from "./constants";
-import { startTask } from "./helpers";
+import { startTask, enforcePasswordRules } from "./helpers";
 import { useNavigation } from "@react-navigation/native";
 
 interface DialogPropsType {
@@ -49,6 +49,11 @@ function ChangePasswordDialog(props: DialogPropsType) {
     }
     if (!newPassword) {
       errors.newPassword = fieldNotEmpty;
+    } else {
+      const passwordRulesError = enforcePasswordRules(newPassword);
+      if (passwordRulesError) {
+        errors.newPassword = passwordRulesError;
+      }
     }
 
     setErrors(errors);
@@ -57,11 +62,12 @@ function ChangePasswordDialog(props: DialogPropsType) {
     }
 
     await startTask(async () => {
+      const serverUrl = etebase.serverUrl;
       logger.info("Changing encryption password");
       logger.info("Verifying old key");
       const username = etebase.user.username;
       try {
-        const etebase = await Etebase.Account.login(username, oldPassword);
+        const etebase = await Etebase.Account.login(username, oldPassword, serverUrl);
         await etebase.logout();
       } catch (e) {
         if (e instanceof Etebase.UnauthorizedError) {
