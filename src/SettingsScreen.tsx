@@ -23,6 +23,7 @@ import { setSettings, loginEb, pushMessage } from "./store/actions";
 import * as C from "./constants";
 import { startTask, enforcePasswordRules } from "./helpers";
 import { useNavigation } from "@react-navigation/native";
+import Alert from "./widgets/Alert";
 
 interface DialogPropsType {
   visible: boolean;
@@ -129,6 +130,12 @@ function ChangePasswordDialog(props: DialogPropsType) {
         >
           {errors.newPassword}
         </HelperText>
+
+        <Alert
+          severity="warning"
+        >
+          Please make sure you remember your password, as it can't be recovered if lost!
+        </Alert>
       </>
     </ConfirmationDialog>
   );
