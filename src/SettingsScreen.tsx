@@ -18,7 +18,7 @@ import PasswordInput from "./widgets/PasswordInput";
 import SyncSettings from "./sync/SyncSettings";
 
 import { StoreState, useAsyncDispatch } from "./store";
-import { setSettings, loginEb } from "./store/actions";
+import { setSettings, loginEb, pushMessage } from "./store/actions";
 
 import * as C from "./constants";
 import { startTask, enforcePasswordRules } from "./helpers";
@@ -82,6 +82,8 @@ function ChangePasswordDialog(props: DialogPropsType) {
       try {
         await etebase.changePassword(newPassword);
         dispatch(loginEb(etebase));
+        dispatch(pushMessage({ message: "Password successfully changed.", severity: "success" }));
+        props.onDismiss();
       } catch (e) {
         setErrors({ newPassword: e.toString() });
       }
