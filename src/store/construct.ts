@@ -273,8 +273,12 @@ const syncSerialize2 = (state: any, key: string | number) => {
 };
 
 const syncDeserialize2 = (state: any, key: string | number) => {
-  if ((key === "collections") || (key === "changeQueue")) {
+  if (key === "collections") {
     return ImmutableMap(state);
+  } else if (key === "changeQueue") {
+    return ImmutableMap(state).map((item: any) => {
+      return ImmutableMap(item);
+    });
   }
 
   return state;
