@@ -223,6 +223,6 @@ export class ContactType implements PimType {
 
   get group() {
     const kind = this.comp.getFirstPropertyValue("kind");
-    return kind in ["group", "organization"];
+    return ["group", "organization"].includes(kind);
   }
 }
