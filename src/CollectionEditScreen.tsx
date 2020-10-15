@@ -61,9 +61,9 @@ export default function CollectionEditScreen(props: PropsType) {
 
     const passedCollection = decryptedCollections.get(colUid);
     if (passedCollection) {
-      const { meta } = passedCollection;
-      setColType(meta.type);
-      setName(meta.name);
+      const { meta, collectionType } = passedCollection;
+      setColType(collectionType);
+      setName(meta.name!);
       setDescription(meta.description ?? "");
       if (meta.color !== undefined) {
         setColor(meta.color);
@@ -102,14 +102,14 @@ export default function CollectionEditScreen(props: PropsType) {
 
       const colMgr = etebase.getCollectionManager();
       const mtime = (new Date()).getTime();
-      const meta = { type: colType!, name, description, color, mtime };
+      const meta = { name, description, color, mtime };
       let collection;
       if (colUid) {
         collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
         const colMeta = await collection.getMeta();
         await collection.setMeta({ ...colMeta, ...meta });
       } else {
-        collection = await colMgr.create(meta, "");
+        collection = await colMgr.create(colType!, meta, "");
       }
 
       await dispatch(collectionUpload(colMgr, collection));

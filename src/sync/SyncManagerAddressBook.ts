@@ -91,8 +91,8 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     }
 
     // First collect all of the sync entries
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const [uid, { collectionType }] of decryptedCollections.entries()) {
+      if (collectionType !== this.collectionType) {
         continue;
       }
 
@@ -174,12 +174,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
     return processContactsChanges(this.containerId, containerLocalId, batch);
   }
 
-  protected async createJournal(collection: Etebase.CollectionMetadata): Promise<string> {
+  protected async createJournal(collection: Etebase.ItemMetadata): Promise<string> {
     return Contacts.createGroupAsync(collection.name);
   }
 
-  protected async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata) {
-    return Contacts.updateGroupNameAsync(collection.name, containerLocalId);
+  protected async updateJournal(containerLocalId: string, collection: Etebase.ItemMetadata) {
+    return Contacts.updateGroupNameAsync(collection.name!, containerLocalId);
   }
 
   protected async deleteJournal(containerLocalId: string) {

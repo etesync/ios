@@ -47,7 +47,7 @@ export default function CollectionItemScreen(props: PropsType) {
 
   let content;
   let fabContentIcon = "";
-  switch (collection.meta.type) {
+  switch (collection.collectionType) {
     case "etebase.vcard":
       content = <CollectionItemContact collection={collection} item={item} />;
       fabContentIcon = "account-card-details";

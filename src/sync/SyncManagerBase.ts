@@ -86,8 +86,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
     logger.info(`Clearing device collections for ${this.collectionType}`);
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const [uid, { meta, collectionType }] of decryptedCollections.entries()) {
+      if (collectionType !== this.collectionType) {
         continue;
       }
 
@@ -111,8 +111,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const currentJournals = [] as SyncStateJournal[];
     const notOurs = new Map<string, boolean>();
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const [uid, { meta, collectionType }] of decryptedCollections.entries()) {
+      if (collectionType !== this.collectionType) {
         notOurs.set(uid, true);
         continue;
       }
@@ -279,8 +279,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const etebase = this.etebase;
     const colMgr = etebase.getCollectionManager();
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const [uid, { collectionType }] of decryptedCollections.entries()) {
+      if (collectionType !== this.collectionType) {
         continue;
       }
 
@@ -422,8 +422,8 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     return false;
   }
 
-  protected abstract async createJournal(collection: Etebase.CollectionMetadata): Promise<string>;
-  protected abstract async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata): Promise<void>;
+  protected abstract async createJournal(collection: Etebase.ItemMetadata): Promise<string>;
+  protected abstract async updateJournal(containerLocalId: string, collection: Etebase.ItemMetadata): Promise<void>;
   protected abstract async deleteJournal(containerLocalId: string): Promise<void>;
   protected abstract async syncPush(): Promise<void>;
 

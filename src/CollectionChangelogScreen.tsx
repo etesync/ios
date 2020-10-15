@@ -53,7 +53,7 @@ export default function CollectionChangelogScreen(props: PropsType) {
     return <Text>Error</Text>;
   }
 
-  const { meta } = decryptedCollection;
+  const { meta, collectionType } = decryptedCollection;
 
   const entriesList = Array.from(colDecryptedItems.entries()).map(([uid, val]) => ({ uid, ...val })).sort((a_, b_) => {
     const a = a_.meta.mtime ?? 0;
@@ -97,7 +97,7 @@ export default function CollectionChangelogScreen(props: PropsType) {
   }
 
   let collectionColorBox: React.ReactNode;
-  switch (meta.type) {
+  switch (collectionType) {
     case "CALENDAR":
     case "TASKS":
       collectionColorBox = (

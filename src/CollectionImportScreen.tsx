@@ -123,7 +123,7 @@ const CollectionImportScreen = function _CollectionImportScreen(props: PropsType
   }
 
   const { colUid } = props.route.params;
-  const collectionType = decryptedCollections.get(colUid)!.meta.type;
+  const collectionType = decryptedCollections.get(colUid)!.collectionType;
   let permissionType;
 
   let fetchDeviceCollections: typeof eventsFetchDeviceCollections;

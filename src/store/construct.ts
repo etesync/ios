@@ -328,11 +328,24 @@ const cacheDeserialize2 = (state: any, key: string | number) => {
   return state;
 };
 
+const cacheMigrations2 = {
+  1: (state: any) => {
+    const collections = (state.collections as DecryptedCollectionsData).map((x) => {
+      return { ...x, collectionType: x.meta.type! };
+    });
+    return {
+      ...state,
+      collections,
+    };
+  },
+};
+
 const cachePersistConfig2 = {
   key: "cache2",
-  version: 0,
+  version: 1,
   storage: AsyncStorage,
   transforms: [createTransform(cacheSerialize2, cacheDeserialize2)] as any,
+  migrate: createMigrate(cacheMigrations2, { debug: false }),
 };
 
 const reducers = combineReducers({

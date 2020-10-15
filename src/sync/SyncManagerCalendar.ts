@@ -46,7 +46,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     }
   }
 
-  protected async createJournal(collection: Etebase.CollectionMetadata): Promise<string> {
+  protected async createJournal(collection: Etebase.ItemMetadata): Promise<string> {
     const localSource = this.localSource;
 
     return Calendar.createCalendarAsync({
@@ -57,7 +57,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
     });
   }
 
-  protected async updateJournal(containerLocalId: string, collection: Etebase.CollectionMetadata) {
+  protected async updateJournal(containerLocalId: string, collection: Etebase.ItemMetadata) {
     const localSource = this.localSource;
 
     await Calendar.updateCalendarAsync(containerLocalId, {
@@ -87,8 +87,8 @@ export class SyncManagerCalendar extends SyncManagerCalendarBase<EventType, Nati
     const now = new Date();
     const dateYearRange = 4; // Maximum year range supported on iOS
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const [uid, { collectionType }] of decryptedCollections.entries()) {
+      if (collectionType !== this.collectionType) {
         continue;
       }
 

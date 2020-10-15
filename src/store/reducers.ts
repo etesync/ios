@@ -70,7 +70,7 @@ export type CacheCollectionsData = ImmutableMap<string, CacheCollection>;
 export type DecryptedItem = { meta: Etebase.ItemMetadata, content: string, isDeleted: boolean };
 export type DecryptedItems = ImmutableMap<string, DecryptedItem>;
 export type DecryptedItemsData = ImmutableMap<string, DecryptedItems>;
-export type DecryptedCollection = { meta: Etebase.CollectionMetadata };
+export type DecryptedCollection = { meta: Etebase.ItemMetadata, collectionType: string };
 export type DecryptedCollectionsData = ImmutableMap<string, DecryptedCollection>;
 
 export type ChangeQueue = ImmutableMap<string, ImmutableMap<string, true>>; // The col.uid and item.uid of changed items

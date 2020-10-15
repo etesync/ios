@@ -27,8 +27,8 @@ export class SyncManagerTaskList extends SyncManagerCalendarBase<TaskType, Nativ
     const syncStateJournals = storeState.sync.stateJournals;
     const syncStateEntries = storeState.sync.stateEntries;
 
-    for (const [uid, { meta }] of decryptedCollections.entries()) {
-      if (meta.type !== this.collectionType) {
+    for (const [uid, { collectionType }] of decryptedCollections.entries()) {
+      if (collectionType !== this.collectionType) {
         continue;
       }
 

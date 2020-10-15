@@ -35,6 +35,7 @@ export const setCacheCollection = createAction(
     return {
       cache: colMgr.cacheSave(col),
       meta: await col.getMeta(),
+      collectionType: await col.getCollectionType(),
     };
   },
   (_colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {
@@ -65,6 +66,7 @@ export const collectionUpload = createAction(
     return {
       cache: colMgr.cacheSave(col),
       meta: await col.getMeta(),
+      collectionType: await col.getCollectionType(),
     };
   },
   (_colMgr: Etebase.CollectionManager, col: Etebase.Collection) => {

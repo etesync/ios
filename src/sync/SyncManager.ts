@@ -102,11 +102,11 @@ export class SyncManager {
     let stoken = syncGeneral?.stoken ?? null;
     let done = false;
     while (!done) {
-      const collections = await colMgr.list({ stoken, limit });
+      const collections = await colMgr.list(this.COLLECTION_TYPES, { stoken, limit });
       for (const col of collections.data) {
         if (!col.isDeleted) {
-          const { meta } = (await asyncDispatch(setCacheCollection(colMgr, col))).payload;
-          if (this.COLLECTION_TYPES.includes(meta.type)) {
+          const { meta, collectionType } = (await asyncDispatch(setCacheCollection(colMgr, col))).payload;
+          if (this.COLLECTION_TYPES.includes(collectionType)) {
             syncUpdate(`Fetching collection ${meta.name}`);
             await this.fetchCollection(etebase, col);
           }

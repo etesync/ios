@@ -59,15 +59,15 @@ export default function JournalListScreen() {
     "etebase.vtodo": [] as React.ReactNode[],
   };
 
-  for (const [uid, { meta }] of decryptedCollections.entries()) {
-    if (!collectionsMap[meta.type]) {
+  for (const [uid, { meta, collectionType }] of decryptedCollections.entries()) {
+    if (!collectionsMap[collectionType]) {
       continue;
     }
     const readOnly = false; // FIXME-eb
     const shared = false; // FIXME-eb
 
     let colorBox: any;
-    switch (meta.type) {
+    switch (collectionType) {
       case "etebase.vevent":
       case "etebase.vtodo":
         colorBox = (
@@ -88,7 +88,7 @@ export default function JournalListScreen() {
       </View>
     );
 
-    collectionsMap[meta.type].push(
+    collectionsMap[collectionType].push(
       <List.Item
         key={uid}
         onPress={() => navigation.navigate("Collection", { colUid: uid })}
