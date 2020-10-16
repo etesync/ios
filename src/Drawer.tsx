@@ -116,22 +116,22 @@ export default function Drawer(props: PropsType) {
 
   return (
     <>
-      <SafeAreaView style={{ backgroundColor: "#424242" }}>
-        <Container style={{ backgroundColor: "transparent" }}>
-          <Image
-            style={{ width: 48, height: 48, marginBottom: 15 }}
-            source={require("./images/icon.png")}
-          />
-          <Subheading style={{ color: "white" }}>{C.appName}</Subheading>
-          {etesync &&
-            <Text style={{ color: "white" }}>{etesync.credentials.email}</Text>
-          }
-          {etebase &&
-            <Text style={{ color: "white" }}>{etebase.user.username}</Text>
-          }
-        </Container>
-      </SafeAreaView>
       <ScrollView style={{ flex: 1 }}>
+        <SafeAreaView style={{ backgroundColor: "#424242" }}>
+          <Container style={{ backgroundColor: "transparent" }}>
+            <Image
+              style={{ width: 48, height: 48, marginBottom: 15 }}
+              source={require("./images/icon.png")}
+            />
+            <Subheading style={{ color: "white" }}>{C.appName}</Subheading>
+            {etesync &&
+              <Text style={{ color: "white" }}>{etesync.credentials.email}</Text>
+            }
+            {etebase &&
+              <Text style={{ color: "white" }}>{etebase.user.username}</Text>
+            }
+          </Container>
+        </SafeAreaView>
         <>
           {menuItems.map((menuItem) => (
             <List.Item
