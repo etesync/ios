@@ -14,6 +14,7 @@ export interface PimType {
   itemUid?: string;
   toIcal(): string;
   clone(): PimType;
+  lastModified: ICAL.Time | undefined;
 }
 
 export function timezoneLoadFromName(timezone: string | null) {
@@ -208,16 +209,18 @@ export class TaskType extends EventType {
   }
 
   set tags(tags: string[]) {
-    let property = this.component.getFirstProperty("categories");
+    const property = this.component.getFirstProperty("categories");
     if (property) {
       property.setValues(tags);
     } else {
-      property = new ICAL.Property(tags, this.component);
+      const newProp = new ICAL.Property("categories", this.component);
+      newProp.setValues(tags);
+      this.component.addProperty(newProp);
     }
   }
 
   get tags() {
-    return this.component.getFirstProperty("categories").getValues() ?? [];
+    return this.component.getFirstProperty("categories")?.getValues() ?? [];
   }
 
   set dueDate(date: ICAL.Time | undefined) {
@@ -387,6 +390,10 @@ export class ContactType implements PimType {
 
   get bday() {
     return this.comp.getFirstPropertyValue("bday");
+  }
+
+  get lastModified() {
+    return this.comp.getFirstPropertyValue("rev");
   }
 
   get group() {
