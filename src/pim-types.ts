@@ -1,13 +1,17 @@
-// SPDX-FileCopyrightText: © 2019 EteSync Authors
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-FileCopyrightText: © 2017 EteSync Authors
+// SPDX-License-Identifier: AGPL-3.0-only
 
 import * as ICAL from "ical.js";
 import * as zones from "./data/zones.json";
+import moment from "moment";
+import * as uuid from "uuid";
 
 export const PRODID = "-//iCal.js EteSync iOS";
 
 export interface PimType {
   uid: string;
+  collectionUid?: string;
+  itemUid?: string;
   toIcal(): string;
   clone(): PimType;
 }
@@ -52,6 +56,9 @@ export function parseString(content: string) {
 }
 
 export class EventType extends ICAL.Event implements PimType {
+  public collectionUid?: string;
+  public itemUid?: string;
+
   public static isEvent(comp: ICAL.Component) {
     return !!comp.getFirstSubcomponent("vevent");
   }
@@ -83,6 +90,10 @@ export class EventType extends ICAL.Event implements PimType {
     return this.summary;
   }
 
+  set title(title: string) {
+    this.summary = title;
+  }
+
   get start() {
     return this.startDate.toJSDate();
   }
@@ -99,6 +110,22 @@ export class EventType extends ICAL.Event implements PimType {
     return this.description;
   }
 
+  get lastModified() {
+    return this.component.getFirstPropertyValue("last-modified");
+  }
+
+  set lastModified(time: ICAL.Time) {
+    this.component.updatePropertyWithValue("last-modified", time);
+  }
+
+  get rrule() {
+    return this.component.getFirstPropertyValue("rrule");
+  }
+
+  set rrule(rule: ICAL.Recur) {
+    this.component.updatePropertyWithValue("rrule", rule);
+  }
+
   public toIcal() {
     const comp = new ICAL.Component(["vcalendar", [], []]);
     comp.updatePropertyWithValue("prodid", PRODID);
@@ -110,8 +137,10 @@ export class EventType extends ICAL.Event implements PimType {
   }
 
   public clone() {
-    const ret = new EventType(new ICAL.Component(this.component.toJSON()));
+    const ret = new EventType(ICAL.Component.fromString(this.component.toString()));
     ret.color = this.color;
+    ret.collectionUid = this.collectionUid;
+    ret.itemUid = this.itemUid;
     return ret;
   }
 }
@@ -123,7 +152,23 @@ export enum TaskStatusType {
   Cancelled = "CANCELLED",
 }
 
+export enum TaskPriorityType {
+  Undefined = 0,
+  High = 1,
+  Medium = 5,
+  Low = 9
+}
+
+export let TaskTags = ["Work", "Home"];
+
+export function setTaskTags(tags: string[]) {
+  TaskTags = tags;
+}
+
 export class TaskType extends EventType {
+  public collectionUid?: string;
+  public itemUid?: string;
+
   public static fromVCalendar(comp: ICAL.Component) {
     const task = new TaskType(comp.getFirstSubcomponent("vtodo"));
     // FIXME: we need to clone it so it loads the correct timezone and applies it
@@ -154,6 +199,27 @@ export class TaskType extends EventType {
     return this.component.getFirstPropertyValue("status");
   }
 
+  set priority(priority: TaskPriorityType) {
+    this.component.updatePropertyWithValue("priority", priority);
+  }
+
+  get priority() {
+    return this.component.getFirstPropertyValue("priority");
+  }
+
+  set tags(tags: string[]) {
+    let property = this.component.getFirstProperty("categories");
+    if (property) {
+      property.setValues(tags);
+    } else {
+      property = new ICAL.Property(tags, this.component);
+    }
+  }
+
+  get tags() {
+    return this.component.getFirstProperty("categories").getValues() ?? [];
+  }
+
   set dueDate(date: ICAL.Time | undefined) {
     if (date) {
       this.component.updatePropertyWithValue("due", date);
@@ -178,6 +244,18 @@ export class TaskType extends EventType {
     return this.component.getFirstPropertyValue("completed");
   }
 
+  set relatedTo(parentUid: string | undefined) {
+    if (parentUid !== undefined) {
+      this.component.updatePropertyWithValue("related-to", parentUid);
+    } else {
+      this.component.removeAllProperties("related-to");
+    }
+  }
+
+  get relatedTo(): string | undefined {
+    return this.component.getFirstPropertyValue("related-to");
+  }
+
   get endDate() {
     // XXX: A hack to override this as it shouldn't be used
     return undefined as any;
@@ -187,15 +265,93 @@ export class TaskType extends EventType {
     return !!((this.startDate?.isDate) || (this.dueDate?.isDate));
   }
 
+  get dueToday() {
+    return this.dueDate && moment(this.dueDate.toJSDate()).isSameOrBefore(moment(), "day");
+  }
+
+  get overdue() {
+    if (!this.dueDate) {
+      return false;
+    }
+
+    const dueDate = moment(this.dueDate.toJSDate());
+    const now = moment();
+    return (this.dueDate.isDate) ? dueDate.isBefore(now, "day") : dueDate.isBefore(now);
+  }
+
+  get hidden() {
+    if (!this.startDate) {
+      return false;
+    }
+
+    const startDate = moment(this.startDate.toJSDate());
+    const now = moment();
+    return startDate.isAfter(now);
+  }
+
   public clone() {
-    const ret = new TaskType(new ICAL.Component(this.component.toJSON()));
+    const ret = new TaskType(ICAL.Component.fromString(this.component.toString()));
     ret.color = this.color;
     return ret;
+  }
+
+  public getNextOccurence(): TaskType | null {
+    if (!this.isRecurring()) {
+      return null;
+    }
+
+    const rrule = this.rrule.clone();
+
+    if (rrule.count && rrule.count <= 1) {
+      return null; // end of reccurence
+    }
+
+    rrule.count = null; // clear count so we can iterate as many times as needed
+    const recur = rrule.iterator(this.startDate ?? this.dueDate);
+    let nextRecurrence = recur.next();
+    while ((nextRecurrence = recur.next())) {
+      if (nextRecurrence.compare(ICAL.Time.now()) > 0) {
+        break;
+      }
+    }
+
+    if (!nextRecurrence) {
+      return null; // end of reccurence
+    }
+
+    const nextStartDate = this.startDate ? nextRecurrence : undefined;
+    const nextDueDate = this.dueDate ? nextRecurrence : undefined;
+    if (nextStartDate && nextDueDate) {
+      const offset = this.dueDate!.subtractDateTz(this.startDate);
+      nextDueDate.addDuration(offset);
+    }
+
+    const nextTask = this.clone();
+    nextTask.uid = uuid.v4();
+    if (nextStartDate) {
+      nextTask.startDate = nextStartDate;
+    }
+    if (nextDueDate) {
+      nextTask.dueDate = nextDueDate;
+    }
+
+    if (this.rrule.count) {
+      rrule.count = this.rrule.count - 1;
+      nextTask.rrule = rrule;
+    }
+
+    nextTask.status = TaskStatusType.NeedsAction;
+    nextTask.lastModified = ICAL.Time.now();
+
+    return nextTask;
   }
 }
 
 export class ContactType implements PimType {
   public comp: ICAL.Component;
+  public collectionUid?: string;
+  public itemUid?: string;
+
 
   public static parse(content: string) {
     return new ContactType(parseString(content));
@@ -210,19 +366,35 @@ export class ContactType implements PimType {
   }
 
   public clone() {
-    return new ContactType(new ICAL.Component(this.comp.toJSON()));
+    return new ContactType(ICAL.Component.fromString(this.comp.toString()));
   }
 
   get uid() {
     return this.comp.getFirstPropertyValue("uid");
   }
 
+  set uid(uid: string) {
+    this.comp.updatePropertyWithValue("uid", uid);
+  }
+
   get fn() {
     return this.comp.getFirstPropertyValue("fn");
+  }
+
+  get n() {
+    return this.comp.getFirstPropertyValue("n");
+  }
+
+  get bday() {
+    return this.comp.getFirstPropertyValue("bday");
   }
 
   get group() {
     const kind = this.comp.getFirstPropertyValue("kind");
     return ["group", "organization"].includes(kind);
+  }
+
+  get members() {
+    return this.comp.getAllProperties("member").map((prop) => prop.getFirstValue<string>().replace("urn:uuid:", ""));
   }
 }
