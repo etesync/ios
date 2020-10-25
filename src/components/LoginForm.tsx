@@ -15,185 +15,146 @@ import * as C from "../constants";
 import PasswordInput from "../widgets/PasswordInput";
 
 interface FormErrors {
-  errorEmail?: string;
-  errorPassword?: string;
-  errorServer?: string;
+  username?: string;
+  password?: string;
+  server?: string;
 }
 
 // Can be used to force always showing advance, e.g. for genericMode
 const alwaysShowAdvanced = false;
 
-class LoginForm extends React.PureComponent {
-  public state: {
-    showAdvanced: boolean;
-    errors: FormErrors;
+interface PropsType {
+  onSubmit: (username: string, password: string, serviceApiUrl?: string) => void;
+}
 
-    server: string;
-    username: string;
-    password: string;
-  };
+export default function LoginForm(props: PropsType) {
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [server, setServer] = React.useState("");
+  const [showAdvanced, setShowAdvanced] = React.useState(alwaysShowAdvanced);
+  const [errors, setErrors] = React.useState<FormErrors>({});
 
-  public props: {
-    onSubmit: (username: string, password: string, serviceApiUrl?: string) => void;
-  };
+  const usernameRef = React.useRef<NativeTextInput>();
+  const passwordRef = React.useRef<NativeTextInput>();
+  const serverRef = React.useRef<NativeTextInput>();
 
-  private formRefs: React.RefObject<NativeTextInput>[];
-
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      showAdvanced: alwaysShowAdvanced,
-      errors: {},
-      server: "",
-      username: "",
-      password: "",
-    };
-    this.generateEncryption = this.generateEncryption.bind(this);
-    this.toggleAdvancedSettings = this.toggleAdvancedSettings.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-
-    this.formRefs = [React.createRef<NativeTextInput>(), React.createRef<NativeTextInput>(), React.createRef<NativeTextInput>()];
-  }
-
-  public handleInputChange(name: string) {
-    return (value: string) => {
-      this.setState({
-        [name]: value,
-      });
-    };
-  }
-
-  public generateEncryption() {
-    const server = this.state.showAdvanced ? this.state.server : undefined;
-
-    const username = this.state.username;
-    const password = this.state.password;
+  function onSubmit() {
+    const serverUrl = showAdvanced ? server : undefined;
 
     const errors: FormErrors = {};
     const fieldRequired = "This field is required!";
     if (!username) {
-      errors.errorEmail = fieldRequired;
+      errors.username = fieldRequired;
     }
     if (!password) {
-      errors.errorPassword = fieldRequired;
+      errors.password = fieldRequired;
     }
 
-    this.setState({ errors });
+    setErrors(errors);
     if (Object.keys(errors).length > 0) {
       return;
     }
 
-    this.props.onSubmit(username, password, server);
+    props.onSubmit(username, password, serverUrl);
   }
 
-  public toggleAdvancedSettings() {
-    this.setState({ showAdvanced: !this.state.showAdvanced });
-  }
-
-  public render() {
-    const advancedSettings = (
-      <>
+  return (
+    <>
+      <View>
         <TextInput
-          keyboardType="url"
-          textContentType="URL"
           autoCapitalize="none"
           autoCorrect={false}
-          error={!!this.state.errors.errorServer}
-          label="Server URL"
-          accessibilityLabel="Server URL"
-          value={this.state.server}
-          placeholder="E.g. https://api.etesync.com"
-          onChangeText={this.handleInputChange("server")}
-          ref={this.formRefs[2]}
+          autoCompleteType="username"
+          autoFocus
+          returnKeyType="next"
+          onSubmitEditing={() => (passwordRef.current)!.focus()}
+          ref={usernameRef}
+          error={!!errors.username}
+          onChangeText={setUsername}
+          label="Username"
+          accessibilityLabel="Username"
+          value={username}
         />
         <HelperText
           type="error"
-          visible={!!this.state.errors.errorServer}
+          visible={!!errors.username}
         >
-          {this.state.errors.errorServer}
+          {errors.username}
         </HelperText>
-      </>
-    );
 
-    return (
-      <>
-        <View>
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoFocus
-            returnKeyType="next"
-            onSubmitEditing={() => this.formRefs[1].current!.focus()}
-            ref={this.formRefs[0]}
-            error={!!this.state.errors.errorEmail}
-            onChangeText={this.handleInputChange("username")}
-            label="Username"
-            accessibilityLabel="Username"
-            value={this.state.username}
-          />
-          <HelperText
-            type="error"
-            visible={!!this.state.errors.errorEmail}
-          >
-            {this.state.errors.errorEmail}
-          </HelperText>
+        <PasswordInput
+          autoCompleteType="password"
+          returnKeyType={showAdvanced ? "next" : undefined}
+          onSubmitEditing={() => serverRef.current?.focus()}
+          ref={passwordRef}
+          error={!!errors.password}
+          label="Password"
+          accessibilityLabel="Password"
+          value={password}
+          onChangeText={setPassword}
+        />
+        <HelperText
+          type="error"
+          visible={!!errors.password}
+        >
+          {errors.password}
+        </HelperText>
+        {!C.genericMode && (
+          <>
+            <ExternalLink href={C.forgotPassword}>
+              Forget password?
+            </ExternalLink>
+          </>
+        )}
 
-          <PasswordInput
-            returnKeyType={this.state.showAdvanced ? "next" : undefined}
-            onSubmitEditing={this.state.showAdvanced ? (() => this.formRefs[2].current!.focus()) : undefined}
-            ref={this.formRefs[1]}
-            error={!!this.state.errors.errorPassword}
-            label="Password"
-            accessibilityLabel="Password"
-            value={this.state.password}
-            onChangeText={this.handleInputChange("password")}
-          />
-          <HelperText
-            type="error"
-            visible={!!this.state.errors.errorPassword}
-          >
-            {this.state.errors.errorPassword}
-          </HelperText>
-          {!C.genericMode && (
-            <>
-              <ExternalLink href={C.forgotPassword}>
-                <Text>Forget password?</Text>
-              </ExternalLink>
-            </>
-          )}
+        <TouchableRipple
+          onPress={() => setShowAdvanced(!showAdvanced)}
+        >
+          <Row style={{ paddingVertical: 8, justifyContent: "space-between" }}>
+            <Paragraph>Advanced settings</Paragraph>
+            <View pointerEvents="none">
+              <Switch value={showAdvanced} />
+            </View>
+          </Row>
+        </TouchableRipple>
 
-          <TouchableRipple
-            onPress={() =>
-              this.setState((state: any) => ({
-                showAdvanced: !state.showAdvanced,
-              }))
-            }
-          >
-            <Row style={{ paddingVertical: 8, justifyContent: "space-between" }}>
-              <Paragraph>Advanced settings</Paragraph>
-              <View pointerEvents="none">
-                <Switch value={this.state.showAdvanced} />
-              </View>
-            </Row>
-          </TouchableRipple>
+        {showAdvanced && (
+          <>
+            <TextInput
+              keyboardType="url"
+              textContentType="URL"
+              autoCapitalize="none"
+              autoCorrect={false}
+              error={!!errors.server}
+              label="Server URL"
+              accessibilityLabel="Server URL"
+              value={server}
+              placeholder="E.g. https://api.etebase.com"
+              onChangeText={setServer}
+              ref={serverRef}
+            />
+            <HelperText
+              type="error"
+              visible={!!errors.server}
+            >
+              {errors.server}
+            </HelperText>
+          </>
+        )}
+        <HelperText
+          type="error"
+          visible={false}
+        >
+          <React.Fragment />
+        </HelperText>
 
-          {this.state.showAdvanced && advancedSettings}
-          <HelperText
-            type="error"
-            visible={false}
-          />
-
-          <Button
-            mode="contained"
-            onPress={this.generateEncryption}
-          >
-            <Text>Log In</Text>
-          </Button>
-        </View>
-      </>
-    );
-  }
+        <Button
+          mode="contained"
+          onPress={onSubmit}
+        >
+          <Text>Log In</Text>
+        </Button>
+      </View>
+    </>
+  );
 }
-
-export default LoginForm;
-
