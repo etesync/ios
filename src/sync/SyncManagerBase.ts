@@ -71,10 +71,10 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     syncUpdate(`Starting sync (${this.collectionTypeDisplay})`);
     syncUpdate(`Syncing journal list (${this.collectionTypeDisplay})`);
     await this.syncJournalList();
-    syncUpdate(`Pulling changes (${this.collectionTypeDisplay})`);
-    await this.syncPull();
     syncUpdate(`Pushing changes (${this.collectionTypeDisplay})`);
     await this.syncPush();
+    syncUpdate(`Pulling changes (${this.collectionTypeDisplay})`);
+    await this.syncPull();
     syncUpdate(`Finished sync (${this.collectionTypeDisplay})`);
   }
 
