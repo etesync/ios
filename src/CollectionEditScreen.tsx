@@ -106,8 +106,8 @@ export default function CollectionEditScreen(props: PropsType) {
       let collection;
       if (colUid) {
         collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
-        const colMeta = await collection.getMeta();
-        await collection.setMeta({ ...colMeta, ...meta });
+        const colMeta = collection.getMeta();
+        collection.setMeta({ ...colMeta, ...meta });
       } else {
         collection = await colMgr.create(colType!, meta, "");
       }
@@ -225,9 +225,9 @@ function RightAction(props: { colUid: string }) {
           const colMgr = etebase.getCollectionManager();
           const collection = colMgr.cacheLoad(cacheCollections.get(colUid)!);
           const mtime = (new Date()).getTime();
-          const meta = await collection.getMeta();
-          await collection.setMeta({ ...meta, mtime });
-          await collection.delete();
+          const meta = collection.getMeta();
+          collection.setMeta({ ...meta, mtime });
+          collection.delete();
           await colMgr.upload(collection);
           dispatch(pushMessage({ message: "Collection deleted", severity: "success" }));
           navigation.navigate("home");

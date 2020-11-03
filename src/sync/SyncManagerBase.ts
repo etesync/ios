@@ -378,9 +378,9 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         item = itemMgr.cacheLoad(cacheItems.get(syncStateEntry.uid)!);
 
         await item.setContent(content);
-        const meta = await item.getMeta();
+        const meta = item.getMeta();
         meta.mtime = mtime;
-        await item.setMeta(meta);
+        item.setMeta(meta);
       } else {
         // New
         const meta: Etebase.ItemMetadata = {
@@ -414,7 +414,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
 
     if (cacheItems.has(syncStateEntry.uid)) {
       const item = itemMgr.cacheLoad(cacheItems.get(syncStateEntry.uid)!);
-      await item.delete(true);
+      item.delete(true);
       return { item, syncStateEntry };
     }
 
