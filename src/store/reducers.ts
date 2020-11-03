@@ -169,14 +169,6 @@ export const collections = handleActions(
 export const items = handleActions(
   {
     [combineActions(
-      actions.setCacheItem
-    ).toString()]: (state: CacheItemsData, action: ActionMeta<{ cache: CacheItem }, { colUid: string, itemUid: string }>) => {
-      if (action.payload !== undefined) {
-        return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload.cache);
-      }
-      return state;
-    },
-    [combineActions(
       actions.itemBatch,
       actions.setCacheItemMulti
     ).toString()]: (state: CacheItemsData, action_: any) => {
@@ -239,14 +231,6 @@ export const decryptedCollections = handleActions(
 
 export const decryptedItems = handleActions(
   {
-    [combineActions(
-      actions.setCacheItem
-    ).toString()]: (state: DecryptedItemsData, action: ActionMeta<DecryptedItem, { colUid: string, itemUid: string }>) => {
-      if (action.payload !== undefined) {
-        return state.setIn([action.meta.colUid, action.meta.itemUid], action.payload);
-      }
-      return state;
-    },
     [combineActions(
       actions.itemBatch,
       actions.setCacheItemMulti

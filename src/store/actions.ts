@@ -77,24 +77,6 @@ export const collectionUpload = createAction(
   }
 );
 
-export const setCacheItem = createAction(
-  "SET_CACHE_ITEM",
-  async (_col: Etebase.Collection, itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
-    return {
-      cache: itemMgr.cacheSave(item),
-      meta: await item.getMeta(),
-      content: await item.getContent(Etebase.OutputFormat.String),
-      isDeleted: item.isDeleted,
-    };
-  },
-  (col: Etebase.Collection, _itemMgr: Etebase.ItemManager, item: Etebase.Item) => {
-    return {
-      colUid: col.uid,
-      itemUid: item.uid,
-    };
-  }
-);
-
 export const setCacheItemMulti = createAction(
   "SET_CACHE_ITEM_MULTI",
   async (_colUid: string, itemMgr: Etebase.ItemManager, items: Etebase.Item[]) => {
