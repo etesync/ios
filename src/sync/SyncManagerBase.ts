@@ -268,6 +268,13 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       return;
     }
 
+    if (!decryptedItems) {
+      const message = `Got empty decrypted items cache for (${col.uid}). Please report to developers.`;
+      logger.warn(message);
+      store.dispatch(addNonFatalError(new Error(message)));
+      return;
+    }
+
     for (const changedItems of arrayToChunkIterator(Array.from(changeQueue.keys()), CHUNK_PULL)) {
       const batch = changedItems.map((x) => [x, decryptedItems.get(x)!] as [string, DecryptedItem]);
       await this.pullHandleItems(syncStateJournal, col, batch);
