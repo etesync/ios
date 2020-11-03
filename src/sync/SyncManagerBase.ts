@@ -163,7 +163,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     const journalSyncEntries = (syncStateEntriesAll.get(col.uid) ?? ImmutableMap({})).asMutable();
     const batch: [BatchAction, N][] = [];
     for (const [itemUid, decryptedItem] of items) {
-      logger.debug(`Proccessing ${itemUid}`);
+      logger.debug(`Processing ${itemUid}`);
       if (!decryptedItem) {
         logger.warn("No cached decrypted item found");
         store.dispatch(addNonFatalError(new Error("No cached decrypted item found, please report to developers.")));
