@@ -185,17 +185,19 @@ export const items = handleActions(
       }
       return state;
     },
-    [actions.setCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
+    [combineActions(
+      actions.setCacheCollection,
+      actions.collectionUpload,
+      actions.unsetCacheCollection
+    ).toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string, deleted: boolean }>) => {
       if (action.payload !== undefined) {
-        if (!state.has(action.meta.colUid)) {
-          return state.set(action.meta.colUid, ImmutableMap());
+        if (action.meta.deleted) {
+          return state.remove(action.meta.colUid);
+        } else {
+          if (!state.has(action.meta.colUid)) {
+            return state.set(action.meta.colUid, ImmutableMap());
+          }
         }
-      }
-      return state;
-    },
-    [actions.unsetCacheCollection.toString()]: (state: CacheItemsData, action: ActionMeta<any, { colUid: string }>) => {
-      if (action.payload !== undefined) {
-        return state.remove(action.meta.colUid);
       }
       return state;
     },
@@ -248,17 +250,19 @@ export const decryptedItems = handleActions(
       }
       return state;
     },
-    [actions.setCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
+    [combineActions(
+      actions.setCacheCollection,
+      actions.collectionUpload,
+      actions.unsetCacheCollection
+    ).toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string, deleted: boolean }>) => {
       if (action.payload !== undefined) {
-        if (!state.has(action.meta.colUid)) {
-          return state.set(action.meta.colUid, ImmutableMap());
+        if (action.meta.deleted) {
+          return state.remove(action.meta.colUid);
+        } else {
+          if (!state.has(action.meta.colUid)) {
+            return state.set(action.meta.colUid, ImmutableMap());
+          }
         }
-      }
-      return state;
-    },
-    [actions.unsetCacheCollection.toString()]: (state: DecryptedItemsData, action: ActionMeta<any, { colUid: string }>) => {
-      if (action.payload !== undefined) {
-        return state.remove(action.meta.colUid);
       }
       return state;
     },
