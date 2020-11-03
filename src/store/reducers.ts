@@ -175,13 +175,14 @@ export const items = handleActions(
       // Fails without it for some reason
       const action = action_ as ActionMeta<{ cache: CacheItem }[], { colUid: string, items: Etebase.Item[] }>;
       if (action.payload !== undefined) {
-        return state.withMutations((state) => {
+        const colState = state.get(action.meta.colUid)!.withMutations((colState) => {
           let i = 0;
           for (const item of action.meta.items) {
-            state.setIn([action.meta.colUid, item.uid], action.payload[i].cache);
+            colState.set(item.uid, action.payload[i].cache);
             i++;
           }
         });
+        return state.set(action.meta.colUid, colState);
       }
       return state;
     },
@@ -240,13 +241,14 @@ export const decryptedItems = handleActions(
       // Fails without it for some reason
       const action = action_ as ActionMeta<DecryptedItem[], { colUid: string, items: Etebase.Item[] }>;
       if (action.payload !== undefined) {
-        return state.withMutations((state) => {
+        const colState = state.get(action.meta.colUid)!.withMutations((colState) => {
           let i = 0;
           for (const item of action.meta.items) {
-            state.setIn([action.meta.colUid, item.uid], action.payload[i]);
+            colState.set(item.uid, action.payload[i]);
             i++;
           }
         });
+        return state.set(action.meta.colUid, colState);
       }
       return state;
     },
@@ -277,21 +279,23 @@ export const changeQueue = handleActions(
   {
     [actions.changeQueueAdd.toString()]: (state: ChangeQueue, action: ActionMeta<{ items: string[] }, { colUid: string }>) => {
       if (action.payload !== undefined) {
-        return state.withMutations((state) => {
+        const colState = state.get(action.meta.colUid, ImmutableMap<string, true>()).withMutations((colState) => {
           for (const itemUid of action.payload.items) {
-            state.setIn([action.meta.colUid, itemUid], true);
+            colState.set(itemUid, true);
           }
         });
+        return state.set(action.meta.colUid, colState);
       }
       return state;
     },
     [actions.changeQueueRemove.toString()]: (state: ChangeQueue, action: ActionMeta<{ items: string[] }, { colUid: string }>) => {
       if (action.payload !== undefined) {
-        return state.withMutations((state) => {
+        const colState = state.get(action.meta.colUid, ImmutableMap<string, true>()).withMutations((colState) => {
           for (const itemUid of action.payload.items) {
-            state.removeIn([action.meta.colUid, itemUid]);
+            colState.remove(itemUid);
           }
         });
+        return state.set(action.meta.colUid, colState);
       }
       return state;
     },
