@@ -36,7 +36,7 @@ export abstract class SyncManagerCalendarBase<T extends PimType, N extends Nativ
       }
 
       if (storeState.settings.syncCalendarsSource && !this.localSource) {
-        throw new Error("Calendar: failed to find selected source. Please contact developers.");
+        throw new Error(`Calendar: failed to find selected source ${storeState.settings.syncCalendarsSource}. Please contact developers.`);
       }
       this.canSync = !!this.localSource;
     }

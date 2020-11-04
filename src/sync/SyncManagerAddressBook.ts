@@ -64,7 +64,7 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
         if (foundContainer) {
           this.containerId = foundContainer.id;
         } else {
-          throw new Error("AddressBook: failed to find selected container. Please contact developers.");
+          throw new Error(`AddressBook: failed to find selected container ${storeState.settings.syncContactsContainer}. Please contact developers.`);
         }
       }
       this.canSync = !!this.containerId;
