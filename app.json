@@ -8,7 +8,7 @@
     "platforms": [
       "ios"
     ],
-    "version": "1.5.2",
+    "version": "1.6.1",
     "githubUrl": "https://github.com/etesync/ios",
     "icon": "./assets/icon.png",
     "splash": {
@@ -21,7 +21,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.etesync.ios",
-      "buildNumber": "1.5.200",
+      "buildNumber": "1.6.101",
       "userInterfaceStyle": "automatic",
       "supportsTablet": true,
       "infoPlist": {
