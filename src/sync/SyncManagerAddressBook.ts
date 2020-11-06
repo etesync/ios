@@ -85,11 +85,6 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
 
     const pushEntries = new Map<string, PushEntry[]>();
 
-    if (storeState.sync.stateJournals.isEmpty()) {
-      // Skip in case we don't have any sync journals (e.g. for associates)
-      return;
-    }
-
     // First collect all of the sync entries
     for (const [uid, { collectionType }] of decryptedCollections.entries()) {
       if (collectionType !== this.collectionType) {
@@ -101,6 +96,12 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       });
 
       pushEntries.set(uid, []);
+    }
+
+    if (pushEntries.size === 0) {
+      // Skip in case we don't have any sync journals (e.g. for associates)
+      logger.debug(`Skipping sync of ${this.collectionType} (no collections)`);
+      return;
     }
 
     logger.info(`Preparing pushing of ${this.collectionType}`);
@@ -117,6 +118,9 @@ export class SyncManagerAddressBook extends SyncManagerBase<ContactType, NativeC
       if (syncStateEntry?.lastHash !== contactHash) {
         const collectionUid = reverseEntry?.collectionUid ?? defaultCollectionUid;
         const syncStateJournal = syncStateJournals.get(collectionUid)!;
+        if (!syncStateJournal) {
+          logger.warn(`Failed finding syncStateJournal for ${collectionUid}. Options: ${Array.from(syncStateJournals.keys())}`);
+        }
         const _contact = await Contacts.getContactByIdAsync(contactId, fieldTypes as any);
         const contact = { ..._contact!, id: contactId, uid: (syncStateEntry) ? syncStateEntry.uid : contactId.split(":")[0] };
         const pushEntry = await this.syncPushHandleAddChange(syncStateJournal, syncStateEntry, contact, contactHash);
