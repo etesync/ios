@@ -42,6 +42,7 @@ const fieldTypes = [
   Contacts.Fields.Department,
   Contacts.Fields.ImageAvailable,
   Contacts.Fields.Image,
+  "imageBase64",
   // Contacts.Fields.RawImage,
   Contacts.Fields.ExtraNames,
   Contacts.Fields.Note,

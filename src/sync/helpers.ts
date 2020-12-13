@@ -647,7 +647,7 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
     addProperty(comp, "org", null, org.map((x) => x ?? ""));
   }
 
-  if (contact.image) {
+  if (contact.image?.base64) {
     comp.updatePropertyWithValue("photo", `data:image/jpeg;base64,${contact.image.base64}`);
   }
 
