@@ -502,6 +502,10 @@ export function contactVobjectToNative(contact: ContactType) {
   });
   const jobTitle = titles.length > 0 ? titles[0] : undefined;
 
+  const image: Contacts.Image = {
+    base64: contact.comp.getFirstProperty("photo")?.getFirstValue(),
+  };
+
   const nickname = contact.comp.getFirstPropertyValue("nickname") ?? undefined;
   const note = contact.comp.getFirstPropertyValue("note") ?? undefined;
 
@@ -519,6 +523,8 @@ export function contactVobjectToNative(contact: ContactType) {
     addresses,
     instantMessageAddresses,
     urlAddresses,
+    image,
+    rawImage: image,
     note,
   };
 
