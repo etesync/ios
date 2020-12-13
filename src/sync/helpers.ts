@@ -502,10 +502,6 @@ export function contactVobjectToNative(contact: ContactType) {
   });
   const jobTitle = titles.length > 0 ? titles[0] : undefined;
 
-  const image: Contacts.Image = {
-    base64: contact.comp.getFirstProperty("photo")?.getFirstValue(),
-  };
-
   const nickname = contact.comp.getFirstPropertyValue("nickname") ?? undefined;
   const note = contact.comp.getFirstPropertyValue("note") ?? undefined;
 
@@ -523,8 +519,6 @@ export function contactVobjectToNative(contact: ContactType) {
     addresses,
     instantMessageAddresses,
     urlAddresses,
-    image,
-    rawImage: image,
     note,
   };
 
@@ -552,6 +546,15 @@ export function contactVobjectToNative(contact: ContactType) {
     }
     ret.company = forceToString(orgFieldParts[0]);
     ret.department = forceToString(orgFieldParts[1]);
+  }
+
+  const imgSrc = contact.comp.getFirstProperty("photo")?.getFirstValue();
+  if (imgSrc) {
+    const image: Contacts.Image | undefined = {
+      base64: contact.comp.getFirstProperty("photo")?.getFirstValue(),
+    };
+
+    ret.image = image;
   }
 
   return ret;
