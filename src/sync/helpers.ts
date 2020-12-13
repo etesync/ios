@@ -549,10 +549,9 @@ export function contactVobjectToNative(contact: ContactType) {
   }
 
   const imgSrc: string | undefined = contact.comp.getFirstProperty("photo")?.getFirstValue();
-  const imgPrefix = "data:image/jpeg;base64,";
-  if (imgSrc && imgSrc.startsWith(imgPrefix)) {
+  if (imgSrc) {
     const image: Contacts.Image | undefined = {
-      base64: imgSrc.substr(imgPrefix.length),
+      base64: imgSrc,
     };
 
     ret.image = image;
@@ -648,7 +647,7 @@ export function contactNativeToVobject(contact: NativeContact): ContactType {
   }
 
   if (contact.image?.base64) {
-    comp.updatePropertyWithValue("photo", `data:image/jpeg;base64,${contact.image.base64}`);
+    comp.updatePropertyWithValue("photo", contact.image.base64);
   }
 
   if (contact.note) {
