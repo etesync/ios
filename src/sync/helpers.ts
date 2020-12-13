@@ -548,10 +548,11 @@ export function contactVobjectToNative(contact: ContactType) {
     ret.department = forceToString(orgFieldParts[1]);
   }
 
-  const imgSrc = contact.comp.getFirstProperty("photo")?.getFirstValue();
-  if (imgSrc) {
+  const imgSrc: string | undefined = contact.comp.getFirstProperty("photo")?.getFirstValue();
+  const imgPrefix = "data:image/jpeg;base64,";
+  if (imgSrc && imgSrc.startsWith(imgPrefix)) {
     const image: Contacts.Image | undefined = {
-      base64: contact.comp.getFirstProperty("photo")?.getFirstValue(),
+      base64: imgSrc.substr(imgPrefix.length),
     };
 
     ret.image = image;
