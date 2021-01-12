@@ -8,7 +8,7 @@ import { logger } from "../../logging";
 
 import { PimType } from "../../pim-types";
 import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, JournalsData } from "../../store";
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addNonFatalError } from "../../store/actions";
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, addEntries, setSyncStatus, addError } from "../../store/actions";
 import { NativeBase, entryNativeHashCalc } from "../helpers";
 import { createJournalEntryFromSyncEntry } from "../../etesync-helpers";
 import { arrayToChunkIterator } from "../../helpers";
@@ -243,7 +243,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             syncEntries.push(syncEntry);
           } catch (e) {
             logger.warn(`Failed processing: ${syncEntry.content}`);
-            store.dispatch(addNonFatalError(e));
+            store.dispatch(addError(e));
           }
 
           try {
@@ -255,7 +255,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
                 const hash = hashes[nativeItem.uid];
                 const error = hash?.[2];
                 if (error) {
-                  store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+                  store.dispatch(addError(new Error(`${error}. Skipped ${nativeItem.uid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
                 }
                 const syncStateEntry: SyncStateEntry = {
                   uid: nativeItem.uid,

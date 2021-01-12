@@ -50,10 +50,7 @@ export type SyncInfoItem = EteSync.SyncEntry & BaseModel;
 export type SyncInfoItemData = ImmutableMap<string, ImmutableMap<string, SyncInfoItem>>;
 export type SyncInfoCollectionData = ImmutableMap<string, EteSync.CollectionInfo>;
 
-export interface ErrorsData {
-  fatal: List<Error>;
-  other: List<Error>;
-}
+export type ErrorsData = List<Error>;
 
 export interface SyncCollectionsEntryData extends BaseModel {
   stoken: string;
@@ -647,43 +644,25 @@ export const errorsReducer = handleActions(
   {
     [actions.performSync.toString()]: (state: ErrorsData, action: Action<any>) => {
       if (action.error) {
-        return {
-          ...state,
-          fatal: state.fatal.push(action.payload),
-        };
+        return state.push(action.payload);
       }
 
       return state;
     },
-    [actions.addNonFatalError.toString()]: (state: ErrorsData, action: Action<Error>) => {
-      return {
-        ...state,
-        other: state.other.push(action.payload),
-      };
+    [actions.addError.toString()]: (state: ErrorsData, action: Action<Error>) => {
+      return state.push(action.payload);
     },
-    [actions.popNonFatalError.toString()]: (state: ErrorsData, _action: Action<any>) => {
-      return {
-        ...state,
-        other: state.other.pop(),
-      };
+    [actions.popError.toString()]: (state: ErrorsData, _action: Action<any>) => {
+      return state.pop();
     },
     [actions.clearErros.toString()]: (state: ErrorsData, _action: Action<any>) => {
-      return {
-        fatal: state.fatal.clear(),
-        other: state.other.clear(),
-      };
+      return state.clear();
     },
     [actions.logout.toString()]: (state: ErrorsData, _action: any) => {
-      return {
-        fatal: state.fatal.clear(),
-        other: state.other.clear(),
-      };
+      return state.clear();
     },
   },
-  {
-    fatal: List<Error>([]),
-    other: List<Error>([]),
-  }
+  List<Error>([])
 );
 
 export interface ConnectionInfo {

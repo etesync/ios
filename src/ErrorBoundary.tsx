@@ -5,11 +5,11 @@ import * as React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { View, Linking, Clipboard } from "react-native";
 import { Button, Text, Paragraph, HelperText } from "react-native-paper";
+import { List } from "immutable";
 
 import { Updates } from "expo";
 
 import * as Etebase from "etebase";
-import * as EteSync from "etesync";
 
 import { StoreState, persistor, store } from "./store";
 
@@ -19,15 +19,15 @@ import { logger, LogLevel, getLogs } from "./logging";
 import Container from "./widgets/Container";
 import { expo } from "../app.json";
 import * as C from "./constants";
-import { setSettings, popNonFatalError, fetchCredentials } from "./store/actions";
+import { setSettings, addError, popError, loginEb } from "./store/actions";
 import LogoutDialog from "./LogoutDialog";
-import { useCredentials } from "./login";
 import ConfirmationDialog from "./widgets/ConfirmationDialog";
 import PasswordInput from "./widgets/PasswordInput";
 import ExternalLink from "./widgets/ExternalLink";
+import { useCredentials } from "./credentials";
 
 function emailDevelopers(error: Error, logs: string | undefined) {
-  const subject = encodeURIComponent("EteSync iOS: Crash Report");
+  const subject = encodeURIComponent(`${C.appName}: Crash Report`);
   const bodyJson = {
     version: expo.version,
     error: {
@@ -41,12 +41,32 @@ function emailDevelopers(error: Error, logs: string | undefined) {
 }
 
 function SessionExpiredDialog() {
-  const etesync = useCredentials()!;
+  const etebase = useCredentials()!;
   const dispatch = useDispatch();
+  const [fetchFailed, setFetchFailed] = React.useState(false);
   const [password, setPassword] = React.useState("");
   const [errorPassword, setErrorPassword] = React.useState<string>();
 
-  return (
+  React.useEffect(() => {
+    const fetch = async () => {
+      try {
+        await etebase.fetchToken();
+
+        dispatch(loginEb(etebase));
+        dispatch(popError());
+      } catch (e) {
+        if (e instanceof Etebase.UnauthorizedError) {
+          setFetchFailed(true);
+        } else {
+          dispatch(addError(e));
+        }
+      }
+    };
+
+    fetch();
+  }, []);
+
+  return fetchFailed ? (
     <ConfirmationDialog
       title="Session expired"
       visible
@@ -56,20 +76,18 @@ function SessionExpiredDialog() {
           return;
         }
 
-        const credAction = fetchCredentials(etesync.credentials.email, password, etesync.serviceApiUrl);
-
         try {
-          await credAction.payload;
+          const { user, serverUrl } = etebase;
+          const newEtebase = await Etebase.Account.login(user.username, password, serverUrl);
 
-          dispatch(credAction);
-
-          store.dispatch(popNonFatalError());
+          dispatch(loginEb(newEtebase));
+          dispatch(popError());
         } catch (e) {
           setErrorPassword(e.message);
         }
       }}
       onCancel={() => {
-        store.dispatch(popNonFatalError());
+        dispatch(popError());
       }}
     >
       <>
@@ -98,24 +116,25 @@ function SessionExpiredDialog() {
         )}
       </>
     </ConfirmationDialog>
-  );
+  ) : null;
 }
 
 function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | undefined }>) {
   const etesync = useCredentials();
   const [showLogout, setShowLogout] = React.useState(false);
-  const errors = useSelector((state: StoreState) => state.errors);
-  const error = props.error ?? errors.fatal?.last(undefined);
-  const nonFatalErrorCount = errors.other?.count() ?? 0;
-  const nonFatalError = errors.other?.last(undefined);
+  const stateErrors: List<Error> = useSelector((state: StoreState) => state.errors);
   const [logs, setLogs] = React.useState<string>();
+
+  const errors = props.error ? stateErrors.concat(props.error) : stateErrors;
+  const fatalErrors = errors.filterNot((error) => error instanceof Etebase.PermissionDeniedError || error instanceof Etebase.HttpError || error instanceof Etebase.UnauthorizedError);
 
   React.useEffect(() => {
     getLogs().then((value) => setLogs(value.join("\n")));
   }, []);
 
   const buttonStyle = { marginVertical: 5 };
-  if (error) {
+  if (fatalErrors.count() > 0) {
+    const error = fatalErrors.last<Error>();
     logger.critical(error.toString());
     const content = `${error.message}\n${error.stack}\n${logs}`;
     return (
@@ -147,24 +166,23 @@ function ErrorBoundaryInner(props: React.PropsWithChildren<{ error: Error | unde
   }
 
   let nonFatalErrorDialog;
-  if (nonFatalError) {
-    if (((nonFatalError instanceof EteSync.HTTPError) && (nonFatalError.status === 401)) ||
-      (nonFatalError instanceof Etebase.UnauthorizedError)) {
-
+  if (errors.count() > 0) {
+    const error = errors.last<Error>();
+    if (error instanceof Etebase.UnauthorizedError) {
       nonFatalErrorDialog = (
         <SessionExpiredDialog />
       );
     } else {
       nonFatalErrorDialog = (
         <ConfirmationDialog
-          title={`Error (${nonFatalErrorCount} remaining)`}
-          visible={!!nonFatalError}
+          title={`Error (${errors.count()} remaining)`}
+          visible={!!error}
           onOk={() => {
-            store.dispatch(popNonFatalError());
+            store.dispatch(popError());
           }}
         >
           <Paragraph>
-            {nonFatalError?.toString()}
+            {error.toString()}
           </Paragraph>
         </ConfirmationDialog>
       );

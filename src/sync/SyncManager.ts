@@ -13,7 +13,7 @@ import * as Etebase from "etebase";
 
 import { SyncManager as LegacySyncManager } from "./legacy/SyncManager";
 import { store, persistor, CredentialsData, StoreState, CredentialsDataRemote, asyncDispatch } from "../store";
-import { addNonFatalError, setSyncGeneral, unsetCacheCollection, setCacheCollection, setSyncCollection, setCacheItemMulti, changeQueueAdd } from "../store/actions";
+import { addError, setSyncGeneral, unsetCacheCollection, setCacheCollection, setSyncCollection, setCacheItemMulti, changeQueueAdd } from "../store/actions";
 
 import { logger } from "../logging";
 
@@ -171,7 +171,7 @@ export class SyncManager {
           case 401: // INVALID TOKEN
           case 403: // FORBIDDEN
           case 503: // UNAVAILABLE
-            store.dispatch(addNonFatalError(e));
+            store.dispatch(addError(e));
             return false;
         }
       }

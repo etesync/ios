@@ -466,15 +466,15 @@ export const setSyncStatus = createAction(
   }
 );
 
-export const addNonFatalError = createAction(
-  "ADD_NON_FATAL_ERROR",
+export const addError = createAction(
+  "ADD_ERROR",
   (e: Error) => {
     return e;
   }
 );
 
-export const popNonFatalError = createAction(
-  "POP_NON_FATAL_ERROR",
+export const popError = createAction(
+  "POP_ERROR",
   () => {
     return null;
   }

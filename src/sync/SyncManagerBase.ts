@@ -8,7 +8,7 @@ import { logger } from "../logging";
 
 import { PimType } from "../pim-types";
 import { store, persistor, CredentialsData, SyncStateJournal, SyncStateEntry, asyncDispatch, DecryptedItem } from "../store";
-import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, setSyncStatus, addNonFatalError, itemBatch, changeQueueRemove, changeQueueAdd } from "../store/actions";
+import { setSyncStateJournal, unsetSyncStateJournal, setSyncStateEntry, unsetSyncStateEntry, setSyncStatus, addError, itemBatch, changeQueueRemove, changeQueueAdd } from "../store/actions";
 import { NativeBase, entryNativeHashCalc } from "./helpers";
 import { arrayToChunkIterator } from "../helpers";
 import { BatchAction, HashDictionary } from "../EteSyncNative";
@@ -166,7 +166,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
       logger.debug(`Processing ${itemUid}`);
       if (!decryptedItem) {
         logger.warn("No cached decrypted item found");
-        store.dispatch(addNonFatalError(new Error("No cached decrypted item found, please report to developers.")));
+        store.dispatch(addError(new Error("No cached decrypted item found, please report to developers.")));
         continue;
       }
 
@@ -190,7 +190,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         }
       } catch (e) {
         logger.warn(`Failed processing: ${content}`);
-        store.dispatch(addNonFatalError(e));
+        store.dispatch(addError(e));
       }
     }
 
@@ -203,7 +203,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
         const hash = hashes[itemUid];
         const error = hash?.[2];
         if (error) {
-          store.dispatch(addNonFatalError(new Error(`${error}. Skipped ${itemUid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
+          store.dispatch(addError(new Error(`${error}. Skipped ${itemUid}\nThis error means this item failed to sync properly. Either to get updated, or deleted.`)));
         }
         const syncStateEntry: SyncStateEntry = {
           uid: itemUid,
@@ -247,7 +247,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
             } catch (e) {
               const message = `Skipping failed contact (${key}). Please report to developers.`;
               logger.warn(message);
-              store.dispatch(addNonFatalError(new Error(message)));
+              store.dispatch(addError(new Error(message)));
             }
           }
         }
@@ -271,7 +271,7 @@ export abstract class SyncManagerBase<T extends PimType, N extends NativeBase> {
     if (!decryptedItems) {
       const message = `Got empty decrypted items cache for (${col.uid}). Please report to developers.`;
       logger.warn(message);
-      store.dispatch(addNonFatalError(new Error(message)));
+      store.dispatch(addError(new Error(message)));
       return;
     }
 

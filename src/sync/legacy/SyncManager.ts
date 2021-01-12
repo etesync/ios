@@ -11,7 +11,7 @@ const CURRENT_VERSION = EteSync.CURRENT_VERSION;
 
 import { syncInfoSelector } from "../../SyncHandler";
 import { store, persistor, CredentialsData, JournalsData, StoreState } from "../../store";
-import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addNonFatalError } from "../../store/actions";
+import { addJournal, fetchAll, fetchEntries, fetchUserInfo, createUserInfo, addError } from "../../store/actions";
 
 import { logger } from "../../logging";
 
@@ -161,7 +161,7 @@ export class SyncManager {
           case 401: // INVALID TOKEN
           case 403: // FORBIDDEN
           case 503: // UNAVAILABLE
-            store.dispatch(addNonFatalError(e));
+            store.dispatch(addError(e));
             return false;
         }
       }
